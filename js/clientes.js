@@ -1,6 +1,6 @@
 if (!API.isLoggedIn()) window.location.href = '../index.html';
 
-let datos = [];
+var datos = [];
 
 document.addEventListener('DOMContentLoaded', async function() {
     cargarUsuario();
@@ -19,7 +19,7 @@ async function cargarDatos() {
         var r = await API.request('/clientes/' + API.usuario.empresa_id);
         console.log('Clientes:', r);
         if (r.success) {
-            datos = r.data || [];
+            datos = r.clientes || r.data || [];
             filtrar();
         }
     } catch (e) {
