@@ -6,7 +6,6 @@ var ventaActual = null;
 document.addEventListener('DOMContentLoaded', async function() {
     cargarUsuario();
     
-    // Fechas por defecto: hoy
     var hoy = new Date().toISOString().split('T')[0];
     document.getElementById('fechaDesde').value = hoy;
     document.getElementById('fechaHasta').value = hoy;
@@ -63,7 +62,7 @@ function filtrar() {
 
     var filtrados = datos.filter(function(item) {
         var matchBusq = !busqueda || 
-            (item.folio && item.folio.toLowerCase().indexOf(busqueda) >= 0) ||
+            (item.folio && item.folio.toString().indexOf(busqueda) >= 0) ||
             (item.cliente_nombre && item.cliente_nombre.toLowerCase().indexOf(busqueda) >= 0);
         var matchEstado = !estado || item.estatus === estado;
         return matchBusq && matchEstado;
@@ -81,16 +80,22 @@ function renderTabla(items) {
 
     var html = '';
     items.forEach(function(v) {
-        var fecha = new Date(v.fecha);
+        var fecha = new Date(v.fecha_hora);
         var fechaStr = fecha.toLocaleDateString('es-MX') + ' ' + fecha.toLocaleTimeString('es-MX', {hour: '2-digit', minute: '2-digit'});
         var esCancelada = v.estatus === 'CANCELADA';
         
-        var metodoPago = v.metodo_pago || 'EFECTIVO';
+        // Determinar método de pago
+        var metodoPago = 'EFECTIVO';
+        if (parseFloat(v.pagado || 0) > 0) {
+            metodoPago = 'EFECTIVO';
+        }
         var metodoClass = metodoPago.toLowerCase();
-        var metodoIcon = metodoPago === 'EFECTIVO' ? 'fa-money-bill' : metodoPago === 'TARJETA' ? 'fa-credit-card' : 'fa-wallet';
+        var metodoIcon = 'fa-money-bill';
+        
+        var folioStr = v.serie ? v.serie + '-' + v.folio : (v.folio || v.venta_id.slice(-8));
         
         html += '<tr class="venta-row' + (esCancelada ? ' cancelada' : '') + '" onclick="verDetalle(\'' + v.venta_id + '\')">' +
-            '<td><span class="folio">' + (v.folio || v.venta_id.slice(-8)) + '</span></td>' +
+            '<td><span class="folio">' + folioStr + '</span></td>' +
             '<td>' + fechaStr + '</td>' +
             '<td>' + (v.cliente_nombre || 'Público General') + '</td>' +
             '<td class="text-center">' + (v.num_productos || '-') + '</td>' +
@@ -98,7 +103,7 @@ function renderTabla(items) {
             '<td class="text-right"><strong>$' + parseFloat(v.total || 0).toFixed(2) + '</strong></td>' +
             '<td class="text-center">' +
                 '<span class="badge-status ' + (esCancelada ? 'inactive' : 'active') + '">' +
-                    (esCancelada ? 'Cancelada' : 'Completada') +
+                    (esCancelada ? 'Cancelada' : v.estatus) +
                 '</span>' +
             '</td>' +
             '<td class="text-center">' +
@@ -106,7 +111,7 @@ function renderTabla(items) {
                     '<button class="btn-action edit" onclick="event.stopPropagation();imprimirTicket(\'' + v.venta_id + '\')" title="Reimprimir">' +
                         '<i class="fas fa-print"></i>' +
                     '</button>' +
-                    (esCancelada ? '' : '<button class="btn-action delete" onclick="event.stopPropagation();abrirCancelar(\'' + v.venta_id + '\',\'' + (v.folio || v.venta_id.slice(-8)) + '\')" title="Cancelar"><i class="fas fa-times"></i></button>') +
+                    (esCancelada ? '' : '<button class="btn-action delete" onclick="event.stopPropagation();abrirCancelar(\'' + v.venta_id + '\',\'' + folioStr + '\')" title="Cancelar"><i class="fas fa-times"></i></button>') +
                 '</div>' +
             '</td>' +
         '</tr>';
@@ -129,17 +134,18 @@ async function verDetalle(id) {
 }
 
 function mostrarDetalle(venta, productos) {
-    var fecha = new Date(venta.fecha);
+    var fecha = new Date(venta.fecha_hora);
     var fechaStr = fecha.toLocaleDateString('es-MX', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'});
     var horaStr = fecha.toLocaleTimeString('es-MX', {hour: '2-digit', minute: '2-digit'});
     var esCancelada = venta.estatus === 'CANCELADA';
+    var folioStr = venta.serie ? venta.serie + '-' + venta.folio : (venta.folio || venta.venta_id.slice(-8));
     
     var productosHtml = '';
     productos.forEach(function(p) {
         var subtotal = parseFloat(p.cantidad) * parseFloat(p.precio_unitario);
         productosHtml += '<tr>' +
-            '<td>' + p.producto_nombre + '</td>' +
-            '<td class="text-center">' + parseFloat(p.cantidad) + ' ' + (p.unidad || 'PZ') + '</td>' +
+            '<td>' + (p.producto_nombre || p.descripcion || 'Producto') + '</td>' +
+            '<td class="text-center">' + parseFloat(p.cantidad) + ' ' + (p.unidad || p.unidad_id || 'PZ') + '</td>' +
             '<td class="text-right">$' + parseFloat(p.precio_unitario).toFixed(2) + '</td>' +
             '<td class="text-right">$' + subtotal.toFixed(2) + '</td>' +
         '</tr>';
@@ -148,12 +154,12 @@ function mostrarDetalle(venta, productos) {
     var html = '' +
         '<div class="detalle-header">' +
             '<div>' +
-                '<div class="detalle-folio">' + (venta.folio || venta.venta_id.slice(-8)) + '</div>' +
+                '<div class="detalle-folio">' + folioStr + '</div>' +
                 '<div class="detalle-fecha">' + fechaStr + ' • ' + horaStr + '</div>' +
             '</div>' +
             '<div class="detalle-estado">' +
                 '<span class="badge-status ' + (esCancelada ? 'inactive' : 'active') + '" style="font-size:14px;padding:8px 16px">' +
-                    (esCancelada ? 'CANCELADA' : 'COMPLETADA') +
+                    (esCancelada ? 'CANCELADA' : venta.estatus) +
                 '</span>' +
             '</div>' +
         '</div>' +
@@ -175,13 +181,12 @@ function mostrarDetalle(venta, productos) {
         
         '<div class="detalle-totales">' +
             '<div class="total-row"><span>Subtotal:</span><span>$' + parseFloat(venta.subtotal || venta.total).toFixed(2) + '</span></div>' +
-            '<div class="total-row"><span>IVA:</span><span>$' + parseFloat(venta.iva || 0).toFixed(2) + '</span></div>' +
+            '<div class="total-row"><span>Impuestos:</span><span>$' + parseFloat(venta.impuestos || 0).toFixed(2) + '</span></div>' +
             (parseFloat(venta.descuento || 0) > 0 ? '<div class="total-row"><span>Descuento:</span><span>-$' + parseFloat(venta.descuento).toFixed(2) + '</span></div>' : '') +
             '<div class="total-row final"><span>TOTAL:</span><span>$' + parseFloat(venta.total).toFixed(2) + '</span></div>' +
             
             '<div class="detalle-pagos">' +
-                '<div class="pago-item"><div class="metodo"><i class="fas fa-money-bill"></i> Efectivo</div><span>$' + parseFloat(venta.pago_efectivo || 0).toFixed(2) + '</span></div>' +
-                '<div class="pago-item"><div class="metodo"><i class="fas fa-credit-card"></i> Tarjeta</div><span>$' + parseFloat(venta.pago_tarjeta || 0).toFixed(2) + '</span></div>' +
+                '<div class="pago-item"><div class="metodo"><i class="fas fa-money-bill"></i> Pagado</div><span>$' + parseFloat(venta.pagado || 0).toFixed(2) + '</span></div>' +
                 (parseFloat(venta.cambio || 0) > 0 ? '<div class="pago-item"><div class="metodo"><i class="fas fa-coins"></i> Cambio</div><span>$' + parseFloat(venta.cambio).toFixed(2) + '</span></div>' : '') +
             '</div>' +
         '</div>' +
@@ -191,7 +196,7 @@ function mostrarDetalle(venta, productos) {
         '<div class="modal-actions">' +
             '<button class="btn btn-outline" onclick="cerrarModalDetalle()"><i class="fas fa-times"></i> Cerrar</button>' +
             '<button class="btn btn-primary" onclick="imprimirTicket(\'' + venta.venta_id + '\')"><i class="fas fa-print"></i> Reimprimir</button>' +
-            (esCancelada ? '' : '<button class="btn" style="background:#ef4444;color:white" onclick="cerrarModalDetalle();abrirCancelar(\'' + venta.venta_id + '\',\'' + (venta.folio || venta.venta_id.slice(-8)) + '\')"><i class="fas fa-times"></i> Cancelar</button>') +
+            (esCancelada ? '' : '<button class="btn" style="background:#ef4444;color:white" onclick="cerrarModalDetalle();abrirCancelar(\'' + venta.venta_id + '\',\'' + folioStr + '\')"><i class="fas fa-times"></i> Cancelar</button>') +
         '</div>';
     
     document.getElementById('detalleContent').innerHTML = html;
@@ -220,8 +225,7 @@ async function confirmarCancelacion(e) {
     
     try {
         var r = await API.request('/ventas/cancelar/' + id, 'PUT', {
-            motivo_cancelacion: motivo,
-            usuario_cancelo: API.usuario.usuario_id
+            motivo_cancelacion: motivo
         });
         
         if (r.success) {
@@ -237,20 +241,16 @@ async function confirmarCancelacion(e) {
 }
 
 function imprimirTicket(id) {
-    // Por ahora solo mostramos mensaje, después implementamos impresión real
-    mostrarToast('Preparando ticket para imprimir...');
-    
-    // Abrir ventana de impresión
-    var ventana = window.open('', '_blank', 'width=300,height=600');
-    
     var venta = datos.find(function(v) { return v.venta_id === id; });
     if (!venta) {
         mostrarToast('Venta no encontrada', 'error');
         return;
     }
     
-    var fecha = new Date(venta.fecha);
+    var fecha = new Date(venta.fecha_hora);
+    var folioStr = venta.serie ? venta.serie + '-' + venta.folio : (venta.folio || venta.venta_id.slice(-8));
     
+    var ventana = window.open('', '_blank', 'width=350,height=600');
     ventana.document.write(
         '<!DOCTYPE html><html><head><title>Ticket</title>' +
         '<style>' +
@@ -265,14 +265,14 @@ function imprimirTicket(id) {
         '<div class="center bold" style="font-size:16px">CAFI POS</div>' +
         '<div class="center">Ticket de Venta</div>' +
         '<div class="line"></div>' +
-        '<div>Folio: ' + (venta.folio || venta.venta_id.slice(-8)) + '</div>' +
+        '<div>Folio: ' + folioStr + '</div>' +
         '<div>Fecha: ' + fecha.toLocaleDateString('es-MX') + ' ' + fecha.toLocaleTimeString('es-MX', {hour:'2-digit',minute:'2-digit'}) + '</div>' +
         '<div>Cliente: ' + (venta.cliente_nombre || 'Público General') + '</div>' +
         '<div class="line"></div>' +
         '<div class="row total"><span>TOTAL:</span><span>$' + parseFloat(venta.total).toFixed(2) + '</span></div>' +
         '<div class="line"></div>' +
         '<div class="center">¡Gracias por su compra!</div>' +
-        '<script>window.print();window.close();</script>' +
+        '<script>window.print();</script>' +
         '</body></html>'
     );
 }
