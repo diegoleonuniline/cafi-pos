@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAFI POS - Punto de Venta</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>CAFI POS</h2>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="pos.html" class="menu-item active">📦 Punto de Venta</a>
+                <a href="productos.html" class="menu-item">🏷️ Productos</a>
+                <a href="clientes.html" class="menu-item">👥 Clientes</a>
+                <a href="ventas.html" class="menu-item">📋 Ventas</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <div>
+                        <div class="user-name" id="userName">Usuario</div>
+                        <div class="user-role" id="userRole">Rol</div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="API.logout()">Cerrar Sesión</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="pos-container">
+                <!-- Panel Productos -->
+                <div class="productos-panel">
+                    <div class="categorias-bar" id="categorias">
+                        <button class="categoria-btn active" data-id="">Todos</button>
+                    </div>
+                    <div class="card">
+                        <input type="text" id="buscar" class="form-group input" placeholder="🔍 Buscar producto o escanear código..." style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;margin-bottom:15px;">
+                        <div class="productos-grid" id="productos"></div>
+                    </div>
+                </div>
+
+                <!-- Panel Carrito -->
+                <div class="carrito-panel">
+                    <div class="carrito-header">
+                        <h3>🛒 Ticket de Venta</h3>
+                        <select id="clienteSelect" style="width:100%;padding:10px;margin-top:10px;border-radius:6px;border:1px solid #ddd;">
+                            <option value="">Público en General</option>
+                        </select>
+                    </div>
+                    <div class="carrito-items" id="carritoItems">
+                        <p style="text-align:center;color:#999;padding:40px;">Agrega productos</p>
+                    </div>
+                    <div class="carrito-footer">
+                        <div class="total-row">
+                            <span class="total-label">TOTAL:</span>
+                            <span class="total-value" id="totalVenta">$0.00</span>
+                        </div>
+                        <button class="btn btn-cobrar" id="btnCobrar" disabled>💵 COBRAR</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Cobro -->
+    <div class="modal-overlay" id="modalCobro">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>💵 Cobrar Venta</h3>
+                <button class="btn-close" onclick="cerrarModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="total-row" style="margin-bottom:20px;">
+                    <span style="font-size:20px;">Total a cobrar:</span>
+                    <span style="font-size:28px;font-weight:bold;color:#27ae60;" id="modalTotal">$0.00</span>
+                </div>
+                <div class="form-group">
+                    <label>Método de Pago</label>
+                    <select id="metodoPago" style="width:100%;padding:12px;border-radius:6px;border:1px solid #ddd;"></select>
+                </div>
+                <div class="form-group">
+                    <label>Recibido</label>
+                    <input type="number" id="recibido" style="width:100%;padding:12px;border-radius:6px;border:1px solid #ddd;" placeholder="0.00">
+                </div>
+                <div class="total-row">
+                    <span>Cambio:</span>
+                    <span style="font-size:24px;font-weight:bold;" id="cambio">$0.00</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="cerrarModal()">Cancelar</button>
+                <button class="btn btn-success" id="btnConfirmarVenta">✓ Confirmar Venta</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/pos.js"></script>
+</body>
+</html>
