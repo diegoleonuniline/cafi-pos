@@ -12,10 +12,20 @@
         <header class="header">
             <div class="header-left">
                 <a href="admin.html" class="logo">
-                    <svg viewBox="0 0 500 500" width="32" height="32"><g transform="translate(0,500) scale(0.1,-0.1)"><path fill="#2D3DBF" d="M905 3775 c-5 -2 -22 -6 -37 -9 -62 -14 -127 -102 -128 -174 0 -43 24 -100 58 -135 39 -41 107 -57 246 -57 l121 0 136 -137 137 -138 59 -145 c33 -80 89 -219 124 -309 l64 -165 7 105 c9 150 39 265 103 394 74 150 174 267 305 357 24 16 16 17 -180 17 l-205 1 -175 176 c-96 96 -193 185 -215 197 -37 20 -56 22 -225 24 -102 1 -189 1 -195 -2z"/><path fill="#6C2BD9" d="M3270 3352 c143 -112 231 -234 285 -399 14 -43 28 -105 32 -138 9 -98 16 -96 -293 -93 l-259 3 -30 58 c-43 83 -88 133 -148 165 -48 25 -61 27 -172 27 -112 0 -124 -2 -178 -29 -60 -30 -126 -95 -157 -156 -39 -77 -52 -147 -48 -264 3 -104 6 -116 40 -188 78 -163 207 -239 382 -225 135 12 252 97 286 210 23 80 11 77 301 77 l258 0 18 -23 17 -24 40 101 c21 56 99 254 174 441 80 202 135 355 136 377 1 45 -32 84 -83 98 -20 6 -168 10 -336 10 l-300 0 35 -28z"/><path fill="#2E2E2E" d="M2147 1706 c-175 -48 -237 -282 -109 -412 93 -94 263 -88 351 11 46 53 61 93 61 165 0 162 -149 278 -303 236z"/><path fill="#2E2E2E" d="M3058 1706 c-150 -41 -228 -210 -159 -344 79 -154 289 -183 402 -55 43 50 59 92 59 160 -1 163 -150 281 -302 239z"/></g></svg>
+                    <svg viewBox="0 0 500 500" width="32" height="32">
+                        <g transform="translate(0,500) scale(0.1,-0.1)">
+                            <path fill="#2D3DBF" d="M905 3775 c-5 -2 -22 -6 -37 -9 -62 -14 -127 -102 -128 -174 0 -43 24 -100 58 -135 39 -41 107 -57 246 -57 l121 0 136 -137 137 -138 59 -145 c33 -80 89 -219 124 -309 l64 -165 7 105 c9 150 39 265 103 394 74 150 174 267 305 357 24 16 16 17 -180 17 l-205 1 -175 176 c-96 96 -193 185 -215 197 -37 20 -56 22 -225 24 -102 1 -189 1 -195 -2z"/>
+                            <path fill="#6C2BD9" d="M3270 3352 c143 -112 231 -234 285 -399 14 -43 28 -105 32 -138 9 -98 16 -96 -293 -93 l-259 3 -30 58 c-43 83 -88 133 -148 165 -48 25 -61 27 -172 27 -112 0 -124 -2 -178 -29 -60 -30 -126 -95 -157 -156 -39 -77 -52 -147 -48 -264 3 -104 6 -116 40 -188 78 -163 207 -239 382 -225 135 12 252 97 286 210 23 80 11 77 301 77 l258 0 18 -23 17 -24 40 101 c21 56 99 254 174 441 80 202 135 355 136 377 1 45 -32 84 -83 98 -20 6 -168 10 -336 10 l-300 0 35 -28z"/>
+                            <path fill="#2E2E2E" d="M2147 1706 c-175 -48 -237 -282 -109 -412 93 -94 263 -88 351 11 46 53 61 93 61 165 0 162 -149 278 -303 236z"/>
+                            <path fill="#2E2E2E" d="M3058 1706 c-150 -41 -228 -210 -159 -344 79 -154 289 -183 402 -55 43 50 59 92 59 160 -1 163 -150 281 -302 239z"/>
+                        </g>
+                    </svg>
                     <span>CAFI</span>
                 </a>
-                <div class="turno-badge"><i class="fas fa-lock-open"></i><span>Turno abierto</span></div>
+                <div class="turno-badge">
+                    <i class="fas fa-lock-open"></i>
+                    <span>Turno abierto</span>
+                </div>
             </div>
             <div class="header-center">
                 <button class="header-btn" onclick="nuevaVenta()"><i class="fas fa-plus"></i> Nueva</button>
@@ -71,7 +81,9 @@
                         <i class="fas fa-barcode"></i>
                         <input type="text" id="inputBuscar" placeholder="Escanea código de barras o presiona F2 para buscar..." onkeypress="onBuscarKeypress(event)">
                     </div>
-                    <button class="btn-buscar" onclick="abrirModalProductos()"><i class="fas fa-search"></i> Buscar <span class="kbd">F2</span></button>
+                    <button class="btn-buscar" onclick="abrirModalProductos()">
+                        <i class="fas fa-search"></i> Buscar <span class="kbd">F2</span>
+                    </button>
                     <button class="btn-quick blue" onclick="abrirModalNuevoProducto()" title="Agregar Producto Rápido">
                         <i class="fas fa-plus"></i>
                     </button>
@@ -127,8 +139,14 @@
                     <div class="summary-row"><span>Tipo</span><span id="tipoVentaLabel">Contado</span></div>
                 </div>
                 <div class="panel-info">
-                    <div class="info-item"><i class="fas fa-receipt"></i><div><small>TICKET</small><span id="ticketNumero">#Nueva</span></div></div>
-                    <div class="info-item"><i class="fas fa-user"></i><div><small>CLIENTE</small><span id="clientePanel">Público General</span></div></div>
+                    <div class="info-item">
+                        <i class="fas fa-receipt"></i>
+                        <div><small>TICKET</small><span id="ticketNumero">#Nueva</span></div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-user"></i>
+                        <div><small>CLIENTE</small><span id="clientePanel">Público General</span></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -142,13 +160,48 @@
                 <button class="btn-close" onclick="cerrarModal('modalProductos')"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-filters">
-                <div class="filter-search"><i class="fas fa-search"></i><input type="text" id="filtroNombre" placeholder="Buscar por nombre..." oninput="filtrarProductos()"></div>
-                <div class="filter-select"><label>Categoría:</label><select id="filtroCategoria" onchange="filtrarProductos()"><option value="">Todas</option></select></div>
-                <div class="filter-cantidad"><label>Cantidad:</label><div class="cantidad-control"><button onclick="ajustarCantidadFiltro(-1)">−</button><input type="number" id="filtroCantidad" value="1" min="0.001" step="0.001"><button onclick="ajustarCantidadFiltro(1)">+</button></div></div>
-                <div class="filter-select"><label>Precio:</label><select id="filtroPrecio"><option value="1">P1</option><option value="2">P2</option><option value="3">P3</option><option value="4">P4</option></select></div>
+                <div class="filter-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="filtroNombre" placeholder="Buscar por nombre o código..." oninput="filtrarProductos()">
+                </div>
+                <div class="filter-select">
+                    <label>Categoría:</label>
+                    <select id="filtroCategoria" onchange="filtrarProductos()">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+                <div class="filter-cantidad">
+                    <label>Cantidad:</label>
+                    <div class="cantidad-control">
+                        <button onclick="ajustarCantidadFiltro(-1)">−</button>
+                        <input type="number" id="filtroCantidad" value="1" min="0.001" step="0.001">
+                        <button onclick="ajustarCantidadFiltro(1)">+</button>
+                    </div>
+                </div>
+                <div class="filter-select">
+                    <label>Precio:</label>
+                    <select id="filtroPrecio" onchange="filtrarProductos()">
+                        <option value="1">P1</option>
+                        <option value="2">P2</option>
+                        <option value="3">P3</option>
+                        <option value="4">P4</option>
+                    </select>
+                </div>
             </div>
             <div class="modal-body productos-list">
-                <table class="productos-table"><thead><tr><th></th><th>CÓDIGO</th><th>PRODUCTO</th><th>UNIDAD</th><th>DESC</th><th class="text-right">PRECIO</th></tr></thead><tbody id="productosBody"></tbody></table>
+                <table class="productos-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>CÓDIGO</th>
+                            <th>PRODUCTO</th>
+                            <th>UNIDAD</th>
+                            <th>DESC</th>
+                            <th class="text-right">PRECIO</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productosBody"></tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -161,7 +214,10 @@
                 <button class="btn-close" onclick="cerrarModal('modalCliente')"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
-                <div class="cliente-search"><i class="fas fa-search"></i><input type="text" id="buscarCliente" placeholder="Buscar por nombre o teléfono..." oninput="filtrarClientes()"></div>
+                <div class="cliente-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="buscarCliente" placeholder="Buscar por nombre o teléfono..." oninput="filtrarClientes()">
+                </div>
                 <div class="clientes-list" id="clientesList"></div>
             </div>
             <div class="modal-footer">
@@ -179,13 +235,24 @@
                 <button class="btn-close light" onclick="cerrarModal('modalCantidad')"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
-                <div class="producto-preview"><div><strong id="cantidadNombre">Producto</strong><span id="cantidadPrecioUnit">$0.00 / KG</span></div></div>
+                <div class="producto-preview">
+                    <div>
+                        <strong id="cantidadNombre">Producto</strong>
+                        <span id="cantidadPrecioUnit">$0.00 / KG</span>
+                    </div>
+                </div>
                 <div class="cantidad-input-group">
                     <button class="cant-btn" onclick="ajustarCantidadModal(-0.5)">−</button>
-                    <div class="cantidad-field"><input type="number" id="inputCantidadModal" step="0.001" min="0.001" value="1" oninput="calcularSubtotalModal()"><span id="cantidadUnidad">KG</span></div>
+                    <div class="cantidad-field">
+                        <input type="number" id="inputCantidadModal" step="0.001" min="0.001" value="1" oninput="calcularSubtotalModal()">
+                        <span id="cantidadUnidad">KG</span>
+                    </div>
                     <button class="cant-btn" onclick="ajustarCantidadModal(0.5)">+</button>
                 </div>
-                <div class="subtotal-preview"><span>Subtotal:</span><strong id="subtotalModal">$0.00</strong></div>
+                <div class="subtotal-preview">
+                    <span>Subtotal:</span>
+                    <strong id="subtotalModal">$0.00</strong>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-outline" onclick="cerrarModal('modalCantidad')">Cancelar</button>
@@ -203,11 +270,11 @@
                 <div class="cobro-badge" id="cobroBadge">CONTADO</div>
             </div>
             <div class="cobro-body">
-                <div class="cobro-metodos">
-                    <button class="metodo-btn active" data-metodo="efectivo"><i class="fas fa-money-bill-wave"></i><span>Efectivo</span></button>
-                    <button class="metodo-btn" data-metodo="tarjeta"><i class="fas fa-credit-card"></i><span>Tarjeta</span></button>
-                    <button class="metodo-btn" data-metodo="transferencia"><i class="fas fa-university"></i><span>Transf.</span></button>
+                <!-- MÉTODOS DE PAGO DINÁMICOS -->
+                <div class="cobro-metodos" id="metodosPagoContainer">
+                    <!-- Se llena dinámicamente desde la API -->
                 </div>
+
                 <div class="cobro-efectivo">
                     <label>Efectivo Recibido</label>
                     <input type="number" id="inputEfectivo" placeholder="0.00" oninput="calcularCambio()">
@@ -222,7 +289,10 @@
                         <button onclick="limpiarEfectivo()">Limpiar</button>
                     </div>
                 </div>
-                <div class="cobro-cambio"><span>Cambio</span><strong id="cobroCambio">$0.00</strong></div>
+                <div class="cobro-cambio">
+                    <span>Cambio</span>
+                    <strong id="cobroCambio">$0.00</strong>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-outline" onclick="cerrarModal('modalCobro')">Cancelar</button>
@@ -259,10 +329,27 @@
             </div>
             <form id="formNuevoProducto" onsubmit="guardarNuevoProducto(event)">
                 <div class="modal-body">
-                    <div class="form-group"><label>Código</label><input type="text" id="np_codigo" placeholder="Código de barras"></div>
-                    <div class="form-group"><label>Nombre *</label><input type="text" id="np_nombre" required placeholder="Nombre del producto"></div>
-                    <div class="form-group"><label>Precio *</label><input type="number" id="np_precio" step="0.01" required placeholder="0.00"></div>
-                    <div class="form-group"><label>Unidad</label><select id="np_unidad"><option value="PZ">Pieza</option><option value="KG">Kilogramo</option><option value="LT">Litro</option></select></div>
+                    <div class="form-group">
+                        <label>Código</label>
+                        <input type="text" id="np_codigo" placeholder="Código de barras">
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre *</label>
+                        <input type="text" id="np_nombre" required placeholder="Nombre del producto">
+                    </div>
+                    <div class="form-group">
+                        <label>Precio * (incluye impuestos)</label>
+                        <input type="number" id="np_precio" step="0.01" required placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Unidad</label>
+                        <select id="np_unidad">
+                            <option value="PZ">Pieza</option>
+                            <option value="KG">Kilogramo</option>
+                            <option value="LT">Litro</option>
+                            <option value="MT">Metro</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline" onclick="cerrarModal('modalNuevoProducto')">Cancelar</button>
@@ -281,9 +368,23 @@
             </div>
             <form id="formNuevoCliente" onsubmit="guardarNuevoCliente(event)">
                 <div class="modal-body">
-                    <div class="form-group"><label>Nombre *</label><input type="text" id="nc_nombre" required placeholder="Nombre completo"></div>
-                    <div class="form-group"><label>Teléfono</label><input type="tel" id="nc_telefono" placeholder="10 dígitos"></div>
-                    <div class="form-group"><label>Tipo Precio</label><select id="nc_tipo_precio"><option value="1">Precio 1 (Público)</option><option value="2">Precio 2 (Mayoreo)</option><option value="3">Precio 3</option><option value="4">Precio 4</option></select></div>
+                    <div class="form-group">
+                        <label>Nombre *</label>
+                        <input type="text" id="nc_nombre" required placeholder="Nombre completo">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="tel" id="nc_telefono" placeholder="10 dígitos">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo Precio</label>
+                        <select id="nc_tipo_precio">
+                            <option value="1">Precio 1 (Público)</option>
+                            <option value="2">Precio 2 (Mayoreo)</option>
+                            <option value="3">Precio 3</option>
+                            <option value="4">Precio 4</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline" onclick="cerrarModal('modalNuevoCliente')">Cancelar</button>
