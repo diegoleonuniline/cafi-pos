@@ -953,3 +953,30 @@
     align-items: center;
     gap: 8px;
 }
+/* ========== MODAL ACTIONS ========== */
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--gray-200);
+}
+
+/* ========== DETALLE PRODUCTOS TABLE ========== */
+.detalle-productos th.text-center,
+.detalle-productos td.text-center {
+    text-align: center;
+}
+
+.detalle-productos th.text-right,
+.detalle-productos td.text-right {
+    text-align: right;
+}
+
+/* ========== EMPTY ROW ========== */
+.empty-row td {
+    text-align: center;
+    padding: 40px;
+    color: var(--gray-400);
+}
