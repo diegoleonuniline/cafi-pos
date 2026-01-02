@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAFI - Productos</title>
     <link rel="stylesheet" href="../css/styles.css">
-    <link rel="stylesheet" href="../css/admin.css">
     <link rel="stylesheet" href="../css/catalogos.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -13,94 +12,78 @@
     <div class="admin-layout">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <div class="logo">
-                    <svg viewBox="0 0 500 500" width="32" height="32">
-                        <g transform="translate(0,500) scale(0.1,-0.1)">
-                            <path fill="#2D3DBF" d="M905 3775 c-5 -2 -22 -6 -37 -9 -62 -14 -127 -102 -128 -174 0 -43 24 -100 58 -135 39 -41 107 -57 246 -57 l121 0 136 -137 137 -138 59 -145 c33 -80 89 -219 124 -309 l64 -165 7 105 c9 150 39 265 103 394 74 150 174 267 305 357 24 16 16 17 -180 17 l-205 1 -175 176 c-96 96 -193 185 -215 197 -37 20 -56 22 -225 24 -102 1 -189 1 -195 -2z"/>
-                            <path fill="#6C2BD9" d="M3270 3352 c143 -112 231 -234 285 -399 14 -43 28 -105 32 -138 9 -98 16 -96 -293 -93 l-259 3 -30 58 c-43 83 -88 133 -148 165 -48 25 -61 27 -172 27 -112 0 -124 -2 -178 -29 -60 -30 -126 -95 -157 -156 -39 -77 -52 -147 -48 -264 3 -104 6 -116 40 -188 78 -163 207 -239 382 -225 135 12 252 97 286 210 23 80 11 77 301 77 l258 0 18 -23 17 -24 40 101 c21 56 99 254 174 441 80 202 135 355 136 377 1 45 -32 84 -83 98 -20 6 -168 10 -336 10 l-300 0 35 -28z"/>
-                            <path fill="#fff" d="M2147 1706 c-175 -48 -237 -282 -109 -412 93 -94 263 -88 351 11 46 53 61 93 61 165 0 162 -149 278 -303 236z"/>
-                            <path fill="#fff" d="M3058 1706 c-150 -41 -228 -210 -159 -344 79 -154 289 -183 402 -55 43 50 59 92 59 160 -1 163 -150 281 -302 239z"/>
-                        </g>
-                    </svg>
-                    <span>CAFI</span>
-                </div>
+                <svg viewBox="0 0 500 500" width="40" height="40">
+                    <g transform="translate(0,500) scale(0.1,-0.1)">
+                        <path fill="#2D3DBF" d="M905 3775 c-5 -2 -22 -6 -37 -9 -62 -14 -127 -102 -128 -174 0 -43 24 -100 58 -135 39 -41 107 -57 246 -57 l121 0 136 -137 137 -138 59 -145 c33 -80 89 -219 124 -309 l64 -165 7 105 c9 150 39 265 103 394 74 150 174 267 305 357 24 16 16 17 -180 17 l-205 1 -175 176 c-96 96 -193 185 -215 197 -37 20 -56 22 -225 24 -102 1 -189 1 -195 -2z"/>
+                        <path fill="#6C2BD9" d="M3270 3352 c143 -112 231 -234 285 -399 14 -43 28 -105 32 -138 9 -98 16 -96 -293 -93 l-259 3 -30 58 c-43 83 -88 133 -148 165 -48 25 -61 27 -172 27 -112 0 -124 -2 -178 -29 -60 -30 -126 -95 -157 -156 -39 -77 -52 -147 -48 -264 3 -104 6 -116 40 -188 78 -163 207 -239 382 -225 135 12 252 97 286 210 23 80 11 77 301 77 l258 0 18 -23 17 -24 40 101 c21 56 99 254 174 441 80 202 135 355 136 377 1 45 -32 84 -83 98 -20 6 -168 10 -336 10 l-300 0 35 -28z"/>
+                        <path fill="#fff" d="M2147 1706 c-175 -48 -237 -282 -109 -412 93 -94 263 -88 351 11 46 53 61 93 61 165 0 162 -149 278 -303 236z"/>
+                        <path fill="#fff" d="M3058 1706 c-150 -41 -228 -210 -159 -344 79 -154 289 -183 402 -55 43 50 59 92 59 160 -1 163 -150 281 -302 239z"/>
+                    </g>
+                </svg>
+                <span>CAFI</span>
             </div>
             <nav class="sidebar-nav">
-                <a href="pos.html" class="nav-item"><i class="fas fa-cash-register"></i> Punto de Venta</a>
-                <a href="admin.html" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
-                <a href="productos.html" class="nav-item active"><i class="fas fa-boxes"></i> Productos</a>
-                <a href="categorias.html" class="nav-item"><i class="fas fa-tags"></i> Categorías</a>
-                <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i> Clientes</a>
-                <a href="ventas.html" class="nav-item"><i class="fas fa-chart-line"></i> Ventas</a>
-                <a href="#" class="nav-item"><i class="fas fa-file-alt"></i> Reportes</a>
+                <a href="pos.html" class="nav-item"><i class="fas fa-cash-register"></i><span>Punto de Venta</span></a>
+                <a href="admin.html" class="nav-item"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+                <a href="productos.html" class="nav-item active"><i class="fas fa-box"></i><span>Productos</span></a>
+                <a href="categorias.html" class="nav-item"><i class="fas fa-tags"></i><span>Categorías</span></a>
+                <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i><span>Clientes</span></a>
+                <a href="ventas.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Ventas</span></a>
+                <a href="reportes.html" class="nav-item"><i class="fas fa-file-alt"></i><span>Reportes</span></a>
             </nav>
             <div class="sidebar-footer">
-                <div class="user-info">
-                    <div class="user-avatar" id="userAvatar">U</div>
-                    <div class="user-details">
-                        <strong id="userName">Usuario</strong>
+                <div class="user-mini">
+                    <div class="user-avatar" id="userAvatar">AD</div>
+                    <div class="user-info">
+                        <span id="userName">Usuario</span>
                         <small id="userSucursal">Sucursal</small>
                     </div>
                 </div>
-                <button class="btn-logout" onclick="API.logout()" title="Cerrar sesión">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
+                <button class="btn-logout" onclick="API.logout()"><i class="fas fa-sign-out-alt"></i></button>
             </div>
         </aside>
 
-        <main class="main-content">
-            <header class="main-header">
-                <div class="header-title">
-                    <i class="fas fa-boxes"></i>
-                    <h1>Productos</h1>
-                    <span class="badge" id="totalRegistros">0</span>
-                </div>
-                <div class="page-actions">
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1><i class="fas fa-box"></i> Productos <span class="badge badge-info" id="totalRegistros">0</span></h1>
+                <div class="header-actions">
                     <button class="btn btn-outline" onclick="exportarExcel()"><i class="fas fa-file-excel"></i> Exportar</button>
                     <button class="btn btn-primary" onclick="abrirModal()"><i class="fas fa-plus"></i> Nuevo Producto</button>
                 </div>
             </header>
 
-            <div class="content-body">
-                <div class="card">
-                    <div class="card-toolbar">
-                        <div class="search-box">
+            <div class="admin-content">
+                <div class="section-card">
+                    <div class="filters-bar">
+                        <div class="filter-search">
                             <i class="fas fa-search"></i>
                             <input type="text" id="inputBuscar" placeholder="Buscar por nombre o código..." oninput="filtrar()">
                         </div>
-                        <div class="filter-group">
-                            <label>Categoría:</label>
-                            <select id="filtroCategoria" onchange="filtrar()"><option value="">Todas</option></select>
-                        </div>
-                        <div class="filter-group">
-                            <label>Estado:</label>
-                            <select id="filtroEstado" onchange="filtrar()">
-                                <option value="Y">Activos</option>
-                                <option value="N">Inactivos</option>
-                                <option value="">Todos</option>
-                            </select>
-                        </div>
+                        <select id="filtroCategoria" onchange="filtrar()"><option value="">Todas</option></select>
+                        <select id="filtroEstado" onchange="filtrar()">
+                            <option value="Y">Activos</option>
+                            <option value="N">Inactivos</option>
+                            <option value="">Todos</option>
+                        </select>
                     </div>
-                    <div class="table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Código</th>
-                                    <th>Nombre</th>
-                                    <th>Categoría</th>
-                                    <th class="text-center">U. Compra</th>
-                                    <th class="text-center">U. Venta</th>
-                                    <th class="text-center">Factor</th>
-                                    <th class="text-right">Costo</th>
-                                    <th class="text-right">Precio 1</th>
-                                    <th class="text-center">IVA</th>
-                                    <th class="text-center">Estado</th>
-                                    <th class="text-center">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaBody"></tbody>
-                        </table>
-                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Nombre</th>
+                                <th>Categoría</th>
+                                <th>U. Compra</th>
+                                <th>U. Venta</th>
+                                <th>Factor</th>
+                                <th>Costo</th>
+                                <th>Precio 1</th>
+                                <th>IVA</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaBody"></tbody>
+                    </table>
                 </div>
             </div>
         </main>
@@ -126,7 +109,6 @@
                         <button type="button" class="tab-btn" data-tab="config"><i class="fas fa-cog"></i> Config</button>
                     </div>
 
-                    <!-- TAB: GENERAL -->
                     <div class="tab-content active" id="tab-general">
                         <div class="form-row">
                             <div class="form-group col-8">
@@ -196,7 +178,6 @@
                         </div>
                     </div>
 
-                    <!-- TAB: UNIDADES -->
                     <div class="tab-content" id="tab-unidades">
                         <div class="info-box info">
                             <i class="fas fa-info-circle"></i>
@@ -269,7 +250,6 @@
                         </div>
                     </div>
 
-                    <!-- TAB: PRECIOS -->
                     <div class="tab-content" id="tab-precios">
                         <div class="form-row">
                             <div class="form-group col-6">
@@ -350,7 +330,6 @@
                         </div>
                     </div>
 
-                    <!-- TAB: IMPUESTOS -->
                     <div class="tab-content" id="tab-impuestos">
                         <div class="form-row">
                             <div class="form-group col-6">
@@ -421,7 +400,6 @@
                         </div>
                     </div>
 
-                    <!-- TAB: INVENTARIO -->
                     <div class="tab-content" id="tab-inventario">
                         <div class="form-row">
                             <div class="form-group col-4">
@@ -477,7 +455,6 @@
                         </div>
                     </div>
 
-                    <!-- TAB: CONFIGURACIÓN -->
                     <div class="tab-content" id="tab-config">
                         <div class="form-row">
                             <div class="form-group col-6">
