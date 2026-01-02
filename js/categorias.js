@@ -1,6 +1,6 @@
 if (!API.isLoggedIn()) window.location.href = '../index.html';
 
-let datos = [];
+var datos = [];
 
 document.addEventListener('DOMContentLoaded', async function() {
     cargarUsuario();
@@ -26,7 +26,7 @@ async function cargarDatos() {
         var r = await API.request('/categorias/' + API.usuario.empresa_id);
         console.log('Categorias:', r);
         if (r.success) {
-            datos = r.data || [];
+            datos = r.categorias || r.data || [];
             filtrar();
         }
     } catch (e) {
