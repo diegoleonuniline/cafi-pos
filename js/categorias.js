@@ -2,16 +2,20 @@ if (!API.isLoggedIn()) window.location.href = '../index.html';
 
 let datos = [];
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', async function() {
     cargarUsuario();
     await cargarDatos();
-    document.getElementById('color').addEventListener('input', (e) => {
-        document.getElementById('colorText').value = e.target.value;
-    });
+    
+    var colorInput = document.getElementById('color');
+    if (colorInput) {
+        colorInput.addEventListener('input', function(e) {
+            document.getElementById('colorText').value = e.target.value;
+        });
+    }
 });
 
 function cargarUsuario() {
-    const u = API.usuario;
+    var u = API.usuario;
     document.getElementById('userName').textContent = u.nombre;
     document.getElementById('userSucursal').textContent = u.sucursal_nombre || 'Sucursal';
     document.getElementById('userAvatar').textContent = u.nombre.charAt(0).toUpperCase();
@@ -19,23 +23,25 @@ function cargarUsuario() {
 
 async function cargarDatos() {
     try {
-        const r = await API.request(`/categorias/${API.usuario.empresa_id}`);
+        var r = await API.request('/categorias/' + API.usuario.empresa_id);
+        console.log('Categorias:', r);
         if (r.success) {
-            datos = r.categorias || r.data || [];
+            datos = r.data || [];
             filtrar();
         }
     } catch (e) {
+        console.error(e);
         mostrarToast('Error cargando datos', 'error');
     }
 }
 
 function filtrar() {
-    const busqueda = document.getElementById('inputBuscar').value.toLowerCase();
-    const estado = document.getElementById('filtroEstado').value;
+    var busqueda = document.getElementById('inputBuscar').value.toLowerCase();
+    var estado = document.getElementById('filtroEstado').value;
 
-    let filtrados = datos.filter(item => {
-        const matchBusq = !busqueda || item.nombre.toLowerCase().includes(busqueda);
-        const matchEstado = !estado || item.activo === estado;
+    var filtrados = datos.filter(function(item) {
+        var matchBusq = !busqueda || item.nombre.toLowerCase().indexOf(busqueda) >= 0;
+        var matchEstado = !estado || item.activo === estado;
         return matchBusq && matchEstado;
     });
 
@@ -44,33 +50,37 @@ function filtrar() {
 }
 
 function renderGrid(items) {
-    const grid = document.getElementById('categoriasGrid');
+    var grid = document.getElementById('categoriasGrid');
     if (items.length === 0) {
         grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:40px;color:#9ca3af">No hay categorías</p>';
         return;
     }
 
-    grid.innerHTML = items.map(c => `
-        <div class="categoria-card" onclick="editar('${c.categoria_id}')">
-            <div class="color-bar" style="background:${c.color || '#3498db'}"></div>
-            <div class="nombre">${c.nombre}</div>
-            <div class="info">Orden: ${c.orden || 0}</div>
-            <div class="actions">
-                <button class="btn-action edit" onclick="event.stopPropagation();editar('${c.categoria_id}')" title="Editar">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn-action delete" onclick="event.stopPropagation();eliminar('${c.categoria_id}')" title="Eliminar">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
-            <span class="badge-status ${c.activo === 'Y' ? 'active' : 'inactive'}">
-                ${c.activo === 'Y' ? 'Activo' : 'Inactivo'}
-            </span>
-        </div>
-    `).join('');
+    var html = '';
+    items.forEach(function(c) {
+        html += '<div class="categoria-card" onclick="editar(\'' + c.categoria_id + '\')">' +
+            '<div class="color-bar" style="background:' + (c.color || '#3498db') + '"></div>' +
+            '<div class="card-body">' +
+                '<div class="nombre">' + c.nombre + '</div>' +
+                '<div class="info">Orden: ' + (c.orden || 0) + '</div>' +
+            '</div>' +
+            '<div class="card-actions">' +
+                '<button class="btn-action edit" onclick="event.stopPropagation();editar(\'' + c.categoria_id + '\')" title="Editar">' +
+                    '<i class="fas fa-edit"></i>' +
+                '</button>' +
+                '<button class="btn-action delete" onclick="event.stopPropagation();eliminar(\'' + c.categoria_id + '\')" title="Eliminar">' +
+                    '<i class="fas fa-trash"></i>' +
+                '</button>' +
+            '</div>' +
+            '<span class="badge-status ' + (c.activo === 'Y' ? 'active' : 'inactive') + '">' +
+                (c.activo === 'Y' ? 'Activo' : 'Inactivo') +
+            '</span>' +
+        '</div>';
+    });
+    grid.innerHTML = html;
 }
 
-function abrirModal(item = null) {
+function abrirModal(item) {
     document.getElementById('modalTitulo').textContent = item ? 'Editar Categoría' : 'Nueva Categoría';
     document.getElementById('formCategoria').reset();
     document.getElementById('editId').value = '';
@@ -93,14 +103,14 @@ function cerrarModal() {
 }
 
 function editar(id) {
-    const item = datos.find(d => d.categoria_id === id);
+    var item = datos.find(function(d) { return d.categoria_id === id; });
     if (item) abrirModal(item);
 }
 
 async function guardar(e) {
     e.preventDefault();
-    const id = document.getElementById('editId').value;
-    const data = {
+    var id = document.getElementById('editId').value;
+    var data = {
         empresa_id: API.usuario.empresa_id,
         nombre: document.getElementById('nombre').value,
         color: document.getElementById('color').value,
@@ -109,9 +119,9 @@ async function guardar(e) {
     };
 
     try {
-        const r = id 
-            ? await API.request(`/categorias/${id}`, 'PUT', data)
-            : await API.request('/categorias', 'POST', data);
+        var url = id ? '/categorias/' + id : '/categorias';
+        var method = id ? 'PUT' : 'POST';
+        var r = await API.request(url, method, data);
 
         if (r.success) {
             mostrarToast(id ? 'Categoría actualizada' : 'Categoría creada');
@@ -128,7 +138,7 @@ async function guardar(e) {
 async function eliminar(id) {
     if (!confirm('¿Eliminar esta categoría?')) return;
     try {
-        const r = await API.request(`/categorias/${id}`, 'DELETE');
+        var r = await API.request('/categorias/' + id, 'DELETE');
         if (r.success) {
             mostrarToast('Categoría eliminada');
             await cargarDatos();
@@ -140,9 +150,10 @@ async function eliminar(id) {
     }
 }
 
-function mostrarToast(msg, tipo = 'success') {
-    const toast = document.getElementById('toast');
-    toast.innerHTML = `<i class="fas fa-${tipo === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+function mostrarToast(msg, tipo) {
+    tipo = tipo || 'success';
+    var toast = document.getElementById('toast');
+    toast.innerHTML = '<i class="fas fa-' + (tipo === 'error' ? 'exclamation-circle' : 'check-circle') + '"></i> ' + msg;
     toast.className = 'toast show ' + tipo;
-    setTimeout(() => toast.classList.remove('show'), 3000);
+    setTimeout(function() { toast.classList.remove('show'); }, 3000);
 }
