@@ -3,28 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAFI POS - Login</title>
+    <title>CAFI POS - Sistema Punto de Venta</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="login-container">
         <div class="login-box">
             <div class="login-header">
-                <h1>CAFI POS</h1>
+                <div class="logo-icon">
+                    <svg viewBox="0 0 500 500" width="80" height="80">
+                        <g transform="translate(0,500) scale(0.1,-0.1)">
+                            <path fill="#2D3DBF" d="M905 3775 c-5 -2 -22 -6 -37 -9 -62 -14 -127 -102 -128 -174 0 -43 24 -100 58 -135 39 -41 107 -57 246 -57 l121 0 136 -137 137 -138 59 -145 c33 -80 89 -219 124 -309 l64 -165 7 105 c9 150 39 265 103 394 74 150 174 267 305 357 24 16 16 17 -180 17 l-205 1 -175 176 c-96 96 -193 185 -215 197 -37 20 -56 22 -225 24 -102 1 -189 1 -195 -2z"/>
+                            <path fill="#6C2BD9" d="M3270 3352 c143 -112 231 -234 285 -399 14 -43 28 -105 32 -138 9 -98 16 -96 -293 -93 l-259 3 -30 58 c-43 83 -88 133 -148 165 -48 25 -61 27 -172 27 -112 0 -124 -2 -178 -29 -60 -30 -126 -95 -157 -156 -39 -77 -52 -147 -48 -264 3 -104 6 -116 40 -188 78 -163 207 -239 382 -225 135 12 252 97 286 210 23 80 11 77 301 77 l258 0 18 -23 17 -24 40 101 c21 56 99 254 174 441 80 202 135 355 136 377 1 45 -32 84 -83 98 -20 6 -168 10 -336 10 l-300 0 35 -28z"/>
+                            <path fill="#2E2E2E" d="M2147 1706 c-175 -48 -237 -282 -109 -412 93 -94 263 -88 351 11 46 53 61 93 61 165 0 162 -149 278 -303 236z"/>
+                            <path fill="#2E2E2E" d="M3058 1706 c-150 -41 -228 -210 -159 -344 79 -154 289 -183 402 -55 43 50 59 92 59 160 -1 163 -150 281 -302 239z"/>
+                        </g>
+                    </svg>
+                </div>
+                <h1>CAFI</h1>
                 <p>Sistema Punto de Venta</p>
+                <small>By Uniline Innovación en la Nube</small>
             </div>
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="email">Correo electrónico</label>
+                    <label><i class="fas fa-envelope"></i> Correo electrónico</label>
                     <input type="email" id="email" placeholder="usuario@empresa.com" required>
                 </div>
                 <div class="form-group">
-                    <label for="password">Contraseña</label>
-                    <input type="password" id="password" placeholder="••••••" required>
+                    <label><i class="fas fa-lock"></i> Contraseña</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
                 </div>
-                <button type="submit" id="btnLogin">Ingresar</button>
+                <button type="submit" id="btnLogin" class="btn btn-primary btn-block btn-lg">
+                    <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                </button>
                 <div id="mensaje" class="mensaje"></div>
             </form>
+            <div class="login-footer">
+                <p>© 2024 CAFI POS - Uniline Innovación en la Nube</p>
+            </div>
         </div>
     </div>
     <script src="js/config.js"></script>
