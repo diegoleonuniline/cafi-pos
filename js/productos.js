@@ -385,7 +385,7 @@ async function guardar(e) {
         precio3: parseFloat(document.getElementById('precio3').value) || 0,
         precio4: parseFloat(document.getElementById('precio4').value) || 0,
         precio_minimo: parseFloat(document.getElementById('precio_minimo').value) || 0,
-        iva: parseFloat(ivaVal),
+ impuesto_id: ivaVal === '0' ? 'IVA0' : (ivaVal === '8' ? 'IVA8' : 'IVA16'),
         ieps: parseFloat(document.getElementById('ieps').value) || 0,
         precio_incluye_impuesto: document.getElementById('precio_incluye_impuesto').checked ? 'Y' : 'N',
         stock_minimo: parseFloat(document.getElementById('stock_minimo').value) || 0,
