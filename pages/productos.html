@@ -51,6 +51,9 @@
                     <span class="badge" id="totalRegistros">0</span>
                 </div>
                 <div class="page-actions">
+                    <button class="btn btn-outline" onclick="exportarExcel()">
+                        <i class="fas fa-file-excel"></i> Exportar
+                    </button>
                     <button class="btn btn-primary" onclick="abrirModal()">
                         <i class="fas fa-plus"></i> Nuevo Producto
                     </button>
@@ -85,11 +88,12 @@
                                 <th>Código</th>
                                 <th>Nombre</th>
                                 <th>Categoría</th>
-                                <th>Unidad</th>
+                                <th class="text-center">U. Compra</th>
+                                <th class="text-center">U. Venta</th>
+                                <th class="text-center">Factor</th>
                                 <th class="text-right">Costo</th>
                                 <th class="text-right">Precio 1</th>
-                                <th class="text-right">Precio 2</th>
-                                <th class="text-right">Precio 3</th>
+                                <th class="text-center">IVA</th>
                                 <th class="text-center">Estado</th>
                                 <th class="text-center">Acciones</th>
                             </tr>
@@ -101,132 +105,504 @@
         </main>
     </div>
 
-    <!-- MODAL FORMULARIO -->
+    <!-- MODAL FORMULARIO CON TABS -->
     <div class="modal-overlay" id="modalForm">
-        <div class="modal modal-lg">
+        <div class="modal modal-xl">
             <div class="modal-header gradient">
                 <h3><i class="fas fa-box"></i> <span id="modalTitulo">Nuevo Producto</span></h3>
                 <button class="btn-close light" onclick="cerrarModal()"><i class="fas fa-times"></i></button>
             </div>
             <form id="formProducto" onsubmit="guardar(event)">
-                <div class="modal-body">
-                    <input type="hidden" id="editId">
-                    
-                    <div class="form-section">
-                        <h4><i class="fas fa-info-circle"></i> Información General</h4>
-                        <div class="form-grid">
-                            <div class="form-group full">
-                                <label>Nombre del Producto *</label>
+                <input type="hidden" id="editId">
+                
+                <!-- TABS -->
+                <div class="tabs-container">
+                    <div class="tabs-nav">
+                        <button type="button" class="tab-btn active" data-tab="general">
+                            <i class="fas fa-info-circle"></i> General
+                        </button>
+                        <button type="button" class="tab-btn" data-tab="unidades">
+                            <i class="fas fa-boxes"></i> Unidades
+                        </button>
+                        <button type="button" class="tab-btn" data-tab="precios">
+                            <i class="fas fa-dollar-sign"></i> Precios
+                        </button>
+                        <button type="button" class="tab-btn" data-tab="impuestos">
+                            <i class="fas fa-percentage"></i> Impuestos
+                        </button>
+                        <button type="button" class="tab-btn" data-tab="inventario">
+                            <i class="fas fa-warehouse"></i> Inventario
+                        </button>
+                        <button type="button" class="tab-btn" data-tab="config">
+                            <i class="fas fa-cog"></i> Config
+                        </button>
+                    </div>
+
+                    <!-- TAB: GENERAL -->
+                    <div class="tab-content active" id="tab-general">
+                        <div class="form-row">
+                            <div class="form-group col-8">
+                                <label>Nombre del Producto <span class="required">*</span></label>
                                 <input type="text" id="nombre" required placeholder="Ej: Coca Cola 600ml">
                             </div>
-                            <div class="form-group">
-                                <label>Nombre Corto</label>
-                                <input type="text" id="nombre_corto" placeholder="Nombre abreviado">
-                            </div>
-                            <div class="form-group">
-                                <label>Nombre en POS</label>
-                                <input type="text" id="nombre_pos" placeholder="Mostrar en punto de venta">
-                            </div>
-                            <div class="form-group">
-                                <label>Código de Barras</label>
-                                <input type="text" id="codigo_barras" placeholder="Escanear o escribir">
-                            </div>
-                            <div class="form-group">
-                                <label>Código Interno</label>
-                                <input type="text" id="codigo_interno" placeholder="SKU interno">
-                            </div>
-                            <div class="form-group">
+                            <div class="form-group col-4">
                                 <label>Categoría</label>
                                 <select id="categoria_id">
                                     <option value="">Sin categoría</option>
                                 </select>
                             </div>
-                            <div class="form-group">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-4">
+                                <label>Nombre Corto</label>
+                                <input type="text" id="nombre_corto" placeholder="Nombre abreviado" maxlength="50">
+                            </div>
+                            <div class="form-group col-4">
+                                <label>Nombre en POS</label>
+                                <input type="text" id="nombre_pos" placeholder="Mostrar en punto de venta" maxlength="50">
+                            </div>
+                            <div class="form-group col-4">
+                                <label>Nombre en Ticket</label>
+                                <input type="text" id="nombre_ticket" placeholder="Imprimir en ticket" maxlength="40">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-4">
+                                <label>Código de Barras</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-barcode"></i>
+                                    <input type="text" id="codigo_barras" placeholder="Escanear o escribir">
+                                </div>
+                            </div>
+                            <div class="form-group col-4">
+                                <label>Código Interno (SKU)</label>
+                                <input type="text" id="codigo_interno" placeholder="SKU interno">
+                            </div>
+                            <div class="form-group col-4">
+                                <label>Código SAT</label>
+                                <input type="text" id="codigo_sat" placeholder="Clave producto SAT">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-12">
+                                <label>Descripción</label>
+                                <textarea id="descripcion" rows="2" placeholder="Descripción detallada del producto..."></textarea>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-4">
+                                <label>Tipo</label>
+                                <select id="tipo">
+                                    <option value="PRODUCTO">Producto</option>
+                                    <option value="SERVICIO">Servicio</option>
+                                    <option value="COMBO">Combo</option>
+                                    <option value="PAQUETE">Paquete</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-4">
+                                <label>URL Imagen</label>
+                                <input type="url" id="imagen_url" placeholder="https://...">
+                            </div>
+                            <div class="form-group col-4">
+                                <label>Vista Previa</label>
+                                <div class="img-preview" id="imgPreview">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB: UNIDADES -->
+                    <div class="tab-content" id="tab-unidades">
+                        <div class="info-box info">
+                            <i class="fas fa-info-circle"></i>
+                            <div>
+                                <strong>Conversión de Unidades</strong>
+                                <p>Define cómo compras y vendes el producto. Ejemplo: Compras una REJA de 24 piezas y vendes por PIEZA.</p>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-4">
+                                <label>Unidad de Compra</label>
+                                <select id="unidad_compra" onchange="actualizarConversion()">
+                                    <option value="PZ">Pieza (PZ)</option>
+                                    <option value="CJ">Caja (CJ)</option>
+                                    <option value="RJ">Reja (RJ)</option>
+                                    <option value="PQ">Paquete (PQ)</option>
+                                    <option value="BT">Bulto (BT)</option>
+                                    <option value="KG">Kilogramo (KG)</option>
+                                    <option value="LT">Litro (LT)</option>
+                                    <option value="MT">Metro (MT)</option>
+                                    <option value="GL">Galón (GL)</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-4">
+                                <label>Factor de Conversión</label>
+                                <input type="number" id="factor_conversion" step="0.0001" min="1" value="1" placeholder="1" oninput="actualizarConversion(); calcularCostoUnitario();">
+                            </div>
+                            <div class="form-group col-4">
                                 <label>Unidad de Venta</label>
-                                <select id="unidad_venta">
+                                <select id="unidad_venta" onchange="actualizarConversion()">
                                     <option value="PZ">Pieza (PZ)</option>
                                     <option value="KG">Kilogramo (KG)</option>
                                     <option value="LT">Litro (LT)</option>
                                     <option value="MT">Metro (MT)</option>
-                                    <option value="CJ">Caja (CJ)</option>
-                                    <option value="PQ">Paquete (PQ)</option>
+                                    <option value="GR">Gramo (GR)</option>
+                                    <option value="ML">Mililitro (ML)</option>
                                 </select>
                             </div>
                         </div>
+                        <div class="conversion-box" id="conversionBox">
+                            <div class="conversion-visual">
+                                <div class="conv-item">
+                                    <i class="fas fa-truck"></i>
+                                    <span>1</span>
+                                    <strong id="convUCompra">PZ</strong>
+                                </div>
+                                <div class="conv-arrow">
+                                    <i class="fas fa-equals"></i>
+                                </div>
+                                <div class="conv-item highlight">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    <span id="convFactor">1</span>
+                                    <strong id="convUVenta">PZ</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-6">
+                                <label>Unidad de Inventario</label>
+                                <select id="unidad_inventario_id">
+                                    <option value="PZ">Pieza (PZ)</option>
+                                    <option value="KG">Kilogramo (KG)</option>
+                                    <option value="LT">Litro (LT)</option>
+                                    <option value="MT">Metro (MT)</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-6">
+                                <label>Factor Venta</label>
+                                <input type="number" id="factor_venta" step="0.0001" min="0.0001" value="1" placeholder="1">
+                                <small class="help-text">Para venta a granel. Ej: 0.001 para vender en gramos</small>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="form-section">
-                        <h4><i class="fas fa-dollar-sign"></i> Precios</h4>
-                        <div class="form-grid cols-5">
-                            <div class="form-group">
-                                <label>Costo</label>
-                                <div class="input-icon-left">
+                    <!-- TAB: PRECIOS -->
+                    <div class="tab-content" id="tab-precios">
+                        <div class="form-row">
+                            <div class="form-group col-6">
+                                <label>Costo por Unidad de Compra</label>
+                                <div class="input-money">
                                     <span>$</span>
-                                    <input type="number" id="costo" step="0.01" placeholder="0.00">
+                                    <input type="number" id="costo_compra" step="0.01" placeholder="0.00" oninput="calcularCostoUnitario()">
                                 </div>
+                                <small class="help-text">Ej: $300.00 por reja</small>
                             </div>
-                            <div class="form-group">
-                                <label>Precio 1 *</label>
-                                <div class="input-icon-left">
+                            <div class="form-group col-6">
+                                <label>Costo Unitario <span class="badge-calc">Auto</span></label>
+                                <div class="input-money calculated">
                                     <span>$</span>
-                                    <input type="number" id="precio1" step="0.01" placeholder="0.00" required>
+                                    <input type="number" id="costo" step="0.0001" placeholder="0.00" readonly>
                                 </div>
+                                <small class="help-text" id="costoFormula">Costo compra ÷ Factor</small>
                             </div>
-                            <div class="form-group">
-                                <label>Precio 2</label>
-                                <div class="input-icon-left">
+                        </div>
+
+                        <div class="divider"><span>Precios de Venta</span></div>
+
+                        <div class="form-row">
+                            <div class="form-group col-3">
+                                <label>Precio 1 (Público) <span class="required">*</span></label>
+                                <div class="input-money">
                                     <span>$</span>
-                                    <input type="number" id="precio2" step="0.01" placeholder="0.00">
+                                    <input type="number" id="precio1" step="0.01" placeholder="0.00" required oninput="calcularMargen(1)">
                                 </div>
+                                <div class="margin-badge" id="margen1">Margen: --%</div>
                             </div>
-                            <div class="form-group">
-                                <label>Precio 3</label>
-                                <div class="input-icon-left">
+                            <div class="form-group col-3">
+                                <label>Precio 2 (Mayoreo)</label>
+                                <div class="input-money">
                                     <span>$</span>
-                                    <input type="number" id="precio3" step="0.01" placeholder="0.00">
+                                    <input type="number" id="precio2" step="0.01" placeholder="0.00" oninput="calcularMargen(2)">
                                 </div>
+                                <div class="margin-badge" id="margen2">Margen: --%</div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group col-3">
+                                <label>Precio 3 (Especial)</label>
+                                <div class="input-money">
+                                    <span>$</span>
+                                    <input type="number" id="precio3" step="0.01" placeholder="0.00" oninput="calcularMargen(3)">
+                                </div>
+                                <div class="margin-badge" id="margen3">Margen: --%</div>
+                            </div>
+                            <div class="form-group col-3">
                                 <label>Precio 4</label>
-                                <div class="input-icon-left">
+                                <div class="input-money">
                                     <span>$</span>
-                                    <input type="number" id="precio4" step="0.01" placeholder="0.00">
+                                    <input type="number" id="precio4" step="0.01" placeholder="0.00" oninput="calcularMargen(4)">
+                                </div>
+                                <div class="margin-badge" id="margen4">Margen: --%</div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-4">
+                                <label>Precio Mínimo</label>
+                                <div class="input-money">
+                                    <span>$</span>
+                                    <input type="number" id="precio_minimo" step="0.01" placeholder="0.00">
+                                </div>
+                                <small class="help-text">No vender por debajo de este precio</small>
+                            </div>
+                            <div class="form-group col-4">
+                                <label>Último Costo</label>
+                                <div class="input-money readonly">
+                                    <span>$</span>
+                                    <input type="number" id="ultimo_costo" step="0.01" placeholder="0.00" readonly>
+                                </div>
+                            </div>
+                            <div class="form-group col-4">
+                                <label>Costo Promedio</label>
+                                <div class="input-money readonly">
+                                    <span>$</span>
+                                    <input type="number" id="costo_promedio" step="0.01" placeholder="0.00" readonly>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="form-section">
-                        <h4><i class="fas fa-cog"></i> Configuración</h4>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="checkbox-label">
-                                    <input type="checkbox" id="permite_descuento" checked>
-                                    <span>Permite descuento</span>
+                    <!-- TAB: IMPUESTOS -->
+                    <div class="tab-content" id="tab-impuestos">
+                        <div class="form-row">
+                            <div class="form-group col-6">
+                                <label>IVA</label>
+                                <div class="radio-cards">
+                                    <label class="radio-card">
+                                        <input type="radio" name="iva" value="0">
+                                        <div class="card-content">
+                                            <span class="percentage">0%</span>
+                                            <span class="label">Exento</span>
+                                        </div>
+                                    </label>
+                                    <label class="radio-card">
+                                        <input type="radio" name="iva" value="8">
+                                        <div class="card-content">
+                                            <span class="percentage">8%</span>
+                                            <span class="label">Frontera</span>
+                                        </div>
+                                    </label>
+                                    <label class="radio-card active">
+                                        <input type="radio" name="iva" value="16" checked>
+                                        <div class="card-content">
+                                            <span class="percentage">16%</span>
+                                            <span class="label">General</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group col-6">
+                                <label>IEPS (%)</label>
+                                <div class="input-percent">
+                                    <input type="number" id="ieps" step="0.01" min="0" placeholder="0" value="0">
+                                    <span>%</span>
+                                </div>
+                                <small class="help-text">Impuesto Especial sobre Producción y Servicios</small>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-12">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="precio_incluye_impuesto" checked>
+                                    <span class="slider"></span>
+                                    <span class="toggle-label">
+                                        <strong>Precio incluye impuestos</strong>
+                                        <small>Si está activo, los precios ya incluyen IVA e IEPS</small>
+                                    </span>
                                 </label>
                             </div>
-                            <div class="form-group">
-                                <label>Descuento Máximo (%)</label>
-                                <input type="number" id="descuento_maximo" min="0" max="100" placeholder="0">
+                        </div>
+                        <div class="tax-summary" id="taxSummary">
+                            <h4>Resumen de Impuestos (Precio 1)</h4>
+                            <div class="tax-row">
+                                <span>Precio sin impuestos:</span>
+                                <strong id="precioSinImp">$0.00</strong>
                             </div>
-                            <div class="form-group">
-                                <label class="checkbox-label">
+                            <div class="tax-row">
+                                <span>IVA (<span id="ivaPercent">16</span>%):</span>
+                                <strong id="ivaAmount">$0.00</strong>
+                            </div>
+                            <div class="tax-row">
+                                <span>IEPS (<span id="iepsPercent">0</span>%):</span>
+                                <strong id="iepsAmount">$0.00</strong>
+                            </div>
+                            <div class="tax-row total">
+                                <span>Precio Final:</span>
+                                <strong id="precioFinal">$0.00</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB: INVENTARIO -->
+                    <div class="tab-content" id="tab-inventario">
+                        <div class="form-row">
+                            <div class="form-group col-4">
+                                <label>Stock Mínimo</label>
+                                <input type="number" id="stock_minimo" step="0.001" min="0" placeholder="0">
+                                <small class="help-text">Alerta cuando llegue a este nivel</small>
+                            </div>
+                            <div class="form-group col-4">
+                                <label>Stock Máximo</label>
+                                <input type="number" id="stock_maximo" step="0.001" min="0" placeholder="0">
+                            </div>
+                            <div class="form-group col-4">
+                                <label>Punto de Reorden</label>
+                                <input type="number" id="punto_reorden" step="0.001" min="0" placeholder="0">
+                                <small class="help-text">Generar orden de compra</small>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-6">
+                                <label>Ubicación en Almacén</label>
+                                <input type="text" id="ubicacion_almacen" placeholder="Ej: Pasillo 3, Anaquel B">
+                            </div>
+                        </div>
+                        <div class="divider"><span>Control Especial</span></div>
+                        <div class="form-row">
+                            <div class="form-group col-4">
+                                <label class="toggle-switch small">
+                                    <input type="checkbox" id="maneja_lotes">
+                                    <span class="slider"></span>
+                                    <span class="toggle-label">Maneja Lotes</span>
+                                </label>
+                            </div>
+                            <div class="form-group col-4">
+                                <label class="toggle-switch small">
+                                    <input type="checkbox" id="maneja_caducidad">
+                                    <span class="slider"></span>
+                                    <span class="toggle-label">Maneja Caducidad</span>
+                                </label>
+                            </div>
+                            <div class="form-group col-4">
+                                <label class="toggle-switch small">
+                                    <input type="checkbox" id="maneja_series">
+                                    <span class="slider"></span>
+                                    <span class="toggle-label">Maneja Series</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-row" id="rowCaducidad" style="display:none">
+                            <div class="form-group col-4">
+                                <label>Días antes de caducidad (alerta)</label>
+                                <input type="number" id="dias_caducidad" min="0" placeholder="30">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB: CONFIGURACIÓN -->
+                    <div class="tab-content" id="tab-config">
+                        <div class="form-row">
+                            <div class="form-group col-6">
+                                <label class="toggle-switch">
                                     <input type="checkbox" id="es_inventariable" checked>
-                                    <span>Es inventariable</span>
+                                    <span class="slider"></span>
+                                    <span class="toggle-label">
+                                        <strong>Es Inventariable</strong>
+                                        <small>Controlar existencias en almacén</small>
+                                    </span>
                                 </label>
                             </div>
-                            <div class="form-group">
-                                <label class="checkbox-label">
+                            <div class="form-group col-6">
+                                <label class="toggle-switch">
                                     <input type="checkbox" id="es_vendible" checked>
-                                    <span>Es vendible</span>
+                                    <span class="slider"></span>
+                                    <span class="toggle-label">
+                                        <strong>Es Vendible</strong>
+                                        <small>Mostrar en punto de venta</small>
+                                    </span>
                                 </label>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-6">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="es_comprable" checked>
+                                    <span class="slider"></span>
+                                    <span class="toggle-label">
+                                        <strong>Es Comprable</strong>
+                                        <small>Disponible para órdenes de compra</small>
+                                    </span>
+                                </label>
+                            </div>
+                            <div class="form-group col-6">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="mostrar_pos" checked>
+                                    <span class="slider"></span>
+                                    <span class="toggle-label">
+                                        <strong>Mostrar en POS</strong>
+                                        <small>Visible en pantalla de ventas</small>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="divider"><span>Descuentos</span></div>
+
+                        <div class="form-row">
+                            <div class="form-group col-6">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="permite_descuento" checked>
+                                    <span class="slider"></span>
+                                    <span class="toggle-label">
+                                        <strong>Permite Descuento</strong>
+                                        <small>Autorizar descuentos en este producto</small>
+                                    </span>
+                                </label>
+                            </div>
+                            <div class="form-group col-6">
+                                <label>Descuento Máximo (%)</label>
+                                <div class="input-percent">
+                                    <input type="number" id="descuento_maximo" min="0" max="100" placeholder="0" value="100">
+                                    <span>%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="divider"><span>POS</span></div>
+
+                        <div class="form-row">
+                            <div class="form-group col-4">
+                                <label>Color en POS</label>
+                                <div class="color-picker">
+                                    <input type="color" id="color_pos" value="#3498db">
+                                    <input type="text" id="color_pos_text" value="#3498db" onchange="document.getElementById('color_pos').value=this.value">
+                                </div>
+                            </div>
+                            <div class="form-group col-4">
+                                <label>Orden en POS</label>
+                                <input type="number" id="orden_pos" min="0" placeholder="0" value="0">
+                            </div>
+                            <div class="form-group col-4">
+                                <label>Tecla Rápida</label>
+                                <input type="text" id="tecla_rapida" placeholder="Ej: F5" maxlength="10">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-12">
+                                <label>Notas Internas</label>
+                                <textarea id="notas_internas" rows="2" placeholder="Notas solo visibles para administradores..."></textarea>
                             </div>
                         </div>
                     </div>
                 </div>
+
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" onclick="cerrarModal()">Cancelar</button>
-                    <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Guardar</button>
+                    <button type="button" class="btn btn-outline" onclick="cerrarModal()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Guardar Producto
+                    </button>
                 </div>
             </form>
         </div>
