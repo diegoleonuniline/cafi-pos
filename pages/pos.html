@@ -3,172 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAFI POS</title>
+    <title>CAFI POS - Punto de Venta</title>
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="pos-container">
-        <!-- HEADER -->
-        <header class="header">
-            <div class="header-left">
-                <a href="pos.html" class="logo">
-                    <svg viewBox="0 0 500 500" width="32" height="32">
-                        <g transform="translate(0,500) scale(0.1,-0.1)">
-                            <path fill="#2D3DBF" d="M905 3775 c-5 -2 -22 -6 -37 -9 -62 -14 -127 -102 -128 -174 0 -43 24 -100 58 -135 39 -41 107 -57 246 -57 l121 0 136 -137 137 -138 59 -145 c33 -80 89 -219 124 -309 l64 -165 7 105 c9 150 39 265 103 394 74 150 174 267 305 357 24 16 16 17 -180 17 l-205 1 -175 176 c-96 96 -193 185 -215 197 -37 20 -56 22 -225 24 -102 1 -189 1 -195 -2z"/>
-                            <path fill="#6C2BD9" d="M3270 3352 c143 -112 231 -234 285 -399 14 -43 28 -105 32 -138 9 -98 16 -96 -293 -93 l-259 3 -30 58 c-43 83 -88 133 -148 165 -48 25 -61 27 -172 27 -112 0 -124 -2 -178 -29 -60 -30 -126 -95 -157 -156 -39 -77 -52 -147 -48 -264 3 -104 6 -116 40 -188 78 -163 207 -239 382 -225 135 12 252 97 286 210 23 80 11 77 301 77 l258 0 18 -23 17 -24 40 101 c21 56 99 254 174 441 80 202 135 355 136 377 1 45 -32 84 -83 98 -20 6 -168 10 -336 10 l-300 0 35 -28z"/>
-                            <path fill="#2E2E2E" d="M2147 1706 c-175 -48 -237 -282 -109 -412 93 -94 263 -88 351 11 46 53 61 93 61 165 0 162 -149 278 -303 236z"/>
-                            <path fill="#2E2E2E" d="M3058 1706 c-150 -41 -228 -210 -159 -344 79 -154 289 -183 402 -55 43 50 59 92 59 160 -1 163 -150 281 -302 239z"/>
-                        </g>
-                    </svg>
-                    <span>CAFI</span>
-                </a>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <svg viewBox="0 0 500 500" width="40" height="40">
+                    <g transform="translate(0,500) scale(0.1,-0.1)">
+                        <path fill="#2D3DBF" d="M905 3775 c-5 -2 -22 -6 -37 -9 -62 -14 -127 -102 -128 -174 0 -43 24 -100 58 -135 39 -41 107 -57 246 -57 l121 0 136 -137 137 -138 59 -145 c33 -80 89 -219 124 -309 l64 -165 7 105 c9 150 39 265 103 394 74 150 174 267 305 357 24 16 16 17 -180 17 l-205 1 -175 176 c-96 96 -193 185 -215 197 -37 20 -56 22 -225 24 -102 1 -189 1 -195 -2z"/>
+                        <path fill="#6C2BD9" d="M3270 3352 c143 -112 231 -234 285 -399 14 -43 28 -105 32 -138 9 -98 16 -96 -293 -93 l-259 3 -30 58 c-43 83 -88 133 -148 165 -48 25 -61 27 -172 27 -112 0 -124 -2 -178 -29 -60 -30 -126 -95 -157 -156 -39 -77 -52 -147 -48 -264 3 -104 6 -116 40 -188 78 -163 207 -239 382 -225 135 12 252 97 286 210 23 80 11 77 301 77 l258 0 18 -23 17 -24 40 101 c21 56 99 254 174 441 80 202 135 355 136 377 1 45 -32 84 -83 98 -20 6 -168 10 -336 10 l-300 0 35 -28z"/>
+                        <path fill="#fff" d="M2147 1706 c-175 -48 -237 -282 -109 -412 93 -94 263 -88 351 11 46 53 61 93 61 165 0 162 -149 278 -303 236z"/>
+                        <path fill="#fff" d="M3058 1706 c-150 -41 -228 -210 -159 -344 79 -154 289 -183 402 -55 43 50 59 92 59 160 -1 163 -150 281 -302 239z"/>
+                    </g>
+                </svg>
+                <h2>CAFI</h2>
             </div>
-            <div class="header-center" id="navAdmin" style="display:none">
-                <a href="pos.html" class="hbtn active"><i class="fas fa-cash-register"></i> POS</a>
-                <a href="productos.html" class="hbtn"><i class="fas fa-boxes"></i> Productos</a>
-                <a href="clientes.html" class="hbtn"><i class="fas fa-users"></i> Clientes</a>
-                <a href="categorias.html" class="hbtn"><i class="fas fa-tags"></i> Categorías</a>
-                <a href="ventas.html" class="hbtn"><i class="fas fa-chart-line"></i> Ventas</a>
-            </div>
-            <div class="header-right">
-                <div class="user-pill">
-                    <div class="user-avatar" id="userAvatar">U</div>
-                    <div class="user-text">
-                        <span id="userName">Usuario</span>
-                        <small id="userSucursal">Sucursal</small>
+            <nav class="sidebar-menu">
+                <a href="pos.html" class="menu-item active"><i class="fas fa-cash-register"></i> Punto de Venta</a>
+                <a href="productos.html" class="menu-item" id="navProductos"><i class="fas fa-boxes"></i> Productos</a>
+                <a href="clientes.html" class="menu-item" id="navClientes"><i class="fas fa-users"></i> Clientes</a>
+                <a href="categorias.html" class="menu-item" id="navCategorias"><i class="fas fa-tags"></i> Categorías</a>
+                <a href="ventas.html" class="menu-item" id="navVentas"><i class="fas fa-chart-line"></i> Ventas</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <div>
+                        <div class="user-name" id="userName">Usuario</div>
+                        <div class="user-role" id="userRole">Cajero</div>
                     </div>
                 </div>
-                <button class="hbtn" onclick="API.logout()"><i class="fas fa-sign-out-alt"></i></button>
+                <button class="btn-logout" onclick="API.logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
             </div>
-        </header>
+        </aside>
 
-        <!-- MAIN -->
-        <main class="pos-main">
-            <!-- CARRITO -->
-            <section class="pos-cart">
-                <!-- Cliente Selector -->
-                <div class="cliente-bar">
-                    <div class="cliente-info" onclick="abrirModalCliente()">
-                        <i class="fas fa-user-circle"></i>
-                        <div>
-                            <span id="clienteNombre">Público General</span>
-                            <small id="clientePrecio">Precio 1</small>
+        <main class="main-content">
+            <div class="pos-container">
+                <!-- Panel Productos -->
+                <div class="productos-panel">
+                    <div class="categorias-bar" id="categorias">
+                        <button class="categoria-btn active" data-id="">Todos</button>
+                    </div>
+                    <div class="search-box">
+                        <input type="text" id="buscar" placeholder="🔍 Buscar producto o escanear código de barras...">
+                    </div>
+                    <div class="productos-grid" id="productos"></div>
+                </div>
+
+                <!-- Panel Carrito -->
+                <div class="carrito-panel" id="carritoPanel">
+                    <div class="carrito-header">
+                        <h3><i class="fas fa-shopping-cart"></i> Ticket de Venta</h3>
+                        <select id="clienteSelect">
+                            <option value="">👤 Público en General</option>
+                        </select>
+                    </div>
+                    <div class="carrito-items" id="carritoItems">
+                        <div class="carrito-empty" id="carritoEmpty">
+                            <i class="fas fa-shopping-basket"></i>
+                            <p>Agrega productos</p>
+                            <small>Escanea o busca para comenzar</small>
                         </div>
-                        <i class="fas fa-chevron-down"></i>
                     </div>
-                    <div class="tipo-venta-btns">
-                        <button id="btnContado" class="active" onclick="setTipoVenta('CONTADO')">Contado</button>
-                        <button id="btnCredito" onclick="setTipoVenta('CREDITO')">Crédito</button>
-                    </div>
-                </div>
-
-                <!-- Buscador -->
-                <div class="cart-search">
-                    <i class="fas fa-barcode"></i>
-                    <input type="text" id="inputBuscar" placeholder="Escanear código o F2 para buscar..." autofocus>
-                    <button class="btn-search" onclick="abrirModal('modalBusqueda')"><i class="fas fa-search"></i></button>
-                </div>
-
-                <!-- Tabla Carrito -->
-                <div class="cart-table">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th class="col-producto">Producto</th>
-                                <th class="col-precio">Precio</th>
-                                <th class="col-cantidad">Cant.</th>
-                                <th class="col-und">Und</th>
-                                <th class="col-importe">Importe</th>
-                                <th class="col-acciones"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="carritoBody"></tbody>
-                    </table>
-                    <div class="cart-empty" id="carritoEmpty">
-                        <i class="fas fa-shopping-cart"></i>
-                        <p>Carrito vacío</p>
-                        <small>Escanea un producto o presiona F2</small>
+                    <div class="carrito-footer">
+                        <div class="total-row">
+                            <span class="total-label">TOTAL</span>
+                            <span class="total-value" id="totalVenta">$0.00</span>
+                        </div>
+                        <button class="btn btn-success btn-cobrar" id="btnCobrar" disabled onclick="abrirModalCobro()">
+                            <i class="fas fa-cash-register"></i> COBRAR
+                        </button>
                     </div>
                 </div>
-
-                <!-- Resumen -->
-                <div class="cart-summary">
-                    <div class="summary-row"><span>Artículos:</span><span id="rArticulos">0</span></div>
-                    <div class="summary-row"><span>Subtotal:</span><span id="rSubtotal">$0.00</span></div>
-                    <div class="summary-row"><span>Descuentos:</span><span id="rDescuentos">-$0.00</span></div>
-                    <div class="summary-row tipo"><span>Tipo:</span><span id="rTipo">CONTADO</span></div>
-                    <div class="summary-row cliente"><span>Cliente:</span><span id="rCliente">Público General</span></div>
-                </div>
-            </section>
-
-            <!-- PANEL DERECHO -->
-            <aside class="pos-panel">
-                <div class="total-display">
-                    <span>TOTAL</span>
-                    <div id="totalDisplay">$0.00</div>
-                </div>
-
-                <div class="action-buttons">
-                    <button class="btn-action-pos cobrar" id="btnCobrar" onclick="abrirModalCobro()" disabled>
-                        <i class="fas fa-dollar-sign"></i>
-                        <span>COBRAR</span>
-                        <small>F12</small>
-                    </button>
-                    <button class="btn-action-pos cancelar" onclick="cancelarVenta()">
-                        <i class="fas fa-times"></i>
-                        <span>Cancelar</span>
-                        <small>F4</small>
-                    </button>
-                </div>
-
-                <div class="shortcuts">
-                    <button onclick="abrirModal('modalBusqueda')"><i class="fas fa-search"></i> Buscar <span>F2</span></button>
-                    <button onclick="abrirModalCliente()"><i class="fas fa-user"></i> Cliente <span>F3</span></button>
-                    <button onclick="aplicarDescuento()"><i class="fas fa-percent"></i> Descuento <span>F5</span></button>
-                    <button onclick="pausarVenta()"><i class="fas fa-pause"></i> Pausar <span>F6</span></button>
-                </div>
-            </aside>
+            </div>
         </main>
     </div>
 
-    <!-- MODAL BÚSQUEDA PRODUCTOS -->
-    <div class="modal-overlay" id="modalBusqueda">
-        <div class="modal modal-xl">
-            <div class="modal-header">
-                <h3><i class="fas fa-search"></i> Buscar Producto</h3>
-                <button class="btn-close" onclick="cerrarModal('modalBusqueda')"><i class="fas fa-times"></i></button>
+    <!-- Modal Cobro -->
+    <div class="modal-overlay" id="modalCobro">
+        <div class="modal modal-sm">
+            <div class="cobro-header">
+                <small>Total a Pagar</small>
+                <h2 id="modalTotal">$0.00</h2>
+                <span class="badge" id="cobroTipo">CONTADO</span>
             </div>
-            <div class="modal-body">
-                <div class="busqueda-filtros">
-                    <div class="filtro-buscar">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="buscarProducto" placeholder="Nombre, código o descripción..." oninput="filtrarProductos()">
-                    </div>
-                    <select id="filtroCategoria" onchange="filtrarProductos()">
-                        <option value="">Todas las categorías</option>
-                    </select>
+            <div class="cobro-body">
+                <div class="cobro-metodos" id="cobroMetodos">
+                    <button class="active" data-id="efectivo"><i class="fas fa-money-bill-wave"></i> Efectivo</button>
+                    <button data-id="tarjeta"><i class="fas fa-credit-card"></i> Tarjeta</button>
+                    <button data-id="mixto"><i class="fas fa-exchange-alt"></i> Mixto</button>
                 </div>
-                <div class="tabla-productos">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width:50px"></th>
-                                <th>Código</th>
-                                <th>Nombre</th>
-                                <th>Unidad</th>
-                                <th>Precio</th>
-                                <th style="width:120px">Agregar</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbodyProductos"></tbody>
-                    </table>
+                <div class="cobro-field">
+                    <label>Efectivo Recibido</label>
+                    <input type="text" id="recibido" placeholder="$0.00" oninput="calcularCambio()">
+                </div>
+                <div class="cobro-denoms">
+                    <button onclick="addEfectivo(20)">$20</button>
+                    <button onclick="addEfectivo(50)">$50</button>
+                    <button onclick="addEfectivo(100)">$100</button>
+                    <button onclick="addEfectivo(200)">$200</button>
+                    <button onclick="addEfectivo(500)">$500</button>
+                    <button onclick="setExacto()">Exacto</button>
+                    <button onclick="limpiarEfectivo()">Limpiar</button>
+                </div>
+                <div class="cobro-cambio">
+                    <span>Cambio</span>
+                    <strong id="cambio">$0.00</strong>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="cerrarModal('modalCobro')">Cancelar</button>
+                <button class="btn btn-success" onclick="confirmarVenta()">
+                    <i class="fas fa-check"></i> Confirmar Venta
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Éxito -->
+    <div class="modal-overlay" id="modalExito">
+        <div class="modal modal-sm">
+            <div class="success-content">
+                <div class="success-icon"><i class="fas fa-check"></i></div>
+                <h2>¡Venta Exitosa!</h2>
+                <div class="success-details">
+                    <p>Ticket: <strong id="exitoTicket">#0001</strong></p>
+                    <p>Total: <strong id="exitoTotal">$0.00</strong></p>
+                    <p>Cambio: <strong id="exitoCambio">$0.00</strong></p>
+                </div>
+                <div class="success-actions">
+                    <button class="btn btn-outline" onclick="imprimirTicket()"><i class="fas fa-print"></i> Imprimir</button>
+                    <button class="btn btn-primary" onclick="nuevaVenta()"><i class="fas fa-plus"></i> Nueva Venta</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL CANTIDAD (para granel) -->
+    <!-- Modal Cliente -->
+    <div class="modal-overlay" id="modalCliente">
+        <div class="modal modal-md">
+            <div class="modal-header">
+                <h3><i class="fas fa-user"></i> Seleccionar Cliente</h3>
+                <button class="btn-close" onclick="cerrarModal('modalCliente')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="cliente-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="buscarCliente" placeholder="Buscar por nombre, teléfono o RFC..." oninput="filtrarClientes()">
+                </div>
+                <div class="cliente-list" id="listaClientes"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="seleccionarCliente(null)"><i class="fas fa-user"></i> Público General</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cantidad -->
     <div class="modal-overlay" id="modalCantidad">
         <div class="modal modal-sm">
             <div class="modal-header gradient">
@@ -178,7 +172,7 @@
             <div class="modal-body" style="padding:24px">
                 <input type="hidden" id="cantidadProductoId">
                 <div class="producto-seleccionado">
-                    <img id="cantidadImagen" src="" onerror="this.src='https://via.placeholder.com/60?text=P'">
+                    <img id="cantidadImagen" src="" onerror="this.style.display='none'">
                     <div>
                         <strong id="cantidadNombre">Producto</strong>
                         <span id="cantidadPrecio">$0.00 / KG</span>
@@ -192,9 +186,7 @@
                     </div>
                     <button class="cant-btn" onclick="ajustarCantidadModal(1)">+</button>
                 </div>
-                <div class="cantidad-presets" id="cantidadPresets">
-                    <!-- Se llena dinámicamente según unidad -->
-                </div>
+                <div class="cantidad-presets" id="cantidadPresets"></div>
                 <div class="subtotal-preview">
                     <span>Subtotal:</span>
                     <strong id="subtotalModal">$0.00</strong>
@@ -207,95 +199,6 @@
         </div>
     </div>
 
-    <!-- MODAL CLIENTE -->
-    <div class="modal-overlay" id="modalCliente">
-        <div class="modal modal-md">
-            <div class="modal-header">
-                <h3><i class="fas fa-user"></i> Seleccionar Cliente</h3>
-                <button class="btn-close" onclick="cerrarModal('modalCliente')"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="cliente-search">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="buscarCliente" placeholder="Buscar por nombre, teléfono o RFC..." oninput="filtrarClientes()">
-                </div>
-                <div class="cliente-list" id="listaClientes">
-                    <!-- Se llena dinámicamente -->
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="seleccionarCliente(null)"><i class="fas fa-user"></i> Público General</button>
-                <button class="btn btn-primary" onclick="abrirNuevoCliente()"><i class="fas fa-plus"></i> Nuevo Cliente</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL COBRO -->
-    <div class="modal-overlay" id="modalCobro">
-        <div class="modal modal-cobro">
-            <div class="modal-header gradient">
-                <h3><i class="fas fa-cash-register"></i> Cobrar Venta</h3>
-                <button class="btn-close light" onclick="cerrarModal('modalCobro')"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="cobro-total">
-                    <span>Total a Cobrar</span>
-                    <div id="cobroTotal">$0.00</div>
-                    <small>Tipo: <span id="cobroTipo">CONTADO</span> | Cliente: <span id="cobroCliente">Público General</span></small>
-                </div>
-                <div class="cobro-metodos" id="cobroMetodos">
-                    <button class="active" data-id="efectivo"><i class="fas fa-money-bill-wave"></i> Efectivo</button>
-                    <button data-id="tarjeta"><i class="fas fa-credit-card"></i> Tarjeta</button>
-                    <button data-id="mixto"><i class="fas fa-exchange-alt"></i> Mixto</button>
-                </div>
-                <div class="cobro-efectivo">
-                    <label>Monto Recibido</label>
-                    <div class="efectivo-input">
-                        <span>$</span>
-                        <input type="text" id="inputRecibido" placeholder="0.00" oninput="calcularCambio()">
-                    </div>
-                    <div class="efectivo-rapido">
-                        <button onclick="addEfectivo(20)">+$20</button>
-                        <button onclick="addEfectivo(50)">+$50</button>
-                        <button onclick="addEfectivo(100)">+$100</button>
-                        <button onclick="addEfectivo(200)">+$200</button>
-                        <button onclick="addEfectivo(500)">+$500</button>
-                        <button onclick="setExacto()">Exacto</button>
-                        <button onclick="limpiarEfectivo()">Limpiar</button>
-                    </div>
-                </div>
-                <div class="cobro-cambio">
-                    <span>Cambio</span>
-                    <div id="displayCambio">$0.00</div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="cerrarModal('modalCobro')">Cancelar</button>
-                <button class="btn btn-success btn-lg" onclick="confirmarVenta()"><i class="fas fa-check"></i> Confirmar Venta</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL ÉXITO -->
-    <div class="modal-overlay" id="modalExito">
-        <div class="modal modal-sm modal-exito">
-            <div class="exito-content">
-                <div class="exito-icon"><i class="fas fa-check-circle"></i></div>
-                <h2>¡Venta Exitosa!</h2>
-                <div class="exito-ticket">Ticket <span id="exitoTicket">#0001</span></div>
-                <div class="exito-detalles">
-                    <div><span>Total:</span><strong id="exitoTotal">$0.00</strong></div>
-                    <div><span>Cambio:</span><strong id="exitoCambio">$0.00</strong></div>
-                </div>
-                <div class="exito-acciones">
-                    <button class="btn btn-outline" onclick="imprimirTicket()"><i class="fas fa-print"></i> Imprimir</button>
-                    <button class="btn btn-success" onclick="cerrarExito()"><i class="fas fa-plus"></i> Nueva Venta</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- TOAST -->
     <div id="toast" class="toast"></div>
 
     <script src="../js/config.js"></script>
