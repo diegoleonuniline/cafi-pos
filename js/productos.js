@@ -1,7 +1,7 @@
 if (!API.isLoggedIn()) window.location.href = '../index.html';
 
-let datos = [];
-let categorias = [];
+var datos = [];
+var categorias = [];
 
 document.addEventListener('DOMContentLoaded', async function() {
     cargarUsuario();
@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 function cargarUsuario() {
-    const u = API.usuario;
+    var u = API.usuario;
     document.getElementById('userName').textContent = u.nombre;
     document.getElementById('userSucursal').textContent = u.sucursal_nombre || 'Sucursal';
     document.getElementById('userAvatar').textContent = u.nombre.charAt(0).toUpperCase();
@@ -23,11 +23,10 @@ async function cargarCategorias() {
         var r = await API.request('/categorias/' + API.usuario.empresa_id);
         console.log('Categorias para productos:', r);
         if (r.success) {
-            categorias = r.data || [];
+            categorias = r.categorias || r.data || [];
             var selFiltro = document.getElementById('filtroCategoria');
             var selForm = document.getElementById('categoria_id');
             
-            // Limpiar opciones existentes excepto la primera
             selFiltro.innerHTML = '<option value="">Todas</option>';
             selForm.innerHTML = '<option value="">Sin categoría</option>';
             
@@ -45,7 +44,7 @@ async function cargarCategorias() {
 
 async function cargarDatos() {
     try {
-        const r = await API.request('/productos/' + API.usuario.empresa_id);
+        var r = await API.request('/productos/' + API.usuario.empresa_id);
         console.log('Respuesta API:', r);
         if (r.success) {
             datos = r.productos || r.data || [];
