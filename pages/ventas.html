@@ -5,226 +5,234 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAFI - Ventas</title>
     <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/catalogos.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .app-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:#fff;border-bottom:1px solid #e5e7eb}
-        .app-bar .logo{display:flex;align-items:center;gap:8px;font-size:24px;font-weight:800;color:#1f2937;text-decoration:none}
-        .app-bar nav{display:flex;gap:8px}
-        .app-bar nav a{display:flex;align-items:center;gap:6px;padding:8px 16px;color:#4b5563;text-decoration:none;border-radius:6px;font-weight:500;font-size:14px}
-        .app-bar nav a:hover{background:#f3f4f6}
-        .app-bar nav a.active{color:#2D3DBF;background:rgba(45,61,191,0.1)}
-        .user-menu{display:flex;align-items:center;gap:12px}
-        .user-menu .avatar{width:36px;height:36px;background:linear-gradient(135deg,#2D3DBF,#6C2BD9);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px}
-        .user-menu .info{text-align:right}
-        .user-menu .info .name{font-weight:600;color:#1f2937;font-size:14px}
-        .user-menu .info .role{font-size:12px;color:#6b7280}
-        .container{max-width:1400px;margin:0 auto;padding:24px}
-        .page-title{font-size:24px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:12px}
-        .page-title i{color:#2D3DBF}
-        .count{color:#6b7280;font-size:14px;margin-bottom:20px}
-        .toolbar{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
-        .toolbar .search{flex:1;min-width:250px;position:relative}
-        .toolbar .search i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#9ca3af}
-        .toolbar .search input{width:100%;padding:10px 12px 10px 38px;border:1px solid #e5e7eb;border-radius:6px;font-size:14px}
-        .toolbar select,.toolbar input[type="date"]{padding:10px 14px;border:1px solid #e5e7eb;border-radius:6px;font-size:14px;background:#fff}
-        .toolbar .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;border:none;text-decoration:none}
-        .toolbar .btn-primary{background:linear-gradient(135deg,#2D3DBF,#6C2BD9);color:#fff}
-        .toolbar .btn-outline{background:#fff;border:1px solid #e5e7eb;color:#4b5563}
-        table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
-        th{background:#f9fafb;padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;border-bottom:1px solid #e5e7eb}
-        td{padding:12px 16px;border-bottom:1px solid #f3f4f6;font-size:14px}
-        tr:hover{background:#f9fafb}
-        .text-primary{color:#2D3DBF;font-weight:600}
-        .badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600}
-        .badge-success{background:#d1fae5;color:#059669}
-        .badge-warning{background:#fef3c7;color:#d97706}
-        .badge-info{background:#dbeafe;color:#2563eb}
-        .actions{display:flex;gap:8px}
-        .btn-icon{width:32px;height:32px;border:none;background:#f3f4f6;border-radius:6px;color:#4b5563;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
-        .btn-icon:hover{background:#2D3DBF;color:#fff}
-        .empty{text-align:center;padding:60px;color:#9ca3af}
-        .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
-        .stat-box{background:#fff;border-radius:8px;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
-        .stat-box .label{font-size:12px;color:#6b7280;margin-bottom:4px}
-        .stat-box .value{font-size:24px;font-weight:700;color:#1f2937}
-        .stat-box.blue .value{color:#2563eb}
-        .stat-box.green .value{color:#059669}
-        .stat-box.purple .value{color:#7c3aed}
-        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000}
-        .modal-overlay.active{display:flex}
-        .modal{background:#fff;border-radius:12px;width:100%;max-width:800px;max-height:90vh;overflow:hidden}
-        .modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;background:linear-gradient(135deg,#2D3DBF,#6C2BD9);color:#fff}
-        .modal-header h3{font-size:16px;font-weight:700}
-        .modal-body{padding:20px;max-height:60vh;overflow-y:auto}
-        .modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:16px 20px;border-top:1px solid #e5e7eb;background:#f9fafb}
-        .btn-close{background:rgba(255,255,255,0.2);border:none;color:#fff;width:32px;height:32px;border-radius:6px;cursor:pointer}
-        .detalle-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:12px;background:#f9fafb;border-radius:8px;margin-bottom:16px}
-        .detalle-grid div{font-size:13px}
-        .detalle-grid strong{display:block;font-size:12px;color:#6b7280;margin-bottom:2px}
-        .toast{position:fixed;bottom:24px;right:24px;background:#1f2937;color:#fff;padding:14px 20px;border-radius:8px;display:none;z-index:9999}
-        .toast.show{display:flex;align-items:center;gap:10px}
-        .toast.error{background:#dc2626}
-        @media(max-width:768px){.stats-row{grid-template-columns:1fr 1fr}.app-bar nav{display:none}}
-    </style>
 </head>
 <body>
-    <div class="app-bar">
-        <a href="pos.html" class="logo">
-            <svg viewBox="0 0 500 500" width="32" height="32"><g transform="translate(0,500) scale(0.1,-0.1)"><path fill="#2D3DBF" d="M905 3775 c-5 -2 -22 -6 -37 -9 -62 -14 -127 -102 -128 -174 0 -43 24 -100 58 -135 39 -41 107 -57 246 -57 l121 0 136 -137 137 -138 59 -145 c33 -80 89 -219 124 -309 l64 -165 7 105 c9 150 39 265 103 394 74 150 174 267 305 357 24 16 16 17 -180 17 l-205 1 -175 176 c-96 96 -193 185 -215 197 -37 20 -56 22 -225 24 -102 1 -189 1 -195 -2z"/><path fill="#6C2BD9" d="M3270 3352 c143 -112 231 -234 285 -399 14 -43 28 -105 32 -138 9 -98 16 -96 -293 -93 l-259 3 -30 58 c-43 83 -88 133 -148 165 -48 25 -61 27 -172 27 -112 0 -124 -2 -178 -29 -60 -30 -126 -95 -157 -156 -39 -77 -52 -147 -48 -264 3 -104 6 -116 40 -188 78 -163 207 -239 382 -225 135 12 252 97 286 210 23 80 11 77 301 77 l258 0 18 -23 17 -24 40 101 c21 56 99 254 174 441 80 202 135 355 136 377 1 45 -32 84 -83 98 -20 6 -168 10 -336 10 l-300 0 35 -28z"/><path fill="#2E2E2E" d="M2147 1706 c-175 -48 -237 -282 -109 -412 93 -94 263 -88 351 11 46 53 61 93 61 165 0 162 -149 278 -303 236z"/><path fill="#2E2E2E" d="M3058 1706 c-150 -41 -228 -210 -159 -344 79 -154 289 -183 402 -55 43 50 59 92 59 160 -1 163 -150 281 -302 239z"/></g></svg>
-            CAFI
-        </a>
-        <nav>
-            <a href="pos.html"><i class="fas fa-cash-register"></i> POS</a>
-            <a href="productos.html"><i class="fas fa-box"></i> Productos</a>
-            <a href="clientes.html"><i class="fas fa-users"></i> Clientes</a>
-            <a href="categorias.html"><i class="fas fa-tags"></i> Categorías</a>
-            <a href="ventas.html" class="active"><i class="fas fa-chart-line"></i> Ventas</a>
-        </nav>
-        <div class="user-menu">
-            <div class="info">
-                <div class="name" id="userName">Usuario</div>
-                <div class="role" id="userSucursal">Sucursal</div>
+    <div class="app-container">
+        <header class="header">
+            <div class="header-left">
+                <a href="pos.html" class="logo">
+                    <svg viewBox="0 0 500 500" width="32" height="32">
+                        <g transform="translate(0,500) scale(0.1,-0.1)">
+                            <path fill="#2D3DBF" d="M905 3775 c-5 -2 -22 -6 -37 -9 -62 -14 -127 -102 -128 -174 0 -43 24 -100 58 -135 39 -41 107 -57 246 -57 l121 0 136 -137 137 -138 59 -145 c33 -80 89 -219 124 -309 l64 -165 7 105 c9 150 39 265 103 394 74 150 174 267 305 357 24 16 16 17 -180 17 l-205 1 -175 176 c-96 96 -193 185 -215 197 -37 20 -56 22 -225 24 -102 1 -189 1 -195 -2z"/>
+                            <path fill="#6C2BD9" d="M3270 3352 c143 -112 231 -234 285 -399 14 -43 28 -105 32 -138 9 -98 16 -96 -293 -93 l-259 3 -30 58 c-43 83 -88 133 -148 165 -48 25 -61 27 -172 27 -112 0 -124 -2 -178 -29 -60 -30 -126 -95 -157 -156 -39 -77 -52 -147 -48 -264 3 -104 6 -116 40 -188 78 -163 207 -239 382 -225 135 12 252 97 286 210 23 80 11 77 301 77 l258 0 18 -23 17 -24 40 101 c21 56 99 254 174 441 80 202 135 355 136 377 1 45 -32 84 -83 98 -20 6 -168 10 -336 10 l-300 0 35 -28z"/>
+                            <path fill="#2E2E2E" d="M2147 1706 c-175 -48 -237 -282 -109 -412 93 -94 263 -88 351 11 46 53 61 93 61 165 0 162 -149 278 -303 236z"/>
+                            <path fill="#2E2E2E" d="M3058 1706 c-150 -41 -228 -210 -159 -344 79 -154 289 -183 402 -55 43 50 59 92 59 160 -1 163 -150 281 -302 239z"/>
+                        </g>
+                    </svg>
+                    <span>CAFI</span>
+                </a>
             </div>
-            <div class="avatar" id="userAvatar">U</div>
-            <button class="btn-icon" onclick="API.logout()" title="Cerrar sesión"><i class="fas fa-sign-out-alt"></i></button>
-        </div>
+            <div class="header-center">
+                <a href="pos.html" class="hbtn"><i class="fas fa-cash-register"></i> POS</a>
+                <a href="productos.html" class="hbtn"><i class="fas fa-boxes"></i> Productos</a>
+                <a href="clientes.html" class="hbtn"><i class="fas fa-users"></i> Clientes</a>
+                <a href="categorias.html" class="hbtn"><i class="fas fa-tags"></i> Categorías</a>
+                <a href="ventas.html" class="hbtn active"><i class="fas fa-chart-line"></i> Ventas</a>
+            </div>
+            <div class="header-right">
+                <div class="user-pill">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="user-text">
+                        <span id="userName">Usuario</span>
+                        <small id="userSucursal">Sucursal</small>
+                    </div>
+                </div>
+                <button class="hbtn" onclick="API.logout()"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </header>
+
+        <main class="page-content">
+            <div class="page-header">
+                <div class="page-title">
+                    <i class="fas fa-chart-line"></i>
+                    <h1>Ventas</h1>
+                    <span class="badge" id="totalRegistros">0</span>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-outline" onclick="exportarExcel()">
+                        <i class="fas fa-file-excel"></i> Exportar
+                    </button>
+                    <a href="pos.html" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nueva Venta
+                    </a>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card blue">
+                    <div class="label">Ventas Hoy</div>
+                    <div class="value" id="ventasHoy">$0.00</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="label">Esta Semana</div>
+                    <div class="value" id="ventasSemana">$0.00</div>
+                </div>
+                <div class="stat-card purple">
+                    <div class="label">Este Mes</div>
+                    <div class="value" id="ventasMes">$0.00</div>
+                </div>
+                <div class="stat-card orange">
+                    <div class="label">Tickets Hoy</div>
+                    <div class="value" id="ticketsHoy">0</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-toolbar">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="inputBuscar" placeholder="Buscar por folio o cliente..." oninput="filtrar()">
+                    </div>
+                    <div class="filter-group">
+                        <label>Desde:</label>
+                        <input type="date" id="fechaDesde" onchange="filtrar()">
+                    </div>
+                    <div class="filter-group">
+                        <label>Hasta:</label>
+                        <input type="date" id="fechaHasta" onchange="filtrar()">
+                    </div>
+                    <div class="filter-group">
+                        <label>Tipo:</label>
+                        <select id="filtroTipo" onchange="filtrar()">
+                            <option value="">Todos</option>
+                            <option value="CONTADO">Contado</option>
+                            <option value="CREDITO">Crédito</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Folio</th>
+                                <th>Fecha</th>
+                                <th>Cliente</th>
+                                <th class="text-center">Tipo</th>
+                                <th class="text-center">Artículos</th>
+                                <th class="text-right">Total</th>
+                                <th class="text-center">Estado</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <div class="container">
-        <h1 class="page-title"><i class="fas fa-chart-line"></i> Ventas</h1>
-        <p class="count"><span id="totalVentas">0</span> ventas encontradas</p>
-
-        <div class="stats-row">
-            <div class="stat-box blue">
-                <div class="label">Ventas Hoy</div>
-                <div class="value" id="ventasHoy">$0.00</div>
-            </div>
-            <div class="stat-box green">
-                <div class="label">Esta Semana</div>
-                <div class="value" id="ventasSemana">$0.00</div>
-            </div>
-            <div class="stat-box purple">
-                <div class="label">Este Mes</div>
-                <div class="value" id="ventasMes">$0.00</div>
-            </div>
-            <div class="stat-box">
-                <div class="label">Total Tickets</div>
-                <div class="value" id="ticketsTotal">0</div>
-            </div>
-        </div>
-
-        <div class="toolbar">
-            <div class="search">
-                <i class="fas fa-search"></i>
-                <input type="text" id="buscarVenta" placeholder="Buscar por folio o cliente..." oninput="filtrarVentas()">
-            </div>
-            <input type="date" id="fechaDesde" onchange="filtrarVentas()">
-            <input type="date" id="fechaHasta" onchange="filtrarVentas()">
-            <select id="filtroTipo" onchange="filtrarVentas()">
-                <option value="">Todos los tipos</option>
-                <option value="CONTADO">Contado</option>
-                <option value="CREDITO">Crédito</option>
-            </select>
-            <button class="btn btn-outline" onclick="exportarVentas()"><i class="fas fa-download"></i> Exportar</button>
-            <a href="pos.html" class="btn btn-primary"><i class="fas fa-plus"></i> Nueva Venta</a>
-        </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Folio</th>
-                    <th>Fecha</th>
-                    <th>Cliente</th>
-                    <th>Tipo</th>
-                    <th>Artículos</th>
-                    <th>Total</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="ventasBody">
-                <tr><td colspan="8" class="empty">Cargando ventas...</td></tr>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Modal Detalle -->
+    <!-- MODAL DETALLE -->
     <div class="modal-overlay" id="modalDetalle">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 id="detalleTitulo">Detalle de Venta</h3>
-                <button class="btn-close" onclick="cerrarModal()"><i class="fas fa-times"></i></button>
+        <div class="modal modal-lg">
+            <div class="modal-header gradient">
+                <h3><i class="fas fa-receipt"></i> <span id="modalTitulo">Detalle de Venta</span></h3>
+                <button class="btn-close light" onclick="cerrarModal()"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
-                <div class="detalle-grid">
-                    <div><strong>Folio</strong><span id="detalleFolio">-</span></div>
-                    <div><strong>Fecha</strong><span id="detalleFecha">-</span></div>
-                    <div><strong>Cliente</strong><span id="detalleCliente">-</span></div>
-                    <div><strong>Tipo</strong><span id="detalleTipo">-</span></div>
+                <div class="form-row">
+                    <div class="form-group col-3">
+                        <label>Folio</label>
+                        <input type="text" id="detFolio" readonly>
+                    </div>
+                    <div class="form-group col-3">
+                        <label>Fecha</label>
+                        <input type="text" id="detFecha" readonly>
+                    </div>
+                    <div class="form-group col-3">
+                        <label>Cliente</label>
+                        <input type="text" id="detCliente" readonly>
+                    </div>
+                    <div class="form-group col-3">
+                        <label>Tipo</label>
+                        <input type="text" id="detTipo" readonly>
+                    </div>
                 </div>
-                <table>
-                    <thead>
-                        <tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th></tr>
-                    </thead>
-                    <tbody id="detalleItems"></tbody>
-                    <tfoot>
-                        <tr><td colspan="3" style="text-align:right"><strong>Total:</strong></td><td id="detalleTotal" class="text-primary"><strong>$0.00</strong></td></tr>
-                    </tfoot>
-                </table>
+                
+                <div class="divider"><span>Artículos</span></div>
+                
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th class="text-center">Cantidad</th>
+                                <th class="text-right">Precio</th>
+                                <th class="text-right">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detalleItems"></tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                                <td class="text-right" id="detalleTotal"><strong>$0.00</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="cerrarModal()">Cerrar</button>
-                <button class="btn btn-primary" onclick="imprimirVenta()"><i class="fas fa-print"></i> Imprimir</button>
+                <button type="button" class="btn btn-outline" onclick="cerrarModal()">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="imprimirVenta()">
+                    <i class="fas fa-print"></i> Imprimir
+                </button>
             </div>
         </div>
     </div>
 
+    <!-- TOAST -->
     <div id="toast" class="toast"></div>
 
     <script src="../js/config.js"></script>
     <script src="../js/api.js"></script>
     <script>
         if (!API.isLoggedIn()) window.location.href = '../index.html';
-        
-        var ventas = [];
+
+        var datos = [];
         var ventaActual = null;
 
         document.addEventListener('DOMContentLoaded', function() {
             cargarUsuario();
-            cargarVentas();
+            setFechasDefault();
+            cargarDatos();
+        });
+
+        function cargarUsuario() {
+            var u = API.usuario;
+            document.getElementById('userName').textContent = u.nombre;
+            document.getElementById('userSucursal').textContent = u.sucursal_nombre || 'Sucursal';
+            document.getElementById('userAvatar').textContent = u.nombre.charAt(0).toUpperCase();
+        }
+
+        function setFechasDefault() {
             var hoy = new Date();
             var mesAntes = new Date();
             mesAntes.setMonth(mesAntes.getMonth() - 1);
             document.getElementById('fechaHasta').value = hoy.toISOString().split('T')[0];
             document.getElementById('fechaDesde').value = mesAntes.toISOString().split('T')[0];
-        });
-
-        function cargarUsuario() {
-            var u = API.usuario;
-            document.getElementById('userName').textContent = u.nombre || 'Usuario';
-            document.getElementById('userSucursal').textContent = u.sucursal_nombre || 'Sucursal';
-            var iniciales = (u.nombre || 'U').split(' ').map(function(n){return n.charAt(0);}).join('').substring(0,2);
-            document.getElementById('userAvatar').textContent = iniciales.toUpperCase();
         }
 
-        function cargarVentas() {
+        function cargarDatos() {
             var empresaId = API.usuario.empresa_id;
             var sucursalId = API.usuario.sucursal_id;
             
             API.request('/ventas/empresa/' + empresaId + '/sucursal/' + sucursalId)
                 .then(function(r) {
                     if (r.success) {
-                        ventas = r.ventas || [];
-                        document.getElementById('totalVentas').textContent = ventas.length;
+                        datos = r.ventas || r.data || [];
                         calcularResumen();
-                        renderVentas(ventas);
+                        filtrar();
                     } else {
-                        document.getElementById('ventasBody').innerHTML = '<tr><td colspan="8" class="empty">No hay ventas registradas</td></tr>';
+                        datos = [];
+                        filtrar();
                     }
                 })
                 .catch(function(e) {
                     console.error(e);
-                    document.getElementById('ventasBody').innerHTML = '<tr><td colspan="8" class="empty">No hay ventas registradas</td></tr>';
+                    datos = [];
+                    filtrar();
                 });
         }
 
@@ -235,11 +243,14 @@
             var inicioMes = new Date();
             inicioMes.setDate(1);
 
-            var totHoy = 0, totSemana = 0, totMes = 0;
-            ventas.forEach(function(v) {
+            var totHoy = 0, totSemana = 0, totMes = 0, ticketsHoy = 0;
+            datos.forEach(function(v) {
                 var fecha = new Date(v.fecha || v.created_at);
                 var total = parseFloat(v.total) || 0;
-                if (fecha.toDateString() === hoy) totHoy += total;
+                if (fecha.toDateString() === hoy) {
+                    totHoy += total;
+                    ticketsHoy++;
+                }
                 if (fecha >= inicioSemana) totSemana += total;
                 if (fecha >= inicioMes) totMes += total;
             });
@@ -247,16 +258,16 @@
             document.getElementById('ventasHoy').textContent = '$' + totHoy.toFixed(2);
             document.getElementById('ventasSemana').textContent = '$' + totSemana.toFixed(2);
             document.getElementById('ventasMes').textContent = '$' + totMes.toFixed(2);
-            document.getElementById('ticketsTotal').textContent = ventas.length;
+            document.getElementById('ticketsHoy').textContent = ticketsHoy;
         }
 
-        function filtrarVentas() {
-            var busqueda = (document.getElementById('buscarVenta').value || '').toLowerCase();
+        function filtrar() {
+            var busqueda = (document.getElementById('inputBuscar').value || '').toLowerCase();
             var desde = document.getElementById('fechaDesde').value;
             var hasta = document.getElementById('fechaHasta').value;
             var tipo = document.getElementById('filtroTipo').value;
 
-            var filtradas = ventas.filter(function(v) {
+            var filtrados = datos.filter(function(v) {
                 var matchBusqueda = !busqueda || 
                     (v.folio && v.folio.toString().indexOf(busqueda) >= 0) ||
                     (v.cliente_nombre && v.cliente_nombre.toLowerCase().indexOf(busqueda) >= 0);
@@ -267,31 +278,40 @@
                 return matchBusqueda && matchDesde && matchHasta && matchTipo;
             });
             
-            document.getElementById('totalVentas').textContent = filtradas.length;
-            renderVentas(filtradas);
+            document.getElementById('totalRegistros').textContent = filtrados.length;
+            renderTabla(filtrados);
         }
 
-        function renderVentas(items) {
-            var tbody = document.getElementById('ventasBody');
-            if (!items.length) {
-                tbody.innerHTML = '<tr><td colspan="8" class="empty">No hay ventas con estos filtros</td></tr>';
+        function renderTabla(items) {
+            var tbody = document.getElementById('tablaBody');
+            if (items.length === 0) {
+                tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No hay ventas con estos filtros</td></tr>';
                 return;
             }
+
             var html = '';
             items.forEach(function(v) {
                 var fecha = new Date(v.fecha || v.created_at);
-                var tipoClass = v.tipo_venta === 'CREDITO' ? 'badge-warning' : 'badge-info';
+                var tipoClass = v.tipo_venta === 'CREDITO' ? 'badge-status inactive' : 'badge-status active';
+                var numItems = v.items_count || (v.items ? v.items.length : '-');
+                
                 html += '<tr>' +
                     '<td><strong>#' + (v.folio || v.venta_id) + '</strong></td>' +
                     '<td>' + fecha.toLocaleDateString('es-MX') + ' ' + fecha.toLocaleTimeString('es-MX', {hour:'2-digit',minute:'2-digit'}) + '</td>' +
                     '<td>' + (v.cliente_nombre || 'Público General') + '</td>' +
-                    '<td><span class="badge ' + tipoClass + '">' + (v.tipo_venta || 'CONTADO') + '</span></td>' +
-                    '<td>' + (v.items_count || v.items?.length || '-') + '</td>' +
-                    '<td class="text-primary"><strong>$' + parseFloat(v.total || 0).toFixed(2) + '</strong></td>' +
-                    '<td><span class="badge badge-success">Completada</span></td>' +
-                    '<td class="actions">' +
-                        '<button class="btn-icon" onclick="verDetalle(\'' + v.venta_id + '\')" title="Ver"><i class="fas fa-eye"></i></button>' +
-                        '<button class="btn-icon" onclick="imprimirVentaId(\'' + v.venta_id + '\')" title="Imprimir"><i class="fas fa-print"></i></button>' +
+                    '<td class="text-center"><span class="' + tipoClass + '">' + (v.tipo_venta || 'CONTADO') + '</span></td>' +
+                    '<td class="text-center">' + numItems + '</td>' +
+                    '<td class="text-right"><strong>$' + parseFloat(v.total || 0).toFixed(2) + '</strong></td>' +
+                    '<td class="text-center"><span class="badge-status active">Completada</span></td>' +
+                    '<td class="text-center">' +
+                        '<div class="actions-cell">' +
+                            '<button class="btn-action edit" onclick="verDetalle(\'' + v.venta_id + '\')" title="Ver">' +
+                                '<i class="fas fa-eye"></i>' +
+                            '</button>' +
+                            '<button class="btn-action edit" onclick="imprimirVentaId(\'' + v.venta_id + '\')" title="Imprimir">' +
+                                '<i class="fas fa-print"></i>' +
+                            '</button>' +
+                        '</div>' +
                     '</td>' +
                 '</tr>';
             });
@@ -299,15 +319,15 @@
         }
 
         function verDetalle(id) {
-            var v = ventas.find(function(x) { return x.venta_id === id; });
+            var v = datos.find(function(x) { return x.venta_id === id; });
             if (!v) return;
             ventaActual = v;
             
-            document.getElementById('detalleTitulo').textContent = 'Venta #' + (v.folio || v.venta_id);
-            document.getElementById('detalleFolio').textContent = '#' + (v.folio || v.venta_id);
-            document.getElementById('detalleFecha').textContent = new Date(v.fecha || v.created_at).toLocaleString('es-MX');
-            document.getElementById('detalleCliente').textContent = v.cliente_nombre || 'Público General';
-            document.getElementById('detalleTipo').textContent = v.tipo_venta || 'CONTADO';
+            document.getElementById('modalTitulo').textContent = 'Venta #' + (v.folio || v.venta_id);
+            document.getElementById('detFolio').value = '#' + (v.folio || v.venta_id);
+            document.getElementById('detFecha').value = new Date(v.fecha || v.created_at).toLocaleString('es-MX');
+            document.getElementById('detCliente').value = v.cliente_nombre || 'Público General';
+            document.getElementById('detTipo').value = v.tipo_venta || 'CONTADO';
             document.getElementById('detalleTotal').innerHTML = '<strong>$' + parseFloat(v.total || 0).toFixed(2) + '</strong>';
             
             var items = v.items || [];
@@ -316,13 +336,13 @@
                 items.forEach(function(i) {
                     html += '<tr>' +
                         '<td>' + (i.descripcion || i.producto_nombre || '-') + '</td>' +
-                        '<td>' + i.cantidad + '</td>' +
-                        '<td>$' + parseFloat(i.precio_unitario || 0).toFixed(2) + '</td>' +
-                        '<td>$' + parseFloat(i.subtotal || 0).toFixed(2) + '</td>' +
+                        '<td class="text-center">' + i.cantidad + '</td>' +
+                        '<td class="text-right">$' + parseFloat(i.precio_unitario || 0).toFixed(2) + '</td>' +
+                        '<td class="text-right">$' + parseFloat(i.subtotal || 0).toFixed(2) + '</td>' +
                     '</tr>';
                 });
             } else {
-                html = '<tr><td colspan="4" class="empty">Sin detalle</td></tr>';
+                html = '<tr><td colspan="4" class="text-center" style="padding:20px;color:#9ca3af">Sin detalle de artículos</td></tr>';
             }
             document.getElementById('detalleItems').innerHTML = html;
             document.getElementById('modalDetalle').classList.add('active');
@@ -340,14 +360,15 @@
             mostrarToast('Imprimiendo venta #' + id + '...');
         }
 
-        function exportarVentas() {
+        function exportarExcel() {
             mostrarToast('Exportando ventas...');
         }
 
         function mostrarToast(msg, tipo) {
+            tipo = tipo || 'success';
             var toast = document.getElementById('toast');
             toast.innerHTML = '<i class="fas fa-' + (tipo === 'error' ? 'exclamation-circle' : 'check-circle') + '"></i> ' + msg;
-            toast.className = 'toast show ' + (tipo || '');
+            toast.className = 'toast show ' + tipo;
             setTimeout(function() { toast.classList.remove('show'); }, 3000);
         }
     </script>
