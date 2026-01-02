@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAFI - Productos</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/catalogos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="header-left">
+                <a href="pos.html" class="logo">
+                    <svg viewBox="0 0 500 500" width="32" height="32">
+                        <g transform="translate(0,500) scale(0.1,-0.1)">
+                            <path fill="#2D3DBF" d="M905 3775 c-5 -2 -22 -6 -37 -9 -62 -14 -127 -102 -128 -174 0 -43 24 -100 58 -135 39 -41 107 -57 246 -57 l121 0 136 -137 137 -138 59 -145 c33 -80 89 -219 124 -309 l64 -165 7 105 c9 150 39 265 103 394 74 150 174 267 305 357 24 16 16 17 -180 17 l-205 1 -175 176 c-96 96 -193 185 -215 197 -37 20 -56 22 -225 24 -102 1 -189 1 -195 -2z"/>
+                            <path fill="#6C2BD9" d="M3270 3352 c143 -112 231 -234 285 -399 14 -43 28 -105 32 -138 9 -98 16 -96 -293 -93 l-259 3 -30 58 c-43 83 -88 133 -148 165 -48 25 -61 27 -172 27 -112 0 -124 -2 -178 -29 -60 -30 -126 -95 -157 -156 -39 -77 -52 -147 -48 -264 3 -104 6 -116 40 -188 78 -163 207 -239 382 -225 135 12 252 97 286 210 23 80 11 77 301 77 l258 0 18 -23 17 -24 40 101 c21 56 99 254 174 441 80 202 135 355 136 377 1 45 -32 84 -83 98 -20 6 -168 10 -336 10 l-300 0 35 -28z"/>
+                            <path fill="#2E2E2E" d="M2147 1706 c-175 -48 -237 -282 -109 -412 93 -94 263 -88 351 11 46 53 61 93 61 165 0 162 -149 278 -303 236z"/>
+                            <path fill="#2E2E2E" d="M3058 1706 c-150 -41 -228 -210 -159 -344 79 -154 289 -183 402 -55 43 50 59 92 59 160 -1 163 -150 281 -302 239z"/>
+                        </g>
+                    </svg>
+                    <span>CAFI</span>
+                </a>
+            </div>
+            <div class="header-center">
+                <a href="pos.html" class="hbtn"><i class="fas fa-cash-register"></i> POS</a>
+                <a href="productos.html" class="hbtn active"><i class="fas fa-boxes"></i> Productos</a>
+                <a href="clientes.html" class="hbtn"><i class="fas fa-users"></i> Clientes</a>
+                <a href="categorias.html" class="hbtn"><i class="fas fa-tags"></i> Categorías</a>
+                <a href="ventas.html" class="hbtn"><i class="fas fa-chart-line"></i> Ventas</a>
+            </div>
+            <div class="header-right">
+                <div class="user-pill">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="user-text">
+                        <span id="userName">Usuario</span>
+                        <small id="userSucursal">Sucursal</small>
+                    </div>
+                </div>
+                <button class="hbtn" onclick="API.logout()"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </header>
+
+        <main class="page-content">
+            <div class="page-header">
+                <div class="page-title">
+                    <i class="fas fa-boxes"></i>
+                    <h1>Productos</h1>
+                    <span class="badge" id="totalRegistros">0</span>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-primary" onclick="abrirModal()">
+                        <i class="fas fa-plus"></i> Nuevo Producto
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-toolbar">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="inputBuscar" placeholder="Buscar por nombre o código..." oninput="filtrar()">
+                    </div>
+                    <div class="filter-group">
+                        <label>Categoría:</label>
+                        <select id="filtroCategoria" onchange="filtrar()">
+                            <option value="">Todas</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Estado:</label>
+                        <select id="filtroEstado" onchange="filtrar()">
+                            <option value="Y">Activos</option>
+                            <option value="N">Inactivos</option>
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Nombre</th>
+                                <th>Categoría</th>
+                                <th>Unidad</th>
+                                <th class="text-right">Costo</th>
+                                <th class="text-right">Precio 1</th>
+                                <th class="text-right">Precio 2</th>
+                                <th class="text-right">Precio 3</th>
+                                <th class="text-center">Estado</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL FORMULARIO -->
+    <div class="modal-overlay" id="modalForm">
+        <div class="modal modal-lg">
+            <div class="modal-header gradient">
+                <h3><i class="fas fa-box"></i> <span id="modalTitulo">Nuevo Producto</span></h3>
+                <button class="btn-close light" onclick="cerrarModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="formProducto" onsubmit="guardar(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="editId">
+                    
+                    <div class="form-section">
+                        <h4><i class="fas fa-info-circle"></i> Información General</h4>
+                        <div class="form-grid">
+                            <div class="form-group full">
+                                <label>Nombre del Producto *</label>
+                                <input type="text" id="nombre" required placeholder="Ej: Coca Cola 600ml">
+                            </div>
+                            <div class="form-group">
+                                <label>Nombre Corto</label>
+                                <input type="text" id="nombre_corto" placeholder="Nombre abreviado">
+                            </div>
+                            <div class="form-group">
+                                <label>Nombre en POS</label>
+                                <input type="text" id="nombre_pos" placeholder="Mostrar en punto de venta">
+                            </div>
+                            <div class="form-group">
+                                <label>Código de Barras</label>
+                                <input type="text" id="codigo_barras" placeholder="Escanear o escribir">
+                            </div>
+                            <div class="form-group">
+                                <label>Código Interno</label>
+                                <input type="text" id="codigo_interno" placeholder="SKU interno">
+                            </div>
+                            <div class="form-group">
+                                <label>Categoría</label>
+                                <select id="categoria_id">
+                                    <option value="">Sin categoría</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Unidad de Venta</label>
+                                <select id="unidad_venta">
+                                    <option value="PZ">Pieza (PZ)</option>
+                                    <option value="KG">Kilogramo (KG)</option>
+                                    <option value="LT">Litro (LT)</option>
+                                    <option value="MT">Metro (MT)</option>
+                                    <option value="CJ">Caja (CJ)</option>
+                                    <option value="PQ">Paquete (PQ)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4><i class="fas fa-dollar-sign"></i> Precios</h4>
+                        <div class="form-grid cols-5">
+                            <div class="form-group">
+                                <label>Costo</label>
+                                <div class="input-icon-left">
+                                    <span>$</span>
+                                    <input type="number" id="costo" step="0.01" placeholder="0.00">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Precio 1 *</label>
+                                <div class="input-icon-left">
+                                    <span>$</span>
+                                    <input type="number" id="precio1" step="0.01" placeholder="0.00" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Precio 2</label>
+                                <div class="input-icon-left">
+                                    <span>$</span>
+                                    <input type="number" id="precio2" step="0.01" placeholder="0.00">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Precio 3</label>
+                                <div class="input-icon-left">
+                                    <span>$</span>
+                                    <input type="number" id="precio3" step="0.01" placeholder="0.00">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Precio 4</label>
+                                <div class="input-icon-left">
+                                    <span>$</span>
+                                    <input type="number" id="precio4" step="0.01" placeholder="0.00">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4><i class="fas fa-cog"></i> Configuración</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="permite_descuento" checked>
+                                    <span>Permite descuento</span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>Descuento Máximo (%)</label>
+                                <input type="number" id="descuento_maximo" min="0" max="100" placeholder="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="es_inventariable" checked>
+                                    <span>Es inventariable</span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="es_vendible" checked>
+                                    <span>Es vendible</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="cerrarModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast" class="toast"></div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/productos.js"></script>
+</body>
+</html>
