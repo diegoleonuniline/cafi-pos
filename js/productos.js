@@ -42,6 +42,91 @@ async function cargarCategorias() {
     }
 }
 
+function verDetalle(id) {
+    var p = datos.find(function(d) { return d.producto_id === id; });
+    if (!p) return;
+    
+    var iva = parseFloat(p.iva || 16);
+    var ieps = parseFloat(p.ieps || 0);
+    var precio = parseFloat(p.precio1 || 0);
+    var precioBase, ivaAmt, iepsAmt, precioFinal;
+    
+    if (p.precio_incluye_impuesto === 'Y') {
+        var factor = 1 + (iva/100) + (ieps/100);
+        precioBase = precio / factor;
+        ivaAmt = precioBase * (iva/100);
+        iepsAmt = precioBase * (ieps/100);
+        precioFinal = precio;
+    } else {
+        precioBase = precio;
+        ivaAmt = precioBase * (iva/100);
+        iepsAmt = precioBase * (ieps/100);
+        precioFinal = precioBase + ivaAmt + iepsAmt;
+    }
+    
+    var html = '<div class="detalle-producto">' +
+        '<div class="detalle-header-prod">' +
+            '<div class="prod-img">' + (p.imagen_url ? '<img src="' + p.imagen_url + '">' : '<i class="fas fa-box"></i>') + '</div>' +
+            '<div class="prod-info">' +
+                '<h2>' + p.nombre + '</h2>' +
+                '<p>' + (p.codigo_barras || p.codigo_interno || 'Sin código') + '</p>' +
+                '<span class="badge-status ' + (p.activo === 'Y' ? 'active' : 'inactive') + '">' + (p.activo === 'Y' ? 'Activo' : 'Inactivo') + '</span>' +
+            '</div>' +
+        '</div>' +
+        
+        '<div class="detalle-grid">' +
+            '<div class="detalle-section">' +
+                '<h4><i class="fas fa-info-circle"></i> General</h4>' +
+                '<div class="info-row"><span>Categoría:</span><strong>' + (p.categoria_nombre || 'Sin categoría') + '</strong></div>' +
+                '<div class="info-row"><span>Tipo:</span><strong>' + (p.tipo || 'PRODUCTO') + '</strong></div>' +
+                '<div class="info-row"><span>Código SAT:</span><strong>' + (p.codigo_sat || '-') + '</strong></div>' +
+            '</div>' +
+            
+            '<div class="detalle-section">' +
+                '<h4><i class="fas fa-boxes"></i> Unidades</h4>' +
+                '<div class="info-row"><span>U. Compra:</span><strong>' + (p.unidad_compra || 'PZ') + '</strong></div>' +
+                '<div class="info-row"><span>U. Venta:</span><strong>' + (p.unidad_venta || 'PZ') + '</strong></div>' +
+                '<div class="info-row"><span>Factor:</span><strong>' + (p.factor_conversion || 1) + '</strong></div>' +
+            '</div>' +
+            
+            '<div class="detalle-section">' +
+                '<h4><i class="fas fa-dollar-sign"></i> Precios</h4>' +
+                '<div class="info-row"><span>Costo:</span><strong>$' + parseFloat(p.costo || 0).toFixed(2) + '</strong></div>' +
+                '<div class="info-row"><span>Precio 1:</span><strong>$' + parseFloat(p.precio1 || 0).toFixed(2) + '</strong></div>' +
+                '<div class="info-row"><span>Precio 2:</span><strong>$' + parseFloat(p.precio2 || 0).toFixed(2) + '</strong></div>' +
+                '<div class="info-row"><span>Precio 3:</span><strong>$' + parseFloat(p.precio3 || 0).toFixed(2) + '</strong></div>' +
+                '<div class="info-row"><span>Precio 4:</span><strong>$' + parseFloat(p.precio4 || 0).toFixed(2) + '</strong></div>' +
+            '</div>' +
+            
+            '<div class="detalle-section">' +
+                '<h4><i class="fas fa-percentage"></i> Impuestos</h4>' +
+                '<div class="info-row"><span>IVA:</span><strong>' + iva + '%</strong></div>' +
+                '<div class="info-row"><span>IEPS:</span><strong>' + ieps + '%</strong></div>' +
+                '<div class="info-row"><span>Incluye imp:</span><strong>' + (p.precio_incluye_impuesto === 'Y' ? 'Sí' : 'No') + '</strong></div>' +
+            '</div>' +
+        '</div>' +
+        
+        '<div class="detalle-precio-final">' +
+            '<div class="precio-row"><span>Precio base:</span><span>$' + precioBase.toFixed(2) + '</span></div>' +
+            '<div class="precio-row"><span>IVA (' + iva + '%):</span><span>$' + ivaAmt.toFixed(2) + '</span></div>' +
+            (ieps > 0 ? '<div class="precio-row"><span>IEPS (' + ieps + '%):</span><span>$' + iepsAmt.toFixed(2) + '</span></div>' : '') +
+            '<div class="precio-row total"><span>PRECIO FINAL:</span><span>$' + precioFinal.toFixed(2) + '</span></div>' +
+        '</div>' +
+        
+        '<div class="modal-actions">' +
+            '<button class="btn btn-outline" onclick="cerrarModalDetalle()"><i class="fas fa-times"></i> Cerrar</button>' +
+            '<button class="btn btn-primary" onclick="cerrarModalDetalle();editar(\'' + p.producto_id + '\')"><i class="fas fa-edit"></i> Editar</button>' +
+        '</div>' +
+    '</div>';
+    
+    document.getElementById('detalleProductoContent').innerHTML = html;
+    document.getElementById('modalDetalleProducto').classList.add('active');
+}
+
+function cerrarModalDetalle() {
+    document.getElementById('modalDetalleProducto').classList.remove('active');
+}
+
 async function cargarDatos() {
     try {
         var r = await API.request('/productos/' + API.usuario.empresa_id);
