@@ -141,7 +141,16 @@ function renderTabla(items) {
 
     var html = '';
     items.forEach(function(p) {
-        var iva = p.impuesto_id ? '16%' : '0%';
+        var iva = parseFloat(p.iva || 16);
+        var ieps = parseFloat(p.ieps || 0);
+        var precio = parseFloat(p.precio1 || 0);
+        var precioFinal = precio;
+        
+        // Si precio NO incluye impuestos, calcular precio final
+        if (p.precio_incluye_impuesto !== 'Y') {
+            precioFinal = precio * (1 + (iva/100) + (ieps/100));
+        }
+        
         html += '<tr>' +
             '<td>' + (p.codigo_barras || p.codigo_interno || '-') + '</td>' +
             '<td><strong>' + p.nombre + '</strong></td>' +
@@ -150,8 +159,8 @@ function renderTabla(items) {
             '<td class="text-center">' + (p.unidad_venta || 'PZ') + '</td>' +
             '<td class="text-center">' + parseFloat(p.factor_conversion || 1) + '</td>' +
             '<td class="text-right">$' + parseFloat(p.costo || 0).toFixed(2) + '</td>' +
-            '<td class="text-right">$' + parseFloat(p.precio1 || 0).toFixed(2) + '</td>' +
-            '<td class="text-center">' + iva + '</td>' +
+            '<td class="text-right">$' + precioFinal.toFixed(2) + '</td>' +
+            '<td class="text-center">' + iva + '%</td>' +
             '<td class="text-center">' +
                 '<span class="badge-status ' + (p.activo === 'Y' ? 'active' : 'inactive') + '">' +
                     (p.activo === 'Y' ? 'Activo' : 'Inactivo') +
@@ -159,6 +168,9 @@ function renderTabla(items) {
             '</td>' +
             '<td class="text-center">' +
                 '<div class="actions-cell">' +
+                    '<button class="btn-action view" onclick="verDetalle(\'' + p.producto_id + '\')" title="Ver detalle">' +
+                        '<i class="fas fa-eye"></i>' +
+                    '</button>' +
                     '<button class="btn-action edit" onclick="editar(\'' + p.producto_id + '\')" title="Editar">' +
                         '<i class="fas fa-edit"></i>' +
                     '</button>' +
