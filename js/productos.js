@@ -33,17 +33,7 @@ async function cargarCategorias() {
     } catch (e) { console.error(e); }
 }
 
-async function cargarDatos() {
-    try {
-        const r = await API.request(`/productos/${API.usuario.empresa_id}`);
-        if (r.success) {
-            datos = r.data || [];
-            filtrar();
-        }
-    } catch (e) {
-        mostrarToast('Error cargando datos', 'error');
-    }
-}
+cargarDatos()
 
 function setupTabs() {
     document.querySelectorAll('.tab-btn').forEach(btn => {
