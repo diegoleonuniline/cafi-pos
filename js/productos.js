@@ -20,17 +20,27 @@ function cargarUsuario() {
 
 async function cargarCategorias() {
     try {
-        const r = await API.request('/categorias/' + API.usuario.empresa_id);
+        var r = await API.request('/categorias/' + API.usuario.empresa_id);
+        console.log('Categorias para productos:', r);
         if (r.success) {
             categorias = r.data || [];
-            const selFiltro = document.getElementById('filtroCategoria');
-            const selForm = document.getElementById('categoria_id');
-            categorias.filter(function(c) { return c.activo === 'Y'; }).forEach(function(c) {
-                selFiltro.innerHTML += '<option value="' + c.categoria_id + '">' + c.nombre + '</option>';
-                selForm.innerHTML += '<option value="' + c.categoria_id + '">' + c.nombre + '</option>';
+            var selFiltro = document.getElementById('filtroCategoria');
+            var selForm = document.getElementById('categoria_id');
+            
+            // Limpiar opciones existentes excepto la primera
+            selFiltro.innerHTML = '<option value="">Todas</option>';
+            selForm.innerHTML = '<option value="">Sin categoría</option>';
+            
+            categorias.forEach(function(c) {
+                if (c.activo === 'Y') {
+                    selFiltro.innerHTML += '<option value="' + c.categoria_id + '">' + c.nombre + '</option>';
+                    selForm.innerHTML += '<option value="' + c.categoria_id + '">' + c.nombre + '</option>';
+                }
             });
         }
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+        console.error('Error cargando categorías:', e); 
+    }
 }
 
 async function cargarDatos() {
