@@ -2,12 +2,13 @@
 :root{
   --primary:#2D3DBF;
   --primary-light:#4f5fd9;
-  --primary-dark:#1e2a8f;
   --secondary:#6C2BD9;
   --gradient:linear-gradient(135deg,#2D3DBF 0%,#6C2BD9 100%);
   --success:#10b981;
+  --success-dark:#059669;
   --danger:#ef4444;
   --warning:#f59e0b;
+  --orange:#f97316;
   --dark:#2E2E2E;
   --gray-50:#f9fafb;
   --gray-100:#f3f4f6;
@@ -17,198 +18,239 @@
   --gray-500:#6b7280;
   --gray-600:#4b5563;
   --gray-700:#374151;
-  --white:#ffffff;
-  --shadow:0 4px 6px -1px rgba(0,0,0,0.1);
-  --shadow-lg:0 10px 15px -3px rgba(0,0,0,0.1);
+  --white:#fff;
+  --shadow:0 1px 3px rgba(0,0,0,0.1);
+  --shadow-lg:0 10px 25px rgba(0,0,0,0.15);
   --radius:8px;
   --radius-lg:12px;
 }
-body{font-family:'Segoe UI',sans-serif;background:var(--gray-100);color:var(--dark);font-size:14px;line-height:1.5;min-height:100vh}
-@keyframes spin{to{transform:rotate(360deg)}}
+body{font-family:'Segoe UI',-apple-system,sans-serif;background:#f0f2f5;color:var(--dark);font-size:13px;line-height:1.4}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes scaleIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
-@keyframes pop{0%{transform:scale(0)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-/* LOGIN */
+/* ========== LOGIN ========== */
 .login-container{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--gradient);padding:20px}
-.login-box{background:var(--white);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);padding:40px;width:100%;max-width:420px;animation:scaleIn .3s ease}
-.login-header{text-align:center;margin-bottom:32px}
-.login-header .logo-icon{width:80px;height:80px;margin:0 auto 16px}
-.login-header h1{font-size:36px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
-.login-header p{color:var(--gray-500);font-size:14px;margin-top:4px}
+.login-box{background:var(--white);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);padding:40px;width:100%;max-width:400px;animation:scaleIn .3s}
+.login-header{text-align:center;margin-bottom:30px}
+.login-header svg{width:72px;height:72px;margin-bottom:12px}
+.login-header h1{font-size:32px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px}
+.login-header p{color:var(--gray-500);font-size:13px;margin-top:4px}
 .login-header small{display:block;color:var(--gray-400);font-size:11px;margin-top:8px}
-.form-group{margin-bottom:20px}
-.form-group label{display:block;margin-bottom:8px;color:var(--gray-600);font-weight:600;font-size:13px}
-.form-group input,.form-group select{width:100%;padding:14px 16px;border:2px solid var(--gray-200);border-radius:var(--radius);font-size:15px;transition:all .2s}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;margin-bottom:6px;color:var(--gray-600);font-weight:600;font-size:12px}
+.form-group input{width:100%;padding:12px 14px;border:2px solid var(--gray-200);border-radius:var(--radius);font-size:14px;transition:all .2s}
 .form-group input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(45,61,191,0.1)}
-.input-icon{position:relative}
-.input-icon i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--gray-400)}
-.input-icon input{padding-left:44px}
-button{cursor:pointer;transition:all .2s}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:var(--radius);font-size:14px;font-weight:600;border:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:var(--radius);font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .2s}
 .btn-primary{background:var(--gradient);color:var(--white)}
-.btn-primary:hover{opacity:.9;transform:translateY(-2px);box-shadow:var(--shadow)}
-.btn-success{background:linear-gradient(135deg,var(--success) 0%,#059669 100%);color:var(--white)}
-.btn-danger{background:linear-gradient(135deg,var(--danger) 0%,#dc2626 100%);color:var(--white)}
-.btn-warning{background:linear-gradient(135deg,var(--warning) 0%,#d97706 100%);color:var(--white)}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-success{background:var(--success);color:var(--white)}
+.btn-success:hover{background:var(--success-dark)}
+.btn-danger{background:var(--danger);color:var(--white)}
+.btn-warning{background:var(--warning);color:var(--white)}
+.btn-orange{background:var(--orange);color:var(--white)}
 .btn-outline{background:var(--white);color:var(--gray-600);border:1px solid var(--gray-300)}
 .btn-outline:hover{background:var(--gray-50)}
 .btn-block{width:100%}
-.btn-lg{padding:16px 24px;font-size:16px}
-.btn:disabled{opacity:.6;cursor:not-allowed}
-.mensaje{margin-top:20px;padding:12px;border-radius:var(--radius);text-align:center;display:none;font-size:13px}
+.btn-lg{padding:14px 20px;font-size:15px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn kbd{background:rgba(255,255,255,.25);padding:2px 6px;border-radius:4px;font-size:11px;margin-left:4px}
+.mensaje{margin-top:16px;padding:12px;border-radius:var(--radius);text-align:center;font-size:13px;display:none}
 .mensaje.error{display:block;background:#fee2e2;color:#dc2626}
 .mensaje.success{display:block;background:#d1fae5;color:#059669}
-.login-footer{text-align:center;margin-top:24px;padding-top:20px;border-top:1px solid var(--gray-200)}
-.login-footer p{color:var(--gray-400);font-size:11px}
+.login-footer{text-align:center;margin-top:24px;color:var(--gray-400);font-size:11px}
 
-/* APP LAYOUT */
-.app-container{display:flex;min-height:100vh}
-.sidebar{width:260px;background:var(--dark);color:var(--white);display:flex;flex-direction:column}
-.sidebar-header{padding:20px;border-bottom:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;gap:12px}
-.sidebar-header .logo-icon{width:40px;height:40px}
-.sidebar-header h2{font-size:24px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.sidebar-menu{flex:1;padding:20px 0}
-.menu-item{display:flex;align-items:center;gap:12px;padding:14px 20px;color:var(--gray-400);text-decoration:none;font-size:14px;font-weight:500;transition:all .2s;border-left:3px solid transparent}
-.menu-item:hover,.menu-item.active{background:rgba(255,255,255,0.05);color:var(--white);border-left-color:var(--secondary)}
-.menu-item i{width:20px;font-size:16px}
-.sidebar-footer{padding:20px;border-top:1px solid rgba(255,255,255,0.1)}
-.user-info{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-.user-avatar{width:42px;height:42px;background:var(--gradient);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px}
-.user-name{font-size:14px;font-weight:600}
-.user-role{font-size:12px;color:var(--gray-400)}
-.btn-logout{width:100%;padding:10px;background:rgba(255,255,255,0.1);color:var(--white);border:none;border-radius:var(--radius);font-size:13px;font-weight:500}
-.btn-logout:hover{background:var(--danger)}
+/* ========== APP LAYOUT ========== */
+.app-container{display:flex;flex-direction:column;height:100vh;overflow:hidden}
 
-/* MAIN */
-.main-content{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.top-bar{background:var(--white);padding:12px 24px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow);border-bottom:1px solid var(--gray-200)}
-.page-title{font-size:20px;font-weight:700;color:var(--dark);display:flex;align-items:center;gap:10px}
-.page-title i{color:var(--primary)}
-.top-actions{display:flex;gap:10px}
-.content-area{flex:1;overflow:auto}
+/* HEADER */
+.header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--white);border-bottom:1px solid var(--gray-200)}
+.header-left,.header-center,.header-right{display:flex;align-items:center;gap:10px}
+.header-center{flex:1;justify-content:center;gap:8px}
+.logo{display:flex;align-items:center;gap:8px}
+.logo svg{width:32px;height:32px}
+.logo span{font-size:20px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.turno-badge{display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--gray-100);border-radius:20px;font-size:12px;color:var(--gray-500);font-weight:500}
+.turno-badge i{font-size:11px}
+.turno-badge.activo{background:rgba(16,185,129,0.1);color:var(--success)}
+.hbtn{display:flex;align-items:center;gap:6px;padding:8px 14px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);font-size:12px;font-weight:600;color:var(--gray-600);cursor:pointer;transition:all .2s}
+.hbtn:hover{border-color:var(--gray-300);background:var(--gray-50)}
+.hbtn i{font-size:14px}
+.hbtn.primary{background:var(--gradient);border-color:transparent;color:var(--white)}
+.hbtn.warning{background:#fef3c7;border-color:#fcd34d;color:#92400e}
+.hbtn.success{background:var(--success);border-color:transparent;color:var(--white)}
+.user-pill{display:flex;align-items:center;gap:10px;padding:6px 12px 6px 6px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:24px;cursor:pointer}
+.user-pill:hover{border-color:var(--primary)}
+.user-avatar{width:32px;height:32px;background:var(--gradient);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:var(--white)}
+.user-text{display:flex;flex-direction:column;line-height:1.2}
+.user-text span{font-size:12px;font-weight:600;color:var(--gray-700)}
+.user-text small{font-size:10px;color:var(--gray-400)}
 
-/* POS LAYOUT */
-.pos-container{display:grid;grid-template-columns:1fr 380px;height:calc(100vh - 60px)}
-.productos-panel{display:flex;flex-direction:column;background:var(--gray-50);overflow:hidden}
-.categorias-bar{display:flex;gap:8px;padding:16px;background:var(--white);border-bottom:1px solid var(--gray-200);overflow-x:auto}
-.categoria-btn{padding:10px 18px;border-radius:20px;border:2px solid var(--gray-200);background:var(--white);font-size:13px;font-weight:600;color:var(--gray-600);white-space:nowrap;transition:all .2s}
-.categoria-btn:hover{border-color:var(--primary);color:var(--primary)}
-.categoria-btn.active{background:var(--gradient);border-color:transparent;color:var(--white)}
-.search-box{padding:16px;background:var(--white)}
-.search-box input{width:100%;padding:14px 16px 14px 44px;border:2px solid var(--gray-200);border-radius:var(--radius);font-size:15px;background:var(--gray-50) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%239ca3af' viewBox='0 0 24 24'%3E%3Cpath d='M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E") 14px center/20px no-repeat}
-.search-box input:focus{outline:none;border-color:var(--primary);background-color:var(--white)}
-.productos-grid{flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;padding:16px;overflow-y:auto;align-content:start}
-.producto-card{background:var(--white);border-radius:var(--radius-lg);padding:16px;text-align:center;cursor:pointer;transition:all .2s;border:2px solid transparent;box-shadow:var(--shadow)}
-.producto-card:hover{border-color:var(--primary);transform:translateY(-4px);box-shadow:var(--shadow-lg)}
-.producto-nombre{font-size:13px;font-weight:600;color:var(--dark);margin-bottom:8px;line-height:1.3;height:34px;overflow:hidden}
-.producto-precio{font-size:20px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.producto-stock{font-size:11px;color:var(--gray-400);margin-top:4px}
+/* MAIN CONTENT */
+.main-content{flex:1;display:grid;grid-template-columns:1fr 320px;overflow:hidden}
 
-/* CARRITO */
-.carrito-panel{background:var(--white);display:flex;flex-direction:column;border-left:1px solid var(--gray-200)}
-.carrito-header{padding:20px;background:var(--gradient);color:var(--white)}
-.carrito-header h3{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px}
-.carrito-header select{width:100%;margin-top:12px;padding:10px 12px;border:none;border-radius:var(--radius);font-size:14px;background:rgba(255,255,255,0.15);color:var(--white)}
-.carrito-header select option{color:var(--dark)}
-.carrito-items{flex:1;overflow-y:auto;padding:12px}
-.carrito-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--gray-400);text-align:center;padding:40px}
-.carrito-empty i{font-size:48px;margin-bottom:16px;opacity:.3}
-.carrito-item{display:flex;align-items:center;gap:12px;padding:14px;background:var(--gray-50);border-radius:var(--radius);margin-bottom:10px}
-.item-info{flex:1;min-width:0}
-.item-nombre{font-size:14px;font-weight:600;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.item-precio{font-size:12px;color:var(--gray-500)}
-.item-cantidad{display:flex;align-items:center;gap:6px}
-.item-cantidad button{width:28px;height:28px;border-radius:6px;border:1px solid var(--gray-300);background:var(--white);font-size:14px;font-weight:600;color:var(--gray-600)}
-.item-cantidad button:hover{background:var(--primary);border-color:var(--primary);color:var(--white)}
-.item-cantidad span{min-width:30px;text-align:center;font-weight:700}
-.item-subtotal{font-size:16px;font-weight:700;color:var(--primary);min-width:80px;text-align:right}
-.item-delete{width:28px;height:28px;border:none;background:none;color:var(--gray-400);font-size:16px;border-radius:6px}
-.item-delete:hover{background:var(--danger);color:var(--white)}
-.carrito-footer{padding:20px;border-top:1px solid var(--gray-200);background:var(--gray-50)}
-.total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.total-label{font-size:18px;font-weight:600;color:var(--gray-600)}
-.total-value{font-size:32px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.btn-cobrar{width:100%;padding:18px;font-size:18px;font-weight:700;border-radius:var(--radius-lg)}
+/* PANEL CARRITO (izquierda) */
+.panel-cart{display:flex;flex-direction:column;background:var(--white);overflow:hidden}
+.sale-bar{display:flex;align-items:center;gap:16px;padding:12px 16px;background:var(--gray-50);border-bottom:1px solid var(--gray-200)}
+.sale-client{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);cursor:pointer;min-width:180px}
+.sale-client:hover{border-color:var(--primary)}
+.sale-client i{color:var(--primary);font-size:18px}
+.sale-client div{flex:1}
+.sale-client small{font-size:9px;color:var(--gray-400);text-transform:uppercase;display:block}
+.sale-client strong{font-size:13px;display:block}
+.sale-client .chevron{color:var(--gray-400);font-size:10px}
+.sale-type{display:flex;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);overflow:hidden}
+.sale-type button{padding:8px 16px;border:none;background:transparent;font-size:12px;font-weight:600;cursor:pointer;color:var(--gray-500);transition:all .2s}
+.sale-type button.active{background:var(--success);color:var(--white)}
+.sale-price{display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius)}
+.sale-price label{font-size:11px;color:var(--gray-500)}
+.sale-price select{border:none;background:transparent;font-size:13px;font-weight:600;color:var(--primary);cursor:pointer}
+.search-bar{display:flex;gap:10px;padding:12px 16px;background:var(--white);border-bottom:1px solid var(--gray-100)}
+.search-input{flex:1;position:relative}
+.search-input i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--gray-400)}
+.search-input input{width:100%;padding:10px 12px 10px 38px;border:1px solid var(--gray-200);border-radius:var(--radius);font-size:13px}
+.search-input input:focus{outline:none;border-color:var(--primary)}
 
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px}
+/* TABLA CARRITO */
+.cart-wrapper{flex:1;overflow:auto;padding:0 16px}
+.cart-table{width:100%;border-collapse:collapse}
+.cart-table th{padding:12px 10px;text-align:left;font-size:10px;font-weight:700;color:var(--gray-400);text-transform:uppercase;border-bottom:2px solid var(--gray-200);position:sticky;top:0;background:var(--white)}
+.cart-table td{padding:12px 10px;border-bottom:1px solid var(--gray-100);vertical-align:middle}
+.cart-table tr:hover{background:var(--gray-50)}
+.cart-table .col-producto{width:30%}
+.cart-table .col-precio{width:15%;text-align:center}
+.cart-table .col-cantidad{width:20%;text-align:center}
+.cart-table .col-und{width:10%;text-align:center;color:var(--gray-400)}
+.cart-table .col-importe{width:15%;text-align:right;font-weight:700;color:var(--primary)}
+.cart-table .col-acciones{width:10%;text-align:center}
+.producto-cell{display:flex;align-items:center;gap:10px}
+.producto-cell img{width:36px;height:36px;object-fit:contain;border-radius:6px;background:var(--gray-100)}
+.producto-cell span{font-weight:600;font-size:13px}
+.qty-control{display:inline-flex;align-items:center;gap:4px}
+.qty-control button{width:28px;height:28px;border:1px solid var(--gray-300);border-radius:6px;background:var(--white);font-size:14px;cursor:pointer}
+.qty-control button:hover{background:var(--primary);border-color:var(--primary);color:var(--white)}
+.qty-control span{min-width:32px;text-align:center;font-weight:700;font-size:14px}
+.btn-delete{width:32px;height:32px;border:none;background:var(--gray-100);color:var(--gray-400);border-radius:6px;cursor:pointer}
+.btn-delete:hover{background:var(--danger);color:var(--white)}
+.cart-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--gray-400);text-align:center}
+.cart-empty i{font-size:48px;margin-bottom:16px;opacity:.3}
+.cart-empty p{font-size:14px;margin-bottom:4px}
+.cart-empty small{font-size:12px}
+
+/* FOOTER CARRITO */
+.cart-footer{display:flex;justify-content:flex-end;gap:10px;padding:16px;border-top:1px solid var(--gray-200);background:var(--gray-50)}
+
+/* PANEL PAGO (derecha) */
+.panel-payment{background:var(--white);border-left:1px solid var(--gray-200);display:flex;flex-direction:column}
+.total-header{padding:24px 20px;background:var(--success);color:var(--white);text-align:center}
+.total-header small{font-size:11px;text-transform:uppercase;opacity:.9;letter-spacing:1px}
+.total-header .total-amount{font-size:48px;font-weight:800;margin:8px 0 0}
+.payment-section{padding:16px 20px;border-bottom:1px solid var(--gray-100)}
+.payment-section h4{font-size:11px;font-weight:700;color:var(--gray-400);text-transform:uppercase;margin-bottom:12px}
+.summary-row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px}
+.summary-row span{color:var(--gray-500)}
+.summary-row strong{color:var(--dark)}
+.ticket-info{display:flex;align-items:center;gap:12px;padding:12px 0}
+.ticket-info i{width:36px;height:36px;background:var(--gray-100);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--primary)}
+.ticket-info div small{font-size:10px;color:var(--gray-400);text-transform:uppercase;display:block}
+.ticket-info div strong{font-size:14px}
+
+/* SHORTCUTS BAR */
+.shortcuts-bar{display:flex;align-items:center;justify-content:center;gap:24px;padding:8px;background:var(--dark);color:var(--gray-400);font-size:11px}
+.shortcuts-bar kbd{background:var(--gray-700);padding:2px 6px;border-radius:3px;margin-right:4px}
+
+/* ========== MODALES ========== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px}
 .modal-overlay.active{display:flex;animation:fadeIn .15s}
-.modal{background:var(--white);border-radius:var(--radius-lg);width:100%;max-width:480px;max-height:90vh;overflow:hidden;box-shadow:var(--shadow-lg);animation:scaleIn .2s}
-.modal-sm{max-width:400px}
-.modal-lg{max-width:700px}
-.modal-header{padding:20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--gray-200);background:var(--gray-50)}
-.modal-header.gradient{background:var(--gradient);color:var(--white)}
-.modal-header h3{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px}
+.modal{background:var(--white);border-radius:var(--radius-lg);width:100%;max-width:500px;max-height:85vh;overflow:hidden;box-shadow:var(--shadow-lg);animation:scaleIn .2s}
+.modal-sm{max-width:420px}
+.modal-lg{max-width:800px}
+.modal-xl{max-width:1000px}
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--gray-200);background:var(--gray-50)}
+.modal-header h3{font-size:16px;font-weight:700;display:flex;align-items:center;gap:10px}
 .modal-header h3 i{color:var(--primary)}
-.modal-header.gradient h3 i{color:rgba(255,255,255,0.8)}
-.btn-close{width:32px;height:32px;border:none;border-radius:var(--radius);background:var(--gray-100);color:var(--gray-500);font-size:18px}
+.btn-close{width:32px;height:32px;border:none;border-radius:var(--radius);background:var(--gray-100);color:var(--gray-500);cursor:pointer;font-size:16px}
 .btn-close:hover{background:var(--gray-200)}
-.modal-header.gradient .btn-close{background:rgba(255,255,255,0.2);color:var(--white)}
-.modal-body{padding:24px;max-height:60vh;overflow-y:auto}
-.modal-footer{padding:16px 24px;display:flex;gap:12px;justify-content:flex-end;border-top:1px solid var(--gray-200);background:var(--gray-50)}
+.modal-body{padding:20px;max-height:60vh;overflow-y:auto}
+.modal-body.no-padding{padding:0}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;padding:16px 20px;border-top:1px solid var(--gray-200);background:var(--gray-50)}
+.modal-toolbar{display:flex;gap:12px;padding:12px 20px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);align-items:center;flex-wrap:wrap}
+.search-field{flex:1;position:relative;min-width:200px}
+.search-field i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--gray-400)}
+.search-field input{width:100%;padding:10px 12px 10px 38px;border:1px solid var(--gray-200);border-radius:var(--radius);font-size:13px}
+.search-field input:focus{outline:none;border-color:var(--primary)}
+.filter-group{display:flex;align-items:center;gap:6px}
+.filter-group label{font-size:11px;color:var(--gray-500);white-space:nowrap}
+.filter-group select{padding:8px 10px;border:1px solid var(--gray-200);border-radius:var(--radius);font-size:12px;min-width:100px}
+.qty-group{display:flex;align-items:center;gap:4px;padding:4px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius)}
+.qty-group button{width:28px;height:28px;border:none;background:var(--gray-100);border-radius:4px;cursor:pointer}
+.qty-group button:hover{background:var(--primary);color:var(--white)}
+.qty-group input{width:40px;border:none;text-align:center;font-weight:700;font-size:14px}
 
-/* COBRO MODAL */
-.cobro-header{text-align:center;padding:30px 24px;background:var(--gradient);color:var(--white)}
-.cobro-header small{font-size:14px;opacity:.9}
-.cobro-header h2{font-size:48px;font-weight:800;margin:8px 0}
-.cobro-header .badge{display:inline-block;padding:6px 16px;background:rgba(255,255,255,0.2);border-radius:20px;font-size:12px;font-weight:600}
-.cobro-body{padding:24px}
-.cobro-metodos{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
-.cobro-metodos button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 10px;border:2px solid var(--gray-200);background:var(--white);border-radius:var(--radius);font-size:12px;font-weight:600;color:var(--gray-600)}
-.cobro-metodos button i{font-size:24px;color:var(--gray-400)}
+/* TABLA PRODUCTOS MODAL */
+.productos-table{width:100%;border-collapse:collapse}
+.productos-table th{padding:12px 16px;text-align:left;font-size:10px;font-weight:700;color:var(--gray-400);text-transform:uppercase;background:var(--gray-50);border-bottom:2px solid var(--gray-200);position:sticky;top:0}
+.productos-table td{padding:12px 16px;border-bottom:1px solid var(--gray-100);vertical-align:middle}
+.productos-table tr{cursor:pointer;transition:background .15s}
+.productos-table tr:hover{background:rgba(45,61,191,.04)}
+.productos-table .col-img{width:60px}
+.productos-table .col-codigo{width:15%;font-family:monospace;color:var(--gray-500)}
+.productos-table .col-nombre{font-weight:600}
+.productos-table .col-unidad{width:10%;text-align:center}
+.productos-table .col-descuento{width:12%;text-align:center}
+.productos-table .col-precio{width:12%;text-align:right;font-size:16px;font-weight:700;color:var(--primary)}
+.producto-img{width:44px;height:44px;object-fit:contain;border-radius:6px;background:var(--gray-100)}
+.badge-descuento{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;background:rgba(16,185,129,.1);color:var(--success);border-radius:12px;font-size:11px;font-weight:600}
+.badge-descuento i{font-size:10px}
+.badge-unidad{padding:4px 8px;background:var(--gray-100);border-radius:4px;font-size:11px;color:var(--gray-600)}
+
+/* MODAL COBRO */
+.cobro-header{text-align:center;padding:28px 24px;background:var(--gradient);color:var(--white)}
+.cobro-header small{font-size:12px;opacity:.9}
+.cobro-header h2{font-size:44px;font-weight:800;margin:8px 0}
+.cobro-header .badge{display:inline-block;padding:6px 14px;background:rgba(255,255,255,.2);border-radius:16px;font-size:11px;font-weight:600}
+.cobro-body{padding:20px}
+.cobro-metodos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.cobro-metodos button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 8px;border:2px solid var(--gray-200);background:var(--white);border-radius:var(--radius);font-size:11px;font-weight:600;color:var(--gray-600);cursor:pointer;transition:all .2s}
+.cobro-metodos button i{font-size:20px;color:var(--gray-400)}
 .cobro-metodos button:hover{border-color:var(--primary)}
-.cobro-metodos button.active{border-color:var(--primary);background:rgba(45,61,191,0.05);color:var(--primary)}
+.cobro-metodos button.active{border-color:var(--primary);background:rgba(45,61,191,.05);color:var(--primary)}
 .cobro-metodos button.active i{color:var(--primary)}
-.cobro-field{margin-bottom:16px}
-.cobro-field label{display:block;font-size:13px;color:var(--gray-500);margin-bottom:8px;font-weight:600}
-.cobro-field input{width:100%;padding:16px;border:2px solid var(--gray-200);border-radius:var(--radius);font-size:28px;font-weight:700;text-align:right}
+.cobro-field{margin-bottom:14px}
+.cobro-field label{display:block;font-size:12px;color:var(--gray-500);margin-bottom:6px;font-weight:600}
+.cobro-field input{width:100%;padding:14px;border:2px solid var(--gray-200);border-radius:var(--radius);font-size:24px;font-weight:700;text-align:right}
 .cobro-field input:focus{outline:none;border-color:var(--primary)}
-.cobro-denoms{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}
-.cobro-denoms button{padding:12px 8px;border:1px solid var(--gray-200);background:var(--white);border-radius:var(--radius);font-size:13px;font-weight:600}
+.cobro-denoms{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:16px}
+.cobro-denoms button{padding:10px 6px;border:1px solid var(--gray-200);background:var(--white);border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
 .cobro-denoms button:hover{background:var(--primary);border-color:var(--primary);color:var(--white)}
-.cobro-cambio{padding:16px 20px;background:var(--gradient);border-radius:var(--radius);color:var(--white);display:flex;justify-content:space-between;align-items:center}
-.cobro-cambio span{font-size:14px}
-.cobro-cambio strong{font-size:28px;font-weight:800}
+.cobro-cambio{padding:14px 18px;background:var(--gradient);border-radius:var(--radius);color:var(--white);display:flex;justify-content:space-between;align-items:center}
+.cobro-cambio span{font-size:13px}
+.cobro-cambio strong{font-size:24px;font-weight:800}
 
-/* SUCCESS MODAL */
-.success-content{padding:40px 30px;text-align:center}
-.success-icon{width:80px;height:80px;background:linear-gradient(135deg,var(--success) 0%,#059669 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;animation:pop .4s}
-.success-icon i{font-size:40px;color:var(--white)}
-.success-content h2{font-size:24px;margin-bottom:20px;color:var(--dark)}
-.success-details p{margin-bottom:8px;color:var(--gray-600);font-size:15px}
+/* MODAL ÉXITO */
+.success-content{padding:36px 28px;text-align:center}
+.success-icon{width:72px;height:72px;background:var(--success);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+.success-icon i{font-size:36px;color:var(--white)}
+.success-content h2{font-size:22px;margin-bottom:20px}
+.success-details p{margin-bottom:8px;color:var(--gray-600);font-size:14px}
 .success-details strong{color:var(--dark)}
-.success-actions{display:flex;gap:12px;margin-top:28px;justify-content:center}
-
-/* TABLE */
-.card{background:var(--white);border-radius:var(--radius-lg);box-shadow:var(--shadow);overflow:hidden}
-.card-header{padding:20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--gray-200)}
-.card-title{font-size:18px;font-weight:700;color:var(--dark)}
-table{width:100%;border-collapse:collapse}
-th,td{padding:14px 16px;text-align:left;border-bottom:1px solid var(--gray-100)}
-th{background:var(--gray-50);font-size:12px;font-weight:700;color:var(--gray-500);text-transform:uppercase}
-tr:hover{background:var(--gray-50)}
-.actions-cell{display:flex;gap:8px}
+.success-actions{display:flex;gap:10px;margin-top:24px;justify-content:center}
 
 /* TOAST */
-.toast{position:fixed;bottom:24px;right:24px;background:var(--dark);color:var(--white);padding:14px 20px;border-radius:var(--radius);font-size:14px;display:none;z-index:9999;box-shadow:var(--shadow-lg);animation:scaleIn .2s}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--dark);color:var(--white);padding:12px 18px;border-radius:var(--radius);font-size:13px;display:none;z-index:9999;box-shadow:var(--shadow-lg);animation:slideUp .2s}
 .toast.show{display:flex;align-items:center;gap:10px}
-.toast.success{background:linear-gradient(135deg,var(--success) 0%,#059669 100%)}
-.toast.error{background:linear-gradient(135deg,var(--danger) 0%,#dc2626 100%)}
-.toast i{font-size:18px}
+.toast.success{background:var(--success)}
+.toast.error{background:var(--danger)}
+.toast i{font-size:16px}
 
 /* RESPONSIVE */
 @media(max-width:1024px){
-  .pos-container{grid-template-columns:1fr}
-  .carrito-panel{position:fixed;bottom:0;left:0;right:0;height:60vh;border-radius:20px 20px 0 0;transform:translateY(calc(100% - 70px));transition:transform .3s;z-index:100}
-  .carrito-panel.open{transform:translateY(0)}
-  .productos-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+  .main-content{grid-template-columns:1fr}
+  .panel-payment{position:fixed;bottom:0;left:0;right:0;max-height:50vh;border-radius:16px 16px 0 0;transform:translateY(calc(100% - 80px));transition:transform .3s;z-index:100;box-shadow:0 -4px 20px rgba(0,0,0,.15)}
+  .panel-payment.open{transform:translateY(0)}
 }
 @media(max-width:768px){
-  .sidebar{position:fixed;left:-260px;top:0;bottom:0;z-index:200;transition:left .3s}
-  .sidebar.open{left:0}
-  .productos-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;padding:12px}
-  .producto-card{padding:12px}
-  .producto-nombre{font-size:12px;height:30px}
-  .producto-precio{font-size:16px}
+  .header-center{display:none}
+  .sale-bar{flex-wrap:wrap}
+  .shortcuts-bar{display:none}
 }
