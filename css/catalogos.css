@@ -789,3 +789,11 @@
     background: var(--gray-50);
     border-top: 1px solid var(--gray-200);
 }
+/* ========== COLOR DOT ========== */
+.color-dot {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    vertical-align: middle;
+}
