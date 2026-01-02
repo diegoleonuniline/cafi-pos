@@ -5,92 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAFI - Ventas</title>
     <link rel="stylesheet" href="../css/styles.css">
-    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../css/catalogos.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .venta-row{cursor:pointer;transition:background .2s}
-        .venta-row:hover{background:var(--gray-100)}
-        .venta-row.cancelada{opacity:0.6;background:rgba(239,68,68,0.05)}
-        .folio{font-weight:700;color:var(--primary)}
-        .metodo-pago{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:600}
-        .metodo-pago.efectivo{background:rgba(16,185,129,0.1);color:#059669}
-        .metodo-pago.tarjeta{background:rgba(59,130,246,0.1);color:#2563eb}
-        .metodo-pago.transferencia{background:rgba(139,92,246,0.1);color:#7c3aed}
-        
-        .detalle-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid var(--gray-200)}
-        .detalle-folio{font-size:24px;font-weight:700;color:var(--primary)}
-        .detalle-fecha{color:var(--gray-500);margin-top:4px}
-        .detalle-cliente{display:flex;align-items:center;gap:12px;padding:16px;background:var(--gray-50);border-radius:var(--radius);margin-bottom:20px}
-        .detalle-cliente i{font-size:24px;color:var(--gray-400)}
-        .detalle-cliente .info strong{display:block;font-size:16px}
-        .detalle-cliente .info span{color:var(--gray-500);font-size:13px}
-        .detalle-productos{margin-bottom:20px}
-        .detalle-productos table{width:100%;border-collapse:collapse}
-        .detalle-productos th{padding:10px;text-align:left;font-size:11px;text-transform:uppercase;color:var(--gray-400);border-bottom:2px solid var(--gray-200)}
-        .detalle-productos td{padding:10px;border-bottom:1px solid var(--gray-100)}
-        .detalle-totales{background:var(--gray-50);padding:16px;border-radius:var(--radius)}
-        .total-row{display:flex;justify-content:space-between;padding:8px 0}
-        .total-row.final{border-top:2px solid var(--gray-300);margin-top:8px;padding-top:12px;font-size:18px;font-weight:700}
-        .total-row.final span:last-child{color:var(--primary)}
-        .detalle-pagos{margin-top:16px;padding-top:16px;border-top:1px dashed var(--gray-300)}
-        .pago-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0}
-        .pago-item .metodo{display:flex;align-items:center;gap:8px}
-        .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--gray-200)}
-    </style>
 </head>
 <body>
     <div class="admin-layout">
-        <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <div class="logo">
-                    <svg viewBox="0 0 500 500" width="32" height="32">
-                        <g transform="translate(0,500) scale(0.1,-0.1)">
-                            <path fill="#2D3DBF" d="M905 3775 c-5 -2 -22 -6 -37 -9 -62 -14 -127 -102 -128 -174 0 -43 24 -100 58 -135 39 -41 107 -57 246 -57 l121 0 136 -137 137 -138 59 -145 c33 -80 89 -219 124 -309 l64 -165 7 105 c9 150 39 265 103 394 74 150 174 267 305 357 24 16 16 17 -180 17 l-205 1 -175 176 c-96 96 -193 185 -215 197 -37 20 -56 22 -225 24 -102 1 -189 1 -195 -2z"/>
-                            <path fill="#6C2BD9" d="M3270 3352 c143 -112 231 -234 285 -399 14 -43 28 -105 32 -138 9 -98 16 -96 -293 -93 l-259 3 -30 58 c-43 83 -88 133 -148 165 -48 25 -61 27 -172 27 -112 0 -124 -2 -178 -29 -60 -30 -126 -95 -157 -156 -39 -77 -52 -147 -48 -264 3 -104 6 -116 40 -188 78 -163 207 -239 382 -225 135 12 252 97 286 210 23 80 11 77 301 77 l258 0 18 -23 17 -24 40 101 c21 56 99 254 174 441 80 202 135 355 136 377 1 45 -32 84 -83 98 -20 6 -168 10 -336 10 l-300 0 35 -28z"/>
-                            <path fill="#fff" d="M2147 1706 c-175 -48 -237 -282 -109 -412 93 -94 263 -88 351 11 46 53 61 93 61 165 0 162 -149 278 -303 236z"/>
-                            <path fill="#fff" d="M3058 1706 c-150 -41 -228 -210 -159 -344 79 -154 289 -183 402 -55 43 50 59 92 59 160 -1 163 -150 281 -302 239z"/>
-                        </g>
-                    </svg>
-                    <span>CAFI</span>
-                </div>
+                <svg viewBox="0 0 500 500" width="40" height="40">
+                    <g transform="translate(0,500) scale(0.1,-0.1)">
+                        <path fill="#2D3DBF" d="M905 3775 c-5 -2 -22 -6 -37 -9 -62 -14 -127 -102 -128 -174 0 -43 24 -100 58 -135 39 -41 107 -57 246 -57 l121 0 136 -137 137 -138 59 -145 c33 -80 89 -219 124 -309 l64 -165 7 105 c9 150 39 265 103 394 74 150 174 267 305 357 24 16 16 17 -180 17 l-205 1 -175 176 c-96 96 -193 185 -215 197 -37 20 -56 22 -225 24 -102 1 -189 1 -195 -2z"/>
+                        <path fill="#6C2BD9" d="M3270 3352 c143 -112 231 -234 285 -399 14 -43 28 -105 32 -138 9 -98 16 -96 -293 -93 l-259 3 -30 58 c-43 83 -88 133 -148 165 -48 25 -61 27 -172 27 -112 0 -124 -2 -178 -29 -60 -30 -126 -95 -157 -156 -39 -77 -52 -147 -48 -264 3 -104 6 -116 40 -188 78 -163 207 -239 382 -225 135 12 252 97 286 210 23 80 11 77 301 77 l258 0 18 -23 17 -24 40 101 c21 56 99 254 174 441 80 202 135 355 136 377 1 45 -32 84 -83 98 -20 6 -168 10 -336 10 l-300 0 35 -28z"/>
+                        <path fill="#fff" d="M2147 1706 c-175 -48 -237 -282 -109 -412 93 -94 263 -88 351 11 46 53 61 93 61 165 0 162 -149 278 -303 236z"/>
+                        <path fill="#fff" d="M3058 1706 c-150 -41 -228 -210 -159 -344 79 -154 289 -183 402 -55 43 50 59 92 59 160 -1 163 -150 281 -302 239z"/>
+                    </g>
+                </svg>
+                <span>CAFI</span>
             </div>
             <nav class="sidebar-nav">
-                <a href="pos.html" class="nav-item"><i class="fas fa-cash-register"></i> Punto de Venta</a>
-                <a href="admin.html" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
-                <a href="productos.html" class="nav-item"><i class="fas fa-boxes"></i> Productos</a>
-                <a href="categorias.html" class="nav-item"><i class="fas fa-tags"></i> Categorías</a>
-                <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i> Clientes</a>
-                <a href="ventas.html" class="nav-item active"><i class="fas fa-chart-line"></i> Ventas</a>
-                <a href="#" class="nav-item"><i class="fas fa-file-alt"></i> Reportes</a>
+                <a href="pos.html" class="nav-item"><i class="fas fa-cash-register"></i><span>Punto de Venta</span></a>
+                <a href="admin.html" class="nav-item"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+                <a href="productos.html" class="nav-item"><i class="fas fa-box"></i><span>Productos</span></a>
+                <a href="categorias.html" class="nav-item"><i class="fas fa-tags"></i><span>Categorías</span></a>
+                <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i><span>Clientes</span></a>
+                <a href="ventas.html" class="nav-item active"><i class="fas fa-chart-line"></i><span>Ventas</span></a>
+                <a href="reportes.html" class="nav-item"><i class="fas fa-file-alt"></i><span>Reportes</span></a>
             </nav>
             <div class="sidebar-footer">
-                <div class="user-info">
-                    <div class="user-avatar" id="userAvatar">U</div>
-                    <div class="user-details">
-                        <strong id="userName">Usuario</strong>
+                <div class="user-mini">
+                    <div class="user-avatar" id="userAvatar">AD</div>
+                    <div class="user-info">
+                        <span id="userName">Usuario</span>
                         <small id="userSucursal">Sucursal</small>
                     </div>
                 </div>
-                <button class="btn-logout" onclick="API.logout()" title="Cerrar sesión">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
+                <button class="btn-logout" onclick="API.logout()"><i class="fas fa-sign-out-alt"></i></button>
             </div>
         </aside>
 
-        <!-- MAIN -->
-        <main class="main-content">
-            <header class="main-header">
-                <div class="header-title">
-                    <i class="fas fa-chart-line"></i>
-                    <h1>Ventas</h1>
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1><i class="fas fa-chart-line"></i> Ventas</h1>
+                <div class="header-actions">
+                    <span id="fechaActual"></span>
                 </div>
-                <div class="header-date" id="fechaActual"></div>
             </header>
 
-            <div class="content-body">
-                <!-- Stats -->
-                <div class="stats-row">
+            <div class="admin-content">
+                <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon blue"><i class="fas fa-receipt"></i></div>
                         <div class="stat-info">
@@ -121,69 +83,53 @@
                     </div>
                 </div>
 
-                <!-- Filtros y tabla -->
-                <div class="card">
-                    <div class="card-toolbar">
-                        <div class="search-box">
+                <div class="section-card">
+                    <div class="filters-bar">
+                        <div class="filter-search">
                             <i class="fas fa-search"></i>
                             <input type="text" id="inputBuscar" placeholder="Buscar por folio o cliente..." oninput="filtrar()">
                         </div>
-                        <div class="filter-group">
-                            <label>Desde:</label>
-                            <input type="date" id="fechaDesde" onchange="cargarDatos()">
-                        </div>
-                        <div class="filter-group">
-                            <label>Hasta:</label>
-                            <input type="date" id="fechaHasta" onchange="cargarDatos()">
-                        </div>
-                        <div class="filter-group">
-                            <label>Estado:</label>
-                            <select id="filtroEstado" onchange="filtrar()">
-                                <option value="">Todos</option>
-                                <option value="PAGADA">Pagadas</option>
-                                <option value="CANCELADA">Canceladas</option>
-                            </select>
-                        </div>
+                        <input type="date" id="fechaDesde" onchange="cargarDatos()">
+                        <input type="date" id="fechaHasta" onchange="cargarDatos()">
+                        <select id="filtroEstado" onchange="filtrar()">
+                            <option value="">Todos</option>
+                            <option value="PAGADA">Pagadas</option>
+                            <option value="CANCELADA">Canceladas</option>
+                        </select>
                     </div>
-                    <div class="table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Folio</th>
-                                    <th>Fecha/Hora</th>
-                                    <th>Cliente</th>
-                                    <th class="text-center">Artículos</th>
-                                    <th class="text-center">Pago</th>
-                                    <th class="text-right">Total</th>
-                                    <th class="text-center">Estado</th>
-                                    <th class="text-center">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaBody"></tbody>
-                        </table>
-                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Folio</th>
+                                <th>Fecha/Hora</th>
+                                <th>Cliente</th>
+                                <th>Artículos</th>
+                                <th>Pago</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaBody"></tbody>
+                    </table>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- MODAL DETALLE -->
     <div class="modal-overlay" id="modalDetalle">
         <div class="modal modal-lg">
             <div class="modal-header gradient">
                 <h3><i class="fas fa-receipt"></i> Detalle de Venta</h3>
                 <button class="btn-close light" onclick="cerrarModalDetalle()"><i class="fas fa-times"></i></button>
             </div>
-            <div class="modal-body" id="detalleContent">
-                <!-- Se llena dinámicamente -->
-            </div>
+            <div class="modal-body" id="detalleContent"></div>
         </div>
     </div>
 
-    <!-- MODAL CANCELAR -->
     <div class="modal-overlay" id="modalCancelar">
         <div class="modal modal-sm">
-            <div class="modal-header" style="background:#ef4444">
+            <div class="modal-header" style="background:#ef4444;color:white">
                 <h3><i class="fas fa-times-circle"></i> Cancelar Venta</h3>
                 <button class="btn-close light" onclick="cerrarModalCancelar()"><i class="fas fa-times"></i></button>
             </div>
@@ -192,7 +138,7 @@
                     <input type="hidden" id="cancelarVentaId">
                     <p style="margin-bottom:16px">¿Cancelar la venta <strong id="cancelarFolio"></strong>?</p>
                     <div class="form-group">
-                        <label>Motivo de cancelación *</label>
+                        <label>Motivo de cancelación <span class="required">*</span></label>
                         <textarea id="motivoCancelacion" rows="3" required placeholder="Escribe el motivo..."></textarea>
                     </div>
                 </div>
@@ -206,14 +152,11 @@
         </div>
     </div>
 
-    <!-- TOAST -->
     <div id="toast" class="toast"></div>
-
     <script src="../js/config.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/ventas.js"></script>
     <script>
-        // Fecha en header
         document.getElementById('fechaActual').textContent = new Date().toLocaleDateString('es-MX', {
             weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
         });
