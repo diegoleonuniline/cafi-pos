@@ -174,3 +174,14 @@
     .conv-arrow{transform:rotate(90deg)}
     .radio-cards{flex-direction:column}
 }
+/* ========== CATEGORIAS GRID ========== */
+.categorias-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;padding:20px}
+.categoria-card{background:var(--white);border-radius:var(--radius-lg);border:2px solid var(--gray-200);overflow:hidden;cursor:pointer;transition:all .2s;position:relative;display:flex;flex-direction:column}
+.categoria-card:hover{border-color:var(--primary);transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.1)}
+.categoria-card .color-bar{height:6px;width:100%}
+.categoria-card .card-body{padding:16px;flex:1}
+.categoria-card .nombre{font-size:16px;font-weight:700;color:var(--dark);margin-bottom:6px}
+.categoria-card .info{font-size:12px;color:var(--gray-400)}
+.categoria-card .card-actions{display:flex;gap:6px;padding:0 16px 16px;opacity:0;transition:opacity .2s}
+.categoria-card:hover .card-actions{opacity:1}
+.categoria-card .badge-status{position:absolute;top:16px;right:12px}
