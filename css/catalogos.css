@@ -305,7 +305,15 @@
     transition: all 0.2s;
     flex-shrink: 0;
 }
+.btn-action.view {
+    background: #f3e8ff;
+    color: #7c3aed;
+}
 
+.btn-action.view:hover {
+    background: #7c3aed;
+    color: white;
+}
 .toggle-switch .slider::after {
     content: '';
     position: absolute;
@@ -979,4 +987,112 @@
     text-align: center;
     padding: 40px;
     color: var(--gray-400);
+}
+/* ========== DETALLE PRODUCTO ========== */
+.detalle-producto {
+    padding: 0;
+}
+
+.detalle-header-prod {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--gray-200);
+    margin-bottom: 20px;
+}
+
+.prod-img {
+    width: 80px;
+    height: 80px;
+    background: var(--gray-100);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.prod-img i {
+    font-size: 32px;
+    color: var(--gray-400);
+}
+
+.prod-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.prod-info h2 {
+    font-size: 20px;
+    margin-bottom: 4px;
+}
+
+.prod-info p {
+    color: var(--gray-500);
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.detalle-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.detalle-section h4 {
+    font-size: 12px;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.detalle-section h4 i {
+    color: var(--primary);
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 13px;
+}
+
+.info-row span:first-child {
+    color: var(--gray-500);
+}
+
+.info-row strong {
+    color: var(--dark);
+}
+
+.detalle-precio-final {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.precio-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 14px;
+}
+
+.precio-row.total {
+    border-top: 2px solid var(--gray-300);
+    margin-top: 8px;
+    padding-top: 12px;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.precio-row.total span:last-child {
+    color: var(--primary);
 }
