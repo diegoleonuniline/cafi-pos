@@ -80,7 +80,7 @@ function renderTabla(items) {
 
     var html = '';
     items.forEach(function(v) {
-        var fecha = new Date(v.fecha_hora);
+var fecha = v.fecha_hora ? new Date(v.fecha_hora.replace(' ', 'T')) : new Date();
         var fechaStr = fecha.toLocaleDateString('es-MX') + ' ' + fecha.toLocaleTimeString('es-MX', {hour: '2-digit', minute: '2-digit'});
         var esCancelada = v.estatus === 'CANCELADA';
         
@@ -134,7 +134,7 @@ async function verDetalle(id) {
 }
 
 function mostrarDetalle(venta, productos) {
-    var fecha = new Date(venta.fecha_hora);
+ var fecha = venta.fecha_hora ? new Date(venta.fecha_hora.replace(' ', 'T')) : new Date();
     var fechaStr = fecha.toLocaleDateString('es-MX', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'});
     var horaStr = fecha.toLocaleTimeString('es-MX', {hour: '2-digit', minute: '2-digit'});
     var esCancelada = venta.estatus === 'CANCELADA';
