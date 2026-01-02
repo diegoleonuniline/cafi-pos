@@ -18,7 +18,7 @@ async function cargarDatos() {
     try {
         const r = await API.request(`/clientes/${API.usuario.empresa_id}`);
         if (r.success) {
-            datos = r.data || [];
+            datos = r.clientes || r.data || [];
             filtrar();
         }
     } catch (e) {
