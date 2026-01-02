@@ -2,6 +2,7 @@ if (!API.isLoggedIn()) window.location.href = '../index.html';
 
 var datos = [];
 var categorias = [];
+var preciosBase = { precio1: 0, precio2: 0, precio3: 0, precio4: 0 };
 
 document.addEventListener('DOMContentLoaded', async function() {
     cargarUsuario();
@@ -21,7 +22,6 @@ function cargarUsuario() {
 async function cargarCategorias() {
     try {
         var r = await API.request('/categorias/' + API.usuario.empresa_id);
-        console.log('Categorias para productos:', r);
         if (r.success) {
             categorias = r.categorias || r.data || [];
             var selFiltro = document.getElementById('filtroCategoria');
@@ -42,98 +42,11 @@ async function cargarCategorias() {
     }
 }
 
-function verDetalle(id) {
-    var p = datos.find(function(d) { return d.producto_id === id; });
-    if (!p) return;
-    
-    var iva = parseFloat(p.iva || 16);
-    var ieps = parseFloat(p.ieps || 0);
-    var precio = parseFloat(p.precio1 || 0);
-    var precioBase, ivaAmt, iepsAmt, precioFinal;
-    
-    if (p.precio_incluye_impuesto === 'Y') {
-        var factor = 1 + (iva/100) + (ieps/100);
-        precioBase = precio / factor;
-        ivaAmt = precioBase * (iva/100);
-        iepsAmt = precioBase * (ieps/100);
-        precioFinal = precio;
-    } else {
-        precioBase = precio;
-        ivaAmt = precioBase * (iva/100);
-        iepsAmt = precioBase * (ieps/100);
-        precioFinal = precioBase + ivaAmt + iepsAmt;
-    }
-    
-    var html = '<div class="detalle-producto">' +
-        '<div class="detalle-header-prod">' +
-            '<div class="prod-img">' + (p.imagen_url ? '<img src="' + p.imagen_url + '">' : '<i class="fas fa-box"></i>') + '</div>' +
-            '<div class="prod-info">' +
-                '<h2>' + p.nombre + '</h2>' +
-                '<p>' + (p.codigo_barras || p.codigo_interno || 'Sin código') + '</p>' +
-                '<span class="badge-status ' + (p.activo === 'Y' ? 'active' : 'inactive') + '">' + (p.activo === 'Y' ? 'Activo' : 'Inactivo') + '</span>' +
-            '</div>' +
-        '</div>' +
-        
-        '<div class="detalle-grid">' +
-            '<div class="detalle-section">' +
-                '<h4><i class="fas fa-info-circle"></i> General</h4>' +
-                '<div class="info-row"><span>Categoría:</span><strong>' + (p.categoria_nombre || 'Sin categoría') + '</strong></div>' +
-                '<div class="info-row"><span>Tipo:</span><strong>' + (p.tipo || 'PRODUCTO') + '</strong></div>' +
-                '<div class="info-row"><span>Código SAT:</span><strong>' + (p.codigo_sat || '-') + '</strong></div>' +
-            '</div>' +
-            
-            '<div class="detalle-section">' +
-                '<h4><i class="fas fa-boxes"></i> Unidades</h4>' +
-                '<div class="info-row"><span>U. Compra:</span><strong>' + (p.unidad_compra || 'PZ') + '</strong></div>' +
-                '<div class="info-row"><span>U. Venta:</span><strong>' + (p.unidad_venta || 'PZ') + '</strong></div>' +
-                '<div class="info-row"><span>Factor:</span><strong>' + (p.factor_conversion || 1) + '</strong></div>' +
-            '</div>' +
-            
-            '<div class="detalle-section">' +
-                '<h4><i class="fas fa-dollar-sign"></i> Precios</h4>' +
-                '<div class="info-row"><span>Costo:</span><strong>$' + parseFloat(p.costo || 0).toFixed(2) + '</strong></div>' +
-                '<div class="info-row"><span>Precio 1:</span><strong>$' + parseFloat(p.precio1 || 0).toFixed(2) + '</strong></div>' +
-                '<div class="info-row"><span>Precio 2:</span><strong>$' + parseFloat(p.precio2 || 0).toFixed(2) + '</strong></div>' +
-                '<div class="info-row"><span>Precio 3:</span><strong>$' + parseFloat(p.precio3 || 0).toFixed(2) + '</strong></div>' +
-                '<div class="info-row"><span>Precio 4:</span><strong>$' + parseFloat(p.precio4 || 0).toFixed(2) + '</strong></div>' +
-            '</div>' +
-            
-            '<div class="detalle-section">' +
-                '<h4><i class="fas fa-percentage"></i> Impuestos</h4>' +
-                '<div class="info-row"><span>IVA:</span><strong>' + iva + '%</strong></div>' +
-                '<div class="info-row"><span>IEPS:</span><strong>' + ieps + '%</strong></div>' +
-                '<div class="info-row"><span>Incluye imp:</span><strong>' + (p.precio_incluye_impuesto === 'Y' ? 'Sí' : 'No') + '</strong></div>' +
-            '</div>' +
-        '</div>' +
-        
-        '<div class="detalle-precio-final">' +
-            '<div class="precio-row"><span>Precio base:</span><span>$' + precioBase.toFixed(2) + '</span></div>' +
-            '<div class="precio-row"><span>IVA (' + iva + '%):</span><span>$' + ivaAmt.toFixed(2) + '</span></div>' +
-            (ieps > 0 ? '<div class="precio-row"><span>IEPS (' + ieps + '%):</span><span>$' + iepsAmt.toFixed(2) + '</span></div>' : '') +
-            '<div class="precio-row total"><span>PRECIO FINAL:</span><span>$' + precioFinal.toFixed(2) + '</span></div>' +
-        '</div>' +
-        
-        '<div class="modal-actions">' +
-            '<button class="btn btn-outline" onclick="cerrarModalDetalle()"><i class="fas fa-times"></i> Cerrar</button>' +
-            '<button class="btn btn-primary" onclick="cerrarModalDetalle();editar(\'' + p.producto_id + '\')"><i class="fas fa-edit"></i> Editar</button>' +
-        '</div>' +
-    '</div>';
-    
-    document.getElementById('detalleProductoContent').innerHTML = html;
-    document.getElementById('modalDetalleProducto').classList.add('active');
-}
-
-function cerrarModalDetalle() {
-    document.getElementById('modalDetalleProducto').classList.remove('active');
-}
-
 async function cargarDatos() {
     try {
         var r = await API.request('/productos/' + API.usuario.empresa_id);
-        console.log('Respuesta API:', r);
         if (r.success) {
             datos = r.productos || r.data || [];
-            console.log('Datos cargados:', datos.length);
             filtrar();
         }
     } catch (e) {
@@ -154,14 +67,51 @@ function setupTabs() {
 }
 
 function setupEventos() {
+    // Eventos de IVA - recalcular precios cuando cambie
     document.querySelectorAll('input[name="iva"]').forEach(function(radio) {
         radio.addEventListener('change', function() {
             document.querySelectorAll('.radio-card').forEach(function(c) { c.classList.remove('active'); });
             radio.closest('.radio-card').classList.add('active');
-            calcularImpuestos();
+            recalcularPreciosConImpuestos();
         });
     });
 
+    // Evento IEPS - recalcular precios cuando cambie
+    var iepsInput = document.getElementById('ieps');
+    if (iepsInput) {
+        iepsInput.addEventListener('input', recalcularPreciosConImpuestos);
+    }
+    
+    // Evento toggle incluye impuesto - convertir precios
+    var precioImp = document.getElementById('precio_incluye_impuesto');
+    if (precioImp) {
+        precioImp.addEventListener('change', function() {
+            convertirPrecios(this.checked);
+        });
+    }
+
+    // Eventos de precios - guardar como precio base
+    ['precio1', 'precio2', 'precio3', 'precio4'].forEach(function(id) {
+        var input = document.getElementById(id);
+        if (input) {
+            input.addEventListener('input', function() {
+                var num = id.replace('precio', '');
+                var valor = parseFloat(this.value) || 0;
+                
+                if (document.getElementById('precio_incluye_impuesto').checked) {
+                    var factor = getFactorImpuestos();
+                    preciosBase['precio' + num] = valor / factor;
+                } else {
+                    preciosBase['precio' + num] = valor;
+                }
+                
+                calcularMargen(parseInt(num));
+                calcularImpuestos();
+            });
+        }
+    });
+
+    // Imagen preview
     var imgInput = document.getElementById('imagen_url');
     if (imgInput) {
         imgInput.addEventListener('input', function(e) {
@@ -174,6 +124,7 @@ function setupEventos() {
         });
     }
 
+    // Color POS
     var colorPos = document.getElementById('color_pos');
     if (colorPos) {
         colorPos.addEventListener('input', function(e) {
@@ -181,22 +132,127 @@ function setupEventos() {
         });
     }
 
+    // Caducidad toggle
     var caducidad = document.getElementById('maneja_caducidad');
     if (caducidad) {
         caducidad.addEventListener('change', function(e) {
             document.getElementById('rowCaducidad').style.display = e.target.checked ? 'flex' : 'none';
         });
     }
-
-    var iepsInput = document.getElementById('ieps');
-    if (iepsInput) iepsInput.addEventListener('input', calcularImpuestos);
-    
-    var precioImp = document.getElementById('precio_incluye_impuesto');
-    if (precioImp) precioImp.addEventListener('change', calcularImpuestos);
-    
-    var precio1 = document.getElementById('precio1');
-    if (precio1) precio1.addEventListener('input', calcularImpuestos);
 }
+
+// ==================== FUNCIONES DE IMPUESTOS ====================
+
+function getFactorImpuestos() {
+    var ivaRadio = document.querySelector('input[name="iva"]:checked');
+    var iva = ivaRadio ? parseFloat(ivaRadio.value) : 16;
+    var ieps = parseFloat(document.getElementById('ieps').value) || 0;
+    return 1 + (iva / 100) + (ieps / 100);
+}
+
+function convertirPrecios(incluyeImpuesto) {
+    var factor = getFactorImpuestos();
+    
+    ['precio1', 'precio2', 'precio3', 'precio4'].forEach(function(id) {
+        var input = document.getElementById(id);
+        var valorActual = parseFloat(input.value) || 0;
+        
+        if (valorActual > 0) {
+            if (incluyeImpuesto) {
+                // Estaba sin impuestos, ahora incluye -> multiplicar
+                preciosBase[id] = valorActual;
+                input.value = (valorActual * factor).toFixed(2);
+            } else {
+                // Estaba con impuestos, ahora sin -> dividir
+                preciosBase[id] = valorActual / factor;
+                input.value = preciosBase[id].toFixed(2);
+            }
+        }
+    });
+    
+    calcularMargen(1);
+    calcularMargen(2);
+    calcularMargen(3);
+    calcularMargen(4);
+    calcularImpuestos();
+}
+
+function recalcularPreciosConImpuestos() {
+    var factor = getFactorImpuestos();
+    var incluyeImpuesto = document.getElementById('precio_incluye_impuesto').checked;
+    
+    ['precio1', 'precio2', 'precio3', 'precio4'].forEach(function(id) {
+        var input = document.getElementById(id);
+        var base = preciosBase[id] || 0;
+        
+        if (base > 0) {
+            if (incluyeImpuesto) {
+                input.value = (base * factor).toFixed(2);
+            } else {
+                input.value = base.toFixed(2);
+            }
+        }
+    });
+    
+    calcularMargen(1);
+    calcularMargen(2);
+    calcularMargen(3);
+    calcularMargen(4);
+    calcularImpuestos();
+}
+
+function calcularMargen(num) {
+    var costo = parseFloat(document.getElementById('costo').value) || 0;
+    var precioInput = parseFloat(document.getElementById('precio' + num).value) || 0;
+    var badge = document.getElementById('margen' + num);
+    
+    // Margen sobre precio base (sin impuestos)
+    var precioBase = preciosBase['precio' + num] || precioInput;
+    if (document.getElementById('precio_incluye_impuesto').checked && precioInput > 0) {
+        precioBase = precioInput / getFactorImpuestos();
+    }
+    
+    if (costo > 0 && precioBase > 0) {
+        var margen = ((precioBase - costo) / costo) * 100;
+        badge.textContent = 'Margen: ' + margen.toFixed(1) + '%';
+        badge.className = 'margin-badge ' + (margen >= 0 ? 'positive' : 'negative');
+    } else {
+        badge.textContent = 'Margen: --%';
+        badge.className = 'margin-badge';
+    }
+}
+
+function calcularImpuestos() {
+    var precio1 = parseFloat(document.getElementById('precio1').value) || 0;
+    var ivaRadio = document.querySelector('input[name="iva"]:checked');
+    var iva = ivaRadio ? parseFloat(ivaRadio.value) : 16;
+    var ieps = parseFloat(document.getElementById('ieps').value) || 0;
+    var incluyeImp = document.getElementById('precio_incluye_impuesto').checked;
+
+    var precioBase, ivaAmt, iepsAmt, total;
+
+    if (incluyeImp) {
+        var factorImp = 1 + (iva / 100) + (ieps / 100);
+        precioBase = precio1 / factorImp;
+        ivaAmt = precioBase * (iva / 100);
+        iepsAmt = precioBase * (ieps / 100);
+        total = precio1;
+    } else {
+        precioBase = precio1;
+        ivaAmt = precioBase * (iva / 100);
+        iepsAmt = precioBase * (ieps / 100);
+        total = precioBase + ivaAmt + iepsAmt;
+    }
+
+    document.getElementById('ivaPercent').textContent = iva;
+    document.getElementById('iepsPercent').textContent = ieps;
+    document.getElementById('precioSinImp').textContent = '$' + precioBase.toFixed(2);
+    document.getElementById('ivaAmount').textContent = '$' + ivaAmt.toFixed(2);
+    document.getElementById('iepsAmount').textContent = '$' + iepsAmt.toFixed(2);
+    document.getElementById('precioFinal').textContent = '$' + total.toFixed(2);
+}
+
+// ==================== FILTRAR Y TABLA ====================
 
 function filtrar() {
     var busqueda = document.getElementById('inputBuscar').value.toLowerCase();
@@ -269,6 +325,102 @@ function renderTabla(items) {
     tbody.innerHTML = html;
 }
 
+// ==================== VER DETALLE ====================
+
+function verDetalle(id) {
+    var p = datos.find(function(d) { return d.producto_id === id; });
+    if (!p) return;
+    
+    var iva = parseFloat(p.iva || 16);
+    var ieps = parseFloat(p.ieps || 0);
+    var precio = parseFloat(p.precio1 || 0);
+    var precioBase, ivaAmt, iepsAmt, precioFinal;
+    
+    if (p.precio_incluye_impuesto === 'Y') {
+        var factor = 1 + (iva/100) + (ieps/100);
+        precioBase = precio / factor;
+        ivaAmt = precioBase * (iva/100);
+        iepsAmt = precioBase * (ieps/100);
+        precioFinal = precio;
+    } else {
+        precioBase = precio;
+        ivaAmt = precioBase * (iva/100);
+        iepsAmt = precioBase * (ieps/100);
+        precioFinal = precioBase + ivaAmt + iepsAmt;
+    }
+    
+    // Calcular precios finales para todos los precios
+    var precios = [1,2,3,4].map(function(n) {
+        var pr = parseFloat(p['precio' + n] || 0);
+        if (p.precio_incluye_impuesto === 'Y') return pr;
+        return pr * (1 + (iva/100) + (ieps/100));
+    });
+    
+    var html = '<div class="detalle-producto">' +
+        '<div class="detalle-header-prod">' +
+            '<div class="prod-img">' + (p.imagen_url ? '<img src="' + p.imagen_url + '">' : '<i class="fas fa-box"></i>') + '</div>' +
+            '<div class="prod-info">' +
+                '<h2>' + p.nombre + '</h2>' +
+                '<p>' + (p.codigo_barras || p.codigo_interno || 'Sin código') + '</p>' +
+                '<span class="badge-status ' + (p.activo === 'Y' ? 'active' : 'inactive') + '">' + (p.activo === 'Y' ? 'Activo' : 'Inactivo') + '</span>' +
+            '</div>' +
+        '</div>' +
+        
+        '<div class="detalle-grid">' +
+            '<div class="detalle-section">' +
+                '<h4><i class="fas fa-info-circle"></i> General</h4>' +
+                '<div class="info-row"><span>Categoría:</span><strong>' + (p.categoria_nombre || 'Sin categoría') + '</strong></div>' +
+                '<div class="info-row"><span>Tipo:</span><strong>' + (p.tipo || 'PRODUCTO') + '</strong></div>' +
+                '<div class="info-row"><span>Código SAT:</span><strong>' + (p.codigo_sat || '-') + '</strong></div>' +
+            '</div>' +
+            
+            '<div class="detalle-section">' +
+                '<h4><i class="fas fa-boxes"></i> Unidades</h4>' +
+                '<div class="info-row"><span>U. Compra:</span><strong>' + (p.unidad_compra || 'PZ') + '</strong></div>' +
+                '<div class="info-row"><span>U. Venta:</span><strong>' + (p.unidad_venta || 'PZ') + '</strong></div>' +
+                '<div class="info-row"><span>Factor:</span><strong>' + (p.factor_conversion || 1) + '</strong></div>' +
+            '</div>' +
+            
+            '<div class="detalle-section">' +
+                '<h4><i class="fas fa-dollar-sign"></i> Precios (con imp.)</h4>' +
+                '<div class="info-row"><span>Costo:</span><strong>$' + parseFloat(p.costo || 0).toFixed(2) + '</strong></div>' +
+                '<div class="info-row"><span>Precio 1:</span><strong>$' + precios[0].toFixed(2) + '</strong></div>' +
+                '<div class="info-row"><span>Precio 2:</span><strong>$' + precios[1].toFixed(2) + '</strong></div>' +
+                '<div class="info-row"><span>Precio 3:</span><strong>$' + precios[2].toFixed(2) + '</strong></div>' +
+                '<div class="info-row"><span>Precio 4:</span><strong>$' + precios[3].toFixed(2) + '</strong></div>' +
+            '</div>' +
+            
+            '<div class="detalle-section">' +
+                '<h4><i class="fas fa-percentage"></i> Impuestos</h4>' +
+                '<div class="info-row"><span>IVA:</span><strong>' + iva + '%</strong></div>' +
+                '<div class="info-row"><span>IEPS:</span><strong>' + ieps + '%</strong></div>' +
+                '<div class="info-row"><span>Incluye imp:</span><strong>' + (p.precio_incluye_impuesto === 'Y' ? 'Sí' : 'No') + '</strong></div>' +
+            '</div>' +
+        '</div>' +
+        
+        '<div class="detalle-precio-final">' +
+            '<div class="precio-row"><span>Precio base (sin imp.):</span><span>$' + precioBase.toFixed(2) + '</span></div>' +
+            '<div class="precio-row"><span>IVA (' + iva + '%):</span><span>$' + ivaAmt.toFixed(2) + '</span></div>' +
+            (ieps > 0 ? '<div class="precio-row"><span>IEPS (' + ieps + '%):</span><span>$' + iepsAmt.toFixed(2) + '</span></div>' : '') +
+            '<div class="precio-row total"><span>PRECIO VENTA:</span><span>$' + precioFinal.toFixed(2) + '</span></div>' +
+        '</div>' +
+        
+        '<div class="modal-actions">' +
+            '<button class="btn btn-outline" onclick="cerrarModalDetalle()"><i class="fas fa-times"></i> Cerrar</button>' +
+            '<button class="btn btn-primary" onclick="cerrarModalDetalle();editar(\'' + p.producto_id + '\')"><i class="fas fa-edit"></i> Editar</button>' +
+        '</div>' +
+    '</div>';
+    
+    document.getElementById('detalleProductoContent').innerHTML = html;
+    document.getElementById('modalDetalleProducto').classList.add('active');
+}
+
+function cerrarModalDetalle() {
+    document.getElementById('modalDetalleProducto').classList.remove('active');
+}
+
+// ==================== UNIDADES ====================
+
 function actualizarConversion() {
     var uCompra = document.getElementById('unidad_compra').value;
     var uVenta = document.getElementById('unidad_venta').value;
@@ -293,61 +445,21 @@ function calcularCostoUnitario() {
     calcularMargen(4);
 }
 
-function calcularMargen(num) {
-    var costo = parseFloat(document.getElementById('costo').value) || 0;
-    var precio = parseFloat(document.getElementById('precio' + num).value) || 0;
-    var badge = document.getElementById('margen' + num);
-
-    if (costo > 0 && precio > 0) {
-        var margen = ((precio - costo) / costo) * 100;
-        badge.textContent = 'Margen: ' + margen.toFixed(1) + '%';
-        badge.className = 'margin-badge ' + (margen >= 0 ? 'positive' : 'negative');
-    } else {
-        badge.textContent = 'Margen: --%';
-        badge.className = 'margin-badge';
-    }
-
-    if (num === 1) calcularImpuestos();
-}
-
-function calcularImpuestos() {
-    var precio1 = parseFloat(document.getElementById('precio1').value) || 0;
-    var ivaRadio = document.querySelector('input[name="iva"]:checked');
-    var iva = ivaRadio ? parseFloat(ivaRadio.value) : 0;
-    var ieps = parseFloat(document.getElementById('ieps').value) || 0;
-    var incluyeImp = document.getElementById('precio_incluye_impuesto').checked;
-
-    var precioBase, ivaAmt, iepsAmt, total;
-
-    if (incluyeImp) {
-        var factorImp = 1 + (iva / 100) + (ieps / 100);
-        precioBase = precio1 / factorImp;
-        ivaAmt = precioBase * (iva / 100);
-        iepsAmt = precioBase * (ieps / 100);
-        total = precio1;
-    } else {
-        precioBase = precio1;
-        ivaAmt = precioBase * (iva / 100);
-        iepsAmt = precioBase * (ieps / 100);
-        total = precioBase + ivaAmt + iepsAmt;
-    }
-
-    document.getElementById('ivaPercent').textContent = iva;
-    document.getElementById('iepsPercent').textContent = ieps;
-    document.getElementById('precioSinImp').textContent = '$' + precioBase.toFixed(2);
-    document.getElementById('ivaAmount').textContent = '$' + ivaAmt.toFixed(2);
-    document.getElementById('iepsAmount').textContent = '$' + iepsAmt.toFixed(2);
-    document.getElementById('precioFinal').textContent = '$' + total.toFixed(2);
-}
+// ==================== MODAL FORMULARIO ====================
 
 function abrirModal(item) {
     document.getElementById('modalTitulo').textContent = item ? 'Editar Producto' : 'Nuevo Producto';
     document.getElementById('formProducto').reset();
     document.getElementById('editId').value = '';
+    
+    // Reset preciosBase
+    preciosBase = { precio1: 0, precio2: 0, precio3: 0, precio4: 0 };
 
+    // Reset tabs
     document.querySelectorAll('.tab-btn').forEach(function(b, i) { b.classList.toggle('active', i === 0); });
     document.querySelectorAll('.tab-content').forEach(function(c, i) { c.classList.toggle('active', i === 0); });
 
+    // Defaults
     document.getElementById('factor_conversion').value = 1;
     document.getElementById('descuento_maximo').value = 100;
     document.getElementById('es_inventariable').checked = true;
@@ -356,12 +468,13 @@ function abrirModal(item) {
     document.getElementById('mostrar_pos').checked = true;
     document.getElementById('permite_descuento').checked = true;
     document.getElementById('precio_incluye_impuesto').checked = true;
+    document.getElementById('ieps').value = 0;
     
+    // IVA default 16%
     var iva16 = document.querySelector('input[name="iva"][value="16"]');
     if (iva16) iva16.checked = true;
     document.querySelectorAll('.radio-card').forEach(function(c) { c.classList.remove('active'); });
-    var iva16Card = document.querySelector('input[name="iva"][value="16"]');
-    if (iva16Card) iva16Card.closest('.radio-card').classList.add('active');
+    if (iva16) iva16.closest('.radio-card').classList.add('active');
 
     if (item) {
         document.getElementById('editId').value = item.producto_id;
@@ -393,6 +506,7 @@ function abrirModal(item) {
         document.getElementById('ultimo_costo').value = item.ultimo_costo || '';
         document.getElementById('costo_promedio').value = item.costo_promedio || '';
 
+        // IVA
         var ivaVal = '16';
         if (item.impuesto_id === 'IVA0' || item.iva == 0) ivaVal = '0';
         else if (item.impuesto_id === 'IVA8' || item.iva == 8) ivaVal = '8';
@@ -402,8 +516,23 @@ function abrirModal(item) {
             document.querySelectorAll('.radio-card').forEach(function(c) { c.classList.remove('active'); });
             ivaRadio.closest('.radio-card').classList.add('active');
         }
+        
         document.getElementById('ieps').value = item.ieps || 0;
         document.getElementById('precio_incluye_impuesto').checked = item.precio_incluye_impuesto === 'Y';
+
+        // Guardar precios base
+        var iva = parseFloat(ivaVal);
+        var ieps = parseFloat(item.ieps || 0);
+        var factor = 1 + (iva/100) + (ieps/100);
+        
+        ['precio1', 'precio2', 'precio3', 'precio4'].forEach(function(id) {
+            var precio = parseFloat(item[id] || 0);
+            if (item.precio_incluye_impuesto === 'Y') {
+                preciosBase[id] = precio / factor;
+            } else {
+                preciosBase[id] = precio;
+            }
+        });
 
         document.getElementById('stock_minimo').value = item.stock_minimo || '';
         document.getElementById('stock_maximo').value = item.stock_maximo || '';
@@ -450,6 +579,8 @@ function editar(id) {
     var item = datos.find(function(d) { return d.producto_id === id; });
     if (item) abrirModal(item);
 }
+
+// ==================== GUARDAR ====================
 
 async function guardar(e) {
     e.preventDefault();
@@ -502,11 +633,6 @@ async function guardar(e) {
         activo: 'Y'
     };
 
-    // Enviar impuesto aparte para que el backend lo maneje en producto_impuesto
-    var ivaRadio = document.querySelector('input[name="iva"]:checked');
-    var ivaVal = ivaRadio ? ivaRadio.value : '16';
-    data.impuesto_iva = ivaVal; // El backend debe insertar en producto_impuesto
-
     try {
         var url = id ? '/productos/' + id : '/productos';
         var method = id ? 'PUT' : 'POST';
@@ -524,6 +650,8 @@ async function guardar(e) {
     }
 }
 
+// ==================== ELIMINAR ====================
+
 async function eliminar(id) {
     if (!confirm('¿Eliminar este producto?')) return;
     try {
@@ -539,9 +667,13 @@ async function eliminar(id) {
     }
 }
 
+// ==================== EXPORTAR ====================
+
 function exportarExcel() {
     mostrarToast('Función próximamente disponible');
 }
+
+// ==================== TOAST ====================
 
 function mostrarToast(msg, tipo) {
     tipo = tipo || 'success';
