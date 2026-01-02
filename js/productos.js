@@ -357,8 +357,6 @@ function editar(id) {
 async function guardar(e) {
     e.preventDefault();
     var id = document.getElementById('editId').value;
-    var ivaRadio = document.querySelector('input[name="iva"]:checked');
-    var ivaVal = ivaRadio ? ivaRadio.value : '16';
 
     var data = {
         empresa_id: API.usuario.empresa_id,
@@ -385,8 +383,6 @@ async function guardar(e) {
         precio3: parseFloat(document.getElementById('precio3').value) || 0,
         precio4: parseFloat(document.getElementById('precio4').value) || 0,
         precio_minimo: parseFloat(document.getElementById('precio_minimo').value) || 0,
- impuesto_id: ivaVal === '0' ? 'IVA0' : (ivaVal === '8' ? 'IVA8' : 'IVA16'),
-        ieps: parseFloat(document.getElementById('ieps').value) || 0,
         precio_incluye_impuesto: document.getElementById('precio_incluye_impuesto').checked ? 'Y' : 'N',
         stock_minimo: parseFloat(document.getElementById('stock_minimo').value) || 0,
         stock_maximo: parseFloat(document.getElementById('stock_maximo').value) || 0,
@@ -408,6 +404,11 @@ async function guardar(e) {
         notas_internas: document.getElementById('notas_internas').value || null,
         activo: 'Y'
     };
+
+    // Enviar impuesto aparte para que el backend lo maneje en producto_impuesto
+    var ivaRadio = document.querySelector('input[name="iva"]:checked');
+    var ivaVal = ivaRadio ? ivaRadio.value : '16';
+    data.impuesto_iva = ivaVal; // El backend debe insertar en producto_impuesto
 
     try {
         var url = id ? '/productos/' + id : '/productos';
