@@ -103,7 +103,7 @@ function filtrar() {
             (item.codigo_barras && item.codigo_barras.includes(busqueda)) ||
             (item.codigo_interno && item.codigo_interno.toLowerCase().includes(busqueda));
         const matchCat = !categoria || item.categoria_id === categoria;
-        const matchEstado = !estado || item.activo === estado;
+        const matchEstado = !estado || (item.activo && item.activo.toUpperCase()) === estado;
         return matchBusq && matchCat && matchEstado;
     });
 
