@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAFI - Clientes</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/catalogos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="header-left">
+                <a href="pos.html" class="logo">
+                    <svg viewBox="0 0 500 500" width="32" height="32">
+                        <g transform="translate(0,500) scale(0.1,-0.1)">
+                            <path fill="#2D3DBF" d="M905 3775 c-5 -2 -22 -6 -37 -9 -62 -14 -127 -102 -128 -174 0 -43 24 -100 58 -135 39 -41 107 -57 246 -57 l121 0 136 -137 137 -138 59 -145 c33 -80 89 -219 124 -309 l64 -165 7 105 c9 150 39 265 103 394 74 150 174 267 305 357 24 16 16 17 -180 17 l-205 1 -175 176 c-96 96 -193 185 -215 197 -37 20 -56 22 -225 24 -102 1 -189 1 -195 -2z"/>
+                            <path fill="#6C2BD9" d="M3270 3352 c143 -112 231 -234 285 -399 14 -43 28 -105 32 -138 9 -98 16 -96 -293 -93 l-259 3 -30 58 c-43 83 -88 133 -148 165 -48 25 -61 27 -172 27 -112 0 -124 -2 -178 -29 -60 -30 -126 -95 -157 -156 -39 -77 -52 -147 -48 -264 3 -104 6 -116 40 -188 78 -163 207 -239 382 -225 135 12 252 97 286 210 23 80 11 77 301 77 l258 0 18 -23 17 -24 40 101 c21 56 99 254 174 441 80 202 135 355 136 377 1 45 -32 84 -83 98 -20 6 -168 10 -336 10 l-300 0 35 -28z"/>
+                            <path fill="#2E2E2E" d="M2147 1706 c-175 -48 -237 -282 -109 -412 93 -94 263 -88 351 11 46 53 61 93 61 165 0 162 -149 278 -303 236z"/>
+                            <path fill="#2E2E2E" d="M3058 1706 c-150 -41 -228 -210 -159 -344 79 -154 289 -183 402 -55 43 50 59 92 59 160 -1 163 -150 281 -302 239z"/>
+                        </g>
+                    </svg>
+                    <span>CAFI</span>
+                </a>
+            </div>
+            <div class="header-center">
+                <a href="pos.html" class="hbtn"><i class="fas fa-cash-register"></i> POS</a>
+                <a href="productos.html" class="hbtn"><i class="fas fa-boxes"></i> Productos</a>
+                <a href="clientes.html" class="hbtn active"><i class="fas fa-users"></i> Clientes</a>
+                <a href="categorias.html" class="hbtn"><i class="fas fa-tags"></i> Categorías</a>
+                <a href="ventas.html" class="hbtn"><i class="fas fa-chart-line"></i> Ventas</a>
+            </div>
+            <div class="header-right">
+                <div class="user-pill">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="user-text">
+                        <span id="userName">Usuario</span>
+                        <small id="userSucursal">Sucursal</small>
+                    </div>
+                </div>
+                <button class="hbtn" onclick="API.logout()"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </header>
+
+        <main class="page-content">
+            <div class="page-header">
+                <div class="page-title">
+                    <i class="fas fa-users"></i>
+                    <h1>Clientes</h1>
+                    <span class="badge" id="totalRegistros">0</span>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-primary" onclick="abrirModal()">
+                        <i class="fas fa-plus"></i> Nuevo Cliente
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-toolbar">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="inputBuscar" placeholder="Buscar por nombre, teléfono o email..." oninput="filtrar()">
+                    </div>
+                    <div class="filter-group">
+                        <label>Estado:</label>
+                        <select id="filtroEstado" onchange="filtrar()">
+                            <option value="Y">Activos</option>
+                            <option value="N">Inactivos</option>
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Teléfono</th>
+                                <th>Email</th>
+                                <th>RFC</th>
+                                <th class="text-center">Tipo Precio</th>
+                                <th class="text-center">Crédito</th>
+                                <th class="text-right">Límite</th>
+                                <th class="text-center">Estado</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL FORMULARIO -->
+    <div class="modal-overlay" id="modalForm">
+        <div class="modal">
+            <div class="modal-header gradient">
+                <h3><i class="fas fa-user"></i> <span id="modalTitulo">Nuevo Cliente</span></h3>
+                <button class="btn-close light" onclick="cerrarModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="formCliente" onsubmit="guardar(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="editId">
+                    
+                    <div class="form-section">
+                        <h4><i class="fas fa-user"></i> Datos del Cliente</h4>
+                        <div class="form-grid">
+                            <div class="form-group full">
+                                <label>Nombre Completo *</label>
+                                <input type="text" id="nombre" required placeholder="Nombre del cliente">
+                            </div>
+                            <div class="form-group">
+                                <label>Teléfono</label>
+                                <input type="tel" id="telefono" placeholder="10 dígitos">
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="email" placeholder="correo@ejemplo.com">
+                            </div>
+                            <div class="form-group full">
+                                <label>Dirección</label>
+                                <input type="text" id="direccion" placeholder="Calle, número, colonia">
+                            </div>
+                            <div class="form-group">
+                                <label>RFC</label>
+                                <input type="text" id="rfc" placeholder="RFC para facturación">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4><i class="fas fa-tags"></i> Tipo de Precio</h4>
+                        <div class="price-selector">
+                            <label class="price-option"><input type="radio" name="tipo_precio" value="1" checked><span>P1</span></label>
+                            <label class="price-option"><input type="radio" name="tipo_precio" value="2"><span>P2</span></label>
+                            <label class="price-option"><input type="radio" name="tipo_precio" value="3"><span>P3</span></label>
+                            <label class="price-option"><input type="radio" name="tipo_precio" value="4"><span>P4</span></label>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4><i class="fas fa-credit-card"></i> Crédito</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="permite_credito" onchange="toggleCredito()">
+                                    <span>Permitir ventas a crédito</span>
+                                </label>
+                            </div>
+                            <div class="form-group" id="grupoLimite" style="display:none">
+                                <label>Límite de Crédito</label>
+                                <div class="input-icon-left">
+                                    <span>$</span>
+                                    <input type="number" id="limite_credito" step="0.01" placeholder="0.00">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="cerrarModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast" class="toast"></div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/clientes.js"></script>
+</body>
+</html>
