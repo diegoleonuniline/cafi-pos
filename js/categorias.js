@@ -46,38 +46,40 @@ function filtrar() {
     });
 
     document.getElementById('totalRegistros').textContent = filtrados.length;
-    renderGrid(filtrados);
+    renderTabla(filtrados);
 }
 
-function renderGrid(items) {
-    var grid = document.getElementById('categoriasGrid');
+function renderTabla(items) {
+    var tbody = document.getElementById('tablaBody');
     if (items.length === 0) {
-        grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:40px;color:#9ca3af">No hay categorías</p>';
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="5">No hay categorías</td></tr>';
         return;
     }
 
     var html = '';
     items.forEach(function(c) {
-        html += '<div class="categoria-card" onclick="editar(\'' + c.categoria_id + '\')">' +
-            '<div class="color-bar" style="background:' + (c.color || '#3498db') + '"></div>' +
-            '<div class="card-body">' +
-                '<div class="nombre">' + c.nombre + '</div>' +
-                '<div class="info">Orden: ' + (c.orden || 0) + '</div>' +
-            '</div>' +
-            '<div class="card-actions">' +
-                '<button class="btn-action edit" onclick="event.stopPropagation();editar(\'' + c.categoria_id + '\')" title="Editar">' +
-                    '<i class="fas fa-edit"></i>' +
-                '</button>' +
-                '<button class="btn-action delete" onclick="event.stopPropagation();eliminar(\'' + c.categoria_id + '\')" title="Eliminar">' +
-                    '<i class="fas fa-trash"></i>' +
-                '</button>' +
-            '</div>' +
-            '<span class="badge-status ' + (c.activo === 'Y' ? 'active' : 'inactive') + '">' +
-                (c.activo === 'Y' ? 'Activo' : 'Inactivo') +
-            '</span>' +
-        '</div>';
+        html += '<tr>' +
+            '<td><span class="color-dot" style="background:' + (c.color || '#3498db') + '"></span></td>' +
+            '<td><strong>' + c.nombre + '</strong></td>' +
+            '<td class="text-center">' + (c.orden || 0) + '</td>' +
+            '<td class="text-center">' +
+                '<span class="badge-status ' + (c.activo === 'Y' ? 'active' : 'inactive') + '">' +
+                    (c.activo === 'Y' ? 'Activo' : 'Inactivo') +
+                '</span>' +
+            '</td>' +
+            '<td class="text-center">' +
+                '<div class="actions-cell">' +
+                    '<button class="btn-action edit" onclick="editar(\'' + c.categoria_id + '\')" title="Editar">' +
+                        '<i class="fas fa-edit"></i>' +
+                    '</button>' +
+                    '<button class="btn-action delete" onclick="eliminar(\'' + c.categoria_id + '\')" title="Eliminar">' +
+                        '<i class="fas fa-trash"></i>' +
+                    '</button>' +
+                '</div>' +
+            '</td>' +
+        '</tr>';
     });
-    grid.innerHTML = html;
+    tbody.innerHTML = html;
 }
 
 function abrirModal(item) {
