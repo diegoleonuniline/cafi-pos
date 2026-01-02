@@ -80,11 +80,10 @@ function renderTabla(items) {
 
     var html = '';
     items.forEach(function(v) {
-var fecha = v.fecha_hora ? new Date(v.fecha_hora.replace(' ', 'T')) : new Date();
+        var fecha = v.fecha_hora ? new Date(v.fecha_hora.replace(' ', 'T')) : new Date();
         var fechaStr = fecha.toLocaleDateString('es-MX') + ' ' + fecha.toLocaleTimeString('es-MX', {hour: '2-digit', minute: '2-digit'});
         var esCancelada = v.estatus === 'CANCELADA';
         
-        // Determinar método de pago
         var metodoPago = 'EFECTIVO';
         if (parseFloat(v.pagado || 0) > 0) {
             metodoPago = 'EFECTIVO';
@@ -134,7 +133,7 @@ async function verDetalle(id) {
 }
 
 function mostrarDetalle(venta, productos) {
- var fecha = venta.fecha_hora ? new Date(venta.fecha_hora.replace(' ', 'T')) : new Date();
+    var fecha = venta.fecha_hora ? new Date(venta.fecha_hora.replace(' ', 'T')) : new Date();
     var fechaStr = fecha.toLocaleDateString('es-MX', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'});
     var horaStr = fecha.toLocaleTimeString('es-MX', {hour: '2-digit', minute: '2-digit'});
     var esCancelada = venta.estatus === 'CANCELADA';
