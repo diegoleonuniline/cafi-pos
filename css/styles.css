@@ -694,6 +694,7 @@ body {
     cursor: pointer;
     text-decoration: none;
     transition: all 0.2s;
+    position: relative;
 }
 
 .header-btn:hover {
@@ -867,7 +868,7 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 12px;
+    padding: 8px 12px;
     background: var(--white);
     border: 1px solid var(--gray-200);
     border-radius: var(--radius);
@@ -876,16 +877,18 @@ body {
 .precio-selector span {
     font-size: 13px;
     color: var(--gray-500);
+    font-weight: 500;
 }
 
 .precio-selector select {
-    border: none;
     background: transparent;
+    border: none;
     font-weight: 700;
     color: var(--primary);
     font-size: 14px;
     cursor: pointer;
     outline: none;
+    padding: 0 4px;
 }
 
 /* ========== BTN QUICK (Botones rápidos) ========== */
@@ -1013,14 +1016,6 @@ body {
     border-bottom: 1px solid var(--gray-200);
 }
 
-.cart-table th.col-producto { width: 30%; }
-.cart-table th.col-precio { width: 12%; text-align: right; }
-.cart-table th.col-cantidad { width: 15%; text-align: center; }
-.cart-table th.col-unidad { width: 10%; text-align: center; }
-.cart-table th.col-desc { width: 10%; text-align: center; }
-.cart-table th.col-importe { width: 15%; text-align: right; }
-.cart-table th.col-acciones { width: 8%; }
-
 .cart-table td {
     padding: 12px 16px;
     border-bottom: 1px solid var(--gray-100);
@@ -1046,30 +1041,24 @@ body {
     font-weight: 500;
 }
 
+.cart-item-price span {
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.15s;
+}
+
+.cart-item-price span:hover {
+    background: #e0e7ff;
+    color: #4f46e5;
+}
+
 .cart-item-qty {
     text-align: center;
 }
 
 .cart-item-desc {
     text-align: center;
-}
-
-.btn-desc {
-    padding: 4px 10px;
-    background: var(--gray-100);
-    border: 1px solid var(--gray-200);
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    color: var(--gray-600);
-    transition: all 0.2s;
-}
-
-.btn-desc:hover {
-    background: var(--warning);
-    color: var(--white);
-    border-color: var(--warning);
 }
 
 .qty-control {
@@ -1103,19 +1092,33 @@ body {
     min-width: 40px;
     text-align: center;
     font-weight: 700;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.15s;
+}
+
+.qty-control span:hover {
+    background: #dbeafe;
+    color: #2563eb;
 }
 
 .qty-granel {
-    padding: 6px 12px;
-    background: var(--gray-100);
-    border: none;
-    border-radius: var(--radius);
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    border: 2px solid #6ee7b7;
+    color: #047857;
     font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 8px;
     cursor: pointer;
+    transition: all 0.15s;
+    font-size: 14px;
 }
 
 .qty-granel:hover {
-    background: var(--gray-200);
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    border-color: #34d399;
+    transform: translateY(-1px);
 }
 
 .cart-item-unit {
@@ -1143,8 +1146,22 @@ body {
     font-size: 15px;
 }
 
-.cart-item-delete {
-    text-align: center;
+.btn-desc {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    color: #64748b;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 13px;
+}
+
+.btn-desc:hover {
+    background: #fef3c7;
+    border-color: #fbbf24;
+    color: #b45309;
 }
 
 .btn-delete {
@@ -1264,20 +1281,6 @@ body {
 
 .btn-action-discount:hover {
     opacity: 0.9;
-}
-
-.btn-action-hold {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 20px;
-    background: linear-gradient(135deg, var(--warning), #d97706);
-    border: none;
-    border-radius: var(--radius);
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--white);
-    cursor: pointer;
 }
 
 .btn-action-pay {
@@ -1447,7 +1450,8 @@ body {
     to { opacity: 1; transform: scale(1); }
 }
 
-.modal-sm { max-width: 420px; }
+.modal-xs { max-width: 400px; }
+.modal-sm { max-width: 480px; }
 .modal-md { max-width: 560px; }
 .modal-lg { max-width: 900px; }
 
@@ -1511,7 +1515,7 @@ body {
     background: var(--gray-50);
 }
 
-/* ========== FORM GROUPS (ADMIN) ========== */
+/* ========== FORM GROUPS ========== */
 .form-group {
     margin-bottom: 20px;
 }
@@ -1713,10 +1717,6 @@ body {
     color: var(--dark);
 }
 
-.producto-unidad {
-    text-align: center;
-}
-
 .badge-unidad {
     display: inline-block;
     padding: 4px 8px;
@@ -1724,10 +1724,6 @@ body {
     border-radius: 4px;
     font-weight: 600;
     font-size: 12px;
-}
-
-.producto-descuento {
-    text-align: center;
 }
 
 .badge-descuento {
@@ -1848,13 +1844,6 @@ body {
     margin-bottom: 20px;
 }
 
-.producto-preview img {
-    width: 50px;
-    height: 50px;
-    object-fit: contain;
-    border-radius: var(--radius);
-}
-
 .producto-preview strong {
     display: block;
     font-weight: 600;
@@ -1918,30 +1907,6 @@ body {
     background: var(--gray-50);
     font-weight: 600;
     color: var(--gray-500);
-}
-
-.cantidad-presets {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 20px;
-}
-
-.cantidad-presets button {
-    padding: 8px 16px;
-    border: 1px solid var(--gray-200);
-    background: var(--white);
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.cantidad-presets button:hover {
-    background: var(--primary);
-    border-color: var(--primary);
-    color: var(--white);
 }
 
 .subtotal-preview {
@@ -2158,6 +2123,310 @@ body {
     margin-top: 28px;
 }
 
+/* ========== MODAL EDITAR LÍNEA ========== */
+.editar-producto-info {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 1px solid #bae6fd;
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-weight: 600;
+    color: #0369a1;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 15px;
+}
+
+.editar-input-group {
+    margin-bottom: 16px;
+}
+
+.editar-input-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.editar-input-wrapper {
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s;
+}
+
+.editar-input-wrapper:focus-within {
+    border-color: #6366f1;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.editar-prefix,
+.editar-suffix {
+    padding: 0 16px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #64748b;
+    background: #f1f5f9;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    min-width: 50px;
+    justify-content: center;
+}
+
+.editar-prefix:empty,
+.editar-suffix:empty {
+    display: none;
+}
+
+#inputEditarLinea {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 28px;
+    font-weight: 700;
+    text-align: center;
+    padding: 12px 8px;
+    color: #1e293b;
+    width: 100%;
+}
+
+#inputEditarLinea:focus {
+    outline: none;
+}
+
+.editar-shortcuts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.editar-shortcuts:empty {
+    display: none;
+}
+
+.editar-shortcuts button {
+    flex: 1;
+    min-width: 65px;
+    padding: 12px 14px;
+    border: 2px solid #e2e8f0;
+    background: #fff;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.editar-shortcuts button:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+}
+
+.editar-shortcuts button:active {
+    background: #e2e8f0;
+    transform: scale(0.98);
+}
+
+.editar-shortcuts button.primary {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-color: #6366f1;
+    color: #fff;
+}
+
+.editar-shortcuts button.primary:hover {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+}
+
+/* ========== VENTAS EN ESPERA ========== */
+.espera-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.espera-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.espera-item {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.espera-item:hover {
+    border-color: #6366f1;
+    background: #f0f9ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+}
+
+.espera-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.espera-item-cliente {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.espera-item-total {
+    font-weight: 700;
+    color: #6366f1;
+    font-size: 18px;
+}
+
+.espera-item-meta {
+    display: flex;
+    gap: 16px;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.espera-item-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.espera-item-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.espera-item-actions button {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.espera-item-actions .btn-recuperar {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border: none;
+    color: #fff;
+}
+
+.espera-item-actions .btn-recuperar:hover {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    transform: translateY(-1px);
+}
+
+.espera-item-actions .btn-eliminar {
+    background: #fff;
+    border: 2px solid #fca5a5;
+    color: #dc2626;
+}
+
+.espera-item-actions .btn-eliminar:hover {
+    background: #fef2f2;
+    border-color: #f87171;
+}
+
+.espera-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #9ca3af;
+}
+
+.espera-empty i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.espera-empty h4 {
+    margin: 0 0 8px;
+    color: #64748b;
+}
+
+/* ========================================
+   TOAST
+   ======================================== */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: linear-gradient(135deg, #1e293b, #334155);
+    color: #fff;
+    padding: 16px 32px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    z-index: 10000;
+    min-width: 300px;
+    justify-content: center;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.toast.success {
+    background: linear-gradient(135deg, #059669, #10b981);
+}
+
+.toast.error {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+}
+
+.toast i {
+    font-size: 20px;
+}
+
 /* ========================================
    BUTTONS GENERALES
    ======================================== */
@@ -2207,43 +2476,6 @@ body {
 .btn-lg {
     padding: 14px 28px;
     font-size: 16px;
-}
-
-/* ========================================
-   TOAST
-   ======================================== */
-.toast {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    background: var(--dark);
-    color: var(--white);
-    padding: 14px 20px;
-    border-radius: var(--radius);
-    font-size: 14px;
-    display: none;
-    z-index: 9999;
-    box-shadow: var(--shadow-lg);
-    animation: slideIn 0.3s ease;
-}
-
-@keyframes slideIn {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-.toast.show {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.toast.success {
-    background: linear-gradient(135deg, var(--success), var(--success-dark));
-}
-
-.toast.error {
-    background: linear-gradient(135deg, var(--danger), #dc2626);
 }
 
 /* ========================================
@@ -2341,178 +2573,4 @@ body {
     .detalle-header {
         grid-template-columns: 1fr 1fr;
     }
-}
-/* ========== MODAL EDITAR LÍNEA ========== */
-.modal-xs {
-    max-width: 360px;
-    width: 95%;
-}
-
-.editar-producto-info {
-    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-    border: 1px solid #bae6fd;
-    border-radius: 8px;
-    padding: 12px 16px;
-    font-weight: 600;
-    color: #0369a1;
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.editar-input-group {
-    margin-bottom: 16px;
-}
-
-.editar-input-group label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: #64748b;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.editar-input-wrapper {
-    display: flex;
-    align-items: center;
-    background: #f8fafc;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    overflow: hidden;
-    transition: all 0.2s;
-}
-
-.editar-input-wrapper:focus-within {
-    border-color: #6366f1;
-    background: #fff;
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-}
-
-.editar-prefix,
-.editar-suffix {
-    padding: 0 16px;
-    font-size: 18px;
-    font-weight: 600;
-    color: #94a3b8;
-    background: #f1f5f9;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    min-width: 50px;
-    justify-content: center;
-}
-
-.editar-prefix:empty,
-.editar-suffix:empty {
-    display: none;
-}
-
-#inputEditarLinea {
-    flex: 1;
-    border: none;
-    background: transparent;
-    font-size: 28px;
-    font-weight: 700;
-    text-align: center;
-    padding: 12px 8px;
-    color: #1e293b;
-    width: 100%;
-}
-
-#inputEditarLinea:focus {
-    outline: none;
-}
-
-.editar-shortcuts {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 16px;
-}
-
-.editar-shortcuts:empty {
-    display: none;
-}
-
-.editar-shortcuts button {
-    flex: 1;
-    min-width: 60px;
-    padding: 10px 12px;
-    border: 2px solid #e2e8f0;
-    background: #fff;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #475569;
-    cursor: pointer;
-    transition: all 0.15s;
-}
-
-.editar-shortcuts button:hover {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
-}
-
-.editar-shortcuts button:active {
-    background: #e2e8f0;
-    transform: scale(0.98);
-}
-
-.editar-shortcuts button.primary {
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    border-color: #6366f1;
-    color: #fff;
-}
-
-.editar-shortcuts button.primary:hover {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
-}
-
-/* Mejorar botones de cantidad en carrito */
-.cart-item-price span,
-.qty-control span {
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 4px;
-    transition: background 0.15s;
-}
-
-.cart-item-price span:hover,
-.qty-control span:hover {
-    background: #e0e7ff;
-    color: #4f46e5;
-}
-
-.qty-granel {
-    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
-    border: 2px solid #6ee7b7;
-    color: #047857;
-    font-weight: 700;
-    padding: 6px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.15s;
-}
-
-.qty-granel:hover {
-    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-    border-color: #34d399;
-}
-
-.btn-desc {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    color: #64748b;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s;
-}
-
-.btn-desc:hover {
-    background: #fef3c7;
-    border-color: #fbbf24;
-    color: #b45309;
 }
