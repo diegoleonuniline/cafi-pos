@@ -102,7 +102,6 @@ function renderMetodosPago() {
 }
 
 function setupEventos() {
-    // Click fuera de modales regresa focus
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.modal') && !e.target.closest('input') && !e.target.closest('button')) {
             focusBuscar();
@@ -141,13 +140,11 @@ function onBuscarKeypress(e) {
 function getPrecioConImpuestos(prod, numPrecio) {
     numPrecio = numPrecio || tipoPrecio;
     
-    // Usar precio_venta calculado por el backend
     if (numPrecio === 1 && prod.precio_venta) return parseFloat(prod.precio_venta) || 0;
     if (numPrecio === 2 && prod.precio_venta2) return parseFloat(prod.precio_venta2) || 0;
     if (numPrecio === 3 && prod.precio_venta3) return parseFloat(prod.precio_venta3) || 0;
     if (numPrecio === 4 && prod.precio_venta4) return parseFloat(prod.precio_venta4) || 0;
     
-    // Fallback: usar precio directo
     return parseFloat(prod['precio' + numPrecio] || prod.precio1) || 0;
 }
 
@@ -234,7 +231,6 @@ function seleccionarProducto(id) {
     var cantidad = parseFloat(document.getElementById('filtroCantidad').value) || 1;
     var unidad = (prod.unidad_venta || 'PZ').toUpperCase();
     
-    // Si es granel, siempre mostrar modal de cantidad
     if (UNIDADES_GRANEL.indexOf(unidad) >= 0) {
         cerrarModal('modalProductos');
         abrirModalCantidad(prod);
@@ -469,48 +465,134 @@ function eliminarDelCarrito(id) {
     focusBuscar();
 }
 
-// ========== EDITAR EN LÍNEA ==========
+// ========== EDITAR EN LÍNEA CON MODAL BONITO ==========
+var editarLineaData = { id: null, tipo: null };
+
 function editarCantidadLinea(id) {
     var item = carrito.find(function(i) { return i.producto_id === id; });
     if (!item) return;
     
-    var nueva = prompt('Cantidad para ' + item.nombre + ':', item.cantidad);
-    if (nueva !== null) {
-        var cant = parseFloat(nueva);
-        if (cant > 0) {
-            item.cantidad = cant;
-            renderCarrito();
-        } else if (cant <= 0) {
-            eliminarDelCarrito(id);
-        }
+    editarLineaData = { id: id, tipo: 'cantidad' };
+    
+    document.getElementById('editarLineaTitulo').textContent = 'Editar Cantidad';
+    document.getElementById('editarLineaProducto').textContent = item.nombre;
+    document.getElementById('editarLineaLabel').textContent = 'Nueva cantidad';
+    document.getElementById('editarLineaPrefix').textContent = '';
+    document.getElementById('editarLineaSuffix').textContent = item.unidad;
+    document.getElementById('inputEditarLinea').value = item.cantidad;
+    document.getElementById('inputEditarLinea').step = item.esGranel ? '0.001' : '1';
+    
+    var shortcuts = document.getElementById('editarShortcuts');
+    if (item.esGranel) {
+        shortcuts.innerHTML = 
+            '<button onclick="setEditarValor(0.25)">0.250</button>' +
+            '<button onclick="setEditarValor(0.5)">0.500</button>' +
+            '<button onclick="setEditarValor(0.75)">0.750</button>' +
+            '<button onclick="setEditarValor(1)">1.000</button>' +
+            '<button onclick="setEditarValor(1.5)">1.500</button>' +
+            '<button onclick="setEditarValor(2)">2.000</button>';
+    } else {
+        shortcuts.innerHTML = 
+            '<button onclick="ajustarEditarValor(-1)">−1</button>' +
+            '<button onclick="ajustarEditarValor(1)">+1</button>' +
+            '<button onclick="ajustarEditarValor(5)">+5</button>' +
+            '<button onclick="ajustarEditarValor(10)">+10</button>';
     }
-    focusBuscar();
+    
+    document.getElementById('modalEditarLinea').classList.add('active');
+    setTimeout(function() { document.getElementById('inputEditarLinea').select(); }, 100);
 }
 
 function editarPrecioLinea(id) {
     var item = carrito.find(function(i) { return i.producto_id === id; });
     if (!item) return;
     
-    var nuevo = prompt('Precio para ' + item.nombre + ':', item.precio.toFixed(2));
-    if (nuevo !== null) {
-        var precio = parseFloat(nuevo);
-        if (precio >= 0) {
-            item.precio = precio;
-            renderCarrito();
-        }
-    }
-    focusBuscar();
+    editarLineaData = { id: id, tipo: 'precio' };
+    
+    document.getElementById('editarLineaTitulo').textContent = 'Editar Precio';
+    document.getElementById('editarLineaProducto').textContent = item.nombre;
+    document.getElementById('editarLineaLabel').textContent = 'Nuevo precio unitario';
+    document.getElementById('editarLineaPrefix').textContent = '$';
+    document.getElementById('editarLineaSuffix').textContent = '';
+    document.getElementById('inputEditarLinea').value = item.precio.toFixed(2);
+    document.getElementById('inputEditarLinea').step = '0.01';
+    
+    var original = item.precioOriginal || item.precio;
+    document.getElementById('editarShortcuts').innerHTML = 
+        '<button onclick="setEditarValor(' + original.toFixed(2) + ')" class="primary">Original $' + original.toFixed(2) + '</button>' +
+        '<button onclick="ajustarEditarValor(-10)">−$10</button>' +
+        '<button onclick="ajustarEditarValor(-5)">−$5</button>' +
+        '<button onclick="ajustarEditarValor(5)">+$5</button>' +
+        '<button onclick="ajustarEditarValor(10)">+$10</button>';
+    
+    document.getElementById('modalEditarLinea').classList.add('active');
+    setTimeout(function() { document.getElementById('inputEditarLinea').select(); }, 100);
 }
 
 function editarDescuentoLinea(id) {
     var item = carrito.find(function(i) { return i.producto_id === id; });
     if (!item) return;
     
-    var desc = prompt('Descuento % para ' + item.nombre + ':', item.descuento || 0);
-    if (desc !== null) {
-        item.descuento = Math.min(100, Math.max(0, parseFloat(desc) || 0));
-        renderCarrito();
+    editarLineaData = { id: id, tipo: 'descuento' };
+    
+    document.getElementById('editarLineaTitulo').textContent = 'Aplicar Descuento';
+    document.getElementById('editarLineaProducto').textContent = item.nombre;
+    document.getElementById('editarLineaLabel').textContent = 'Porcentaje de descuento';
+    document.getElementById('editarLineaPrefix').textContent = '';
+    document.getElementById('editarLineaSuffix').textContent = '%';
+    document.getElementById('inputEditarLinea').value = item.descuento || 0;
+    document.getElementById('inputEditarLinea').step = '1';
+    
+    document.getElementById('editarShortcuts').innerHTML = 
+        '<button onclick="setEditarValor(0)">0%</button>' +
+        '<button onclick="setEditarValor(5)">5%</button>' +
+        '<button onclick="setEditarValor(10)">10%</button>' +
+        '<button onclick="setEditarValor(15)">15%</button>' +
+        '<button onclick="setEditarValor(20)">20%</button>' +
+        '<button onclick="setEditarValor(25)">25%</button>';
+    
+    document.getElementById('modalEditarLinea').classList.add('active');
+    setTimeout(function() { document.getElementById('inputEditarLinea').select(); }, 100);
+}
+
+function setEditarValor(val) {
+    document.getElementById('inputEditarLinea').value = val;
+}
+
+function ajustarEditarValor(delta) {
+    var inp = document.getElementById('inputEditarLinea');
+    var val = parseFloat(inp.value) || 0;
+    inp.value = Math.max(0, val + delta);
+}
+
+function onEditarLineaKeypress(e) {
+    if (e.key === 'Enter') {
+        confirmarEditarLinea();
     }
+}
+
+function confirmarEditarLinea() {
+    var item = carrito.find(function(i) { return i.producto_id === editarLineaData.id; });
+    if (!item) return;
+    
+    var valor = parseFloat(document.getElementById('inputEditarLinea').value);
+    
+    if (editarLineaData.tipo === 'cantidad') {
+        if (valor > 0) {
+            item.cantidad = valor;
+        } else {
+            carrito = carrito.filter(function(i) { return i.producto_id !== editarLineaData.id; });
+        }
+    } else if (editarLineaData.tipo === 'precio') {
+        if (valor >= 0) {
+            item.precio = valor;
+        }
+    } else if (editarLineaData.tipo === 'descuento') {
+        item.descuento = Math.min(100, Math.max(0, valor || 0));
+    }
+    
+    renderCarrito();
+    cerrarModal('modalEditarLinea');
     focusBuscar();
 }
 
@@ -533,18 +615,17 @@ function renderCarrito() {
         var descMonto = subtotal * (item.descuento || 0) / 100;
         var total = subtotal - descMonto;
         
-        // Botón de cantidad según tipo
         var cantHtml = item.esGranel ?
             '<button class="qty-granel" onclick="editarCantidadLinea(\'' + item.producto_id + '\')">' + item.cantidad.toFixed(3) + '</button>' :
             '<div class="qty-control">' +
                 '<button onclick="cambiarCantidad(\'' + item.producto_id + '\',-1)">−</button>' +
-                '<span onclick="editarCantidadLinea(\'' + item.producto_id + '\')" style="cursor:pointer">' + item.cantidad + '</span>' +
+                '<span onclick="editarCantidadLinea(\'' + item.producto_id + '\')">' + item.cantidad + '</span>' +
                 '<button onclick="cambiarCantidad(\'' + item.producto_id + '\',1)">+</button>' +
             '</div>';
         
         html += '<tr>' +
             '<td><div class="cart-item-name">' + item.nombre + '</div><div class="cart-item-code">' + item.codigo + '</div></td>' +
-            '<td class="cart-item-price"><span onclick="editarPrecioLinea(\'' + item.producto_id + '\')" style="cursor:pointer" title="Click para editar">$' + item.precio.toFixed(2) + '</span></td>' +
+            '<td class="cart-item-price"><span onclick="editarPrecioLinea(\'' + item.producto_id + '\')" title="Click para editar">$' + item.precio.toFixed(2) + '</span></td>' +
             '<td class="cart-item-qty">' + cantHtml + '</td>' +
             '<td class="cart-item-unit"><span class="badge' + (item.esGranel ? ' granel' : '') + '">' + item.unidad + '</span></td>' +
             '<td class="cart-item-desc"><button class="btn-desc" onclick="editarDescuentoLinea(\'' + item.producto_id + '\')">' + (item.descuento > 0 ? item.descuento + '%' : '-') + '</button></td>' +
@@ -554,16 +635,6 @@ function renderCarrito() {
     });
     tbody.innerHTML = html;
     actualizarTotales();
-}
-
-function editarCantidadGranel(id) {
-    var item = carrito.find(function(i) { return i.producto_id === id; });
-    var prod = productos.find(function(p) { return p.producto_id === id; });
-    if (prod && item) {
-        abrirModalCantidad(prod);
-        document.getElementById('inputCantidadModal').value = item.cantidad;
-        calcularSubtotalModal();
-    }
 }
 
 function actualizarTotales() {
@@ -587,14 +658,42 @@ function actualizarTotales() {
 }
 
 function aplicarDescuentoGlobal() {
-    var desc = prompt('Descuento % sobre el total:', descuentoGlobal);
-    if (desc !== null) {
-        descuentoGlobal = Math.min(100, Math.max(0, parseFloat(desc) || 0));
-        renderCarrito();
-        mostrarToast('Descuento global: ' + descuentoGlobal + '%');
-    }
-    focusBuscar();
+    editarLineaData = { id: null, tipo: 'descuento_global' };
+    
+    document.getElementById('editarLineaTitulo').textContent = 'Descuento Global';
+    document.getElementById('editarLineaProducto').textContent = 'Aplicar a toda la venta';
+    document.getElementById('editarLineaLabel').textContent = 'Porcentaje de descuento';
+    document.getElementById('editarLineaPrefix').textContent = '';
+    document.getElementById('editarLineaSuffix').textContent = '%';
+    document.getElementById('inputEditarLinea').value = descuentoGlobal;
+    document.getElementById('inputEditarLinea').step = '1';
+    
+    document.getElementById('editarShortcuts').innerHTML = 
+        '<button onclick="setEditarValor(0)">0%</button>' +
+        '<button onclick="setEditarValor(5)">5%</button>' +
+        '<button onclick="setEditarValor(10)">10%</button>' +
+        '<button onclick="setEditarValor(15)">15%</button>' +
+        '<button onclick="setEditarValor(20)">20%</button>' +
+        '<button onclick="setEditarValor(25)">25%</button>';
+    
+    document.getElementById('modalEditarLinea').classList.add('active');
+    setTimeout(function() { document.getElementById('inputEditarLinea').select(); }, 100);
 }
+
+// Sobreescribir confirmarEditarLinea para manejar descuento global
+var _confirmarEditarLineaOriginal = confirmarEditarLinea;
+confirmarEditarLinea = function() {
+    if (editarLineaData.tipo === 'descuento_global') {
+        var valor = parseFloat(document.getElementById('inputEditarLinea').value);
+        descuentoGlobal = Math.min(100, Math.max(0, valor || 0));
+        renderCarrito();
+        cerrarModal('modalEditarLinea');
+        mostrarToast('Descuento global: ' + descuentoGlobal + '%');
+        focusBuscar();
+        return;
+    }
+    _confirmarEditarLineaOriginal();
+};
 
 function cancelarVenta() {
     if (!carrito.length) return;
@@ -613,7 +712,6 @@ function abrirModalCobro() {
     
     var total = calcularTotalFinal();
     
-    // Validar crédito
     if (tipoVenta === 'CREDITO') {
         if (!clienteSeleccionado) {
             mostrarToast('Selecciona un cliente para venta a crédito', 'error');
@@ -682,13 +780,11 @@ function confirmarVenta() {
     var total = calcularTotalFinal();
     var efectivo = parseFloat(document.getElementById('inputEfectivo').value) || 0;
     
-    // Validar monto para contado
     if (efectivo < total && tipoVenta === 'CONTADO') {
         mostrarToast('Monto insuficiente', 'error');
         return;
     }
     
-    // Validar crédito nuevamente
     if (tipoVenta === 'CREDITO' && clienteSeleccionado) {
         var saldoActual = parseFloat(clienteSeleccionado.saldo) || 0;
         var limiteCredito = parseFloat(clienteSeleccionado.limite_credito) || 0;
@@ -700,7 +796,6 @@ function confirmarVenta() {
         }
     }
     
-    // Obtener método de pago
     var metodoActivo = document.querySelector('.metodo-btn.active');
     var metodoPagoId = metodoActivo ? metodoActivo.getAttribute('data-metodo-id') : null;
     
@@ -752,7 +847,6 @@ function confirmarVenta() {
     API.request('/ventas', 'POST', venta)
         .then(function(r) {
             if (r.success) {
-                // Si es crédito, actualizar saldo del cliente localmente
                 if (tipoVenta === 'CREDITO' && clienteSeleccionado) {
                     clienteSeleccionado.saldo = (parseFloat(clienteSeleccionado.saldo) || 0) + total;
                 }
