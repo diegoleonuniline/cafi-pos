@@ -393,6 +393,33 @@
             </form>
         </div>
     </div>
+<!-- MODAL EDITAR LÍNEA -->
+<div class="modal-overlay" id="modalEditarLinea">
+    <div class="modal modal-xs">
+        <div class="modal-header gradient">
+            <div class="modal-title"><i class="fas fa-edit"></i><span id="editarLineaTitulo">Editar</span></div>
+            <button class="btn-close light" onclick="cerrarModal('modalEditarLinea')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="editar-producto-info" id="editarLineaProducto">Producto</div>
+            <div class="editar-input-group">
+                <label id="editarLineaLabel">Valor</label>
+                <div class="editar-input-wrapper">
+                    <span class="editar-prefix" id="editarLineaPrefix"></span>
+                    <input type="number" id="inputEditarLinea" step="any" min="0" onkeypress="onEditarLineaKeypress(event)">
+                    <span class="editar-suffix" id="editarLineaSuffix"></span>
+                </div>
+            </div>
+            <div class="editar-shortcuts" id="editarShortcuts"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="cerrarModal('modalEditarLinea')">Cancelar</button>
+            <button class="btn btn-success" onclick="confirmarEditarLinea()"><i class="fas fa-check"></i> Aplicar</button>
+        </div>
+    </div>
+</div>
+
+    
 
     <div id="toast" class="toast"></div>
 
