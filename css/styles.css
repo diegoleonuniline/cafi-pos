@@ -2342,3 +2342,177 @@ body {
         grid-template-columns: 1fr 1fr;
     }
 }
+/* ========== MODAL EDITAR LÍNEA ========== */
+.modal-xs {
+    max-width: 360px;
+    width: 95%;
+}
+
+.editar-producto-info {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-weight: 600;
+    color: #0369a1;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.editar-input-group {
+    margin-bottom: 16px;
+}
+
+.editar-input-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.editar-input-wrapper {
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s;
+}
+
+.editar-input-wrapper:focus-within {
+    border-color: #6366f1;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.editar-prefix,
+.editar-suffix {
+    padding: 0 16px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #94a3b8;
+    background: #f1f5f9;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    min-width: 50px;
+    justify-content: center;
+}
+
+.editar-prefix:empty,
+.editar-suffix:empty {
+    display: none;
+}
+
+#inputEditarLinea {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 28px;
+    font-weight: 700;
+    text-align: center;
+    padding: 12px 8px;
+    color: #1e293b;
+    width: 100%;
+}
+
+#inputEditarLinea:focus {
+    outline: none;
+}
+
+.editar-shortcuts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.editar-shortcuts:empty {
+    display: none;
+}
+
+.editar-shortcuts button {
+    flex: 1;
+    min-width: 60px;
+    padding: 10px 12px;
+    border: 2px solid #e2e8f0;
+    background: #fff;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.editar-shortcuts button:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.editar-shortcuts button:active {
+    background: #e2e8f0;
+    transform: scale(0.98);
+}
+
+.editar-shortcuts button.primary {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-color: #6366f1;
+    color: #fff;
+}
+
+.editar-shortcuts button.primary:hover {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+}
+
+/* Mejorar botones de cantidad en carrito */
+.cart-item-price span,
+.qty-control span {
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background 0.15s;
+}
+
+.cart-item-price span:hover,
+.qty-control span:hover {
+    background: #e0e7ff;
+    color: #4f46e5;
+}
+
+.qty-granel {
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    border: 2px solid #6ee7b7;
+    color: #047857;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.qty-granel:hover {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    border-color: #34d399;
+}
+
+.btn-desc {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.btn-desc:hover {
+    background: #fef3c7;
+    border-color: #fbbf24;
+    color: #b45309;
+}
