@@ -1,69 +1,69 @@
-const API = {
+// ==================== API.JS ====================
+var API = {
+    baseURL: window.location.hostname === 'localhost' 
+        ? 'http://localhost:3000/api' 
+        : window.location.origin + '/api',
+    
     token: localStorage.getItem('token'),
     usuario: JSON.parse(localStorage.getItem('usuario') || 'null'),
     
-    async request(endpoint, method = 'GET', data = null) {
-        const options = {
-            method,
+    request: function(endpoint, method, data) {
+        var self = this;
+        method = method || 'GET';
+        
+        var options = {
+            method: method,
             headers: {
                 'Content-Type': 'application/json'
             }
         };
         
-        if (this.token) {
-            options.headers['Authorization'] = `Bearer ${this.token}`;
+        if (self.token) {
+            options.headers['Authorization'] = 'Bearer ' + self.token;
         }
         
-        if (data) {
+        if (data && method !== 'GET') {
             options.body = JSON.stringify(data);
         }
         
-        const response = await fetch(`${CONFIG.API_URL}${endpoint}`, options);
-        return response.json();
+        var url = self.baseURL + endpoint;
+        
+        return fetch(url, options)
+            .then(function(response) {
+                if (response.status === 401) {
+                    self.logout();
+                    throw new Error('Sesión expirada');
+                }
+                return response.json();
+            });
     },
     
-    async login(email, password) {
-        const result = await this.request('/auth/login', 'POST', { email, password });
-        if (result.success) {
-            this.token = result.token;
-            this.usuario = result.usuario;
-            localStorage.setItem('token', result.token);
-            localStorage.setItem('usuario', JSON.stringify(result.usuario));
-        }
-        return result;
+    login: function(usuario, password, sucursalId) {
+        var self = this;
+        return this.request('/auth/login', 'POST', {
+            usuario: usuario,
+            password: password,
+            sucursal_id: sucursalId
+        }).then(function(r) {
+            if (r.success && r.token) {
+                self.token = r.token;
+                self.usuario = r.usuario;
+                localStorage.setItem('token', r.token);
+                localStorage.setItem('usuario', JSON.stringify(r.usuario));
+            }
+            return r;
+        });
     },
     
-    logout() {
+    logout: function() {
         this.token = null;
         this.usuario = null;
         localStorage.removeItem('token');
         localStorage.removeItem('usuario');
-        window.location.href = 'index.html';
+        window.location.href = '../index.html';
     },
     
-    isLoggedIn() {
-        return !!this.token && !!this.usuario;
-    },
-    
-    // Catálogos
-    getCategorias() {
-        return this.request(`/categorias/${this.usuario.empresa_id}`);
-    },
-    
-    getProductos() {
-        return this.request(`/productos/${this.usuario.empresa_id}`);
-    },
-    
-    getClientes() {
-        return this.request(`/clientes/${this.usuario.empresa_id}`);
-    },
-    
-    getMetodosPago() {
-        return this.request(`/metodos-pago/${this.usuario.empresa_id}`);
-    },
-    
-    // POS
-    cargarPOS() {
-        return this.request(`/pos/cargar/${this.usuario.empresa_id}/${this.usuario.sucursal_id}`);
+    isLoggedIn: function() {
+        return !!(this.token && this.usuario);
     }
 };
