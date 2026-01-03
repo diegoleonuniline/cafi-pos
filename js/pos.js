@@ -908,4 +908,159 @@ function mostrarToast(msg, tipo) {
     toast.innerHTML = '<i class="fas fa-' + (tipo === 'error' ? 'exclamation-circle' : 'check-circle') + '"></i> ' + msg;
     toast.className = 'toast show ' + (tipo || 'success');
     setTimeout(function() { toast.classList.remove('show'); }, 3000);
+    // ========== VENTAS EN ESPERA ==========
+var ventasEnEspera = JSON.parse(localStorage.getItem('ventasEnEspera') || '[]');
+
+function actualizarBadgeEspera() {
+    var btn = document.querySelector('.header-btn.warning');
+    if (!btn) return;
+    
+    var badge = btn.querySelector('.espera-badge');
+    if (ventasEnEspera.length > 0) {
+        if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'espera-badge';
+            btn.style.position = 'relative';
+            btn.appendChild(badge);
+        }
+        badge.textContent = ventasEnEspera.length;
+    } else if (badge) {
+        badge.remove();
+    }
+}
+
+function ponerEnEspera() {
+    if (!carrito.length) {
+        mostrarToast('No hay productos en el carrito', 'error');
+        return;
+    }
+    
+    var ventaEspera = {
+        id: Date.now(),
+        fecha: new Date().toISOString(),
+        cliente: clienteSeleccionado ? { ...clienteSeleccionado } : null,
+        clienteNombre: clienteSeleccionado ? clienteSeleccionado.nombre : 'Público General',
+        tipoVenta: tipoVenta,
+        tipoPrecio: tipoPrecio,
+        descuentoGlobal: descuentoGlobal,
+        carrito: JSON.parse(JSON.stringify(carrito)),
+        total: calcularTotalFinal(),
+        articulos: carrito.reduce(function(s, i) { return s + i.cantidad; }, 0)
+    };
+    
+    ventasEnEspera.push(ventaEspera);
+    localStorage.setItem('ventasEnEspera', JSON.stringify(ventasEnEspera));
+    
+    // Limpiar venta actual
+    carrito = [];
+    clienteSeleccionado = null;
+    tipoVenta = 'CONTADO';
+    descuentoGlobal = 0;
+    tipoPrecio = 1;
+    
+    document.getElementById('clienteNombre').textContent = 'Público General';
+    document.getElementById('clientePanel').textContent = 'Público General';
+    document.getElementById('btnContado').classList.add('active');
+    document.getElementById('btnCredito').classList.remove('active');
+    document.getElementById('selectPrecio').value = '1';
+    
+    renderCarrito();
+    actualizarBadgeEspera();
+    mostrarToast('Venta guardada en espera');
+    focusBuscar();
+}
+
+function abrirModalEspera() {
+    renderEsperaList();
+    document.getElementById('modalEspera').classList.add('active');
+}
+
+function renderEsperaList() {
+    var cont = document.getElementById('esperaList');
+    
+    if (!ventasEnEspera.length) {
+        cont.innerHTML = '<div class="espera-empty">' +
+            '<i class="fas fa-inbox"></i>' +
+            '<h4>No hay ventas en espera</h4>' +
+            '<p>Las ventas pausadas aparecerán aquí</p>' +
+        '</div>';
+        return;
+    }
+    
+    var html = '';
+    ventasEnEspera.forEach(function(v, index) {
+        var fecha = new Date(v.fecha);
+        var hora = fecha.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+        
+        html += '<div class="espera-item">' +
+            '<div class="espera-item-header">' +
+                '<span class="espera-item-cliente"><i class="fas fa-user"></i> ' + v.clienteNombre + '</span>' +
+                '<span class="espera-item-total">$' + v.total.toFixed(2) + '</span>' +
+            '</div>' +
+            '<div class="espera-item-meta">' +
+                '<span><i class="fas fa-clock"></i> ' + hora + '</span>' +
+                '<span><i class="fas fa-shopping-cart"></i> ' + v.articulos.toFixed(0) + ' artículos</span>' +
+                '<span><i class="fas fa-tag"></i> ' + v.tipoVenta + '</span>' +
+            '</div>' +
+            '<div class="espera-item-actions">' +
+                '<button class="btn-recuperar" onclick="recuperarVenta(' + index + ')"><i class="fas fa-play"></i> Recuperar</button>' +
+                '<button class="btn-eliminar" onclick="eliminarVentaEspera(' + index + ')"><i class="fas fa-trash"></i> Eliminar</button>' +
+            '</div>' +
+        '</div>';
+    });
+    cont.innerHTML = html;
+}
+
+function recuperarVenta(index) {
+    var venta = ventasEnEspera[index];
+    if (!venta) return;
+    
+    // Si hay carrito actual, preguntar
+    if (carrito.length > 0) {
+        if (!confirm('Hay una venta en curso. ¿Deseas guardarla en espera y recuperar la seleccionada?')) {
+            return;
+        }
+        ponerEnEspera();
+    }
+    
+    // Restaurar venta
+    carrito = venta.carrito;
+    clienteSeleccionado = venta.cliente;
+    tipoVenta = venta.tipoVenta;
+    tipoPrecio = venta.tipoPrecio;
+    descuentoGlobal = venta.descuentoGlobal;
+    
+    document.getElementById('clienteNombre').textContent = venta.clienteNombre;
+    document.getElementById('clientePanel').textContent = venta.clienteNombre;
+    document.getElementById('btnContado').classList.toggle('active', tipoVenta === 'CONTADO');
+    document.getElementById('btnCredito').classList.toggle('active', tipoVenta === 'CREDITO');
+    document.getElementById('tipoVentaLabel').textContent = tipoVenta === 'CONTADO' ? 'Contado' : 'Crédito';
+    document.getElementById('selectPrecio').value = tipoPrecio;
+    
+    // Eliminar de espera
+    ventasEnEspera.splice(index, 1);
+    localStorage.setItem('ventasEnEspera', JSON.stringify(ventasEnEspera));
+    
+    renderCarrito();
+    actualizarBadgeEspera();
+    cerrarModal('modalEspera');
+    mostrarToast('Venta recuperada');
+    focusBuscar();
+}
+
+function eliminarVentaEspera(index) {
+    if (!confirm('¿Eliminar esta venta en espera?')) return;
+    
+    ventasEnEspera.splice(index, 1);
+    localStorage.setItem('ventasEnEspera', JSON.stringify(ventasEnEspera));
+    
+    renderEsperaList();
+    actualizarBadgeEspera();
+    mostrarToast('Venta eliminada');
+}
+
+// Inicializar badge al cargar
+document.addEventListener('DOMContentLoaded', function() {
+    actualizarBadgeEspera();
+});
 }
