@@ -9,56 +9,65 @@
 </head>
 <body>
     <div class="app">
-        <!-- HEADER -->
-        <header class="header">
-            <div class="header-left">
-                <a href="dashboard.html" class="logo">
-                    <svg width="36" height="36" viewBox="0 0 100 100">
-                        <defs>
-                            <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#2D3DBF"/>
-                                <stop offset="100%" style="stop-color:#6C2BD9"/>
-                            </linearGradient>
-                        </defs>
-                        <rect width="100" height="100" rx="20" fill="url(#logoGrad)"/>
-                        <path d="M25 65 L25 35 Q25 25 35 25 L50 25 M55 25 L65 25 Q75 25 75 35 L75 45 Q75 55 65 55 L55 55 L75 75" stroke="white" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    CAFI
-                </a>
-                <div class="turno-badge">
-                    <i class="fas fa-circle"></i>
-                    <span>Turno Abierto</span>
-                </div>
+       <!-- HEADER -->
+<header class="header">
+    <div class="header-left">
+        <a href="dashboard.html" class="logo">
+            <svg width="36" height="36" viewBox="0 0 100 100">
+                <defs>
+                    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#2D3DBF"/>
+                        <stop offset="100%" style="stop-color:#6C2BD9"/>
+                    </linearGradient>
+                </defs>
+                <rect width="100" height="100" rx="20" fill="url(#logoGrad)"/>
+                <path d="M25 65 L25 35 Q25 25 35 25 L50 25 M55 25 L65 25 Q75 25 75 35 L75 45 Q75 55 65 55 L55 55 L75 75" stroke="white" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            CAFI
+        </a>
+        <div class="turno-badge">
+            <i class="fas fa-circle"></i>
+            <span>Turno Abierto</span>
+        </div>
+    </div>
+    
+    <div class="header-center">
+        <a href="dashboard.html" class="header-btn">
+            <i class="fas fa-home"></i> Admin
+        </a>
+        <a href="productos.html" class="header-btn">
+            <i class="fas fa-boxes"></i> Productos
+        </a>
+        <a href="ventas.html" class="header-btn">
+            <i class="fas fa-receipt"></i> Ventas
+        </a>
+        <button class="header-btn warning" onclick="ponerEnEspera()">
+            <i class="fas fa-pause-circle"></i> Espera
+        </button>
+        <button class="header-btn" onclick="abrirModalEspera()">
+            <i class="fas fa-list"></i> Ver Espera
+        </button>
+    </div>
+    
+    <div class="header-right">
+        <button class="btn-quick green" onclick="abrirModalNuevoCliente()" title="Nuevo cliente">
+            <i class="fas fa-user-plus"></i>
+        </button>
+        <button class="btn-quick blue" onclick="abrirModalNuevoProducto()" title="Nuevo producto">
+            <i class="fas fa-plus"></i>
+        </button>
+        <div class="user-pill">
+            <div class="user-avatar" id="userAvatar">US</div>
+            <div class="user-info">
+                <span class="user-name" id="userName">Usuario</span>
+                <small id="userSucursal">Sucursal</small>
             </div>
-            
-            <div class="header-center">
-                <button class="header-btn warning" onclick="ponerEnEspera()">
-                    <i class="fas fa-pause-circle"></i> Espera
-                </button>
-                <button class="header-btn" onclick="abrirModalEspera()">
-                    <i class="fas fa-list"></i> Ver Espera
-                </button>
-                <button class="header-btn" onclick="abrirModalNuevoProducto()">
-                    <i class="fas fa-plus"></i> Producto
-                </button>
-                <button class="header-btn" onclick="abrirModalNuevoCliente()">
-                    <i class="fas fa-user-plus"></i> Cliente
-                </button>
-            </div>
-            
-            <div class="header-right">
-                <div class="user-pill">
-                    <div class="user-avatar" id="userAvatar">US</div>
-                    <div class="user-info">
-                        <span class="user-name" id="userName">Usuario</span>
-                        <small id="userSucursal">Sucursal</small>
-                    </div>
-                </div>
-                <button class="header-icon-btn" onclick="API.logout()" title="Cerrar sesión">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
-            </div>
-        </header>
+        </div>
+        <button class="header-icon-btn" onclick="API.logout()" title="Cerrar sesión">
+            <i class="fas fa-sign-out-alt"></i>
+        </button>
+    </div>
+</header>
 
         <!-- POS LAYOUT -->
         <div class="pos-layout">
