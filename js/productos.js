@@ -222,7 +222,6 @@ function setupEventos() {
         });
     }
 }
-
 // ==================== FUNCIONES DE IMPUESTOS ====================
 
 function getFactorImpuestos() {
@@ -273,7 +272,8 @@ function getMontoFijoImpuestos() {
     return total;
 }
 
-function recalcularImpuestos() {
+// Cuando cambian los impuestos (checkbox, tipo o valor)
+function recalcularDesdeImpuestos() {
     var factor = getFactorImpuestos();
     var montoFijo = getMontoFijoImpuestos();
     var incluyeImpuesto = document.getElementById('precio_incluye_impuesto').checked;
@@ -284,8 +284,10 @@ function recalcularImpuestos() {
         
         if (base > 0) {
             if (incluyeImpuesto) {
+                // Precio incluye impuesto: mostrar precio con impuesto
                 input.value = (base * factor + montoFijo).toFixed(2);
             } else {
+                // Precio NO incluye impuesto: mostrar precio base
                 input.value = base.toFixed(2);
             }
         }
@@ -298,6 +300,7 @@ function recalcularImpuestos() {
     calcularImpuestosResumen();
 }
 
+// Cuando el usuario cambia el checkbox "Precio incluye impuesto"
 function convertirPrecios(incluyeImpuesto) {
     var factor = getFactorImpuestos();
     var montoFijo = getMontoFijoImpuestos();
@@ -308,11 +311,18 @@ function convertirPrecios(incluyeImpuesto) {
         
         if (valorActual > 0) {
             if (incluyeImpuesto) {
+                // ANTES: precio NO incluía impuesto (era precio base)
+                // AHORA: precio SÍ incluye impuesto (mostrar precio con impuesto)
+                // El valor actual ES el precio base, guardarlo y mostrar con impuesto
                 window.preciosBase[id] = valorActual;
                 input.value = (valorActual * factor + montoFijo).toFixed(2);
             } else {
-                window.preciosBase[id] = (valorActual - montoFijo) / factor;
-                input.value = window.preciosBase[id].toFixed(2);
+                // ANTES: precio SÍ incluía impuesto (era precio con impuesto)
+                // AHORA: precio NO incluye impuesto (mostrar precio base)
+                // El valor actual ES el precio con impuesto, calcular base y mostrar
+                var precioBase = (valorActual - montoFijo) / factor;
+                window.preciosBase[id] = precioBase;
+                input.value = precioBase.toFixed(2);
             }
         }
     });
@@ -324,16 +334,71 @@ function convertirPrecios(incluyeImpuesto) {
     calcularImpuestosResumen();
 }
 
+// Cuando el usuario escribe en los inputs de precio
+function setupEventos() {
+    var precioImp = document.getElementById('precio_incluye_impuesto');
+    if (precioImp) {
+        precioImp.addEventListener('change', function() {
+            convertirPrecios(this.checked);
+        });
+    }
+
+    ['precio1', 'precio2', 'precio3', 'precio4'].forEach(function(id) {
+        var input = document.getElementById(id);
+        if (input) {
+            input.addEventListener('input', function() {
+                var num = id.replace('precio', '');
+                var valor = parseFloat(this.value) || 0;
+                var factor = getFactorImpuestos();
+                var montoFijo = getMontoFijoImpuestos();
+                
+                if (document.getElementById('precio_incluye_impuesto').checked) {
+                    // El usuario escribe precio CON impuesto, calcular base
+                    window.preciosBase['precio' + num] = (valor - montoFijo) / factor;
+                } else {
+                    // El usuario escribe precio SIN impuesto (base)
+                    window.preciosBase['precio' + num] = valor;
+                }
+                
+                calcularMargen(parseInt(num));
+                calcularImpuestosResumen();
+            });
+        }
+    });
+
+    var imgInput = document.getElementById('imagen_url');
+    if (imgInput) {
+        imgInput.addEventListener('input', function(e) {
+            var preview = document.getElementById('imgPreview');
+            if (e.target.value) {
+                preview.innerHTML = '<img src="' + e.target.value + '" onerror="this.parentElement.innerHTML=\'<i class=\\\'fas fa-image\\\'></i>\'">';
+            } else {
+                preview.innerHTML = '<i class="fas fa-image"></i>';
+            }
+        });
+    }
+
+    var colorPos = document.getElementById('color_pos');
+    if (colorPos) {
+        colorPos.addEventListener('input', function(e) {
+            document.getElementById('color_pos_text').value = e.target.value;
+        });
+    }
+
+    var caducidad = document.getElementById('maneja_caducidad');
+    if (caducidad) {
+        caducidad.addEventListener('change', function(e) {
+            document.getElementById('rowCaducidad').style.display = e.target.checked ? 'flex' : 'none';
+        });
+    }
+}
+
 function calcularMargen(num) {
     var costo = parseFloat(document.getElementById('costo').value) || 0;
-    var precioInput = parseFloat(document.getElementById('precio' + num).value) || 0;
     var badge = document.getElementById('margen' + num);
     
-    var precioBase = window.preciosBase['precio' + num] || precioInput;
-    if (document.getElementById('precio_incluye_impuesto').checked && precioInput > 0) {
-        var montoFijo = getMontoFijoImpuestos();
-        precioBase = (precioInput - montoFijo) / getFactorImpuestos();
-    }
+    // Siempre usar precio base para calcular margen
+    var precioBase = window.preciosBase['precio' + num] || 0;
     
     if (costo > 0 && precioBase > 0) {
         var margen = ((precioBase - costo) / costo) * 100;
@@ -350,16 +415,18 @@ function calcularImpuestosResumen() {
     var tasa = getTasaImpuestos();
     var montoFijo = getMontoFijoImpuestos();
     var incluyeImp = document.getElementById('precio_incluye_impuesto').checked;
+    var factor = 1 + (tasa / 100);
 
     var precioBase, impPorcentaje, impFijo, total;
 
     if (incluyeImp) {
-        var factorImp = 1 + (tasa / 100);
-        precioBase = (precio1 - montoFijo) / factorImp;
+        // El precio mostrado YA incluye impuesto
+        total = precio1;
+        precioBase = (precio1 - montoFijo) / factor;
         impPorcentaje = precioBase * (tasa / 100);
         impFijo = montoFijo;
-        total = precio1;
     } else {
+        // El precio mostrado NO incluye impuesto (es el base)
         precioBase = precio1;
         impPorcentaje = precioBase * (tasa / 100);
         impFijo = montoFijo;
@@ -368,7 +435,7 @@ function calcularImpuestosResumen() {
 
     var impTotal = impPorcentaje + impFijo;
 
-    document.getElementById('tasaTotal').textContent = tasa.toFixed(2) + (montoFijo > 0 ? ' + $' + montoFijo.toFixed(2) : '');
+    document.getElementById('tasaTotal').textContent = tasa.toFixed(2) + '%' + (montoFijo > 0 ? ' + $' + montoFijo.toFixed(2) : '');
     document.getElementById('precioSinImp').textContent = '$' + precioBase.toFixed(2);
     document.getElementById('impAmount').textContent = '$' + impTotal.toFixed(2);
     document.getElementById('precioFinal').textContent = '$' + total.toFixed(2);
