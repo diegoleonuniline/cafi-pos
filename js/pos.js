@@ -1695,3 +1695,55 @@ function mostrarToast(msg, tipo) {
         setTimeout(function() { toast.classList.remove('show'); }, 3000);
     }
 }
+
+// ==================== MODAL CONFIRMAR (REEMPLAZO DE confirm()) ====================
+var confirmarCallback = null;
+
+function mostrarConfirmar(mensaje, onAceptar, opciones) {
+    opciones = opciones || {};
+    
+    var titulo = opciones.titulo || 'Confirmar';
+    var textoBoton = opciones.textoBoton || 'Aceptar';
+    var tipo = opciones.tipo || 'primary'; // primary, danger, warning, success
+    var icono = opciones.icono || 'fa-question-circle';
+    
+    setElementText('confirmarMensaje', mensaje);
+    document.querySelector('#confirmarTitulo span').textContent = titulo;
+    document.querySelector('#confirmarTitulo i').className = 'fas ' + icono;
+    setElementText('confirmarBtnTexto', textoBoton);
+    
+    var btnAceptar = document.getElementById('btnConfirmarAceptar');
+    btnAceptar.className = 'btn btn-' + tipo;
+    
+    var header = document.getElementById('confirmarHeader');
+    if (tipo === 'danger') {
+        header.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+        header.style.color = 'white';
+    } else if (tipo === 'warning') {
+        header.style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+        header.style.color = 'white';
+    } else if (tipo === 'success') {
+        header.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+        header.style.color = 'white';
+    } else {
+        header.style.background = 'var(--gradient)';
+        header.style.color = 'white';
+    }
+    
+    confirmarCallback = onAceptar;
+    
+    btnAceptar.onclick = function() {
+        cerrarConfirmar(true);
+    };
+    
+    var modal = document.getElementById('modalConfirmar');
+    if (modal) modal.classList.add('active');
+}
+
+function cerrarConfirmar(aceptado) {
+    cerrarModal('modalConfirmar');
+    if (aceptado && confirmarCallback) {
+        confirmarCallback();
+    }
+    confirmarCallback = null;
+}
