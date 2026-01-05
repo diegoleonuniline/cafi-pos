@@ -663,15 +663,20 @@ function recuperarVenta(index) {
     focusBuscar();
 }
 
+// DESPUÉS:
 function eliminarVentaEspera(index) {
-    if (!confirm('¿Eliminar esta venta en espera?')) return;
-    
-    ventasEnEspera.splice(index, 1);
-    localStorage.setItem('ventasEnEspera', JSON.stringify(ventasEnEspera));
-    
-    renderEsperaList();
-    actualizarBadgeEspera();
-    mostrarToast('Venta eliminada de espera');
+    mostrarConfirmar('¿Eliminar esta venta en espera?', function() {
+        ventasEnEspera.splice(index, 1);
+        localStorage.setItem('ventasEnEspera', JSON.stringify(ventasEnEspera));
+        renderEsperaList();
+        actualizarBadgeEspera();
+        mostrarToast('Venta eliminada de espera');
+    }, {
+        titulo: 'Eliminar Venta',
+        textoBoton: 'Sí, eliminar',
+        tipo: 'danger',
+        icono: 'fa-trash'
+    });
 }
 
 function limpiarVentaActual() {
@@ -1480,13 +1485,19 @@ function aplicarDescuentoGlobal() {
     setTimeout(function() { if (inputEditar) inputEditar.select(); }, 100);
 }
 
+// DESPUÉS:
 function cancelarVenta() {
     if (!carrito.length) return;
-    if (confirm('¿Cancelar venta actual?')) {
+    mostrarConfirmar('¿Cancelar venta actual?', function() {
         limpiarVentaActual();
         mostrarToast('Venta cancelada');
-    }
-    focusBuscar();
+        focusBuscar();
+    }, {
+        titulo: 'Cancelar Venta',
+        textoBoton: 'Sí, cancelar',
+        tipo: 'danger',
+        icono: 'fa-times-circle'
+    });
 }
 
 // ==================== COBRO ====================
