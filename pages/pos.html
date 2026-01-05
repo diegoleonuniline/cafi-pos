@@ -247,83 +247,270 @@
 
     <!-- MODAL CERRAR TURNO (CORTE) -->
     <div class="modal-overlay" id="modalCerrarTurno">
-        <div class="modal modal-md">
-            <div class="modal-header" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%)">
+        <div class="modal modal-xl">
+            <div class="modal-header" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)">
                 <div class="modal-title"><i class="fas fa-cash-register"></i><span>Corte de Caja</span></div>
                 <button class="btn-close light" onclick="cerrarModal('modalCerrarTurno')"><i class="fas fa-times"></i></button>
             </div>
-            <div class="modal-body">
-                <div class="corte-grid">
-                    <div class="corte-seccion">
-                        <h4><i class="fas fa-chart-bar"></i> Resumen del Turno</h4>
-                        <div class="corte-detalle-box">
-                            <div class="corte-row">
-                                <span>Saldo Inicial:</span>
-                                <strong id="corteSaldoInicial">$0.00</strong>
+            <div class="modal-body" style="padding:0">
+                <div class="corte-layout">
+                    <!-- PANEL IZQUIERDO: Resumen -->
+                    <div class="corte-panel-left">
+                        <h4><i class="fas fa-chart-pie"></i> Resumen del Turno</h4>
+                        
+                        <!-- Ventas por método de pago -->
+                        <div class="corte-seccion-box">
+                            <h5>Cobros por Método de Pago</h5>
+                            <div id="cortePagosPorMetodo"></div>
+                            <div class="corte-total-row">
+                                <span>Total Ventas:</span>
+                                <strong id="corteTotalVentas">$0.00</strong>
                             </div>
-                            <div class="corte-row">
-                                <span>Ventas del Turno:</span>
-                                <strong id="corteVentas">$0.00</strong>
-                            </div>
-                            <div class="corte-row ingreso">
+                        </div>
+                        
+                        <!-- Movimientos de caja -->
+                        <div class="corte-seccion-box">
+                            <h5>Movimientos de Caja (Efectivo)</h5>
+                            <div class="corte-mov-row ingreso">
                                 <span><i class="fas fa-arrow-down"></i> Ingresos:</span>
                                 <strong id="corteIngresos">$0.00</strong>
                             </div>
-                            <div class="corte-row egreso">
+                            <div class="corte-mov-row egreso">
                                 <span><i class="fas fa-arrow-up"></i> Egresos:</span>
                                 <strong id="corteEgresos">$0.00</strong>
                             </div>
-                            <div class="corte-row total">
-                                <span>Efectivo Esperado:</span>
+                        </div>
+                        
+                        <!-- Arqueo de efectivo -->
+                        <div class="corte-seccion-box arqueo">
+                            <h5><i class="fas fa-coins"></i> Arqueo de Efectivo</h5>
+                            <div class="arqueo-row">
+                                <span>Saldo Inicial:</span>
+                                <strong id="corteSaldoInicial">$0.00</strong>
+                            </div>
+                            <div class="arqueo-row">
+                                <span>+ Ventas Efectivo:</span>
+                                <strong id="corteVentasEfectivo">$0.00</strong>
+                            </div>
+                            <div class="arqueo-row ingreso">
+                                <span>+ Ingresos:</span>
+                                <strong id="corteIngresosArqueo">$0.00</strong>
+                            </div>
+                            <div class="arqueo-row egreso">
+                                <span>- Egresos:</span>
+                                <strong id="corteEgresosArqueo">$0.00</strong>
+                            </div>
+                            <div class="arqueo-row total">
+                                <span>= Efectivo Esperado:</span>
                                 <strong id="corteEsperado">$0.00</strong>
                             </div>
                         </div>
-                        <div class="corte-stats-mini">
-                            <span><i class="fas fa-receipt"></i> <strong id="corteNumVentas">0</strong> ventas</span>
+                        
+                        <!-- Stats -->
+                        <div class="corte-stats-box">
+                            <div class="stat-mini">
+                                <i class="fas fa-receipt"></i>
+                                <span id="corteNumVentas">0</span>
+                                <small>ventas</small>
+                            </div>
+                            <div class="stat-mini warning">
+                                <i class="fas fa-times-circle"></i>
+                                <span id="corteNumCanceladas">0</span>
+                                <small>canceladas</small>
+                            </div>
                         </div>
                     </div>
-                    <div class="corte-seccion">
-                        <h4><i class="fas fa-hand-holding-usd"></i> Declarar Efectivo</h4>
-                        <div class="form-group">
-                            <label>Efectivo en Caja</label>
-                            <div class="input-money-lg">
-                                <span>$</span>
-                                <input type="number" id="efectivoDeclarado" step="0.01" min="0" placeholder="0.00" oninput="calcularDiferenciaCierre()">
+                    
+                    <!-- PANEL DERECHO: Conteo de efectivo -->
+                    <div class="corte-panel-right">
+                        <h4><i class="fas fa-hand-holding-usd"></i> Contar Efectivo en Caja</h4>
+                        
+                        <!-- Contador de billetes -->
+                        <div class="contador-seccion">
+                            <h5>Billetes</h5>
+                            <div class="contador-grid">
+                                <div class="contador-item" data-valor="1000">
+                                    <div class="contador-billete b1000">$1000</div>
+                                    <div class="contador-input">
+                                        <button type="button" onclick="ajustarContador(1000, -1)">−</button>
+                                        <input type="number" id="cont_1000" value="0" min="0" onchange="calcularTotalContado()">
+                                        <button type="button" onclick="ajustarContador(1000, 1)">+</button>
+                                    </div>
+                                    <span class="contador-subtotal" id="sub_1000">$0</span>
+                                </div>
+                                <div class="contador-item" data-valor="500">
+                                    <div class="contador-billete b500">$500</div>
+                                    <div class="contador-input">
+                                        <button type="button" onclick="ajustarContador(500, -1)">−</button>
+                                        <input type="number" id="cont_500" value="0" min="0" onchange="calcularTotalContado()">
+                                        <button type="button" onclick="ajustarContador(500, 1)">+</button>
+                                    </div>
+                                    <span class="contador-subtotal" id="sub_500">$0</span>
+                                </div>
+                                <div class="contador-item" data-valor="200">
+                                    <div class="contador-billete b200">$200</div>
+                                    <div class="contador-input">
+                                        <button type="button" onclick="ajustarContador(200, -1)">−</button>
+                                        <input type="number" id="cont_200" value="0" min="0" onchange="calcularTotalContado()">
+                                        <button type="button" onclick="ajustarContador(200, 1)">+</button>
+                                    </div>
+                                    <span class="contador-subtotal" id="sub_200">$0</span>
+                                </div>
+                                <div class="contador-item" data-valor="100">
+                                    <div class="contador-billete b100">$100</div>
+                                    <div class="contador-input">
+                                        <button type="button" onclick="ajustarContador(100, -1)">−</button>
+                                        <input type="number" id="cont_100" value="0" min="0" onchange="calcularTotalContado()">
+                                        <button type="button" onclick="ajustarContador(100, 1)">+</button>
+                                    </div>
+                                    <span class="contador-subtotal" id="sub_100">$0</span>
+                                </div>
+                                <div class="contador-item" data-valor="50">
+                                    <div class="contador-billete b50">$50</div>
+                                    <div class="contador-input">
+                                        <button type="button" onclick="ajustarContador(50, -1)">−</button>
+                                        <input type="number" id="cont_50" value="0" min="0" onchange="calcularTotalContado()">
+                                        <button type="button" onclick="ajustarContador(50, 1)">+</button>
+                                    </div>
+                                    <span class="contador-subtotal" id="sub_50">$0</span>
+                                </div>
+                                <div class="contador-item" data-valor="20">
+                                    <div class="contador-billete b20">$20</div>
+                                    <div class="contador-input">
+                                        <button type="button" onclick="ajustarContador(20, -1)">−</button>
+                                        <input type="number" id="cont_20" value="0" min="0" onchange="calcularTotalContado()">
+                                        <button type="button" onclick="ajustarContador(20, 1)">+</button>
+                                    </div>
+                                    <span class="contador-subtotal" id="sub_20">$0</span>
+                                </div>
                             </div>
-                            <small class="help-text">Cuenta todo el efectivo físico en caja</small>
                         </div>
-                        <div class="diferencia-box">
-                            <span>Diferencia:</span>
-                            <strong id="corteDiferencia">$0.00</strong>
+                        
+                        <!-- Contador de monedas -->
+                        <div class="contador-seccion">
+                            <h5>Monedas</h5>
+                            <div class="contador-grid monedas">
+                                <div class="contador-item" data-valor="10">
+                                    <div class="contador-moneda m10">$10</div>
+                                    <div class="contador-input">
+                                        <button type="button" onclick="ajustarContador(10, -1)">−</button>
+                                        <input type="number" id="cont_10" value="0" min="0" onchange="calcularTotalContado()">
+                                        <button type="button" onclick="ajustarContador(10, 1)">+</button>
+                                    </div>
+                                    <span class="contador-subtotal" id="sub_10">$0</span>
+                                </div>
+                                <div class="contador-item" data-valor="5">
+                                    <div class="contador-moneda m5">$5</div>
+                                    <div class="contador-input">
+                                        <button type="button" onclick="ajustarContador(5, -1)">−</button>
+                                        <input type="number" id="cont_5" value="0" min="0" onchange="calcularTotalContado()">
+                                        <button type="button" onclick="ajustarContador(5, 1)">+</button>
+                                    </div>
+                                    <span class="contador-subtotal" id="sub_5">$0</span>
+                                </div>
+                                <div class="contador-item" data-valor="2">
+                                    <div class="contador-moneda m2">$2</div>
+                                    <div class="contador-input">
+                                        <button type="button" onclick="ajustarContador(2, -1)">−</button>
+                                        <input type="number" id="cont_2" value="0" min="0" onchange="calcularTotalContado()">
+                                        <button type="button" onclick="ajustarContador(2, 1)">+</button>
+                                    </div>
+                                    <span class="contador-subtotal" id="sub_2">$0</span>
+                                </div>
+                                <div class="contador-item" data-valor="1">
+                                    <div class="contador-moneda m1">$1</div>
+                                    <div class="contador-input">
+                                        <button type="button" onclick="ajustarContador(1, -1)">−</button>
+                                        <input type="number" id="cont_1" value="0" min="0" onchange="calcularTotalContado()">
+                                        <button type="button" onclick="ajustarContador(1, 1)">+</button>
+                                    </div>
+                                    <span class="contador-subtotal" id="sub_1">$0</span>
+                                </div>
+                                <div class="contador-item" data-valor="0.5">
+                                    <div class="contador-moneda m05">50¢</div>
+                                    <div class="contador-input">
+                                        <button type="button" onclick="ajustarContador(0.5, -1)">−</button>
+                                        <input type="number" id="cont_05" value="0" min="0" onchange="calcularTotalContado()">
+                                        <button type="button" onclick="ajustarContador(0.5, 1)">+</button>
+                                    </div>
+                                    <span class="contador-subtotal" id="sub_05">$0</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label>Observaciones</label>
+                        
+                        <!-- Total contado y diferencia -->
+                        <div class="conteo-resultado">
+                            <div class="conteo-total">
+                                <span>Total Contado:</span>
+                                <strong id="totalContado">$0.00</strong>
+                            </div>
+                            <div class="conteo-diferencia" id="contDiferenciaBox">
+                                <span>Diferencia:</span>
+                                <strong id="contDiferencia">$0.00</strong>
+                            </div>
+                            <div class="conteo-status pendiente" id="conteoStatus">
+                                <i class="fas fa-clock"></i>
+                                <span>Cuenta el efectivo para continuar</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Observaciones -->
+                        <div class="form-group" style="margin-top:16px">
+                            <label>Observaciones (opcional)</label>
                             <textarea id="observacionesCierre" rows="2" placeholder="Notas del cierre..."></textarea>
                         </div>
+                        
+                        <!-- Botón limpiar -->
+                        <button type="button" class="btn btn-outline btn-block" onclick="limpiarContador()" style="margin-top:10px">
+                            <i class="fas fa-redo"></i> Limpiar y Volver a Contar
+                        </button>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-outline" onclick="cerrarModal('modalCerrarTurno')">Cancelar</button>
-                <button class="btn btn-danger" onclick="confirmarCerrarTurno()">
-                    <i class="fas fa-lock"></i> Cerrar Turno
+                <button class="btn btn-primary btn-lg" id="btnGuardarCorte" onclick="confirmarCerrarTurno()">
+                    <i class="fas fa-save"></i> Guardar y Cerrar Turno
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL RESUMEN CORTE -->
+    <!-- MODAL RESUMEN CORTE (después de guardar) -->
     <div class="modal-overlay" id="modalCorteResumen">
-        <div class="modal modal-sm">
+        <div class="modal modal-md">
             <div class="modal-body" style="padding:0">
                 <div id="corteResumenContent"></div>
             </div>
             <div class="modal-footer" style="justify-content:center;gap:10px">
                 <button class="btn btn-outline" onclick="imprimirCorte()">
-                    <i class="fas fa-print"></i> Imprimir
+                    <i class="fas fa-print"></i> Imprimir Corte
                 </button>
                 <button class="btn btn-primary" onclick="cerrarCorteYSalir()">
                     <i class="fas fa-check"></i> Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL VALIDAR ADMIN (para volver a contar) -->
+    <div class="modal-overlay" id="modalValidarAdmin">
+        <div class="modal modal-xs">
+            <div class="modal-header" style="background:#f59e0b">
+                <div class="modal-title"><i class="fas fa-shield-alt"></i><span>Autorización Requerida</span></div>
+                <button class="btn-close light" onclick="cerrarModal('modalValidarAdmin')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <p style="text-align:center;margin-bottom:16px">Ingresa la clave de administrador para volver a contar</p>
+                <div class="form-group">
+                    <label>Clave de Admin</label>
+                    <input type="password" id="claveAdmin" placeholder="Contraseña..." onkeypress="if(event.key==='Enter')validarClaveAdmin()">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="cerrarModal('modalValidarAdmin')">Cancelar</button>
+                <button class="btn btn-warning" onclick="validarClaveAdmin()">
+                    <i class="fas fa-unlock"></i> Autorizar
                 </button>
             </div>
         </div>
@@ -341,6 +528,10 @@
             </div>
             <div class="modal-body">
                 <input type="hidden" id="movimientoTipo" value="INGRESO">
+                <div class="mov-info-box">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Los movimientos de caja solo afectan el efectivo</span>
+                </div>
                 <div class="form-group">
                     <label>Monto</label>
                     <div class="input-money-lg">
