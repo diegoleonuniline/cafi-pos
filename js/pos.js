@@ -1758,3 +1758,67 @@ function cerrarConfirmar(aceptado) {
     }
     confirmarCallback = null;
 }
+// ==================== AUTORIZACIÓN ADMIN ====================
+var accionPendienteAdmin = null;
+
+function solicitarAutorizacionAdmin(mensaje, onAutorizado, opciones) {
+    opciones = opciones || {};
+    
+    accionPendienteAdmin = onAutorizado;
+    
+    // Mostrar mensaje personalizado
+    var msgEl = document.getElementById('adminAuthMensaje');
+    if (msgEl) msgEl.textContent = mensaje || 'Se requiere autorización de administrador';
+    
+    // Limpiar input
+    var claveInput = document.getElementById('claveAdminAuth');
+    if (claveInput) claveInput.value = '';
+    
+    // Mostrar modal
+    var modal = document.getElementById('modalAutorizarAdmin');
+    if (modal) modal.classList.add('active');
+    
+    setTimeout(function() { 
+        if (claveInput) claveInput.focus(); 
+    }, 100);
+}
+
+function confirmarAutorizacionAdmin() {
+    var claveInput = document.getElementById('claveAdminAuth');
+    var clave = claveInput ? claveInput.value : '';
+    
+    if (!clave) {
+        mostrarToast('Ingresa la clave de administrador', 'error');
+        return;
+    }
+    
+    // Validar con el servidor
+    API.request('/auth/validar-admin', 'POST', {
+        empresa_id: API.usuario.empresa_id,
+        password: clave
+    }).then(function(r) {
+        if (r.success) {
+            cerrarModal('modalAutorizarAdmin');
+            mostrarToast('Autorizado por: ' + r.admin, 'success');
+            
+            // Ejecutar la acción pendiente
+            if (accionPendienteAdmin) {
+                accionPendienteAdmin(r.admin);
+                accionPendienteAdmin = null;
+            }
+        } else {
+            mostrarToast('Clave incorrecta', 'error');
+            if (claveInput) {
+                claveInput.value = '';
+                claveInput.focus();
+            }
+        }
+    }).catch(function(e) {
+        mostrarToast('Error de conexión', 'error');
+    });
+}
+
+function cancelarAutorizacionAdmin() {
+    cerrarModal('modalAutorizarAdmin');
+    accionPendienteAdmin = null;
+}
