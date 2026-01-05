@@ -126,6 +126,7 @@ function confirmarAbrirTurno() {
 }
 
 // ==================== CORTE DE CAJA ====================
+// ==================== CORTE DE CAJA ====================
 function abrirModalCerrarTurno() {
     if (!turnoActual) return;
     
@@ -135,7 +136,7 @@ function abrirModalCerrarTurno() {
         .then(function(r) {
             if (r.success) {
                 corteData = r;
-                renderResumenCorte(r);
+                renderFormularioCorte(r);
                 var modal = document.getElementById('modalCerrarTurno');
                 if (modal) modal.classList.add('active');
             } else {
@@ -148,26 +149,32 @@ function abrirModalCerrarTurno() {
         });
 }
 
-function renderResumenCorte(data) {
-    var t = data.turno || {};
-    var saldoInicial = parseFloat(t.saldo_inicial) || 0;
+function renderFormularioCorte(data) {
+    var movimientos = data.movimientos || { ingresos: 0, egresos: 0 };
+    var ingresos = parseFloat(movimientos.ingresos) || 0;
+    var egresos = parseFloat(movimientos.egresos) || 0;
     
-    var pagosHtml = '';
-    var totalVentas = 0;
-    var efectivoVentas = 0;
+    // Mostrar movimientos
+    setElementText('corteIngresosDisplay', '$' + ingresos.toFixed(2));
+    setElementText('corteEgresosDisplay', '$' + egresos.toFixed(2));
     
+    // Renderizar métodos de pago para declarar
+    var metodosHtml = '';
     var pagosPorMetodo = data.pagos_por_metodo || [];
     
+    // Siempre incluir efectivo primero (ya se cuenta con billetes)
+    // Los demás métodos se declaran manualmente
+    
     pagosPorMetodo.forEach(function(p) {
-        var iconClass = 'otro';
-        var iconName = 'fa-money-bill';
         var tipo = (p.tipo || 'EFECTIVO').toUpperCase();
         
-        if (tipo === 'EFECTIVO') {
-            iconClass = 'efectivo';
-            iconName = 'fa-money-bill-wave';
-            efectivoVentas = parseFloat(p.total) || 0;
-        } else if (tipo === 'TARJETA') {
+        // El efectivo se cuenta con billetes, no se declara aquí
+        if (tipo === 'EFECTIVO') return;
+        
+        var iconClass = 'otro';
+        var iconName = 'fa-money-bill';
+        
+        if (tipo === 'TARJETA') {
             iconClass = 'tarjeta';
             iconName = 'fa-credit-card';
         } else if (tipo === 'TRANSFERENCIA') {
@@ -175,54 +182,29 @@ function renderResumenCorte(data) {
             iconName = 'fa-exchange-alt';
         }
         
-        var pTotal = parseFloat(p.total) || 0;
-        totalVentas += pTotal;
+        var metodoPagoId = p.metodo_pago_id.replace(/-/g, '_');
         
-        pagosHtml += '<div class="metodo-pago-row">' +
+        metodosHtml += '<div class="metodo-declarar-row">' +
+            '<div class="metodo-icon ' + iconClass + '"><i class="fas ' + iconName + '"></i></div>' +
             '<div class="metodo-info">' +
-                '<div class="metodo-icon ' + iconClass + '"><i class="fas ' + iconName + '"></i></div>' +
-                '<div>' +
-                    '<div class="metodo-nombre">' + (p.nombre || 'Sin nombre') + '</div>' +
-                    '<div class="metodo-cantidad">' + (p.cantidad || 0) + ' cobros</div>' +
-                '</div>' +
+                '<div class="metodo-nombre">' + (p.nombre || 'Sin nombre') + '</div>' +
+                '<div class="metodo-hint">' + (p.cantidad || 0) + ' transacciones registradas</div>' +
             '</div>' +
-            '<div class="metodo-total">$' + pTotal.toFixed(2) + '</div>' +
+            '<div class="metodo-input">' +
+                '<span>$</span>' +
+                '<input type="number" step="0.01" min="0" id="declarar_' + metodoPagoId + '" ' +
+                    'data-metodo-id="' + p.metodo_pago_id + '" ' +
+                    'data-tipo="' + tipo + '" ' +
+                    'placeholder="0.00" value="">' +
+            '</div>' +
         '</div>';
     });
     
-    if (!pagosHtml) {
-        pagosHtml = '<p style="text-align:center;color:#9ca3af;padding:20px">Sin ventas en este turno</p>';
+    if (!metodosHtml) {
+        metodosHtml = '<p style="text-align:center;color:#9ca3af;padding:20px">Solo hay pagos en efectivo</p>';
     }
     
-    var movimientos = data.movimientos || { ingresos: 0, egresos: 0 };
-    var ingresos = parseFloat(movimientos.ingresos) || 0;
-    var egresos = parseFloat(movimientos.egresos) || 0;
-    var ventas = data.ventas || { cantidad_ventas: 0, cantidad_canceladas: 0 };
-    var efectivoEsperado = parseFloat(data.efectivo_esperado) || 0;
-    
-    // Actualizar DOM con verificaciones
-    setElementText('cortePagosPorMetodo', pagosHtml, true);
-    setElementText('corteTotalVentas', '$' + totalVentas.toFixed(2));
-    setElementText('corteIngresos', '+$' + ingresos.toFixed(2));
-    setElementText('corteEgresos', '-$' + egresos.toFixed(2));
-    setElementText('corteSaldoInicial', '$' + saldoInicial.toFixed(2));
-    setElementText('corteVentasEfectivo', '$' + efectivoVentas.toFixed(2));
-    setElementText('corteIngresosArqueo', '+$' + ingresos.toFixed(2));
-    setElementText('corteEgresosArqueo', '-$' + egresos.toFixed(2));
-    setElementText('corteEsperado', '$' + efectivoEsperado.toFixed(2));
-    setElementText('corteNumVentas', ventas.cantidad_ventas || 0);
-    setElementText('corteNumCanceladas', ventas.cantidad_canceladas || 0);
-}
-
-function setElementText(id, text, isHtml) {
-    var el = document.getElementById(id);
-    if (el) {
-        if (isHtml) {
-            el.innerHTML = text;
-        } else {
-            el.textContent = text;
-        }
-    }
+    setElementText('metodosDeclarar', metodosHtml, true);
 }
 
 // ==================== CONTADOR DE BILLETES Y MONEDAS ====================
@@ -253,47 +235,6 @@ function calcularTotalContado() {
     });
     
     setElementText('totalContado', '$' + total.toFixed(2));
-    
-    if (corteData) {
-        var esperado = parseFloat(corteData.efectivo_esperado) || 0;
-        var diferencia = total - esperado;
-        
-        var difBox = document.getElementById('contDiferenciaBox');
-        var difText = document.getElementById('contDiferencia');
-        var statusBox = document.getElementById('conteoStatus');
-        
-        if (difText) {
-            if (total === 0) {
-                difText.textContent = '$0.00';
-                if (difBox) difBox.className = 'conteo-diferencia';
-                if (statusBox) {
-                    statusBox.className = 'conteo-status pendiente';
-                    statusBox.innerHTML = '<i class="fas fa-clock"></i><span>Cuenta el efectivo para continuar</span>';
-                }
-            } else if (Math.abs(diferencia) < 0.01) {
-                difText.textContent = '$0.00';
-                if (difBox) difBox.className = 'conteo-diferencia exacto';
-                if (statusBox) {
-                    statusBox.className = 'conteo-status correcto';
-                    statusBox.innerHTML = '<i class="fas fa-check-circle"></i><span>¡Caja cuadrada! Todo correcto</span>';
-                }
-            } else if (diferencia > 0) {
-                difText.textContent = '+$' + diferencia.toFixed(2);
-                if (difBox) difBox.className = 'conteo-diferencia positivo';
-                if (statusBox) {
-                    statusBox.className = 'conteo-status sobrante';
-                    statusBox.innerHTML = '<i class="fas fa-arrow-up"></i><span>Sobrante de $' + diferencia.toFixed(2) + '</span>';
-                }
-            } else {
-                difText.textContent = '-$' + Math.abs(diferencia).toFixed(2);
-                if (difBox) difBox.className = 'conteo-diferencia negativo';
-                if (statusBox) {
-                    statusBox.className = 'conteo-status faltante';
-                    statusBox.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>Faltante de $' + Math.abs(diferencia).toFixed(2) + '</span>';
-                }
-            }
-        }
-    }
 }
 
 function limpiarContador() {
@@ -301,8 +242,175 @@ function limpiarContador() {
         var inputId = 'cont_' + String(d).replace('.', '');
         var input = document.getElementById(inputId);
         if (input) input.value = 0;
+        
+        var subId = 'sub_' + String(d).replace('.', '');
+        var subEl = document.getElementById(subId);
+        if (subEl) subEl.textContent = '$0';
     });
-    calcularTotalContado();
+    setElementText('totalContado', '$0.00');
+}
+
+// ==================== CONFIRMAR CIERRE ====================
+function confirmarCerrarTurno() {
+    if (!turnoActual || !corteData) return;
+    
+    // Calcular efectivo contado
+    var efectivoContado = 0;
+    denominaciones.forEach(function(d) {
+        var inputId = 'cont_' + String(d).replace('.', '');
+        var input = document.getElementById(inputId);
+        if (input) {
+            var cantidad = parseInt(input.value) || 0;
+            efectivoContado += cantidad * d;
+        }
+    });
+    
+    // Recopilar declaraciones por método
+    var declaraciones = [];
+    var totalDeclaradoOtros = 0;
+    
+    document.querySelectorAll('[id^="declarar_"]').forEach(function(input) {
+        var metodoId = input.getAttribute('data-metodo-id');
+        var tipo = input.getAttribute('data-tipo');
+        var monto = parseFloat(input.value) || 0;
+        
+        declaraciones.push({
+            metodo_pago_id: metodoId,
+            tipo: tipo,
+            declarado: monto
+        });
+        
+        totalDeclaradoOtros += monto;
+    });
+    
+    var obsInput = document.getElementById('observacionesCierre');
+    var observaciones = obsInput ? obsInput.value : '';
+    
+    // Confirmar cierre
+    if (!confirm('¿Confirmar cierre de turno?')) return;
+    
+    API.request('/turnos/cerrar/' + turnoActual.turno_id, 'POST', {
+        efectivo_declarado: efectivoContado,
+        declaraciones_metodos: JSON.stringify(declaraciones),
+        observaciones: observaciones,
+        cerrado_por: API.usuario.id
+    }).then(function(r) {
+        if (r.success) {
+            cerrarModal('modalCerrarTurno');
+            mostrarCorteResumen(r.corte, efectivoContado, declaraciones);
+        } else {
+            mostrarToast(r.error || 'Error al cerrar turno', 'error');
+        }
+    }).catch(function(e) {
+        mostrarToast('Error de conexión', 'error');
+    });
+}
+
+function mostrarCorteResumen(corte, efectivoDeclarado, declaraciones) {
+    var diferencia = corte.diferencia || 0;
+    var headerClass = 'correcto';
+    var icono = 'fa-check-circle';
+    var titulo = '¡Caja Cuadrada!';
+    
+    if (diferencia > 0.01) {
+        headerClass = 'sobrante';
+        icono = 'fa-arrow-circle-up';
+        titulo = 'Sobrante en Caja';
+    } else if (diferencia < -0.01) {
+        headerClass = 'faltante';
+        icono = 'fa-exclamation-circle';
+        titulo = 'Faltante en Caja';
+    }
+    
+    var difMonto = Math.abs(diferencia) < 0.01 ? '$0.00' : (diferencia > 0 ? '+' : '-') + '$' + Math.abs(diferencia).toFixed(2);
+    
+    // Construir HTML del resumen comparativo
+    var html = '<div class="corte-resumen-container">' +
+        '<div class="corte-resumen-header-resultado ' + headerClass + '">' +
+            '<div class="icono"><i class="fas ' + icono + '"></i></div>' +
+            '<h3>' + titulo + '</h3>' +
+            '<div class="diferencia-monto">' + difMonto + '</div>' +
+        '</div>' +
+        
+        '<div class="corte-comparativo">' +
+            '<div class="corte-comparativo-titulo">Comparativo Esperado vs Declarado</div>' +
+            '<div class="corte-comparativo-grid">' +
+                
+                // Columna izquierda: Sistema (esperado)
+                '<div class="corte-columna">' +
+                    '<h5><i class="fas fa-laptop"></i> Sistema (Esperado)</h5>' +
+                    '<div class="corte-linea"><span>Saldo Inicial:</span><span class="esperado">$' + (corte.saldo_inicial || 0).toFixed(2) + '</span></div>' +
+                    '<div class="corte-linea"><span>Ventas Efectivo:</span><span class="esperado">$' + (corte.ventas_efectivo || 0).toFixed(2) + '</span></div>' +
+                    '<div class="corte-linea"><span>Ventas Tarjeta:</span><span class="esperado">$' + (corte.ventas_tarjeta || 0).toFixed(2) + '</span></div>' +
+                    '<div class="corte-linea"><span>Ventas Transferencia:</span><span class="esperado">$' + (corte.ventas_transferencia || 0).toFixed(2) + '</span></div>' +
+                    '<div class="corte-linea"><span>Ventas Crédito:</span><span class="esperado">$' + (corte.ventas_credito || 0).toFixed(2) + '</span></div>' +
+                    '<div class="corte-linea"><span style="color:#10b981">+ Ingresos:</span><span class="esperado" style="color:#10b981">$' + (corte.ingresos || 0).toFixed(2) + '</span></div>' +
+                    '<div class="corte-linea"><span style="color:#ef4444">- Egresos:</span><span class="esperado" style="color:#ef4444">$' + (corte.egresos || 0).toFixed(2) + '</span></div>' +
+                    '<div class="corte-linea total"><span>Efectivo Esperado:</span><span class="esperado">$' + (corte.efectivo_esperado || 0).toFixed(2) + '</span></div>' +
+                '</div>' +
+                
+                // Columna derecha: Declarado
+                '<div class="corte-columna">' +
+                    '<h5><i class="fas fa-user"></i> Declarado (Contado)</h5>' +
+                    '<div class="corte-linea"><span>Efectivo Contado:</span><span class="declarado">$' + efectivoDeclarado.toFixed(2) + '</span></div>';
+    
+    // Agregar declaraciones de otros métodos
+    declaraciones.forEach(function(d) {
+        var esperado = 0;
+        if (corteData && corteData.pagos_por_metodo) {
+            var metodo = corteData.pagos_por_metodo.find(function(m) { return m.metodo_pago_id === d.metodo_pago_id; });
+            if (metodo) esperado = parseFloat(metodo.total) || 0;
+        }
+        
+        var dif = d.declarado - esperado;
+        var difClass = Math.abs(dif) < 0.01 ? 'diferencia-cero' : (dif > 0 ? 'diferencia-positiva' : 'diferencia-negativa');
+        var difText = Math.abs(dif) < 0.01 ? '✓' : (dif > 0 ? '+' : '') + '$' + dif.toFixed(2);
+        
+        html += '<div class="corte-linea"><span>' + d.tipo + ':</span><span class="declarado">$' + d.declarado.toFixed(2) + ' <small class="' + difClass + '">(' + difText + ')</small></span></div>';
+    });
+    
+    // Diferencia final
+    var difClass = Math.abs(diferencia) < 0.01 ? 'diferencia-cero' : (diferencia > 0 ? 'diferencia-positiva' : 'diferencia-negativa');
+    
+    html += '<div class="corte-linea total"><span>Diferencia:</span><span class="' + difClass + '">' + difMonto + '</span></div>' +
+                '</div>' +
+            '</div>' +
+        '</div>' +
+        
+        '<div class="corte-stats-footer">' +
+            '<span><i class="fas fa-receipt"></i> ' + (corte.cantidad_ventas || 0) + ' ventas</span>' +
+            '<span><i class="fas fa-times-circle"></i> ' + (corte.cantidad_canceladas || 0) + ' canceladas</span>' +
+            '<span><i class="fas fa-clock"></i> ' + new Date().toLocaleString('es-MX') + '</span>' +
+        '</div>' +
+    '</div>';
+    
+    setElementText('corteResumenContent', html, true);
+    
+    // Cambiar color del header según resultado
+    var headerEl = document.getElementById('corteResumenHeader');
+    if (headerEl) {
+        if (headerClass === 'correcto') {
+            headerEl.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+        } else if (headerClass === 'sobrante') {
+            headerEl.style.background = 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)';
+        } else {
+            headerEl.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+        }
+    }
+    
+    var modal = document.getElementById('modalCorteResumen');
+    if (modal) modal.classList.add('active');
+}
+
+function solicitarReconteo() {
+    // Abrir modal de validación admin
+    var claveInput = document.getElementById('claveAdmin');
+    if (claveInput) claveInput.value = '';
+    
+    var modal = document.getElementById('modalValidarAdmin');
+    if (modal) modal.classList.add('active');
+    
+    setTimeout(function() { if (claveInput) claveInput.focus(); }, 100);
 }
 
 function validarClaveAdmin() {
@@ -320,121 +428,23 @@ function validarClaveAdmin() {
     }).then(function(r) {
         if (r.success) {
             cerrarModal('modalValidarAdmin');
-            limpiarContador();
-            mostrarToast('Autorizado por ' + r.admin + '. Puede volver a contar.', 'success');
+            cerrarModal('modalCorteResumen');
+            
+            // Reabrir turno para reconteo
+            API.request('/turnos/reabrir/' + turnoActual.turno_id, 'POST', {
+                autorizado_por: r.admin
+            }).then(function(r2) {
+                if (r2.success) {
+                    mostrarToast('Turno reabierto por ' + r.admin + '. Puede volver a contar.', 'success');
+                    abrirModalCerrarTurno();
+                } else {
+                    mostrarToast('Error al reabrir turno', 'error');
+                }
+            });
         } else {
             mostrarToast('Clave incorrecta', 'error');
         }
     });
-}
-
-// ==================== CONFIRMAR CIERRE ====================
-function confirmarCerrarTurno() {
-    if (!turnoActual || !corteData) return;
-    
-    var totalContado = 0;
-    denominaciones.forEach(function(d) {
-        var inputId = 'cont_' + String(d).replace('.', '');
-        var input = document.getElementById(inputId);
-        if (input) {
-            var cantidad = parseInt(input.value) || 0;
-            totalContado += cantidad * d;
-        }
-    });
-    
-    if (totalContado === 0) {
-        mostrarToast('Debes contar el efectivo en caja', 'error');
-        return;
-    }
-    
-    var esperado = parseFloat(corteData.efectivo_esperado) || 0;
-    var diferencia = totalContado - esperado;
-    var mensaje = '';
-    
-    if (Math.abs(diferencia) < 0.01) {
-        mensaje = '¿Confirmar cierre de turno? La caja está cuadrada.';
-    } else if (diferencia > 0) {
-        mensaje = '¿Confirmar cierre de turno? Hay un sobrante de $' + diferencia.toFixed(2);
-    } else {
-        mensaje = '¿Confirmar cierre de turno? Hay un faltante de $' + Math.abs(diferencia).toFixed(2);
-    }
-    
-    if (!confirm(mensaje)) return;
-    
-    var obsInput = document.getElementById('observacionesCierre');
-    var observaciones = obsInput ? obsInput.value : '';
-    
-    API.request('/turnos/cerrar/' + turnoActual.turno_id, 'POST', {
-        efectivo_declarado: totalContado,
-        observaciones: observaciones,
-        cerrado_por: API.usuario.id
-    }).then(function(r) {
-        if (r.success) {
-            cerrarModal('modalCerrarTurno');
-            mostrarCorteResumen(r.corte);
-        } else {
-            mostrarToast(r.error || 'Error al cerrar turno', 'error');
-        }
-    }).catch(function(e) {
-        mostrarToast('Error de conexión', 'error');
-    });
-}
-
-function mostrarCorteResumen(corte) {
-    var diferencia = corte.diferencia || 0;
-    var headerClass = 'correcto';
-    var icono = 'fa-check-circle';
-    var titulo = '¡Caja Cuadrada!';
-    
-    if (diferencia > 0.01) {
-        headerClass = 'sobrante';
-        icono = 'fa-arrow-circle-up';
-        titulo = 'Sobrante en Caja';
-    } else if (diferencia < -0.01) {
-        headerClass = 'faltante';
-        icono = 'fa-exclamation-circle';
-        titulo = 'Faltante en Caja';
-    }
-    
-    var difText = Math.abs(diferencia) < 0.01 ? '$0.00' : (diferencia > 0 ? '+' : '-') + '$' + Math.abs(diferencia).toFixed(2);
-    
-    var html = '<div class="corte-resumen-final">' +
-        '<div class="corte-resumen-header ' + headerClass + '">' +
-            '<div class="icono"><i class="fas ' + icono + '"></i></div>' +
-            '<h3>' + titulo + '</h3>' +
-            '<div class="diferencia-final">' + difText + '</div>' +
-        '</div>' +
-        '<div class="corte-resumen-body">' +
-            '<div class="corte-resumen-grid">' +
-                '<div class="corte-resumen-seccion">' +
-                    '<h5>Ventas por Método</h5>' +
-                    '<div class="item"><span>Efectivo:</span><strong>$' + (corte.ventas_efectivo || 0).toFixed(2) + '</strong></div>' +
-                    '<div class="item"><span>Tarjeta:</span><strong>$' + (corte.ventas_tarjeta || 0).toFixed(2) + '</strong></div>' +
-                    '<div class="item"><span>Transferencia:</span><strong>$' + (corte.ventas_transferencia || 0).toFixed(2) + '</strong></div>' +
-                    '<div class="item"><span>Crédito:</span><strong>$' + (corte.ventas_credito || 0).toFixed(2) + '</strong></div>' +
-                    '<div class="item total"><span>Total Ventas:</span><strong>$' + (corte.total_ventas || 0).toFixed(2) + '</strong></div>' +
-                '</div>' +
-                '<div class="corte-resumen-seccion">' +
-                    '<h5>Arqueo de Efectivo</h5>' +
-                    '<div class="item"><span>Saldo Inicial:</span><strong>$' + (corte.saldo_inicial || 0).toFixed(2) + '</strong></div>' +
-                    '<div class="item"><span>+ Ventas Efectivo:</span><strong>$' + (corte.ventas_efectivo || 0).toFixed(2) + '</strong></div>' +
-                    '<div class="item" style="color:#10b981"><span>+ Ingresos:</span><strong>$' + (corte.ingresos || 0).toFixed(2) + '</strong></div>' +
-                    '<div class="item" style="color:#ef4444"><span>- Egresos:</span><strong>$' + (corte.egresos || 0).toFixed(2) + '</strong></div>' +
-                    '<div class="item total"><span>Esperado:</span><strong>$' + (corte.efectivo_esperado || 0).toFixed(2) + '</strong></div>' +
-                    '<div class="item total"><span>Declarado:</span><strong>$' + (corte.efectivo_declarado || 0).toFixed(2) + '</strong></div>' +
-                '</div>' +
-            '</div>' +
-        '</div>' +
-        '<div class="corte-resumen-footer">' +
-            '<span><i class="fas fa-receipt"></i> ' + (corte.cantidad_ventas || 0) + ' ventas</span>' +
-            '<span><i class="fas fa-times-circle"></i> ' + (corte.cantidad_canceladas || 0) + ' canceladas</span>' +
-            '<span><i class="fas fa-clock"></i> ' + new Date().toLocaleString('es-MX') + '</span>' +
-        '</div>' +
-    '</div>';
-    
-    setElementText('corteResumenContent', html, true);
-    var modal = document.getElementById('modalCorteResumen');
-    if (modal) modal.classList.add('active');
 }
 
 function imprimirCorte() {
@@ -448,7 +458,6 @@ function cerrarCorteYSalir() {
     actualizarUITurno(false);
     abrirModalAbrirTurno();
 }
-
 // ==================== MOVIMIENTOS DE CAJA ====================
 function abrirModalMovimiento(tipo) {
     if (!turnoActual) {
