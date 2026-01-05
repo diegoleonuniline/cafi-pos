@@ -3107,3 +3107,17 @@ body {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+/* Modal Confirmar */
+#confirmarHeader {
+    background: var(--gradient);
+    color: white;
+    border-bottom: none;
+}
+
+#confirmarMensaje {
+    text-align: center;
+    font-size: 15px;
+    color: #374151;
+    margin: 10px 0 20px;
+    line-height: 1.5;
+}
