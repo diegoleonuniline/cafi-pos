@@ -2574,3 +2574,424 @@ body {
         grid-template-columns: 1fr 1fr;
     }
 }
+/* ========== TURNO BADGE ========== */
+.turno-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.turno-badge.abierto {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+}
+
+.turno-badge.abierto i {
+    animation: pulse 2s infinite;
+}
+
+.turno-badge.cerrado {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* ========== HEADER BUTTONS ========== */
+.header-separator {
+    width: 1px;
+    height: 24px;
+    background: rgba(255,255,255,0.2);
+    margin: 0 8px;
+}
+
+.header-btn.success {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+
+.header-btn.success:hover {
+    background: #10b981;
+    color: white;
+}
+
+.header-btn.danger {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.header-btn.danger:hover {
+    background: #ef4444;
+    color: white;
+}
+
+/* ========== ESPERA BADGE ========== */
+.espera-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #ef4444;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+}
+
+#btnEspera {
+    position: relative;
+}
+
+/* ========== TURNO MODALS ========== */
+.turno-info-box {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    color: #2563eb;
+}
+
+.turno-info-box i {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.turno-info-box p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.input-money-lg {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-money-lg span {
+    position: absolute;
+    left: 16px;
+    font-size: 24px;
+    font-weight: 700;
+    color: #9ca3af;
+}
+
+.input-money-lg input {
+    width: 100%;
+    padding: 16px 16px 16px 40px;
+    font-size: 28px;
+    font-weight: 700;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    text-align: right;
+}
+
+.input-money-lg input:focus {
+    outline: none;
+    border-color: #2D3DBF;
+    box-shadow: 0 0 0 3px rgba(45, 61, 191, 0.1);
+}
+
+/* ========== CORTE STYLES ========== */
+.corte-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.corte-seccion h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.corte-seccion h4 i {
+    color: #2D3DBF;
+}
+
+.corte-detalle-box {
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.corte-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed #e5e7eb;
+    font-size: 14px;
+}
+
+.corte-row:last-child {
+    border-bottom: none;
+}
+
+.corte-row span {
+    color: #6b7280;
+}
+
+.corte-row strong {
+    color: #1f2937;
+}
+
+.corte-row.ingreso strong {
+    color: #10b981;
+}
+
+.corte-row.egreso strong {
+    color: #ef4444;
+}
+
+.corte-row.total {
+    border-top: 2px solid #d1d5db;
+    margin-top: 8px;
+    padding-top: 12px;
+    font-weight: 600;
+}
+
+.corte-row.total strong {
+    color: #2D3DBF;
+    font-size: 18px;
+}
+
+.corte-stats-mini {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.diferencia-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: #f3f4f6;
+    border-radius: 8px;
+    margin: 16px 0;
+}
+
+.diferencia-box span {
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.diferencia-box strong {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.diferencia-box strong.text-success {
+    color: #10b981;
+}
+
+.diferencia-box strong.text-danger {
+    color: #ef4444;
+}
+
+/* ========== CORTE RESUMEN ========== */
+.corte-resumen {
+    text-align: center;
+    padding: 30px;
+}
+
+.corte-resumen .corte-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+
+.corte-resumen .corte-icon i {
+    font-size: 40px;
+    color: white;
+}
+
+.corte-resumen h3 {
+    font-size: 24px;
+    color: #1f2937;
+    margin-bottom: 20px;
+}
+
+.corte-resumen .corte-detalle {
+    text-align: left;
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.corte-resumen .corte-row.positivo strong {
+    color: #10b981;
+}
+
+.corte-resumen .corte-row.negativo strong {
+    color: #ef4444;
+}
+
+.corte-resumen .corte-stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+/* ========== ESPERA LIST ========== */
+.espera-empty {
+    text-align: center;
+    padding: 40px;
+    color: #9ca3af;
+}
+
+.espera-empty i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.espera-empty h4 {
+    margin: 0 0 8px;
+    color: #6b7280;
+}
+
+.espera-item {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.espera-item:hover {
+    border-color: #2D3DBF;
+}
+
+.espera-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.espera-item-cliente {
+    font-weight: 600;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.espera-item-cliente i {
+    color: #6b7280;
+}
+
+.espera-item-total {
+    font-size: 20px;
+    font-weight: 700;
+    color: #2D3DBF;
+}
+
+.espera-item-meta {
+    display: flex;
+    gap: 16px;
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 12px;
+}
+
+.espera-item-meta i {
+    margin-right: 4px;
+}
+
+.espera-item-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-recuperar {
+    flex: 1;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #2D3DBF 0%, #6C2BD9 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.btn-recuperar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(45, 61, 191, 0.3);
+}
+
+.btn-eliminar-espera {
+    padding: 10px 14px;
+    background: #fee2e2;
+    color: #dc2626;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-eliminar-espera:hover {
+    background: #dc2626;
+    color: white;
+}
+
+.badge-contado {
+    background: #d1fae5;
+    color: #059669;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.badge-credito {
+    background: #fef3c7;
+    color: #d97706;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .corte-grid {
+        grid-template-columns: 1fr;
+    }
+}
