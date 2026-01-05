@@ -9,7 +9,6 @@
 </head>
 <body>
     <div class="admin-layout">
-        <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <svg viewBox="0 0 500 500" width="40" height="40">
@@ -30,6 +29,7 @@
                 <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i><span>Clientes</span></a>
                 <a href="ventas.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Ventas</span></a>
                 <a href="reportes.html" class="nav-item"><i class="fas fa-file-alt"></i><span>Reportes</span></a>
+                <a href="configuracion.html" class="nav-item"><i class="fas fa-cog"></i><span>Configuración</span></a>
             </nav>
             <div class="sidebar-footer">
                 <div class="user-mini">
@@ -43,7 +43,6 @@
             </div>
         </aside>
 
-        <!-- MAIN -->
         <main class="admin-main">
             <header class="admin-header">
                 <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
@@ -53,7 +52,6 @@
             </header>
 
             <div class="admin-content">
-                <!-- STATS -->
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon blue"><i class="fas fa-shopping-cart"></i></div>
@@ -85,7 +83,6 @@
                     </div>
                 </div>
 
-                <!-- QUICK ACTIONS -->
                 <div class="section-card">
                     <h3><i class="fas fa-bolt"></i> Acciones Rápidas</h3>
                     <div class="quick-actions">
@@ -96,7 +93,6 @@
                     </div>
                 </div>
 
-                <!-- RECENT SALES -->
                 <div class="section-card">
                     <h3><i class="fas fa-clock"></i> Últimas Ventas</h3>
                     <table class="data-table">
@@ -170,7 +166,7 @@
                     '<td><strong>#' + (v.folio || v.venta_id) + '</strong></td>' +
                     '<td>' + (v.cliente_nombre || 'Público General') + '</td>' +
                     '<td class="text-primary">$' + parseFloat(v.total || 0).toFixed(2) + '</td>' +
-                    '<td>' + new Date(v.fecha || v.created_at).toLocaleString('es-MX') + '</td>' +
+                    '<td>' + new Date(v.fecha_hora || v.created_at).toLocaleString('es-MX') + '</td>' +
                     '<td><span class="badge badge-success">Completada</span></td>' +
                 '</tr>';
             });
