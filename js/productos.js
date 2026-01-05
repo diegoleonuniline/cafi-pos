@@ -2,11 +2,13 @@ if (!API.isLoggedIn()) window.location.href = '../index.html';
 
 var datos = [];
 var categorias = [];
+var impuestosEmpresa = [];
 var preciosBase = { precio1: 0, precio2: 0, precio3: 0, precio4: 0 };
 
 document.addEventListener('DOMContentLoaded', async function() {
     cargarUsuario();
     await cargarCategorias();
+    await cargarImpuestos();
     await cargarDatos();
     setupTabs();
     setupEventos();
@@ -42,6 +44,36 @@ async function cargarCategorias() {
     }
 }
 
+async function cargarImpuestos() {
+    try {
+        var r = await API.request('/impuestos/' + API.usuario.empresa_id);
+        if (r.success) {
+            impuestosEmpresa = r.impuestos || r.data || [];
+            renderImpuestosForm();
+        }
+    } catch (e) { 
+        console.error('Error cargando impuestos:', e); 
+    }
+}
+
+function renderImpuestosForm() {
+    var container = document.getElementById('impuestosContainer');
+    if (!container || impuestosEmpresa.length === 0) return;
+    
+    var html = '<div class="impuestos-grid">';
+    impuestosEmpresa.forEach(function(imp) {
+        html += '<label class="checkbox-card">' +
+            '<input type="checkbox" name="impuestos" value="' + imp.impuesto_id + '" data-valor="' + imp.valor + '" onchange="recalcularImpuestos()">' +
+            '<div class="card-content">' +
+                '<span class="imp-nombre">' + imp.nombre + '</span>' +
+                '<span class="imp-valor">' + imp.valor + '%</span>' +
+            '</div>' +
+        '</label>';
+    });
+    html += '</div>';
+    container.innerHTML = html;
+}
+
 async function cargarDatos() {
     try {
         var r = await API.request('/productos/' + API.usuario.empresa_id);
@@ -67,22 +99,6 @@ function setupTabs() {
 }
 
 function setupEventos() {
-    // Eventos de IVA - recalcular precios cuando cambie
-    document.querySelectorAll('input[name="iva"]').forEach(function(radio) {
-        radio.addEventListener('change', function() {
-            document.querySelectorAll('.radio-card').forEach(function(c) { c.classList.remove('active'); });
-            radio.closest('.radio-card').classList.add('active');
-            recalcularPreciosConImpuestos();
-        });
-    });
-
-    // Evento IEPS - recalcular precios cuando cambie
-    var iepsInput = document.getElementById('ieps');
-    if (iepsInput) {
-        iepsInput.addEventListener('input', recalcularPreciosConImpuestos);
-    }
-    
-    // Evento toggle incluye impuesto - convertir precios
     var precioImp = document.getElementById('precio_incluye_impuesto');
     if (precioImp) {
         precioImp.addEventListener('change', function() {
@@ -90,7 +106,6 @@ function setupEventos() {
         });
     }
 
-    // Eventos de precios - guardar como precio base
     ['precio1', 'precio2', 'precio3', 'precio4'].forEach(function(id) {
         var input = document.getElementById(id);
         if (input) {
@@ -106,12 +121,11 @@ function setupEventos() {
                 }
                 
                 calcularMargen(parseInt(num));
-                calcularImpuestos();
+                calcularImpuestosResumen();
             });
         }
     });
 
-    // Imagen preview
     var imgInput = document.getElementById('imagen_url');
     if (imgInput) {
         imgInput.addEventListener('input', function(e) {
@@ -124,7 +138,6 @@ function setupEventos() {
         });
     }
 
-    // Color POS
     var colorPos = document.getElementById('color_pos');
     if (colorPos) {
         colorPos.addEventListener('input', function(e) {
@@ -132,7 +145,6 @@ function setupEventos() {
         });
     }
 
-    // Caducidad toggle
     var caducidad = document.getElementById('maneja_caducidad');
     if (caducidad) {
         caducidad.addEventListener('change', function(e) {
@@ -144,40 +156,22 @@ function setupEventos() {
 // ==================== FUNCIONES DE IMPUESTOS ====================
 
 function getFactorImpuestos() {
-    var ivaRadio = document.querySelector('input[name="iva"]:checked');
-    var iva = ivaRadio ? parseFloat(ivaRadio.value) : 16;
-    var ieps = parseFloat(document.getElementById('ieps').value) || 0;
-    return 1 + (iva / 100) + (ieps / 100);
-}
-
-function convertirPrecios(incluyeImpuesto) {
-    var factor = getFactorImpuestos();
-    
-    ['precio1', 'precio2', 'precio3', 'precio4'].forEach(function(id) {
-        var input = document.getElementById(id);
-        var valorActual = parseFloat(input.value) || 0;
-        
-        if (valorActual > 0) {
-            if (incluyeImpuesto) {
-                // Estaba sin impuestos, ahora incluye -> multiplicar
-                preciosBase[id] = valorActual;
-                input.value = (valorActual * factor).toFixed(2);
-            } else {
-                // Estaba con impuestos, ahora sin -> dividir
-                preciosBase[id] = valorActual / factor;
-                input.value = preciosBase[id].toFixed(2);
-            }
-        }
+    var total = 0;
+    document.querySelectorAll('input[name="impuestos"]:checked').forEach(function(cb) {
+        total += parseFloat(cb.dataset.valor) || 0;
     });
-    
-    calcularMargen(1);
-    calcularMargen(2);
-    calcularMargen(3);
-    calcularMargen(4);
-    calcularImpuestos();
+    return 1 + (total / 100);
 }
 
-function recalcularPreciosConImpuestos() {
+function getTasaImpuestos() {
+    var total = 0;
+    document.querySelectorAll('input[name="impuestos"]:checked').forEach(function(cb) {
+        total += parseFloat(cb.dataset.valor) || 0;
+    });
+    return total;
+}
+
+function recalcularImpuestos() {
     var factor = getFactorImpuestos();
     var incluyeImpuesto = document.getElementById('precio_incluye_impuesto').checked;
     
@@ -198,7 +192,32 @@ function recalcularPreciosConImpuestos() {
     calcularMargen(2);
     calcularMargen(3);
     calcularMargen(4);
-    calcularImpuestos();
+    calcularImpuestosResumen();
+}
+
+function convertirPrecios(incluyeImpuesto) {
+    var factor = getFactorImpuestos();
+    
+    ['precio1', 'precio2', 'precio3', 'precio4'].forEach(function(id) {
+        var input = document.getElementById(id);
+        var valorActual = parseFloat(input.value) || 0;
+        
+        if (valorActual > 0) {
+            if (incluyeImpuesto) {
+                preciosBase[id] = valorActual;
+                input.value = (valorActual * factor).toFixed(2);
+            } else {
+                preciosBase[id] = valorActual / factor;
+                input.value = preciosBase[id].toFixed(2);
+            }
+        }
+    });
+    
+    calcularMargen(1);
+    calcularMargen(2);
+    calcularMargen(3);
+    calcularMargen(4);
+    calcularImpuestosResumen();
 }
 
 function calcularMargen(num) {
@@ -206,7 +225,6 @@ function calcularMargen(num) {
     var precioInput = parseFloat(document.getElementById('precio' + num).value) || 0;
     var badge = document.getElementById('margen' + num);
     
-    // Margen sobre precio base (sin impuestos)
     var precioBase = preciosBase['precio' + num] || precioInput;
     if (document.getElementById('precio_incluye_impuesto').checked && precioInput > 0) {
         precioBase = precioInput / getFactorImpuestos();
@@ -222,33 +240,27 @@ function calcularMargen(num) {
     }
 }
 
-function calcularImpuestos() {
+function calcularImpuestosResumen() {
     var precio1 = parseFloat(document.getElementById('precio1').value) || 0;
-    var ivaRadio = document.querySelector('input[name="iva"]:checked');
-    var iva = ivaRadio ? parseFloat(ivaRadio.value) : 16;
-    var ieps = parseFloat(document.getElementById('ieps').value) || 0;
+    var tasa = getTasaImpuestos();
     var incluyeImp = document.getElementById('precio_incluye_impuesto').checked;
 
-    var precioBase, ivaAmt, iepsAmt, total;
+    var precioBase, impAmt, total;
 
     if (incluyeImp) {
-        var factorImp = 1 + (iva / 100) + (ieps / 100);
+        var factorImp = 1 + (tasa / 100);
         precioBase = precio1 / factorImp;
-        ivaAmt = precioBase * (iva / 100);
-        iepsAmt = precioBase * (ieps / 100);
+        impAmt = precioBase * (tasa / 100);
         total = precio1;
     } else {
         precioBase = precio1;
-        ivaAmt = precioBase * (iva / 100);
-        iepsAmt = precioBase * (ieps / 100);
-        total = precioBase + ivaAmt + iepsAmt;
+        impAmt = precioBase * (tasa / 100);
+        total = precioBase + impAmt;
     }
 
-    document.getElementById('ivaPercent').textContent = iva;
-    document.getElementById('iepsPercent').textContent = ieps;
+    document.getElementById('tasaTotal').textContent = tasa.toFixed(2);
     document.getElementById('precioSinImp').textContent = '$' + precioBase.toFixed(2);
-    document.getElementById('ivaAmount').textContent = '$' + ivaAmt.toFixed(2);
-    document.getElementById('iepsAmount').textContent = '$' + iepsAmt.toFixed(2);
+    document.getElementById('impAmount').textContent = '$' + impAmt.toFixed(2);
     document.getElementById('precioFinal').textContent = '$' + total.toFixed(2);
 }
 
@@ -282,15 +294,9 @@ function renderTabla(items) {
 
     var html = '';
     items.forEach(function(p) {
-        var iva = parseFloat(p.iva || 16);
-        var ieps = parseFloat(p.ieps || 0);
-        var precio = parseFloat(p.precio1 || 0);
-        var precioFinal = precio;
-        
-        // Si precio NO incluye impuestos, calcular precio final
-        if (p.precio_incluye_impuesto !== 'Y') {
-            precioFinal = precio * (1 + (iva/100) + (ieps/100));
-        }
+        var tasa = parseFloat(p.tasa_impuesto) || 0;
+        var precio = parseFloat(p.precio1) || 0;
+        var precioFinal = p.precio_venta || precio;
         
         html += '<tr>' +
             '<td>' + (p.codigo_barras || p.codigo_interno || '-') + '</td>' +
@@ -301,7 +307,7 @@ function renderTabla(items) {
             '<td class="text-center">' + parseFloat(p.factor_conversion || 1) + '</td>' +
             '<td class="text-right">$' + parseFloat(p.costo || 0).toFixed(2) + '</td>' +
             '<td class="text-right">$' + precioFinal.toFixed(2) + '</td>' +
-            '<td class="text-center">' + iva + '%</td>' +
+            '<td class="text-center">' + tasa + '%</td>' +
             '<td class="text-center">' +
                 '<span class="badge-status ' + (p.activo === 'Y' ? 'active' : 'inactive') + '">' +
                     (p.activo === 'Y' ? 'Activo' : 'Inactivo') +
@@ -331,29 +337,25 @@ function verDetalle(id) {
     var p = datos.find(function(d) { return d.producto_id === id; });
     if (!p) return;
     
-    var iva = parseFloat(p.iva || 16);
-    var ieps = parseFloat(p.ieps || 0);
-    var precio = parseFloat(p.precio1 || 0);
-    var precioBase, ivaAmt, iepsAmt, precioFinal;
+    var tasa = parseFloat(p.tasa_impuesto) || 0;
+    var precio = parseFloat(p.precio1) || 0;
+    var precioBase, impAmt, precioFinal;
     
     if (p.precio_incluye_impuesto === 'Y') {
-        var factor = 1 + (iva/100) + (ieps/100);
+        var factor = 1 + (tasa/100);
         precioBase = precio / factor;
-        ivaAmt = precioBase * (iva/100);
-        iepsAmt = precioBase * (ieps/100);
+        impAmt = precioBase * (tasa/100);
         precioFinal = precio;
     } else {
         precioBase = precio;
-        ivaAmt = precioBase * (iva/100);
-        iepsAmt = precioBase * (ieps/100);
-        precioFinal = precioBase + ivaAmt + iepsAmt;
+        impAmt = precioBase * (tasa/100);
+        precioFinal = precioBase + impAmt;
     }
     
-    // Calcular precios finales para todos los precios
     var precios = [1,2,3,4].map(function(n) {
         var pr = parseFloat(p['precio' + n] || 0);
         if (p.precio_incluye_impuesto === 'Y') return pr;
-        return pr * (1 + (iva/100) + (ieps/100));
+        return pr * (1 + (tasa/100));
     });
     
     var html = '<div class="detalle-producto">' +
@@ -392,16 +394,15 @@ function verDetalle(id) {
             
             '<div class="detalle-section">' +
                 '<h4><i class="fas fa-percentage"></i> Impuestos</h4>' +
-                '<div class="info-row"><span>IVA:</span><strong>' + iva + '%</strong></div>' +
-                '<div class="info-row"><span>IEPS:</span><strong>' + ieps + '%</strong></div>' +
+                '<div class="info-row"><span>Tasa Total:</span><strong>' + tasa + '%</strong></div>' +
+                '<div class="info-row"><span>Detalle:</span><strong>' + (p.impuestos_detalle || 'Sin impuestos') + '</strong></div>' +
                 '<div class="info-row"><span>Incluye imp:</span><strong>' + (p.precio_incluye_impuesto === 'Y' ? 'Sí' : 'No') + '</strong></div>' +
             '</div>' +
         '</div>' +
         
         '<div class="detalle-precio-final">' +
             '<div class="precio-row"><span>Precio base (sin imp.):</span><span>$' + precioBase.toFixed(2) + '</span></div>' +
-            '<div class="precio-row"><span>IVA (' + iva + '%):</span><span>$' + ivaAmt.toFixed(2) + '</span></div>' +
-            (ieps > 0 ? '<div class="precio-row"><span>IEPS (' + ieps + '%):</span><span>$' + iepsAmt.toFixed(2) + '</span></div>' : '') +
+            '<div class="precio-row"><span>Impuestos (' + tasa + '%):</span><span>$' + impAmt.toFixed(2) + '</span></div>' +
             '<div class="precio-row total"><span>PRECIO VENTA:</span><span>$' + precioFinal.toFixed(2) + '</span></div>' +
         '</div>' +
         
@@ -447,15 +448,13 @@ function calcularCostoUnitario() {
 
 // ==================== MODAL FORMULARIO ====================
 
-function abrirModal(item) {
+async function abrirModal(item) {
     document.getElementById('modalTitulo').textContent = item ? 'Editar Producto' : 'Nuevo Producto';
     document.getElementById('formProducto').reset();
     document.getElementById('editId').value = '';
     
-    // Reset preciosBase
     preciosBase = { precio1: 0, precio2: 0, precio3: 0, precio4: 0 };
 
-    // Reset tabs
     document.querySelectorAll('.tab-btn').forEach(function(b, i) { b.classList.toggle('active', i === 0); });
     document.querySelectorAll('.tab-content').forEach(function(c, i) { c.classList.toggle('active', i === 0); });
 
@@ -468,13 +467,11 @@ function abrirModal(item) {
     document.getElementById('mostrar_pos').checked = true;
     document.getElementById('permite_descuento').checked = true;
     document.getElementById('precio_incluye_impuesto').checked = true;
-    document.getElementById('ieps').value = 0;
     
-    // IVA default 16%
-    var iva16 = document.querySelector('input[name="iva"][value="16"]');
-    if (iva16) iva16.checked = true;
-    document.querySelectorAll('.radio-card').forEach(function(c) { c.classList.remove('active'); });
-    if (iva16) iva16.closest('.radio-card').classList.add('active');
+    // Desmarcar todos los impuestos
+    document.querySelectorAll('input[name="impuestos"]').forEach(function(cb) {
+        cb.checked = false;
+    });
 
     if (item) {
         document.getElementById('editId').value = item.producto_id;
@@ -505,25 +502,24 @@ function abrirModal(item) {
         document.getElementById('precio_minimo').value = item.precio_minimo || '';
         document.getElementById('ultimo_costo').value = item.ultimo_costo || '';
         document.getElementById('costo_promedio').value = item.costo_promedio || '';
-
-        // IVA
-        var ivaVal = '16';
-        if (item.impuesto_id === 'IVA0' || item.iva == 0) ivaVal = '0';
-        else if (item.impuesto_id === 'IVA8' || item.iva == 8) ivaVal = '8';
-        var ivaRadio = document.querySelector('input[name="iva"][value="' + ivaVal + '"]');
-        if (ivaRadio) {
-            ivaRadio.checked = true;
-            document.querySelectorAll('.radio-card').forEach(function(c) { c.classList.remove('active'); });
-            ivaRadio.closest('.radio-card').classList.add('active');
-        }
-        
-        document.getElementById('ieps').value = item.ieps || 0;
         document.getElementById('precio_incluye_impuesto').checked = item.precio_incluye_impuesto === 'Y';
 
+        // Cargar impuestos del producto
+        try {
+            var r = await API.request('/productos/' + item.producto_id + '/impuestos');
+            if (r.success && r.impuestos) {
+                r.impuestos.forEach(function(imp) {
+                    var cb = document.querySelector('input[name="impuestos"][value="' + imp.impuesto_id + '"]');
+                    if (cb) cb.checked = true;
+                });
+            }
+        } catch (e) {
+            console.error('Error cargando impuestos del producto:', e);
+        }
+
         // Guardar precios base
-        var iva = parseFloat(ivaVal);
-        var ieps = parseFloat(item.ieps || 0);
-        var factor = 1 + (iva/100) + (ieps/100);
+        var tasa = getTasaImpuestos();
+        var factor = 1 + (tasa/100);
         
         ['precio1', 'precio2', 'precio3', 'precio4'].forEach(function(id) {
             var precio = parseFloat(item[id] || 0);
@@ -561,7 +557,7 @@ function abrirModal(item) {
         calcularMargen(2);
         calcularMargen(3);
         calcularMargen(4);
-        calcularImpuestos();
+        calcularImpuestosResumen();
 
         if (item.imagen_url) {
             document.getElementById('imgPreview').innerHTML = '<img src="' + item.imagen_url + '" onerror="this.parentElement.innerHTML=\'<i class=\\\'fas fa-image\\\'></i>\'">';
@@ -585,6 +581,12 @@ function editar(id) {
 async function guardar(e) {
     e.preventDefault();
     var id = document.getElementById('editId').value;
+
+    // Obtener impuestos seleccionados
+    var impuestosSeleccionados = [];
+    document.querySelectorAll('input[name="impuestos"]:checked').forEach(function(cb) {
+        impuestosSeleccionados.push(cb.value);
+    });
 
     var data = {
         empresa_id: API.usuario.empresa_id,
@@ -612,6 +614,7 @@ async function guardar(e) {
         precio4: parseFloat(document.getElementById('precio4').value) || 0,
         precio_minimo: parseFloat(document.getElementById('precio_minimo').value) || 0,
         precio_incluye_impuesto: document.getElementById('precio_incluye_impuesto').checked ? 'Y' : 'N',
+        impuestos: impuestosSeleccionados,
         stock_minimo: parseFloat(document.getElementById('stock_minimo').value) || 0,
         stock_maximo: parseFloat(document.getElementById('stock_maximo').value) || 0,
         punto_reorden: parseFloat(document.getElementById('punto_reorden').value) || 0,
@@ -667,13 +670,9 @@ async function eliminar(id) {
     }
 }
 
-// ==================== EXPORTAR ====================
-
 function exportarExcel() {
     mostrarToast('Función próximamente disponible');
 }
-
-// ==================== TOAST ====================
 
 function mostrarToast(msg, tipo) {
     tipo = tipo || 'success';
