@@ -1435,3 +1435,92 @@
     border-color: #2D3DBF;
     box-shadow: 0 0 0 3px rgba(45,61,191,0.1);
 }
+/* ========== IMPUESTOS EDITABLES ========== */
+.impuestos-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.impuesto-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    transition: all 0.2s;
+}
+
+.impuesto-row.active {
+    background: #f0f9ff;
+    border-color: #2D3DBF;
+}
+
+.impuesto-check {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    flex: 1;
+}
+
+.impuesto-check input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #2D3DBF;
+}
+
+.imp-nombre {
+    font-weight: 600;
+    color: #1f2937;
+    font-size: 14px;
+}
+
+.impuesto-config {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.imp-tipo {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    background: white;
+    cursor: pointer;
+    width: 65px;
+}
+
+.imp-tipo:disabled {
+    background: #f1f5f9;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.imp-valor {
+    width: 100px;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: right;
+}
+
+.imp-valor:disabled {
+    background: #f1f5f9;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.imp-valor:focus,
+.imp-tipo:focus {
+    outline: none;
+    border-color: #2D3DBF;
+    box-shadow: 0 0 0 3px rgba(45,61,191,0.1);
+}
