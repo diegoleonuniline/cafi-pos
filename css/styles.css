@@ -3272,3 +3272,15 @@ body {
     background: var(--gray-50);
     border-top: 1px solid var(--gray-200);
 }
+/* Z-index para modales */
+.modal-overlay {
+    z-index: 1000;
+}
+
+#modalConfirmar {
+    z-index: 1100;
+}
+
+#modalValidarAdmin {
+    z-index: 1100;
+}
