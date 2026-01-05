@@ -10,14 +10,16 @@ var clienteSeleccionado = null;
 var tipoVenta = 'CONTADO';
 var tipoPrecio = 1;
 var descuentoGlobal = 0;
+var turnoActual = null;
+var ventasEnEspera = JSON.parse(localStorage.getItem('ventasEnEspera') || '[]');
 var UNIDADES_GRANEL = ['KG', 'GR', 'LT', 'ML', 'MT'];
 
 document.addEventListener('DOMContentLoaded', function() {
     cargarUsuario();
-    cargarDatos();
+    verificarTurno();
     setupEventos();
     setupKeyboard();
-    focusBuscar();
+    actualizarBadgeEspera();
 });
 
 function cargarUsuario() {
@@ -28,6 +30,407 @@ function cargarUsuario() {
     document.getElementById('userAvatar').textContent = iniciales.toUpperCase();
 }
 
+// ========== TURNOS ==========
+function verificarTurno() {
+    API.request('/turnos/activo/' + API.usuario.sucursal_id + '/' + API.usuario.id)
+        .then(function(r) {
+            if (r.success && r.activo) {
+                turnoActual = r.turno;
+                actualizarUITurno(true);
+                cargarDatos();
+            } else {
+                turnoActual = null;
+                actualizarUITurno(false);
+                abrirModalAbrirTurno();
+            }
+        })
+        .catch(function(e) {
+            console.error('Error verificando turno:', e);
+            mostrarToast('Error verificando turno', 'error');
+        });
+}
+
+function actualizarUITurno(abierto) {
+    var badge = document.getElementById('turnoBadge');
+    var btnCerrar = document.getElementById('btnCerrarTurno');
+    
+    if (abierto) {
+        badge.innerHTML = '<i class="fas fa-circle"></i><span>Turno Abierto</span>';
+        badge.className = 'turno-badge abierto';
+        if (btnCerrar) btnCerrar.style.display = 'flex';
+        habilitarPOS(true);
+    } else {
+        badge.innerHTML = '<i class="fas fa-circle"></i><span>Sin Turno</span>';
+        badge.className = 'turno-badge cerrado';
+        if (btnCerrar) btnCerrar.style.display = 'none';
+        habilitarPOS(false);
+    }
+}
+
+function habilitarPOS(habilitar) {
+    var elementos = document.querySelectorAll('.pos-main input, .pos-main button:not(.btn-turno), .cliente-selector');
+    elementos.forEach(function(el) {
+        if (habilitar) {
+            el.removeAttribute('disabled');
+            el.style.pointerEvents = '';
+            el.style.opacity = '';
+        } else {
+            el.setAttribute('disabled', 'disabled');
+            el.style.pointerEvents = 'none';
+            el.style.opacity = '0.5';
+        }
+    });
+    
+    var cartEmpty = document.getElementById('cartEmpty');
+    if (!habilitar) {
+        cartEmpty.innerHTML = '<i class="fas fa-lock"></i><h3>Turno Cerrado</h3><p>Abre un turno para comenzar a vender</p>';
+    } else {
+        cartEmpty.innerHTML = '<i class="fas fa-shopping-cart"></i><h3>Carrito vacío</h3><p>Escanea un producto o presiona F2 para buscar</p>';
+    }
+}
+
+function abrirModalAbrirTurno() {
+    document.getElementById('saldoInicial').value = '';
+    document.getElementById('modalAbrirTurno').classList.add('active');
+    setTimeout(function() { document.getElementById('saldoInicial').focus(); }, 100);
+}
+
+function confirmarAbrirTurno() {
+    var saldo = parseFloat(document.getElementById('saldoInicial').value) || 0;
+    
+    API.request('/turnos/abrir', 'POST', {
+        empresa_id: API.usuario.empresa_id,
+        sucursal_id: API.usuario.sucursal_id,
+        caja_id: API.usuario.caja_id || null,
+        usuario_id: API.usuario.id,
+        saldo_inicial: saldo
+    }).then(function(r) {
+        if (r.success) {
+            cerrarModal('modalAbrirTurno');
+            mostrarToast('Turno abierto correctamente', 'success');
+            verificarTurno();
+        } else {
+            mostrarToast(r.error || 'Error al abrir turno', 'error');
+        }
+    }).catch(function(e) {
+        mostrarToast('Error de conexión', 'error');
+    });
+}
+
+function abrirModalCerrarTurno() {
+    if (!turnoActual) return;
+    
+    API.request('/turnos/resumen/' + turnoActual.turno_id)
+        .then(function(r) {
+            if (r.success) {
+                var t = r.turno;
+                var saldoInicial = parseFloat(t.saldo_inicial) || 0;
+                var totalVentas = parseFloat(r.ventas.total_ventas) || 0;
+                var ingresos = r.ingresos || 0;
+                var egresos = r.egresos || 0;
+                var esperado = saldoInicial + totalVentas + ingresos - egresos;
+                
+                document.getElementById('corteSaldoInicial').textContent = '$' + saldoInicial.toFixed(2);
+                document.getElementById('corteVentas').textContent = '$' + totalVentas.toFixed(2);
+                document.getElementById('corteIngresos').textContent = '$' + ingresos.toFixed(2);
+                document.getElementById('corteEgresos').textContent = '$' + egresos.toFixed(2);
+                document.getElementById('corteEsperado').textContent = '$' + esperado.toFixed(2);
+                document.getElementById('corteNumVentas').textContent = r.ventas.cantidad_ventas || 0;
+                document.getElementById('efectivoDeclarado').value = '';
+                document.getElementById('corteDiferencia').textContent = '$0.00';
+                document.getElementById('corteDiferencia').className = '';
+                document.getElementById('observacionesCierre').value = '';
+                
+                document.getElementById('modalCerrarTurno').classList.add('active');
+                setTimeout(function() { document.getElementById('efectivoDeclarado').focus(); }, 100);
+            }
+        });
+}
+
+function calcularDiferenciaCierre() {
+    var esperadoText = document.getElementById('corteEsperado').textContent;
+    var esperado = parseFloat(esperadoText.replace('$', '').replace(',', '')) || 0;
+    var declarado = parseFloat(document.getElementById('efectivoDeclarado').value) || 0;
+    var diferencia = declarado - esperado;
+    
+    var elem = document.getElementById('corteDiferencia');
+    elem.textContent = (diferencia >= 0 ? '+' : '') + '$' + diferencia.toFixed(2);
+    elem.className = diferencia >= 0 ? 'text-success' : 'text-danger';
+}
+
+function confirmarCerrarTurno() {
+    if (!turnoActual) return;
+    
+    var efectivoDeclarado = parseFloat(document.getElementById('efectivoDeclarado').value);
+    if (isNaN(efectivoDeclarado)) {
+        mostrarToast('Ingresa el efectivo en caja', 'error');
+        return;
+    }
+    
+    var observaciones = document.getElementById('observacionesCierre').value;
+    
+    API.request('/turnos/cerrar/' + turnoActual.turno_id, 'POST', {
+        efectivo_declarado: efectivoDeclarado,
+        observaciones: observaciones,
+        cerrado_por: API.usuario.id
+    }).then(function(r) {
+        if (r.success) {
+            cerrarModal('modalCerrarTurno');
+            mostrarCorteResumen(r.corte);
+        } else {
+            mostrarToast(r.error || 'Error al cerrar turno', 'error');
+        }
+    }).catch(function(e) {
+        mostrarToast('Error de conexión', 'error');
+    });
+}
+
+function mostrarCorteResumen(corte) {
+    var difClass = corte.diferencia >= 0 ? 'positivo' : 'negativo';
+    var difSign = corte.diferencia >= 0 ? '+' : '';
+    
+    var html = '<div class="corte-resumen">' +
+        '<div class="corte-icon"><i class="fas fa-check-circle"></i></div>' +
+        '<h3>Turno Cerrado Exitosamente</h3>' +
+        '<div class="corte-detalle">' +
+            '<div class="corte-row"><span>Saldo Inicial:</span><strong>$' + corte.saldo_inicial.toFixed(2) + '</strong></div>' +
+            '<div class="corte-row"><span>Ventas Efectivo:</span><strong>$' + corte.ventas_efectivo.toFixed(2) + '</strong></div>' +
+            '<div class="corte-row"><span>Ventas Tarjeta:</span><strong>$' + corte.ventas_tarjeta.toFixed(2) + '</strong></div>' +
+            '<div class="corte-row"><span>Ventas Transferencia:</span><strong>$' + corte.ventas_transferencia.toFixed(2) + '</strong></div>' +
+            '<div class="corte-row"><span>Ventas Crédito:</span><strong>$' + corte.ventas_credito.toFixed(2) + '</strong></div>' +
+            '<div class="corte-row ingreso"><span>Ingresos:</span><strong>+$' + corte.ingresos.toFixed(2) + '</strong></div>' +
+            '<div class="corte-row egreso"><span>Egresos:</span><strong>-$' + corte.egresos.toFixed(2) + '</strong></div>' +
+            '<div class="corte-row total"><span>Efectivo Esperado:</span><strong>$' + corte.efectivo_esperado.toFixed(2) + '</strong></div>' +
+            '<div class="corte-row total"><span>Efectivo Declarado:</span><strong>$' + corte.efectivo_declarado.toFixed(2) + '</strong></div>' +
+            '<div class="corte-row ' + difClass + '"><span>Diferencia:</span><strong>' + difSign + '$' + Math.abs(corte.diferencia).toFixed(2) + '</strong></div>' +
+        '</div>' +
+        '<div class="corte-stats">' +
+            '<span><i class="fas fa-receipt"></i> ' + corte.cantidad_ventas + ' ventas</span>' +
+            '<span><i class="fas fa-times-circle"></i> ' + corte.cantidad_canceladas + ' canceladas</span>' +
+        '</div>' +
+    '</div>';
+    
+    document.getElementById('corteResumenContent').innerHTML = html;
+    document.getElementById('modalCorteResumen').classList.add('active');
+}
+
+function cerrarCorteYSalir() {
+    cerrarModal('modalCorteResumen');
+    turnoActual = null;
+    actualizarUITurno(false);
+    abrirModalAbrirTurno();
+}
+
+function imprimirCorte() {
+    mostrarToast('Imprimiendo corte...');
+}
+
+// ========== MOVIMIENTOS DE CAJA ==========
+function abrirModalMovimiento(tipo) {
+    if (!turnoActual) {
+        mostrarToast('No hay turno abierto', 'error');
+        return;
+    }
+    
+    document.getElementById('movimientoTipo').value = tipo;
+    document.getElementById('movimientoTitulo').textContent = tipo === 'INGRESO' ? 'Ingreso de Efectivo' : 'Retiro de Efectivo';
+    document.getElementById('movimientoIcono').className = 'fas fa-' + (tipo === 'INGRESO' ? 'arrow-down' : 'arrow-up');
+    document.getElementById('movimientoMonto').value = '';
+    document.getElementById('movimientoConcepto').value = '';
+    document.getElementById('movimientoReferencia').value = '';
+    
+    var header = document.querySelector('#modalMovimiento .modal-header');
+    header.style.background = tipo === 'INGRESO' ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+    
+    document.getElementById('modalMovimiento').classList.add('active');
+    setTimeout(function() { document.getElementById('movimientoMonto').focus(); }, 100);
+}
+
+function confirmarMovimiento() {
+    var tipo = document.getElementById('movimientoTipo').value;
+    var monto = parseFloat(document.getElementById('movimientoMonto').value);
+    var concepto = document.getElementById('movimientoConcepto').value.trim();
+    var referencia = document.getElementById('movimientoReferencia').value.trim();
+    
+    if (!monto || monto <= 0) {
+        mostrarToast('Ingresa un monto válido', 'error');
+        return;
+    }
+    if (!concepto) {
+        mostrarToast('Ingresa un concepto', 'error');
+        return;
+    }
+    
+    API.request('/movimientos-caja', 'POST', {
+        turno_id: turnoActual.turno_id,
+        empresa_id: API.usuario.empresa_id,
+        sucursal_id: API.usuario.sucursal_id,
+        usuario_id: API.usuario.id,
+        tipo: tipo,
+        monto: monto,
+        concepto: concepto,
+        referencia: referencia
+    }).then(function(r) {
+        if (r.success) {
+            cerrarModal('modalMovimiento');
+            mostrarToast((tipo === 'INGRESO' ? 'Ingreso' : 'Retiro') + ' de $' + monto.toFixed(2) + ' registrado', 'success');
+        } else {
+            mostrarToast(r.error || 'Error al registrar movimiento', 'error');
+        }
+    });
+}
+
+// ========== VENTAS EN ESPERA ==========
+function actualizarBadgeEspera() {
+    var btn = document.getElementById('btnEspera');
+    if (!btn) return;
+    
+    var badge = btn.querySelector('.espera-badge');
+    if (ventasEnEspera.length > 0) {
+        if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'espera-badge';
+            btn.appendChild(badge);
+        }
+        badge.textContent = ventasEnEspera.length;
+    } else if (badge) {
+        badge.remove();
+    }
+}
+
+function ponerEnEspera() {
+    if (!carrito.length) {
+        mostrarToast('No hay productos en el carrito', 'error');
+        return;
+    }
+    
+    var ventaEspera = {
+        id: Date.now(),
+        fecha: new Date().toISOString(),
+        cliente: clienteSeleccionado ? JSON.parse(JSON.stringify(clienteSeleccionado)) : null,
+        clienteNombre: clienteSeleccionado ? clienteSeleccionado.nombre : 'Público General',
+        tipoVenta: tipoVenta,
+        tipoPrecio: tipoPrecio,
+        descuentoGlobal: descuentoGlobal,
+        carrito: JSON.parse(JSON.stringify(carrito)),
+        total: calcularTotalFinal(),
+        articulos: carrito.reduce(function(s, i) { return s + i.cantidad; }, 0)
+    };
+    
+    ventasEnEspera.push(ventaEspera);
+    localStorage.setItem('ventasEnEspera', JSON.stringify(ventasEnEspera));
+    
+    limpiarVentaActual();
+    actualizarBadgeEspera();
+    mostrarToast('Venta guardada en espera (' + ventasEnEspera.length + ')');
+    focusBuscar();
+}
+
+function abrirModalEspera() {
+    renderEsperaList();
+    document.getElementById('modalEspera').classList.add('active');
+}
+
+function renderEsperaList() {
+    var cont = document.getElementById('esperaList');
+    
+    if (!ventasEnEspera.length) {
+        cont.innerHTML = '<div class="espera-empty">' +
+            '<i class="fas fa-inbox"></i>' +
+            '<h4>No hay ventas en espera</h4>' +
+            '<p>Las ventas pausadas aparecerán aquí</p>' +
+        '</div>';
+        return;
+    }
+    
+    var html = '';
+    ventasEnEspera.forEach(function(v, index) {
+        var fecha = new Date(v.fecha);
+        var hora = fecha.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+        
+        html += '<div class="espera-item">' +
+            '<div class="espera-item-header">' +
+                '<span class="espera-item-cliente"><i class="fas fa-user"></i> ' + v.clienteNombre + '</span>' +
+                '<span class="espera-item-total">$' + v.total.toFixed(2) + '</span>' +
+            '</div>' +
+            '<div class="espera-item-meta">' +
+                '<span><i class="fas fa-clock"></i> ' + hora + '</span>' +
+                '<span><i class="fas fa-shopping-cart"></i> ' + Math.round(v.articulos) + ' artículos</span>' +
+                '<span class="badge-' + v.tipoVenta.toLowerCase() + '">' + v.tipoVenta + '</span>' +
+            '</div>' +
+            '<div class="espera-item-actions">' +
+                '<button class="btn-recuperar" onclick="recuperarVenta(' + index + ')"><i class="fas fa-play"></i> Recuperar</button>' +
+                '<button class="btn-eliminar-espera" onclick="eliminarVentaEspera(' + index + ')"><i class="fas fa-trash"></i></button>' +
+            '</div>' +
+        '</div>';
+    });
+    cont.innerHTML = html;
+}
+
+function recuperarVenta(index) {
+    var venta = ventasEnEspera[index];
+    if (!venta) return;
+    
+    if (carrito.length > 0) {
+        if (!confirm('Hay una venta en curso. ¿Guardarla en espera y recuperar la seleccionada?')) {
+            return;
+        }
+        ponerEnEspera();
+    }
+    
+    carrito = venta.carrito;
+    clienteSeleccionado = venta.cliente;
+    tipoVenta = venta.tipoVenta;
+    tipoPrecio = venta.tipoPrecio;
+    descuentoGlobal = venta.descuentoGlobal;
+    
+    document.getElementById('clienteNombre').textContent = venta.clienteNombre;
+    document.getElementById('clientePanel').textContent = venta.clienteNombre;
+    document.getElementById('btnContado').classList.toggle('active', tipoVenta === 'CONTADO');
+    document.getElementById('btnCredito').classList.toggle('active', tipoVenta === 'CREDITO');
+    document.getElementById('tipoVentaLabel').textContent = tipoVenta === 'CONTADO' ? 'Contado' : 'Crédito';
+    document.getElementById('selectPrecio').value = tipoPrecio;
+    
+    ventasEnEspera.splice(index, 1);
+    localStorage.setItem('ventasEnEspera', JSON.stringify(ventasEnEspera));
+    
+    renderCarrito();
+    actualizarBadgeEspera();
+    cerrarModal('modalEspera');
+    mostrarToast('Venta recuperada');
+    focusBuscar();
+}
+
+function eliminarVentaEspera(index) {
+    if (!confirm('¿Eliminar esta venta en espera?')) return;
+    
+    ventasEnEspera.splice(index, 1);
+    localStorage.setItem('ventasEnEspera', JSON.stringify(ventasEnEspera));
+    
+    renderEsperaList();
+    actualizarBadgeEspera();
+    mostrarToast('Venta eliminada de espera');
+}
+
+function limpiarVentaActual() {
+    carrito = [];
+    clienteSeleccionado = null;
+    tipoVenta = 'CONTADO';
+    descuentoGlobal = 0;
+    tipoPrecio = 1;
+    
+    document.getElementById('clienteNombre').textContent = 'Público General';
+    document.getElementById('clientePanel').textContent = 'Público General';
+    document.getElementById('btnContado').classList.add('active');
+    document.getElementById('btnCredito').classList.remove('active');
+    document.getElementById('tipoVentaLabel').textContent = 'Contado';
+    document.getElementById('selectPrecio').value = '1';
+    document.getElementById('inputBuscar').value = '';
+    
+    renderCarrito();
+}
+
+// ========== CARGAR DATOS ==========
 function cargarDatos() {
     API.request('/pos/cargar/' + API.usuario.empresa_id + '/' + API.usuario.sucursal_id)
         .then(function(r) {
@@ -38,7 +441,7 @@ function cargarDatos() {
                 metodosPago = r.metodos || [];
                 renderCategoriasSelect();
                 renderMetodosPago();
-                console.log('Datos cargados:', productos.length, 'productos,', metodosPago.length, 'métodos de pago');
+                focusBuscar();
             }
         })
         .catch(function(e) { 
@@ -47,7 +450,6 @@ function cargarDatos() {
         });
 }
 
-// ========== FOCUS SIEMPRE AL BUSCADOR ==========
 function focusBuscar() {
     setTimeout(function() {
         var input = document.getElementById('inputBuscar');
@@ -73,22 +475,17 @@ function renderMetodosPago() {
     if (!cont) return;
     
     if (!metodosPago.length) {
-        cont.innerHTML = '<button type="button" class="metodo-btn active" data-metodo-id="EFECTIVO" data-metodo="EFECTIVO"><i class="fas fa-money-bill"></i> Efectivo</button>';
+        cont.innerHTML = '<button type="button" class="metodo-btn active" data-metodo-id="EFECTIVO"><i class="fas fa-money-bill"></i><span>Efectivo</span></button>';
         return;
     }
     
     var html = '';
     metodosPago.forEach(function(m, i) {
-        var icono = 'fa-money-bill';
-        var nombre = (m.nombre || '').toLowerCase();
-        var tipo = (m.tipo || '').toUpperCase();
+        var icono = m.icono || 'fa-money-bill-wave';
+        if (icono.indexOf('fa-') !== 0) icono = 'fa-' + icono;
         
-        if (tipo === 'TARJETA' || nombre.indexOf('tarjeta') >= 0) icono = 'fa-credit-card';
-        else if (tipo === 'TRANSFERENCIA' || nombre.indexOf('transfer') >= 0) icono = 'fa-exchange-alt';
-        
-        html += '<button type="button" class="metodo-btn' + (i === 0 ? ' active' : '') + '" ' +
-            'data-metodo-id="' + m.metodo_pago_id + '" data-metodo="' + (m.tipo || m.nombre) + '">' +
-            '<i class="fas ' + icono + '"></i> ' + m.nombre +
+        html += '<button type="button" class="metodo-btn' + (i === 0 ? ' active' : '') + '" data-metodo-id="' + m.metodo_pago_id + '">' +
+            '<i class="fas ' + icono + '"></i><span>' + m.nombre + '</span>' +
         '</button>';
     });
     cont.innerHTML = html;
@@ -103,7 +500,7 @@ function renderMetodosPago() {
 
 function setupEventos() {
     document.addEventListener('click', function(e) {
-        if (!e.target.closest('.modal') && !e.target.closest('input') && !e.target.closest('button')) {
+        if (!e.target.closest('.modal') && !e.target.closest('input') && !e.target.closest('button') && !e.target.closest('select')) {
             focusBuscar();
         }
     });
@@ -111,9 +508,11 @@ function setupEventos() {
 
 function setupKeyboard() {
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'F2') { e.preventDefault(); abrirModalProductos(); }
+        if (e.key === 'F2') { e.preventDefault(); if (turnoActual) abrirModalProductos(); }
         if (e.key === 'F4') { e.preventDefault(); cancelarVenta(); }
-        if (e.key === 'F12') { e.preventDefault(); if (carrito.length > 0) abrirModalCobro(); }
+        if (e.key === 'F8') { e.preventDefault(); if (carrito.length && turnoActual) ponerEnEspera(); }
+        if (e.key === 'F9') { e.preventDefault(); abrirModalEspera(); }
+        if (e.key === 'F12') { e.preventDefault(); if (carrito.length && turnoActual) abrirModalCobro(); }
         if (e.key === 'Escape') { cerrarTodosModales(); focusBuscar(); }
     });
 }
@@ -136,7 +535,7 @@ function onBuscarKeypress(e) {
     }
 }
 
-// ========== OBTENER PRECIO CON IMPUESTOS ==========
+// ========== PRECIOS ==========
 function getPrecioConImpuestos(prod, numPrecio) {
     numPrecio = numPrecio || tipoPrecio;
     
@@ -148,7 +547,6 @@ function getPrecioConImpuestos(prod, numPrecio) {
     return parseFloat(prod['precio' + numPrecio] || prod.precio1) || 0;
 }
 
-// ========== TIPO VENTA ==========
 function setTipoVenta(tipo) {
     tipoVenta = tipo;
     document.getElementById('btnContado').classList.toggle('active', tipo === 'CONTADO');
@@ -197,7 +595,7 @@ function filtrarProductos() {
 function renderProductosModal(items, precioTipo) {
     var tbody = document.getElementById('productosBody');
     if (!items.length) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#9ca3af">No hay productos</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center" style="padding:40px;color:#9ca3af">No hay productos</td></tr>';
         return;
     }
     
@@ -465,7 +863,7 @@ function eliminarDelCarrito(id) {
     focusBuscar();
 }
 
-// ========== EDITAR EN LÍNEA CON MODAL BONITO ==========
+// ========== EDITAR EN LÍNEA CON MODAL ==========
 var editarLineaData = { id: null, tipo: null };
 
 function editarCantidadLinea(id) {
@@ -485,18 +883,18 @@ function editarCantidadLinea(id) {
     var shortcuts = document.getElementById('editarShortcuts');
     if (item.esGranel) {
         shortcuts.innerHTML = 
-            '<button onclick="setEditarValor(0.25)">0.250</button>' +
-            '<button onclick="setEditarValor(0.5)">0.500</button>' +
-            '<button onclick="setEditarValor(0.75)">0.750</button>' +
-            '<button onclick="setEditarValor(1)">1.000</button>' +
-            '<button onclick="setEditarValor(1.5)">1.500</button>' +
-            '<button onclick="setEditarValor(2)">2.000</button>';
+            '<button type="button" onclick="setEditarValor(0.25)">0.250</button>' +
+            '<button type="button" onclick="setEditarValor(0.5)">0.500</button>' +
+            '<button type="button" onclick="setEditarValor(0.75)">0.750</button>' +
+            '<button type="button" onclick="setEditarValor(1)">1.000</button>' +
+            '<button type="button" onclick="setEditarValor(1.5)">1.500</button>' +
+            '<button type="button" onclick="setEditarValor(2)">2.000</button>';
     } else {
         shortcuts.innerHTML = 
-            '<button onclick="ajustarEditarValor(-1)">−1</button>' +
-            '<button onclick="ajustarEditarValor(1)">+1</button>' +
-            '<button onclick="ajustarEditarValor(5)">+5</button>' +
-            '<button onclick="ajustarEditarValor(10)">+10</button>';
+            '<button type="button" onclick="ajustarEditarValor(-1)">−1</button>' +
+            '<button type="button" onclick="ajustarEditarValor(1)">+1</button>' +
+            '<button type="button" onclick="ajustarEditarValor(5)">+5</button>' +
+            '<button type="button" onclick="ajustarEditarValor(10)">+10</button>';
     }
     
     document.getElementById('modalEditarLinea').classList.add('active');
@@ -519,11 +917,11 @@ function editarPrecioLinea(id) {
     
     var original = item.precioOriginal || item.precio;
     document.getElementById('editarShortcuts').innerHTML = 
-        '<button onclick="setEditarValor(' + original.toFixed(2) + ')" class="primary">Original $' + original.toFixed(2) + '</button>' +
-        '<button onclick="ajustarEditarValor(-10)">−$10</button>' +
-        '<button onclick="ajustarEditarValor(-5)">−$5</button>' +
-        '<button onclick="ajustarEditarValor(5)">+$5</button>' +
-        '<button onclick="ajustarEditarValor(10)">+$10</button>';
+        '<button type="button" onclick="setEditarValor(' + original.toFixed(2) + ')" class="primary">Original $' + original.toFixed(2) + '</button>' +
+        '<button type="button" onclick="ajustarEditarValor(-10)">−$10</button>' +
+        '<button type="button" onclick="ajustarEditarValor(-5)">−$5</button>' +
+        '<button type="button" onclick="ajustarEditarValor(5)">+$5</button>' +
+        '<button type="button" onclick="ajustarEditarValor(10)">+$10</button>';
     
     document.getElementById('modalEditarLinea').classList.add('active');
     setTimeout(function() { document.getElementById('inputEditarLinea').select(); }, 100);
@@ -544,12 +942,12 @@ function editarDescuentoLinea(id) {
     document.getElementById('inputEditarLinea').step = '1';
     
     document.getElementById('editarShortcuts').innerHTML = 
-        '<button onclick="setEditarValor(0)">0%</button>' +
-        '<button onclick="setEditarValor(5)">5%</button>' +
-        '<button onclick="setEditarValor(10)">10%</button>' +
-        '<button onclick="setEditarValor(15)">15%</button>' +
-        '<button onclick="setEditarValor(20)">20%</button>' +
-        '<button onclick="setEditarValor(25)">25%</button>';
+        '<button type="button" onclick="setEditarValor(0)">0%</button>' +
+        '<button type="button" onclick="setEditarValor(5)">5%</button>' +
+        '<button type="button" onclick="setEditarValor(10)">10%</button>' +
+        '<button type="button" onclick="setEditarValor(15)">15%</button>' +
+        '<button type="button" onclick="setEditarValor(20)">20%</button>' +
+        '<button type="button" onclick="setEditarValor(25)">25%</button>';
     
     document.getElementById('modalEditarLinea').classList.add('active');
     setTimeout(function() { document.getElementById('inputEditarLinea').select(); }, 100);
@@ -572,6 +970,16 @@ function onEditarLineaKeypress(e) {
 }
 
 function confirmarEditarLinea() {
+    if (editarLineaData.tipo === 'descuento_global') {
+        var valor = parseFloat(document.getElementById('inputEditarLinea').value);
+        descuentoGlobal = Math.min(100, Math.max(0, valor || 0));
+        renderCarrito();
+        cerrarModal('modalEditarLinea');
+        mostrarToast('Descuento global: ' + descuentoGlobal + '%');
+        focusBuscar();
+        return;
+    }
+    
     var item = carrito.find(function(i) { return i.producto_id === editarLineaData.id; });
     if (!item) return;
     
@@ -657,6 +1065,19 @@ function actualizarTotales() {
     document.getElementById('totalAmount').textContent = '$' + total.toFixed(2);
 }
 
+function calcularTotalFinal() {
+    var subtotal = 0, descuentos = 0;
+    
+    carrito.forEach(function(item) {
+        var sub = item.precio * item.cantidad;
+        descuentos += sub * (item.descuento || 0) / 100;
+        subtotal += sub;
+    });
+    
+    var descGlobal = (subtotal - descuentos) * descuentoGlobal / 100;
+    return subtotal - descuentos - descGlobal;
+}
+
 function aplicarDescuentoGlobal() {
     editarLineaData = { id: null, tipo: 'descuento_global' };
     
@@ -669,38 +1090,21 @@ function aplicarDescuentoGlobal() {
     document.getElementById('inputEditarLinea').step = '1';
     
     document.getElementById('editarShortcuts').innerHTML = 
-        '<button onclick="setEditarValor(0)">0%</button>' +
-        '<button onclick="setEditarValor(5)">5%</button>' +
-        '<button onclick="setEditarValor(10)">10%</button>' +
-        '<button onclick="setEditarValor(15)">15%</button>' +
-        '<button onclick="setEditarValor(20)">20%</button>' +
-        '<button onclick="setEditarValor(25)">25%</button>';
+        '<button type="button" onclick="setEditarValor(0)">0%</button>' +
+        '<button type="button" onclick="setEditarValor(5)">5%</button>' +
+        '<button type="button" onclick="setEditarValor(10)">10%</button>' +
+        '<button type="button" onclick="setEditarValor(15)">15%</button>' +
+        '<button type="button" onclick="setEditarValor(20)">20%</button>' +
+        '<button type="button" onclick="setEditarValor(25)">25%</button>';
     
     document.getElementById('modalEditarLinea').classList.add('active');
     setTimeout(function() { document.getElementById('inputEditarLinea').select(); }, 100);
 }
 
-// Sobreescribir confirmarEditarLinea para manejar descuento global
-var _confirmarEditarLineaOriginal = confirmarEditarLinea;
-confirmarEditarLinea = function() {
-    if (editarLineaData.tipo === 'descuento_global') {
-        var valor = parseFloat(document.getElementById('inputEditarLinea').value);
-        descuentoGlobal = Math.min(100, Math.max(0, valor || 0));
-        renderCarrito();
-        cerrarModal('modalEditarLinea');
-        mostrarToast('Descuento global: ' + descuentoGlobal + '%');
-        focusBuscar();
-        return;
-    }
-    _confirmarEditarLineaOriginal();
-};
-
 function cancelarVenta() {
     if (!carrito.length) return;
-    if (confirm('¿Cancelar venta?')) {
-        carrito = [];
-        descuentoGlobal = 0;
-        renderCarrito();
+    if (confirm('¿Cancelar venta actual?')) {
+        limpiarVentaActual();
         mostrarToast('Venta cancelada');
     }
     focusBuscar();
@@ -709,6 +1113,10 @@ function cancelarVenta() {
 // ========== COBRO ==========
 function abrirModalCobro() {
     if (!carrito.length) return;
+    if (!turnoActual) {
+        mostrarToast('No hay turno abierto', 'error');
+        return;
+    }
     
     var total = calcularTotalFinal();
     
@@ -734,24 +1142,12 @@ function abrirModalCobro() {
     
     document.getElementById('cobroTotal').textContent = '$' + total.toFixed(2);
     document.getElementById('cobroBadge').textContent = tipoVenta;
+    document.getElementById('cobroBadge').className = 'cobro-badge ' + tipoVenta.toLowerCase();
     document.getElementById('inputEfectivo').value = '';
     document.getElementById('cobroCambio').textContent = '$0.00';
     document.getElementById('modalCobro').classList.add('active');
     
     setTimeout(function() { document.getElementById('inputEfectivo').focus(); }, 100);
-}
-
-function calcularTotalFinal() {
-    var subtotal = 0, descuentos = 0;
-    
-    carrito.forEach(function(item) {
-        var sub = item.precio * item.cantidad;
-        descuentos += sub * (item.descuento || 0) / 100;
-        subtotal += sub;
-    });
-    
-    var descGlobal = (subtotal - descuentos) * descuentoGlobal / 100;
-    return subtotal - descuentos - descGlobal;
 }
 
 function addEfectivo(m) {
@@ -773,7 +1169,8 @@ function limpiarEfectivo() {
 function calcularCambio() {
     var total = calcularTotalFinal();
     var efectivo = parseFloat(document.getElementById('inputEfectivo').value) || 0;
-    document.getElementById('cobroCambio').textContent = '$' + Math.max(0, efectivo - total).toFixed(2);
+    var cambio = Math.max(0, efectivo - total);
+    document.getElementById('cobroCambio').textContent = '$' + cambio.toFixed(2);
 }
 
 function confirmarVenta() {
@@ -817,6 +1214,7 @@ function confirmarVenta() {
         almacen_id: API.usuario.almacen_id || null,
         usuario_id: API.usuario.id || API.usuario.usuario_id,
         cliente_id: clienteSeleccionado ? clienteSeleccionado.cliente_id : null,
+        turno_id: turnoActual ? turnoActual.turno_id : null,
         tipo: 'VENTA',
         tipo_venta: tipoVenta,
         tipo_precio: tipoPrecio,
@@ -870,24 +1268,11 @@ function mostrarExito(folio, total, cambio) {
 }
 
 function imprimirTicket() { 
-    mostrarToast('Imprimiendo...'); 
+    mostrarToast('Imprimiendo ticket...'); 
 }
 
 function nuevaVenta() {
-    carrito = [];
-    clienteSeleccionado = null;
-    tipoVenta = 'CONTADO';
-    descuentoGlobal = 0;
-    tipoPrecio = 1;
-    
-    document.getElementById('clienteNombre').textContent = 'Público General';
-    document.getElementById('clientePanel').textContent = 'Público General';
-    document.getElementById('btnContado').classList.add('active');
-    document.getElementById('btnCredito').classList.remove('active');
-    document.getElementById('selectPrecio').value = '1';
-    document.getElementById('inputBuscar').value = '';
-    
-    renderCarrito();
+    limpiarVentaActual();
     cerrarModal('modalExito');
     focusBuscar();
 }
@@ -908,159 +1293,4 @@ function mostrarToast(msg, tipo) {
     toast.innerHTML = '<i class="fas fa-' + (tipo === 'error' ? 'exclamation-circle' : 'check-circle') + '"></i> ' + msg;
     toast.className = 'toast show ' + (tipo || 'success');
     setTimeout(function() { toast.classList.remove('show'); }, 3000);
-    // ========== VENTAS EN ESPERA ==========
-var ventasEnEspera = JSON.parse(localStorage.getItem('ventasEnEspera') || '[]');
-
-function actualizarBadgeEspera() {
-    var btn = document.querySelector('.header-btn.warning');
-    if (!btn) return;
-    
-    var badge = btn.querySelector('.espera-badge');
-    if (ventasEnEspera.length > 0) {
-        if (!badge) {
-            badge = document.createElement('span');
-            badge.className = 'espera-badge';
-            btn.style.position = 'relative';
-            btn.appendChild(badge);
-        }
-        badge.textContent = ventasEnEspera.length;
-    } else if (badge) {
-        badge.remove();
-    }
-}
-
-function ponerEnEspera() {
-    if (!carrito.length) {
-        mostrarToast('No hay productos en el carrito', 'error');
-        return;
-    }
-    
-    var ventaEspera = {
-        id: Date.now(),
-        fecha: new Date().toISOString(),
-        cliente: clienteSeleccionado ? { ...clienteSeleccionado } : null,
-        clienteNombre: clienteSeleccionado ? clienteSeleccionado.nombre : 'Público General',
-        tipoVenta: tipoVenta,
-        tipoPrecio: tipoPrecio,
-        descuentoGlobal: descuentoGlobal,
-        carrito: JSON.parse(JSON.stringify(carrito)),
-        total: calcularTotalFinal(),
-        articulos: carrito.reduce(function(s, i) { return s + i.cantidad; }, 0)
-    };
-    
-    ventasEnEspera.push(ventaEspera);
-    localStorage.setItem('ventasEnEspera', JSON.stringify(ventasEnEspera));
-    
-    // Limpiar venta actual
-    carrito = [];
-    clienteSeleccionado = null;
-    tipoVenta = 'CONTADO';
-    descuentoGlobal = 0;
-    tipoPrecio = 1;
-    
-    document.getElementById('clienteNombre').textContent = 'Público General';
-    document.getElementById('clientePanel').textContent = 'Público General';
-    document.getElementById('btnContado').classList.add('active');
-    document.getElementById('btnCredito').classList.remove('active');
-    document.getElementById('selectPrecio').value = '1';
-    
-    renderCarrito();
-    actualizarBadgeEspera();
-    mostrarToast('Venta guardada en espera');
-    focusBuscar();
-}
-
-function abrirModalEspera() {
-    renderEsperaList();
-    document.getElementById('modalEspera').classList.add('active');
-}
-
-function renderEsperaList() {
-    var cont = document.getElementById('esperaList');
-    
-    if (!ventasEnEspera.length) {
-        cont.innerHTML = '<div class="espera-empty">' +
-            '<i class="fas fa-inbox"></i>' +
-            '<h4>No hay ventas en espera</h4>' +
-            '<p>Las ventas pausadas aparecerán aquí</p>' +
-        '</div>';
-        return;
-    }
-    
-    var html = '';
-    ventasEnEspera.forEach(function(v, index) {
-        var fecha = new Date(v.fecha);
-        var hora = fecha.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
-        
-        html += '<div class="espera-item">' +
-            '<div class="espera-item-header">' +
-                '<span class="espera-item-cliente"><i class="fas fa-user"></i> ' + v.clienteNombre + '</span>' +
-                '<span class="espera-item-total">$' + v.total.toFixed(2) + '</span>' +
-            '</div>' +
-            '<div class="espera-item-meta">' +
-                '<span><i class="fas fa-clock"></i> ' + hora + '</span>' +
-                '<span><i class="fas fa-shopping-cart"></i> ' + v.articulos.toFixed(0) + ' artículos</span>' +
-                '<span><i class="fas fa-tag"></i> ' + v.tipoVenta + '</span>' +
-            '</div>' +
-            '<div class="espera-item-actions">' +
-                '<button class="btn-recuperar" onclick="recuperarVenta(' + index + ')"><i class="fas fa-play"></i> Recuperar</button>' +
-                '<button class="btn-eliminar" onclick="eliminarVentaEspera(' + index + ')"><i class="fas fa-trash"></i> Eliminar</button>' +
-            '</div>' +
-        '</div>';
-    });
-    cont.innerHTML = html;
-}
-
-function recuperarVenta(index) {
-    var venta = ventasEnEspera[index];
-    if (!venta) return;
-    
-    // Si hay carrito actual, preguntar
-    if (carrito.length > 0) {
-        if (!confirm('Hay una venta en curso. ¿Deseas guardarla en espera y recuperar la seleccionada?')) {
-            return;
-        }
-        ponerEnEspera();
-    }
-    
-    // Restaurar venta
-    carrito = venta.carrito;
-    clienteSeleccionado = venta.cliente;
-    tipoVenta = venta.tipoVenta;
-    tipoPrecio = venta.tipoPrecio;
-    descuentoGlobal = venta.descuentoGlobal;
-    
-    document.getElementById('clienteNombre').textContent = venta.clienteNombre;
-    document.getElementById('clientePanel').textContent = venta.clienteNombre;
-    document.getElementById('btnContado').classList.toggle('active', tipoVenta === 'CONTADO');
-    document.getElementById('btnCredito').classList.toggle('active', tipoVenta === 'CREDITO');
-    document.getElementById('tipoVentaLabel').textContent = tipoVenta === 'CONTADO' ? 'Contado' : 'Crédito';
-    document.getElementById('selectPrecio').value = tipoPrecio;
-    
-    // Eliminar de espera
-    ventasEnEspera.splice(index, 1);
-    localStorage.setItem('ventasEnEspera', JSON.stringify(ventasEnEspera));
-    
-    renderCarrito();
-    actualizarBadgeEspera();
-    cerrarModal('modalEspera');
-    mostrarToast('Venta recuperada');
-    focusBuscar();
-}
-
-function eliminarVentaEspera(index) {
-    if (!confirm('¿Eliminar esta venta en espera?')) return;
-    
-    ventasEnEspera.splice(index, 1);
-    localStorage.setItem('ventasEnEspera', JSON.stringify(ventasEnEspera));
-    
-    renderEsperaList();
-    actualizarBadgeEspera();
-    mostrarToast('Venta eliminada');
-}
-
-// Inicializar badge al cargar
-document.addEventListener('DOMContentLoaded', function() {
-    actualizarBadgeEspera();
-});
 }
