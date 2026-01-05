@@ -1096,3 +1096,43 @@
 .precio-row.total span:last-child {
     color: var(--primary);
 }
+.impuestos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.checkbox-card {
+    display: block;
+    cursor: pointer;
+}
+
+.checkbox-card input {
+    display: none;
+}
+
+.checkbox-card .card-content {
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.checkbox-card input:checked + .card-content {
+    border-color: #6C2BD9;
+    background: #f3e8ff;
+}
+
+.checkbox-card .imp-nombre {
+    display: block;
+    font-weight: 600;
+    color: #333;
+}
+
+.checkbox-card .imp-valor {
+    display: block;
+    font-size: 1.2em;
+    color: #6C2BD9;
+    font-weight: 700;
+}
