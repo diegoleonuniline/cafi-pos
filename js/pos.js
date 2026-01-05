@@ -23,7 +23,16 @@ document.addEventListener('DOMContentLoaded', function() {
     setupKeyboard();
     actualizarBadgeEspera();
 });
-
+function setElementText(id, text, isHtml) {
+    var el = document.getElementById(id);
+    if (el) {
+        if (isHtml) {
+            el.innerHTML = text;
+        } else {
+            el.textContent = text;
+        }
+    }
+}
 function cargarUsuario() {
     var u = API.usuario;
     document.getElementById('userName').textContent = u.nombre || 'Usuario';
