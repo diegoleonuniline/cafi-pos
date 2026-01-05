@@ -1,9 +1,10 @@
 if (!API.isLoggedIn()) window.location.href = '../index.html';
 
-var datos = [];
-var categorias = [];
-var impuestosEmpresa = [];
-var preciosBase = { precio1: 0, precio2: 0, precio3: 0, precio4: 0 };
+// Variables globales
+window.datos = [];
+window.categorias = [];
+window.impuestosEmpresa = [];
+window.preciosBase = { precio1: 0, precio2: 0, precio3: 0, precio4: 0 };
 
 document.addEventListener('DOMContentLoaded', async function() {
     cargarUsuario();
@@ -25,14 +26,14 @@ async function cargarCategorias() {
     try {
         var r = await API.request('/categorias/' + API.usuario.empresa_id);
         if (r.success) {
-            categorias = r.categorias || r.data || [];
+            window.categorias = r.categorias || r.data || [];
             var selFiltro = document.getElementById('filtroCategoria');
             var selForm = document.getElementById('categoria_id');
             
             selFiltro.innerHTML = '<option value="">Todas</option>';
             selForm.innerHTML = '<option value="">Sin categoría</option>';
             
-            categorias.forEach(function(c) {
+            window.categorias.forEach(function(c) {
                 if (c.activo === 'Y') {
                     selFiltro.innerHTML += '<option value="' + c.categoria_id + '">' + c.nombre + '</option>';
                     selForm.innerHTML += '<option value="' + c.categoria_id + '">' + c.nombre + '</option>';
@@ -48,8 +49,8 @@ async function cargarImpuestos() {
     try {
         var r = await API.request('/impuestos/' + API.usuario.empresa_id);
         if (r.success) {
-            impuestosEmpresa = r.impuestos || r.data || [];
-            renderImpuestosForm();
+            window.impuestosEmpresa = r.impuestos || r.data || [];
+            console.log('Impuestos cargados:', window.impuestosEmpresa);
         }
     } catch (e) { 
         console.error('Error cargando impuestos:', e); 
@@ -58,10 +59,18 @@ async function cargarImpuestos() {
 
 function renderImpuestosForm() {
     var container = document.getElementById('impuestosContainer');
-    if (!container || impuestosEmpresa.length === 0) return;
+    if (!container) {
+        console.error('No se encontró impuestosContainer');
+        return;
+    }
+    
+    if (!window.impuestosEmpresa || window.impuestosEmpresa.length === 0) {
+        container.innerHTML = '<p class="text-muted">No hay impuestos configurados</p>';
+        return;
+    }
     
     var html = '<div class="impuestos-grid">';
-    impuestosEmpresa.forEach(function(imp) {
+    window.impuestosEmpresa.forEach(function(imp) {
         html += '<label class="checkbox-card">' +
             '<input type="checkbox" name="impuestos" value="' + imp.impuesto_id + '" data-valor="' + imp.valor + '" onchange="recalcularImpuestos()">' +
             '<div class="card-content">' +
@@ -78,7 +87,7 @@ async function cargarDatos() {
     try {
         var r = await API.request('/productos/' + API.usuario.empresa_id);
         if (r.success) {
-            datos = r.productos || r.data || [];
+            window.datos = r.productos || r.data || [];
             filtrar();
         }
     } catch (e) {
@@ -115,9 +124,9 @@ function setupEventos() {
                 
                 if (document.getElementById('precio_incluye_impuesto').checked) {
                     var factor = getFactorImpuestos();
-                    preciosBase['precio' + num] = valor / factor;
+                    window.preciosBase['precio' + num] = valor / factor;
                 } else {
-                    preciosBase['precio' + num] = valor;
+                    window.preciosBase['precio' + num] = valor;
                 }
                 
                 calcularMargen(parseInt(num));
@@ -177,7 +186,7 @@ function recalcularImpuestos() {
     
     ['precio1', 'precio2', 'precio3', 'precio4'].forEach(function(id) {
         var input = document.getElementById(id);
-        var base = preciosBase[id] || 0;
+        var base = window.preciosBase[id] || 0;
         
         if (base > 0) {
             if (incluyeImpuesto) {
@@ -204,11 +213,11 @@ function convertirPrecios(incluyeImpuesto) {
         
         if (valorActual > 0) {
             if (incluyeImpuesto) {
-                preciosBase[id] = valorActual;
+                window.preciosBase[id] = valorActual;
                 input.value = (valorActual * factor).toFixed(2);
             } else {
-                preciosBase[id] = valorActual / factor;
-                input.value = preciosBase[id].toFixed(2);
+                window.preciosBase[id] = valorActual / factor;
+                input.value = window.preciosBase[id].toFixed(2);
             }
         }
     });
@@ -225,7 +234,7 @@ function calcularMargen(num) {
     var precioInput = parseFloat(document.getElementById('precio' + num).value) || 0;
     var badge = document.getElementById('margen' + num);
     
-    var precioBase = preciosBase['precio' + num] || precioInput;
+    var precioBase = window.preciosBase['precio' + num] || precioInput;
     if (document.getElementById('precio_incluye_impuesto').checked && precioInput > 0) {
         precioBase = precioInput / getFactorImpuestos();
     }
@@ -271,7 +280,7 @@ function filtrar() {
     var categoria = document.getElementById('filtroCategoria').value;
     var estado = document.getElementById('filtroEstado').value;
 
-    var filtrados = datos.filter(function(item) {
+    var filtrados = window.datos.filter(function(item) {
         var matchBusq = !busqueda || 
             item.nombre.toLowerCase().indexOf(busqueda) >= 0 ||
             (item.codigo_barras && item.codigo_barras.indexOf(busqueda) >= 0) ||
@@ -334,7 +343,7 @@ function renderTabla(items) {
 // ==================== VER DETALLE ====================
 
 function verDetalle(id) {
-    var p = datos.find(function(d) { return d.producto_id === id; });
+    var p = window.datos.find(function(d) { return d.producto_id === id; });
     if (!p) return;
     
     var tasa = parseFloat(p.tasa_impuesto) || 0;
@@ -453,7 +462,7 @@ async function abrirModal(item) {
     document.getElementById('formProducto').reset();
     document.getElementById('editId').value = '';
     
-    preciosBase = { precio1: 0, precio2: 0, precio3: 0, precio4: 0 };
+    window.preciosBase = { precio1: 0, precio2: 0, precio3: 0, precio4: 0 };
 
     document.querySelectorAll('.tab-btn').forEach(function(b, i) { b.classList.toggle('active', i === 0); });
     document.querySelectorAll('.tab-content').forEach(function(c, i) { c.classList.toggle('active', i === 0); });
@@ -467,6 +476,12 @@ async function abrirModal(item) {
     document.getElementById('mostrar_pos').checked = true;
     document.getElementById('permite_descuento').checked = true;
     document.getElementById('precio_incluye_impuesto').checked = true;
+
+    // Mostrar modal PRIMERO para que exista el container
+    document.getElementById('modalForm').classList.add('active');
+    
+    // AHORA renderizar impuestos (el container ya existe)
+    renderImpuestosForm();
     
     // Desmarcar todos los impuestos
     document.querySelectorAll('input[name="impuestos"]').forEach(function(cb) {
@@ -524,9 +539,9 @@ async function abrirModal(item) {
         ['precio1', 'precio2', 'precio3', 'precio4'].forEach(function(id) {
             var precio = parseFloat(item[id] || 0);
             if (item.precio_incluye_impuesto === 'Y') {
-                preciosBase[id] = precio / factor;
+                window.preciosBase[id] = precio / factor;
             } else {
-                preciosBase[id] = precio;
+                window.preciosBase[id] = precio;
             }
         });
 
@@ -563,8 +578,6 @@ async function abrirModal(item) {
             document.getElementById('imgPreview').innerHTML = '<img src="' + item.imagen_url + '" onerror="this.parentElement.innerHTML=\'<i class=\\\'fas fa-image\\\'></i>\'">';
         }
     }
-
-    document.getElementById('modalForm').classList.add('active');
 }
 
 function cerrarModal() {
@@ -572,7 +585,7 @@ function cerrarModal() {
 }
 
 function editar(id) {
-    var item = datos.find(function(d) { return d.producto_id === id; });
+    var item = window.datos.find(function(d) { return d.producto_id === id; });
     if (item) abrirModal(item);
 }
 
