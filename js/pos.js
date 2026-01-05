@@ -143,21 +143,23 @@ function abrirModalCerrarTurno() {
 }
 
 function renderResumenCorte(data) {
-    var t = data.turno;
+    var t = data.turno || {};
     var saldoInicial = parseFloat(t.saldo_inicial) || 0;
     
     var pagosHtml = '';
     var totalVentas = 0;
     var efectivoVentas = 0;
     
-    data.pagos_por_metodo.forEach(function(p) {
+    var pagosPorMetodo = data.pagos_por_metodo || [];
+    
+    pagosPorMetodo.forEach(function(p) {
         var iconClass = 'otro';
         var iconName = 'fa-money-bill';
         
         if (p.tipo === 'EFECTIVO') {
             iconClass = 'efectivo';
             iconName = 'fa-money-bill-wave';
-            efectivoVentas = p.total;
+            efectivoVentas = p.total || 0;
         } else if (p.tipo === 'TARJETA') {
             iconClass = 'tarjeta';
             iconName = 'fa-credit-card';
@@ -166,17 +168,17 @@ function renderResumenCorte(data) {
             iconName = 'fa-exchange-alt';
         }
         
-        totalVentas += p.total;
+        totalVentas += (p.total || 0);
         
         pagosHtml += '<div class="metodo-pago-row">' +
             '<div class="metodo-info">' +
                 '<div class="metodo-icon ' + iconClass + '"><i class="fas ' + iconName + '"></i></div>' +
                 '<div>' +
-                    '<div class="metodo-nombre">' + p.nombre + '</div>' +
-                    '<div class="metodo-cantidad">' + p.cantidad + ' cobros</div>' +
+                    '<div class="metodo-nombre">' + (p.nombre || 'Sin nombre') + '</div>' +
+                    '<div class="metodo-cantidad">' + (p.cantidad || 0) + ' cobros</div>' +
                 '</div>' +
             '</div>' +
-            '<div class="metodo-total">$' + p.total.toFixed(2) + '</div>' +
+            '<div class="metodo-total">$' + (p.total || 0).toFixed(2) + '</div>' +
         '</div>';
     });
     
@@ -184,22 +186,46 @@ function renderResumenCorte(data) {
         pagosHtml = '<p style="text-align:center;color:#9ca3af;padding:20px">Sin ventas en este turno</p>';
     }
     
-    document.getElementById('cortePagosPorMetodo').innerHTML = pagosHtml;
-    document.getElementById('corteTotalVentas').textContent = '$' + totalVentas.toFixed(2);
+    var movimientos = data.movimientos || { ingresos: 0, egresos: 0 };
+    var ventas = data.ventas || { cantidad_ventas: 0, cantidad_canceladas: 0 };
+    var efectivoEsperado = data.efectivo_esperado || 0;
     
-    document.getElementById('corteIngresos').textContent = '+$' + data.movimientos.ingresos.toFixed(2);
-    document.getElementById('corteEgresos').textContent = '-$' + data.movimientos.egresos.toFixed(2);
+    // Actualizar DOM con verificaciones
+    var el;
     
-    document.getElementById('corteSaldoInicial').textContent = '$' + saldoInicial.toFixed(2);
-    document.getElementById('corteVentasEfectivo').textContent = '$' + efectivoVentas.toFixed(2);
-    document.getElementById('corteIngresosArqueo').textContent = '+$' + data.movimientos.ingresos.toFixed(2);
-    document.getElementById('corteEgresosArqueo').textContent = '-$' + data.movimientos.egresos.toFixed(2);
-    document.getElementById('corteEsperado').textContent = '$' + data.efectivo_esperado.toFixed(2);
+    el = document.getElementById('cortePagosPorMetodo');
+    if (el) el.innerHTML = pagosHtml;
     
-    document.getElementById('corteNumVentas').textContent = data.ventas.cantidad_ventas;
-    document.getElementById('corteNumCanceladas').textContent = data.ventas.cantidad_canceladas;
+    el = document.getElementById('corteTotalVentas');
+    if (el) el.textContent = '$' + totalVentas.toFixed(2);
+    
+    el = document.getElementById('corteIngresos');
+    if (el) el.textContent = '+$' + movimientos.ingresos.toFixed(2);
+    
+    el = document.getElementById('corteEgresos');
+    if (el) el.textContent = '-$' + movimientos.egresos.toFixed(2);
+    
+    el = document.getElementById('corteSaldoInicial');
+    if (el) el.textContent = '$' + saldoInicial.toFixed(2);
+    
+    el = document.getElementById('corteVentasEfectivo');
+    if (el) el.textContent = '$' + efectivoVentas.toFixed(2);
+    
+    el = document.getElementById('corteIngresosArqueo');
+    if (el) el.textContent = '+$' + movimientos.ingresos.toFixed(2);
+    
+    el = document.getElementById('corteEgresosArqueo');
+    if (el) el.textContent = '-$' + movimientos.egresos.toFixed(2);
+    
+    el = document.getElementById('corteEsperado');
+    if (el) el.textContent = '$' + efectivoEsperado.toFixed(2);
+    
+    el = document.getElementById('corteNumVentas');
+    if (el) el.textContent = ventas.cantidad_ventas || 0;
+    
+    el = document.getElementById('corteNumCanceladas');
+    if (el) el.textContent = ventas.cantidad_canceladas || 0;
 }
-
 // ==================== CONTADOR DE BILLETES Y MONEDAS ====================
 function ajustarContador(valor, delta) {
     var inputId = 'cont_' + String(valor).replace('.', '');
