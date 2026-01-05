@@ -9,59 +9,70 @@
 </head>
 <body>
     <div class="app">
-      <!-- HEADER -->
-<header class="header">
-    <div class="header-left">
-        <a href="admin.html" class="logo">
-            <svg width="36" height="36" viewBox="0 0 100 100">
-                <defs>
-                    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#2D3DBF"/>
-                        <stop offset="100%" style="stop-color:#6C2BD9"/>
-                    </linearGradient>
-                </defs>
-                <rect width="100" height="100" rx="20" fill="url(#logoGrad)"/>
-                <path d="M25 65 L25 35 Q25 25 35 25 L50 25 M55 25 L65 25 Q75 25 75 35 L75 45 Q75 55 65 55 L55 55 L75 75" stroke="white" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            CAFI
-        </a>
-        <div class="turno-badge">
-            <i class="fas fa-circle"></i>
-            <span>Turno Abierto</span>
-        </div>
-    </div>
-    
-    <div class="header-center">
-        <a href="admin.html" class="header-btn">
-            <i class="fas fa-th-large"></i> Admin
-        </a>
-        <a href="productos.html" class="header-btn">
-            <i class="fas fa-boxes"></i> Productos
-        </a>
-        <a href="ventas.html" class="header-btn">
-            <i class="fas fa-receipt"></i> Ventas
-        </a>
-        <button class="header-btn warning" onclick="ponerEnEspera()">
-            <i class="fas fa-pause-circle"></i> Espera
-        </button>
-        <button class="header-btn" onclick="abrirModalEspera()">
-            <i class="fas fa-list"></i> Ver Espera
-        </button>
-    </div>
-    
-    <div class="header-right">
-        <div class="user-pill">
-            <div class="user-avatar" id="userAvatar">US</div>
-            <div class="user-info">
-                <span class="user-name" id="userName">Usuario</span>
-                <small id="userSucursal">Sucursal</small>
+        <!-- HEADER -->
+        <header class="header">
+            <div class="header-left">
+                <a href="admin.html" class="logo">
+                    <svg width="36" height="36" viewBox="0 0 100 100">
+                        <defs>
+                            <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#2D3DBF"/>
+                                <stop offset="100%" style="stop-color:#6C2BD9"/>
+                            </linearGradient>
+                        </defs>
+                        <rect width="100" height="100" rx="20" fill="url(#logoGrad)"/>
+                        <path d="M25 65 L25 35 Q25 25 35 25 L50 25 M55 25 L65 25 Q75 25 75 35 L75 45 Q75 55 65 55 L55 55 L75 75" stroke="white" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    CAFI
+                </a>
+                <div class="turno-badge cerrado" id="turnoBadge" onclick="abrirModalAbrirTurno()">
+                    <i class="fas fa-circle"></i>
+                    <span>Sin Turno</span>
+                </div>
             </div>
-        </div>
-        <button class="header-icon-btn" onclick="API.logout()" title="Cerrar sesión">
-            <i class="fas fa-sign-out-alt"></i>
-        </button>
-    </div>
-</header>
+            
+            <div class="header-center">
+                <a href="admin.html" class="header-btn">
+                    <i class="fas fa-th-large"></i> Admin
+                </a>
+                <a href="productos.html" class="header-btn">
+                    <i class="fas fa-boxes"></i> Productos
+                </a>
+                <a href="ventas.html" class="header-btn">
+                    <i class="fas fa-receipt"></i> Ventas
+                </a>
+                <button class="header-btn warning" id="btnEspera" onclick="ponerEnEspera()">
+                    <i class="fas fa-pause-circle"></i> Espera
+                </button>
+                <button class="header-btn" onclick="abrirModalEspera()">
+                    <i class="fas fa-list"></i> Ver Espera
+                </button>
+                <div class="header-separator"></div>
+                <button class="header-btn success" onclick="abrirModalMovimiento('INGRESO')">
+                    <i class="fas fa-arrow-down"></i> Ingreso
+                </button>
+                <button class="header-btn danger" onclick="abrirModalMovimiento('EGRESO')">
+                    <i class="fas fa-arrow-up"></i> Retiro
+                </button>
+                <button class="header-btn" id="btnCerrarTurno" onclick="abrirModalCerrarTurno()" style="display:none">
+                    <i class="fas fa-cash-register"></i> Corte
+                </button>
+            </div>
+            
+            <div class="header-right">
+                <div class="user-pill">
+                    <div class="user-avatar" id="userAvatar">US</div>
+                    <div class="user-info">
+                        <span class="user-name" id="userName">Usuario</span>
+                        <small id="userSucursal">Sucursal</small>
+                    </div>
+                </div>
+                <button class="header-icon-btn" onclick="API.logout()" title="Cerrar sesión">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </header>
+
         <!-- POS LAYOUT -->
         <div class="pos-layout">
             <!-- MAIN AREA -->
@@ -139,6 +150,7 @@
                     <div class="shortcuts-hint">
                         <span><kbd>F2</kbd> Buscar</span>
                         <span><kbd>F4</kbd> Cancelar</span>
+                        <span><kbd>F8</kbd> Espera</span>
                         <span><kbd>F12</kbd> Cobrar</span>
                     </div>
                     <div class="action-buttons">
@@ -205,6 +217,155 @@
         </div>
     </div>
 
+    <!-- MODAL ABRIR TURNO -->
+    <div class="modal-overlay" id="modalAbrirTurno">
+        <div class="modal modal-sm">
+            <div class="modal-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%)">
+                <div class="modal-title"><i class="fas fa-play-circle"></i><span>Abrir Turno</span></div>
+            </div>
+            <div class="modal-body">
+                <div class="turno-info-box">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Para comenzar a vender, debes abrir un turno. Ingresa el efectivo inicial en caja.</p>
+                </div>
+                <div class="form-group">
+                    <label>Saldo Inicial en Caja</label>
+                    <div class="input-money-lg">
+                        <span>$</span>
+                        <input type="number" id="saldoInicial" step="0.01" min="0" placeholder="0.00" value="">
+                    </div>
+                    <small class="help-text">Cuenta el efectivo en caja antes de iniciar</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success btn-lg btn-block" onclick="confirmarAbrirTurno()">
+                    <i class="fas fa-play"></i> Abrir Turno
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CERRAR TURNO (CORTE) -->
+    <div class="modal-overlay" id="modalCerrarTurno">
+        <div class="modal modal-md">
+            <div class="modal-header" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%)">
+                <div class="modal-title"><i class="fas fa-cash-register"></i><span>Corte de Caja</span></div>
+                <button class="btn-close light" onclick="cerrarModal('modalCerrarTurno')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="corte-grid">
+                    <div class="corte-seccion">
+                        <h4><i class="fas fa-chart-bar"></i> Resumen del Turno</h4>
+                        <div class="corte-detalle-box">
+                            <div class="corte-row">
+                                <span>Saldo Inicial:</span>
+                                <strong id="corteSaldoInicial">$0.00</strong>
+                            </div>
+                            <div class="corte-row">
+                                <span>Ventas del Turno:</span>
+                                <strong id="corteVentas">$0.00</strong>
+                            </div>
+                            <div class="corte-row ingreso">
+                                <span><i class="fas fa-arrow-down"></i> Ingresos:</span>
+                                <strong id="corteIngresos">$0.00</strong>
+                            </div>
+                            <div class="corte-row egreso">
+                                <span><i class="fas fa-arrow-up"></i> Egresos:</span>
+                                <strong id="corteEgresos">$0.00</strong>
+                            </div>
+                            <div class="corte-row total">
+                                <span>Efectivo Esperado:</span>
+                                <strong id="corteEsperado">$0.00</strong>
+                            </div>
+                        </div>
+                        <div class="corte-stats-mini">
+                            <span><i class="fas fa-receipt"></i> <strong id="corteNumVentas">0</strong> ventas</span>
+                        </div>
+                    </div>
+                    <div class="corte-seccion">
+                        <h4><i class="fas fa-hand-holding-usd"></i> Declarar Efectivo</h4>
+                        <div class="form-group">
+                            <label>Efectivo en Caja</label>
+                            <div class="input-money-lg">
+                                <span>$</span>
+                                <input type="number" id="efectivoDeclarado" step="0.01" min="0" placeholder="0.00" oninput="calcularDiferenciaCierre()">
+                            </div>
+                            <small class="help-text">Cuenta todo el efectivo físico en caja</small>
+                        </div>
+                        <div class="diferencia-box">
+                            <span>Diferencia:</span>
+                            <strong id="corteDiferencia">$0.00</strong>
+                        </div>
+                        <div class="form-group">
+                            <label>Observaciones</label>
+                            <textarea id="observacionesCierre" rows="2" placeholder="Notas del cierre..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="cerrarModal('modalCerrarTurno')">Cancelar</button>
+                <button class="btn btn-danger" onclick="confirmarCerrarTurno()">
+                    <i class="fas fa-lock"></i> Cerrar Turno
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL RESUMEN CORTE -->
+    <div class="modal-overlay" id="modalCorteResumen">
+        <div class="modal modal-sm">
+            <div class="modal-body" style="padding:0">
+                <div id="corteResumenContent"></div>
+            </div>
+            <div class="modal-footer" style="justify-content:center;gap:10px">
+                <button class="btn btn-outline" onclick="imprimirCorte()">
+                    <i class="fas fa-print"></i> Imprimir
+                </button>
+                <button class="btn btn-primary" onclick="cerrarCorteYSalir()">
+                    <i class="fas fa-check"></i> Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL MOVIMIENTO DE CAJA -->
+    <div class="modal-overlay" id="modalMovimiento">
+        <div class="modal modal-sm">
+            <div class="modal-header" id="movimientoHeader">
+                <div class="modal-title">
+                    <i class="fas fa-arrow-down" id="movimientoIcono"></i>
+                    <span id="movimientoTitulo">Movimiento de Caja</span>
+                </div>
+                <button class="btn-close light" onclick="cerrarModal('modalMovimiento')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="movimientoTipo" value="INGRESO">
+                <div class="form-group">
+                    <label>Monto</label>
+                    <div class="input-money-lg">
+                        <span>$</span>
+                        <input type="number" id="movimientoMonto" step="0.01" min="0.01" placeholder="0.00" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Concepto *</label>
+                    <input type="text" id="movimientoConcepto" placeholder="Ej: Pago a proveedor, Cambio, etc." required>
+                </div>
+                <div class="form-group">
+                    <label>Referencia (opcional)</label>
+                    <input type="text" id="movimientoReferencia" placeholder="Número de factura, recibo, etc.">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="cerrarModal('modalMovimiento')">Cancelar</button>
+                <button class="btn btn-success" onclick="confirmarMovimiento()">
+                    <i class="fas fa-check"></i> Registrar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL BUSCAR PRODUCTOS -->
     <div class="modal-overlay" id="modalProductos">
         <div class="modal modal-lg">
@@ -226,9 +387,9 @@
                 <div class="filter-cantidad">
                     <label>Cantidad:</label>
                     <div class="cantidad-control">
-                        <button onclick="ajustarCantidadFiltro(-1)">−</button>
+                        <button type="button" onclick="ajustarCantidadFiltro(-1)">−</button>
                         <input type="number" id="filtroCantidad" value="1" min="0.001" step="any">
-                        <button onclick="ajustarCantidadFiltro(1)">+</button>
+                        <button type="button" onclick="ajustarCantidadFiltro(1)">+</button>
                     </div>
                 </div>
                 <div class="filter-select">
@@ -303,12 +464,12 @@
                     </div>
                 </div>
                 <div class="cantidad-input-group">
-                    <button class="cant-btn" onclick="ajustarCantidadModal(-0.1)">−</button>
+                    <button class="cant-btn" type="button" onclick="ajustarCantidadModal(-0.1)">−</button>
                     <div class="cantidad-field">
                         <input type="number" id="inputCantidadModal" value="1" step="0.001" min="0.001" oninput="calcularSubtotalModal()">
                         <span id="cantidadUnidad">KG</span>
                     </div>
-                    <button class="cant-btn" onclick="ajustarCantidadModal(0.1)">+</button>
+                    <button class="cant-btn" type="button" onclick="ajustarCantidadModal(0.1)">+</button>
                 </div>
                 <div class="subtotal-preview">
                     <span>Subtotal:</span>
@@ -336,14 +497,14 @@
                     <label>Monto recibido</label>
                     <input type="number" id="inputEfectivo" placeholder="0.00" step="0.01" oninput="calcularCambio()">
                     <div class="denominaciones">
-                        <button onclick="addEfectivo(20)">+$20</button>
-                        <button onclick="addEfectivo(50)">+$50</button>
-                        <button onclick="addEfectivo(100)">+$100</button>
-                        <button onclick="addEfectivo(200)">+$200</button>
-                        <button onclick="addEfectivo(500)">+$500</button>
-                        <button onclick="setExacto()">Exacto</button>
-                        <button onclick="limpiarEfectivo()">Limpiar</button>
-                        <button onclick="addEfectivo(1000)">+$1000</button>
+                        <button type="button" onclick="addEfectivo(20)">+$20</button>
+                        <button type="button" onclick="addEfectivo(50)">+$50</button>
+                        <button type="button" onclick="addEfectivo(100)">+$100</button>
+                        <button type="button" onclick="addEfectivo(200)">+$200</button>
+                        <button type="button" onclick="addEfectivo(500)">+$500</button>
+                        <button type="button" onclick="setExacto()">Exacto</button>
+                        <button type="button" onclick="limpiarEfectivo()">Limpiar</button>
+                        <button type="button" onclick="addEfectivo(1000)">+$1000</button>
                     </div>
                     <div class="cobro-cambio">
                         <span>Cambio</span>
