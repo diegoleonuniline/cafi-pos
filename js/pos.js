@@ -745,14 +745,14 @@ function renderMetodosPago() {
     if (!cont) return;
     
     if (!metodosPago.length) {
-        cont.innerHTML = '<button type="button" class="metodo-btn active" data-metodo-id="EFECTIVO"><i class="fas fa-money-bill"></i><span>Efectivo</span></button>';
+        cont.innerHTML = '<button type="button" class="metodo-btn active" data-metodo-id="EFECTIVO"><i class="fas fa-money-bill-wave"></i><span>Efectivo</span></button>';
         return;
     }
     
     var html = '';
     metodosPago.forEach(function(m, i) {
-        var icono = m.icono || 'fa-money-bill-wave';
-        if (icono.indexOf('fa-') !== 0) icono = 'fa-' + icono;
+        // Asignar icono basado en tipo o nombre
+        var icono = getIconoMetodo(m);
         
         html += '<button type="button" class="metodo-btn' + (i === 0 ? ' active' : '') + '" data-metodo-id="' + m.metodo_pago_id + '">' +
             '<i class="fas ' + icono + '"></i><span>' + m.nombre + '</span>' +
@@ -766,6 +766,33 @@ function renderMetodosPago() {
             btn.classList.add('active');
         });
     });
+}
+
+function getIconoMetodo(metodo) {
+    var tipo = (metodo.tipo || '').toUpperCase();
+    var nombre = (metodo.nombre || '').toLowerCase();
+    
+    // Por tipo
+    if (tipo === 'EFECTIVO') return 'fa-money-bill-wave';
+    if (tipo === 'TARJETA' || tipo === 'TARJETA_DEBITO') return 'fa-credit-card';
+    if (tipo === 'TARJETA_CREDITO') return 'fa-credit-card';
+    if (tipo === 'TRANSFERENCIA') return 'fa-university';
+    if (tipo === 'CHEQUE') return 'fa-money-check';
+    if (tipo === 'VALES') return 'fa-ticket-alt';
+    
+    // Por nombre
+    if (nombre.indexOf('efectivo') >= 0 || nombre.indexOf('cash') >= 0) return 'fa-money-bill-wave';
+    if (nombre.indexOf('tarjeta') >= 0 || nombre.indexOf('card') >= 0) return 'fa-credit-card';
+    if (nombre.indexOf('débito') >= 0 || nombre.indexOf('debito') >= 0) return 'fa-credit-card';
+    if (nombre.indexOf('crédito') >= 0 || nombre.indexOf('credito') >= 0) return 'fa-credit-card';
+    if (nombre.indexOf('transfer') >= 0 || nombre.indexOf('spei') >= 0) return 'fa-university';
+    if (nombre.indexOf('cheque') >= 0) return 'fa-money-check';
+    if (nombre.indexOf('vale') >= 0 || nombre.indexOf('voucher') >= 0) return 'fa-ticket-alt';
+    if (nombre.indexOf('paypal') >= 0) return 'fa-paypal';
+    if (nombre.indexOf('mercado') >= 0) return 'fa-handshake';
+    
+    // Default
+    return 'fa-wallet';
 }
 
 function setupEventos() {
