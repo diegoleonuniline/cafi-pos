@@ -6,6 +6,317 @@
     <title>CAFI POS - Punto de Venta</title>
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ==================== CORTE DE CAJA COMPACTO ==================== */
+        .corte-seccion {
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .corte-seccion:last-child {
+            border-bottom: none;
+        }
+        .corte-seccion-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background: #f8fafc;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+        .corte-seccion-header i {
+            color: #6366f1;
+        }
+        
+        /* Contador compacto */
+        .contador-compacto {
+            padding: 15px 20px;
+        }
+        .contador-fila {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .contador-fila.billetes {
+            grid-template-columns: repeat(6, 1fr);
+        }
+        .contador-fila.monedas {
+            grid-template-columns: repeat(5, 1fr);
+        }
+        .contador-item-mini {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 4px;
+            background: #f0fdf4;
+            border-radius: 8px;
+            border: 1px solid #bbf7d0;
+        }
+        .contador-item-mini.moneda {
+            background: #fef3c7;
+            border-color: #fcd34d;
+        }
+        .contador-item-mini .denom {
+            font-weight: 700;
+            font-size: 11px;
+            color: #166534;
+        }
+        .contador-item-mini.moneda .denom {
+            color: #92400e;
+        }
+        .contador-controls {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+        .contador-controls button {
+            width: 22px;
+            height: 22px;
+            border: none;
+            background: #e5e7eb;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .contador-controls button:hover {
+            background: #d1d5db;
+        }
+        .contador-controls input {
+            width: 36px;
+            height: 22px;
+            text-align: center;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .contador-item-mini .subtotal {
+            font-size: 9px;
+            color: #6b7280;
+        }
+        .contador-total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+            border-radius: 8px;
+            color: white;
+            margin-top: 10px;
+        }
+        .contador-total-row strong {
+            font-size: 20px;
+        }
+        
+        /* Métodos de pago declarar */
+        .metodos-declarar {
+            padding: 15px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .metodo-declarar-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 15px;
+            background: #f9fafb;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        .metodo-declarar-row .metodo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+        .metodo-declarar-row .metodo-icon.efectivo { background: linear-gradient(135deg, #10b981, #059669); }
+        .metodo-declarar-row .metodo-icon.tarjeta { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .metodo-declarar-row .metodo-icon.transferencia { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+        .metodo-declarar-row .metodo-icon.otro { background: linear-gradient(135deg, #6b7280, #4b5563); }
+        .metodo-declarar-row .metodo-info {
+            flex: 1;
+        }
+        .metodo-declarar-row .metodo-nombre {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 14px;
+        }
+        .metodo-declarar-row .metodo-hint {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+        .metodo-declarar-row .metodo-input {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .metodo-declarar-row .metodo-input span {
+            color: #6b7280;
+            font-weight: 500;
+        }
+        .metodo-declarar-row .metodo-input input {
+            width: 120px;
+            padding: 8px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: right;
+        }
+        .metodo-declarar-row .metodo-input input:focus {
+            border-color: #6366f1;
+            outline: none;
+        }
+        
+        /* Movimientos resumen */
+        .movimientos-resumen {
+            padding: 15px 20px;
+            display: flex;
+            gap: 15px;
+        }
+        .mov-item {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-radius: 8px;
+        }
+        .mov-item.ingreso {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+        }
+        .mov-item.egreso {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+        .mov-item span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+        .mov-item strong {
+            font-size: 16px;
+        }
+        
+        /* ==================== RESUMEN DE CORTE ==================== */
+        .corte-resumen-container {
+            padding: 0;
+        }
+        .corte-resumen-header-resultado {
+            padding: 25px;
+            text-align: center;
+            color: white;
+        }
+        .corte-resumen-header-resultado.correcto {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .corte-resumen-header-resultado.sobrante {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+        .corte-resumen-header-resultado.faltante {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        .corte-resumen-header-resultado .icono {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .corte-resumen-header-resultado h3 {
+            margin: 0 0 5px;
+            font-size: 22px;
+        }
+        .corte-resumen-header-resultado .diferencia-monto {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        .corte-comparativo {
+            padding: 20px;
+        }
+        .corte-comparativo-titulo {
+            font-size: 14px;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .corte-comparativo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .corte-columna {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 15px;
+        }
+        .corte-columna h5 {
+            margin: 0 0 12px;
+            font-size: 13px;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .corte-columna h5 i {
+            color: #6366f1;
+        }
+        .corte-linea {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 13px;
+        }
+        .corte-linea:last-child {
+            border-bottom: none;
+        }
+        .corte-linea.total {
+            font-weight: 700;
+            font-size: 14px;
+            padding-top: 12px;
+            margin-top: 5px;
+            border-top: 2px solid #d1d5db;
+            border-bottom: none;
+        }
+        .corte-linea .esperado { color: #6b7280; }
+        .corte-linea .declarado { color: #1f2937; font-weight: 600; }
+        .corte-linea .diferencia-positiva { color: #3b82f6; font-weight: 600; }
+        .corte-linea .diferencia-negativa { color: #ef4444; font-weight: 600; }
+        .corte-linea .diferencia-cero { color: #10b981; font-weight: 600; }
+        .corte-stats-footer {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 20px;
+            background: #f1f5f9;
+            border-top: 1px solid #e5e7eb;
+            font-size: 13px;
+            color: #64748b;
+        }
+        .corte-stats-footer span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 600px) {
+            .contador-fila.billetes { grid-template-columns: repeat(3, 1fr); }
+            .contador-fila.monedas { grid-template-columns: repeat(3, 1fr); }
+            .corte-comparativo-grid { grid-template-columns: 1fr; }
+            .movimientos-resumen { flex-direction: column; }
+        }
+    </style>
 </head>
 <body>
     <div class="app">
@@ -217,6 +528,8 @@
         </div>
     </div>
 
+    <!-- ==================== MODALES ==================== -->
+
     <!-- MODAL ABRIR TURNO -->
     <div class="modal-overlay" id="modalAbrirTurno">
         <div class="modal modal-sm">
@@ -245,232 +558,176 @@
         </div>
     </div>
 
-    <!-- MODAL CERRAR TURNO (CORTE) -->
+    <!-- MODAL CERRAR TURNO / CORTE (NUEVO DISEÑO COMPACTO) -->
     <div class="modal-overlay" id="modalCerrarTurno">
-        <div class="modal modal-xl">
-            <div class="modal-header" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)">
+        <div class="modal" style="width:650px;max-width:95vw">
+            <div class="modal-header" style="background:linear-gradient(135deg,#1e3a5f 0%,#0f172a 100%)">
                 <div class="modal-title"><i class="fas fa-cash-register"></i><span>Corte de Caja</span></div>
                 <button class="btn-close light" onclick="cerrarModal('modalCerrarTurno')"><i class="fas fa-times"></i></button>
             </div>
-            <div class="modal-body" style="padding:0">
-                <div class="corte-layout">
-                    <!-- PANEL IZQUIERDO: Resumen -->
-                    <div class="corte-panel-left">
-                        <h4><i class="fas fa-chart-pie"></i> Resumen del Turno</h4>
-                        
-                        <!-- Ventas por método de pago -->
-                        <div class="corte-seccion-box">
-                            <h5>Cobros por Método de Pago</h5>
-                            <div id="cortePagosPorMetodo"></div>
-                            <div class="corte-total-row">
-                                <span>Total Ventas:</span>
-                                <strong id="corteTotalVentas">$0.00</strong>
-                            </div>
-                        </div>
-                        
-                        <!-- Movimientos de caja -->
-                        <div class="corte-seccion-box">
-                            <h5>Movimientos de Caja (Efectivo)</h5>
-                            <div class="corte-mov-row ingreso">
-                                <span><i class="fas fa-arrow-down"></i> Ingresos:</span>
-                                <strong id="corteIngresos">$0.00</strong>
-                            </div>
-                            <div class="corte-mov-row egreso">
-                                <span><i class="fas fa-arrow-up"></i> Egresos:</span>
-                                <strong id="corteEgresos">$0.00</strong>
-                            </div>
-                        </div>
-                        
-                        <!-- Arqueo de efectivo -->
-                        <div class="corte-seccion-box arqueo">
-                            <h5><i class="fas fa-coins"></i> Arqueo de Efectivo</h5>
-                            <div class="arqueo-row">
-                                <span>Saldo Inicial:</span>
-                                <strong id="corteSaldoInicial">$0.00</strong>
-                            </div>
-                            <div class="arqueo-row">
-                                <span>+ Ventas Efectivo:</span>
-                                <strong id="corteVentasEfectivo">$0.00</strong>
-                            </div>
-                            <div class="arqueo-row ingreso">
-                                <span>+ Ingresos:</span>
-                                <strong id="corteIngresosArqueo">$0.00</strong>
-                            </div>
-                            <div class="arqueo-row egreso">
-                                <span>- Egresos:</span>
-                                <strong id="corteEgresosArqueo">$0.00</strong>
-                            </div>
-                            <div class="arqueo-row total">
-                                <span>= Efectivo Esperado:</span>
-                                <strong id="corteEsperado">$0.00</strong>
-                            </div>
-                        </div>
-                        
-                        <!-- Stats -->
-                        <div class="corte-stats-box">
-                            <div class="stat-mini">
-                                <i class="fas fa-receipt"></i>
-                                <span id="corteNumVentas">0</span>
-                                <small>ventas</small>
-                            </div>
-                            <div class="stat-mini warning">
-                                <i class="fas fa-times-circle"></i>
-                                <span id="corteNumCanceladas">0</span>
-                                <small>canceladas</small>
-                            </div>
-                        </div>
+            <div class="modal-body" style="padding:0;max-height:75vh;overflow-y:auto">
+                
+                <!-- SECCIÓN: Conteo de Efectivo -->
+                <div class="corte-seccion">
+                    <div class="corte-seccion-header">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>Conteo de Efectivo en Caja</span>
                     </div>
-                    
-                    <!-- PANEL DERECHO: Conteo de efectivo -->
-                    <div class="corte-panel-right">
-                        <h4><i class="fas fa-hand-holding-usd"></i> Contar Efectivo en Caja</h4>
-                        
-                        <!-- Contador de billetes -->
-                        <div class="contador-seccion">
-                            <h5>Billetes</h5>
-                            <div class="contador-grid">
-                                <div class="contador-item" data-valor="1000">
-                                    <div class="contador-billete b1000">$1000</div>
-                                    <div class="contador-input">
-                                        <button type="button" onclick="ajustarContador(1000, -1)">−</button>
-                                        <input type="number" id="cont_1000" value="0" min="0" onchange="calcularTotalContado()">
-                                        <button type="button" onclick="ajustarContador(1000, 1)">+</button>
-                                    </div>
-                                    <span class="contador-subtotal" id="sub_1000">$0</span>
+                    <div class="contador-compacto">
+                        <div class="contador-fila billetes">
+                            <div class="contador-item-mini">
+                                <span class="denom">$1000</span>
+                                <div class="contador-controls">
+                                    <button type="button" onclick="ajustarContador(1000,-1)">−</button>
+                                    <input type="number" id="cont_1000" value="0" min="0" onchange="calcularTotalContado()">
+                                    <button type="button" onclick="ajustarContador(1000,1)">+</button>
                                 </div>
-                                <div class="contador-item" data-valor="500">
-                                    <div class="contador-billete b500">$500</div>
-                                    <div class="contador-input">
-                                        <button type="button" onclick="ajustarContador(500, -1)">−</button>
-                                        <input type="number" id="cont_500" value="0" min="0" onchange="calcularTotalContado()">
-                                        <button type="button" onclick="ajustarContador(500, 1)">+</button>
-                                    </div>
-                                    <span class="contador-subtotal" id="sub_500">$0</span>
+                                <span class="subtotal" id="sub_1000">$0</span>
+                            </div>
+                            <div class="contador-item-mini">
+                                <span class="denom">$500</span>
+                                <div class="contador-controls">
+                                    <button type="button" onclick="ajustarContador(500,-1)">−</button>
+                                    <input type="number" id="cont_500" value="0" min="0" onchange="calcularTotalContado()">
+                                    <button type="button" onclick="ajustarContador(500,1)">+</button>
                                 </div>
-                                <div class="contador-item" data-valor="200">
-                                    <div class="contador-billete b200">$200</div>
-                                    <div class="contador-input">
-                                        <button type="button" onclick="ajustarContador(200, -1)">−</button>
-                                        <input type="number" id="cont_200" value="0" min="0" onchange="calcularTotalContado()">
-                                        <button type="button" onclick="ajustarContador(200, 1)">+</button>
-                                    </div>
-                                    <span class="contador-subtotal" id="sub_200">$0</span>
+                                <span class="subtotal" id="sub_500">$0</span>
+                            </div>
+                            <div class="contador-item-mini">
+                                <span class="denom">$200</span>
+                                <div class="contador-controls">
+                                    <button type="button" onclick="ajustarContador(200,-1)">−</button>
+                                    <input type="number" id="cont_200" value="0" min="0" onchange="calcularTotalContado()">
+                                    <button type="button" onclick="ajustarContador(200,1)">+</button>
                                 </div>
-                                <div class="contador-item" data-valor="100">
-                                    <div class="contador-billete b100">$100</div>
-                                    <div class="contador-input">
-                                        <button type="button" onclick="ajustarContador(100, -1)">−</button>
-                                        <input type="number" id="cont_100" value="0" min="0" onchange="calcularTotalContado()">
-                                        <button type="button" onclick="ajustarContador(100, 1)">+</button>
-                                    </div>
-                                    <span class="contador-subtotal" id="sub_100">$0</span>
+                                <span class="subtotal" id="sub_200">$0</span>
+                            </div>
+                            <div class="contador-item-mini">
+                                <span class="denom">$100</span>
+                                <div class="contador-controls">
+                                    <button type="button" onclick="ajustarContador(100,-1)">−</button>
+                                    <input type="number" id="cont_100" value="0" min="0" onchange="calcularTotalContado()">
+                                    <button type="button" onclick="ajustarContador(100,1)">+</button>
                                 </div>
-                                <div class="contador-item" data-valor="50">
-                                    <div class="contador-billete b50">$50</div>
-                                    <div class="contador-input">
-                                        <button type="button" onclick="ajustarContador(50, -1)">−</button>
-                                        <input type="number" id="cont_50" value="0" min="0" onchange="calcularTotalContado()">
-                                        <button type="button" onclick="ajustarContador(50, 1)">+</button>
-                                    </div>
-                                    <span class="contador-subtotal" id="sub_50">$0</span>
+                                <span class="subtotal" id="sub_100">$0</span>
+                            </div>
+                            <div class="contador-item-mini">
+                                <span class="denom">$50</span>
+                                <div class="contador-controls">
+                                    <button type="button" onclick="ajustarContador(50,-1)">−</button>
+                                    <input type="number" id="cont_50" value="0" min="0" onchange="calcularTotalContado()">
+                                    <button type="button" onclick="ajustarContador(50,1)">+</button>
                                 </div>
-                                <div class="contador-item" data-valor="20">
-                                    <div class="contador-billete b20">$20</div>
-                                    <div class="contador-input">
-                                        <button type="button" onclick="ajustarContador(20, -1)">−</button>
-                                        <input type="number" id="cont_20" value="0" min="0" onchange="calcularTotalContado()">
-                                        <button type="button" onclick="ajustarContador(20, 1)">+</button>
-                                    </div>
-                                    <span class="contador-subtotal" id="sub_20">$0</span>
+                                <span class="subtotal" id="sub_50">$0</span>
+                            </div>
+                            <div class="contador-item-mini">
+                                <span class="denom">$20</span>
+                                <div class="contador-controls">
+                                    <button type="button" onclick="ajustarContador(20,-1)">−</button>
+                                    <input type="number" id="cont_20" value="0" min="0" onchange="calcularTotalContado()">
+                                    <button type="button" onclick="ajustarContador(20,1)">+</button>
                                 </div>
+                                <span class="subtotal" id="sub_20">$0</span>
                             </div>
                         </div>
-                        
-                        <!-- Contador de monedas -->
-                        <div class="contador-seccion">
-                            <h5>Monedas</h5>
-                            <div class="contador-grid monedas">
-                                <div class="contador-item" data-valor="10">
-                                    <div class="contador-moneda m10">$10</div>
-                                    <div class="contador-input">
-                                        <button type="button" onclick="ajustarContador(10, -1)">−</button>
-                                        <input type="number" id="cont_10" value="0" min="0" onchange="calcularTotalContado()">
-                                        <button type="button" onclick="ajustarContador(10, 1)">+</button>
-                                    </div>
-                                    <span class="contador-subtotal" id="sub_10">$0</span>
+                        <div class="contador-fila monedas">
+                            <div class="contador-item-mini moneda">
+                                <span class="denom">$10</span>
+                                <div class="contador-controls">
+                                    <button type="button" onclick="ajustarContador(10,-1)">−</button>
+                                    <input type="number" id="cont_10" value="0" min="0" onchange="calcularTotalContado()">
+                                    <button type="button" onclick="ajustarContador(10,1)">+</button>
                                 </div>
-                                <div class="contador-item" data-valor="5">
-                                    <div class="contador-moneda m5">$5</div>
-                                    <div class="contador-input">
-                                        <button type="button" onclick="ajustarContador(5, -1)">−</button>
-                                        <input type="number" id="cont_5" value="0" min="0" onchange="calcularTotalContado()">
-                                        <button type="button" onclick="ajustarContador(5, 1)">+</button>
-                                    </div>
-                                    <span class="contador-subtotal" id="sub_5">$0</span>
+                                <span class="subtotal" id="sub_10">$0</span>
+                            </div>
+                            <div class="contador-item-mini moneda">
+                                <span class="denom">$5</span>
+                                <div class="contador-controls">
+                                    <button type="button" onclick="ajustarContador(5,-1)">−</button>
+                                    <input type="number" id="cont_5" value="0" min="0" onchange="calcularTotalContado()">
+                                    <button type="button" onclick="ajustarContador(5,1)">+</button>
                                 </div>
-                                <div class="contador-item" data-valor="2">
-                                    <div class="contador-moneda m2">$2</div>
-                                    <div class="contador-input">
-                                        <button type="button" onclick="ajustarContador(2, -1)">−</button>
-                                        <input type="number" id="cont_2" value="0" min="0" onchange="calcularTotalContado()">
-                                        <button type="button" onclick="ajustarContador(2, 1)">+</button>
-                                    </div>
-                                    <span class="contador-subtotal" id="sub_2">$0</span>
+                                <span class="subtotal" id="sub_5">$0</span>
+                            </div>
+                            <div class="contador-item-mini moneda">
+                                <span class="denom">$2</span>
+                                <div class="contador-controls">
+                                    <button type="button" onclick="ajustarContador(2,-1)">−</button>
+                                    <input type="number" id="cont_2" value="0" min="0" onchange="calcularTotalContado()">
+                                    <button type="button" onclick="ajustarContador(2,1)">+</button>
                                 </div>
-                                <div class="contador-item" data-valor="1">
-                                    <div class="contador-moneda m1">$1</div>
-                                    <div class="contador-input">
-                                        <button type="button" onclick="ajustarContador(1, -1)">−</button>
-                                        <input type="number" id="cont_1" value="0" min="0" onchange="calcularTotalContado()">
-                                        <button type="button" onclick="ajustarContador(1, 1)">+</button>
-                                    </div>
-                                    <span class="contador-subtotal" id="sub_1">$0</span>
+                                <span class="subtotal" id="sub_2">$0</span>
+                            </div>
+                            <div class="contador-item-mini moneda">
+                                <span class="denom">$1</span>
+                                <div class="contador-controls">
+                                    <button type="button" onclick="ajustarContador(1,-1)">−</button>
+                                    <input type="number" id="cont_1" value="0" min="0" onchange="calcularTotalContado()">
+                                    <button type="button" onclick="ajustarContador(1,1)">+</button>
                                 </div>
-                                <div class="contador-item" data-valor="0.5">
-                                    <div class="contador-moneda m05">50¢</div>
-                                    <div class="contador-input">
-                                        <button type="button" onclick="ajustarContador(0.5, -1)">−</button>
-                                        <input type="number" id="cont_05" value="0" min="0" onchange="calcularTotalContado()">
-                                        <button type="button" onclick="ajustarContador(0.5, 1)">+</button>
-                                    </div>
-                                    <span class="contador-subtotal" id="sub_05">$0</span>
+                                <span class="subtotal" id="sub_1">$0</span>
+                            </div>
+                            <div class="contador-item-mini moneda">
+                                <span class="denom">50¢</span>
+                                <div class="contador-controls">
+                                    <button type="button" onclick="ajustarContador(0.5,-1)">−</button>
+                                    <input type="number" id="cont_05" value="0" min="0" onchange="calcularTotalContado()">
+                                    <button type="button" onclick="ajustarContador(0.5,1)">+</button>
                                 </div>
+                                <span class="subtotal" id="sub_05">$0</span>
                             </div>
                         </div>
-                        
-                        <!-- Total contado y diferencia -->
-                        <div class="conteo-resultado">
-                            <div class="conteo-total">
-                                <span>Total Contado:</span>
-                                <strong id="totalContado">$0.00</strong>
-                            </div>
-                            <div class="conteo-diferencia" id="contDiferenciaBox">
-                                <span>Diferencia:</span>
-                                <strong id="contDiferencia">$0.00</strong>
-                            </div>
-                            <div class="conteo-status pendiente" id="conteoStatus">
-                                <i class="fas fa-clock"></i>
-                                <span>Cuenta el efectivo para continuar</span>
-                            </div>
+                        <div class="contador-total-row">
+                            <span>Total Efectivo Contado:</span>
+                            <strong id="totalContado">$0.00</strong>
                         </div>
-                        
-                        <!-- Observaciones -->
-                        <div class="form-group" style="margin-top:16px">
-                            <label>Observaciones (opcional)</label>
-                            <textarea id="observacionesCierre" rows="2" placeholder="Notas del cierre..."></textarea>
-                        </div>
-                        
-                        <!-- Botón limpiar -->
-                        <button type="button" class="btn btn-outline btn-block" onclick="limpiarContador()" style="margin-top:10px">
-                            <i class="fas fa-redo"></i> Limpiar y Volver a Contar
-                        </button>
                     </div>
                 </div>
+                
+                <!-- SECCIÓN: Cobros por Método de Pago -->
+                <div class="corte-seccion">
+                    <div class="corte-seccion-header">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Cobros Recibidos (Otros Métodos)</span>
+                    </div>
+                    <div class="metodos-declarar" id="metodosDeclarar">
+                        <p style="text-align:center;color:#9ca3af;padding:10px">Cargando métodos...</p>
+                    </div>
+                </div>
+                
+                <!-- SECCIÓN: Movimientos de Caja -->
+                <div class="corte-seccion">
+                    <div class="corte-seccion-header">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Movimientos de Caja (Solo Efectivo)</span>
+                    </div>
+                    <div class="movimientos-resumen">
+                        <div class="mov-item ingreso">
+                            <span><i class="fas fa-arrow-down"></i> Ingresos</span>
+                            <strong id="corteIngresosDisplay">$0.00</strong>
+                        </div>
+                        <div class="mov-item egreso">
+                            <span><i class="fas fa-arrow-up"></i> Egresos</span>
+                            <strong id="corteEgresosDisplay">$0.00</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- SECCIÓN: Observaciones -->
+                <div class="corte-seccion" style="padding:15px 20px">
+                    <label style="font-weight:600;font-size:13px;color:#374151;margin-bottom:8px;display:block">
+                        <i class="fas fa-comment" style="color:#6366f1;margin-right:8px"></i>Observaciones (opcional)
+                    </label>
+                    <textarea id="observacionesCierre" placeholder="Notas adicionales del cierre..." rows="2" style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:8px;resize:none;font-size:14px"></textarea>
+                </div>
+                
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="cerrarModal('modalCerrarTurno')">Cancelar</button>
-                <button class="btn btn-primary btn-lg" id="btnGuardarCorte" onclick="confirmarCerrarTurno()">
-                    <i class="fas fa-save"></i> Guardar y Cerrar Turno
+            <div class="modal-footer" style="display:flex;gap:10px;justify-content:space-between">
+                <button type="button" class="btn btn-outline" onclick="cerrarModal('modalCerrarTurno')">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-success btn-lg" onclick="confirmarCerrarTurno()">
+                    <i class="fas fa-check"></i> Guardar y Cerrar Turno
                 </button>
             </div>
         </div>
@@ -478,40 +735,40 @@
 
     <!-- MODAL RESUMEN CORTE (después de guardar) -->
     <div class="modal-overlay" id="modalCorteResumen">
-        <div class="modal modal-md">
-            <div class="modal-body" style="padding:0">
-                <div id="corteResumenContent"></div>
+        <div class="modal" style="width:700px;max-width:95vw">
+            <div class="modal-body" style="padding:0" id="corteResumenContent">
+                <!-- Se llena dinámicamente -->
             </div>
-            <div class="modal-footer" style="justify-content:center;gap:10px">
-                <button class="btn btn-outline" onclick="imprimirCorte()">
-                    <i class="fas fa-print"></i> Imprimir Corte
+            <div class="modal-footer" style="display:flex;gap:10px;justify-content:space-between">
+                <button type="button" class="btn btn-outline" onclick="solicitarReconteo()">
+                    <i class="fas fa-redo"></i> Volver a Contar
                 </button>
-                <button class="btn btn-primary" onclick="cerrarCorteYSalir()">
-                    <i class="fas fa-check"></i> Aceptar
-                </button>
+                <div style="display:flex;gap:10px">
+                    <button type="button" class="btn btn-outline" onclick="imprimirCorte()">
+                        <i class="fas fa-print"></i> Imprimir
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="cerrarCorteYSalir()">
+                        <i class="fas fa-check"></i> Aceptar
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL VALIDAR ADMIN (para volver a contar) -->
+    <!-- MODAL VALIDAR ADMIN -->
     <div class="modal-overlay" id="modalValidarAdmin">
-        <div class="modal modal-xs">
-            <div class="modal-header" style="background:#f59e0b">
-                <div class="modal-title"><i class="fas fa-shield-alt"></i><span>Autorización Requerida</span></div>
+        <div class="modal" style="width:400px">
+            <div class="modal-header" style="background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%)">
+                <div class="modal-title"><i class="fas fa-lock"></i><span>Autorización Requerida</span></div>
                 <button class="btn-close light" onclick="cerrarModal('modalValidarAdmin')"><i class="fas fa-times"></i></button>
             </div>
-            <div class="modal-body">
-                <p style="text-align:center;margin-bottom:16px">Ingresa la clave de administrador para volver a contar</p>
-                <div class="form-group">
-                    <label>Clave de Admin</label>
-                    <input type="password" id="claveAdmin" placeholder="Contraseña..." onkeypress="if(event.key==='Enter')validarClaveAdmin()">
-                </div>
+            <div class="modal-body" style="text-align:center;padding:30px">
+                <p style="margin-bottom:20px;color:#6b7280">Ingresa la clave de administrador para volver a contar</p>
+                <input type="password" id="claveAdmin" class="form-control" placeholder="Clave de administrador" style="text-align:center;font-size:18px;padding:12px" onkeypress="if(event.key==='Enter')validarClaveAdmin()">
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="cerrarModal('modalValidarAdmin')">Cancelar</button>
-                <button class="btn btn-warning" onclick="validarClaveAdmin()">
-                    <i class="fas fa-unlock"></i> Autorizar
-                </button>
+                <button type="button" class="btn btn-outline" onclick="cerrarModal('modalValidarAdmin')">Cancelar</button>
+                <button type="button" class="btn btn-warning" onclick="validarClaveAdmin()"><i class="fas fa-unlock"></i> Autorizar</button>
             </div>
         </div>
     </div>
@@ -859,7 +1116,8 @@
             var now = new Date();
             var h = String(now.getHours()).padStart(2, '0');
             var m = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('horaActual').textContent = h + ':' + m;
+            var el = document.getElementById('horaActual');
+            if (el) el.textContent = h + ':' + m;
         }, 1000);
     </script>
 </body>
