@@ -868,6 +868,28 @@
         </div>
     </div>
 
+    <!-- Modal Confirmar -->
+<div class="modal-overlay" id="modalConfirmar">
+    <div class="modal modal-xs">
+        <div class="modal-header" id="confirmarHeader">
+            <h3 class="modal-title" id="confirmarTitulo">
+                <i class="fas fa-question-circle"></i>
+                <span>Confirmar</span>
+            </h3>
+        </div>
+        <div class="modal-body">
+            <p id="confirmarMensaje" style="text-align:center;font-size:15px;color:#374151;margin:10px 0 20px;"></p>
+        </div>
+        <div class="modal-footer" style="justify-content:center;gap:12px;">
+            <button type="button" class="btn btn-outline" onclick="cerrarConfirmar(false)">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button type="button" class="btn btn-primary" id="btnConfirmarAceptar">
+                <i class="fas fa-check"></i> <span id="confirmarBtnTexto">Aceptar</span>
+            </button>
+        </div>
+    </div>
+</div>
     <!-- MODAL CLIENTE -->
     <div class="modal-overlay" id="modalCliente">
         <div class="modal modal-md">
