@@ -11,8 +11,10 @@ var tipoVenta = 'CONTADO';
 var tipoPrecio = 1;
 var descuentoGlobal = 0;
 var turnoActual = null;
+var corteData = null;
 var ventasEnEspera = JSON.parse(localStorage.getItem('ventasEnEspera') || '[]');
 var UNIDADES_GRANEL = ['KG', 'GR', 'LT', 'ML', 'MT'];
+var denominaciones = [1000, 500, 200, 100, 50, 20, 10, 5, 2, 1, 0.5];
 
 document.addEventListener('DOMContentLoaded', function() {
     cargarUsuario();
@@ -30,7 +32,7 @@ function cargarUsuario() {
     document.getElementById('userAvatar').textContent = iniciales.toUpperCase();
 }
 
-// ========== TURNOS ==========
+// ==================== TURNOS ====================
 function verificarTurno() {
     API.request('/turnos/activo/' + API.usuario.sucursal_id + '/' + API.usuario.id)
         .then(function(r) {
@@ -57,18 +59,20 @@ function actualizarUITurno(abierto) {
     if (abierto) {
         badge.innerHTML = '<i class="fas fa-circle"></i><span>Turno Abierto</span>';
         badge.className = 'turno-badge abierto';
+        badge.onclick = null;
         if (btnCerrar) btnCerrar.style.display = 'flex';
         habilitarPOS(true);
     } else {
         badge.innerHTML = '<i class="fas fa-circle"></i><span>Sin Turno</span>';
         badge.className = 'turno-badge cerrado';
+        badge.onclick = abrirModalAbrirTurno;
         if (btnCerrar) btnCerrar.style.display = 'none';
         habilitarPOS(false);
     }
 }
 
 function habilitarPOS(habilitar) {
-    var elementos = document.querySelectorAll('.pos-main input, .pos-main button:not(.btn-turno), .cliente-selector');
+    var elementos = document.querySelectorAll('.pos-main input, .pos-main button, .cliente-selector');
     elementos.forEach(function(el) {
         if (habilitar) {
             el.removeAttribute('disabled');
@@ -101,7 +105,7 @@ function confirmarAbrirTurno() {
     API.request('/turnos/abrir', 'POST', {
         empresa_id: API.usuario.empresa_id,
         sucursal_id: API.usuario.sucursal_id,
-        caja_id: API.usuario.caja_id || null,
+        caja_id: API.usuario.caja_id || 'CAJA-01',
         usuario_id: API.usuario.id,
         saldo_inicial: saldo
     }).then(function(r) {
@@ -117,60 +121,210 @@ function confirmarAbrirTurno() {
     });
 }
 
+// ==================== CORTE DE CAJA ====================
 function abrirModalCerrarTurno() {
     if (!turnoActual) return;
+    
+    limpiarContador();
     
     API.request('/turnos/resumen/' + turnoActual.turno_id)
         .then(function(r) {
             if (r.success) {
-                var t = r.turno;
-                var saldoInicial = parseFloat(t.saldo_inicial) || 0;
-                var totalVentas = parseFloat(r.ventas.total_ventas) || 0;
-                var ingresos = r.ingresos || 0;
-                var egresos = r.egresos || 0;
-                var esperado = saldoInicial + totalVentas + ingresos - egresos;
-                
-                document.getElementById('corteSaldoInicial').textContent = '$' + saldoInicial.toFixed(2);
-                document.getElementById('corteVentas').textContent = '$' + totalVentas.toFixed(2);
-                document.getElementById('corteIngresos').textContent = '$' + ingresos.toFixed(2);
-                document.getElementById('corteEgresos').textContent = '$' + egresos.toFixed(2);
-                document.getElementById('corteEsperado').textContent = '$' + esperado.toFixed(2);
-                document.getElementById('corteNumVentas').textContent = r.ventas.cantidad_ventas || 0;
-                document.getElementById('efectivoDeclarado').value = '';
-                document.getElementById('corteDiferencia').textContent = '$0.00';
-                document.getElementById('corteDiferencia').className = '';
-                document.getElementById('observacionesCierre').value = '';
-                
+                corteData = r;
+                renderResumenCorte(r);
                 document.getElementById('modalCerrarTurno').classList.add('active');
-                setTimeout(function() { document.getElementById('efectivoDeclarado').focus(); }, 100);
+            } else {
+                mostrarToast('Error cargando datos del turno', 'error');
             }
+        })
+        .catch(function(e) {
+            mostrarToast('Error de conexión', 'error');
         });
 }
 
-function calcularDiferenciaCierre() {
-    var esperadoText = document.getElementById('corteEsperado').textContent;
-    var esperado = parseFloat(esperadoText.replace('$', '').replace(',', '')) || 0;
-    var declarado = parseFloat(document.getElementById('efectivoDeclarado').value) || 0;
-    var diferencia = declarado - esperado;
+function renderResumenCorte(data) {
+    var t = data.turno;
+    var saldoInicial = parseFloat(t.saldo_inicial) || 0;
     
-    var elem = document.getElementById('corteDiferencia');
-    elem.textContent = (diferencia >= 0 ? '+' : '') + '$' + diferencia.toFixed(2);
-    elem.className = diferencia >= 0 ? 'text-success' : 'text-danger';
+    var pagosHtml = '';
+    var totalVentas = 0;
+    var efectivoVentas = 0;
+    
+    data.pagos_por_metodo.forEach(function(p) {
+        var iconClass = 'otro';
+        var iconName = 'fa-money-bill';
+        
+        if (p.tipo === 'EFECTIVO') {
+            iconClass = 'efectivo';
+            iconName = 'fa-money-bill-wave';
+            efectivoVentas = p.total;
+        } else if (p.tipo === 'TARJETA') {
+            iconClass = 'tarjeta';
+            iconName = 'fa-credit-card';
+        } else if (p.tipo === 'TRANSFERENCIA') {
+            iconClass = 'transferencia';
+            iconName = 'fa-exchange-alt';
+        }
+        
+        totalVentas += p.total;
+        
+        pagosHtml += '<div class="metodo-pago-row">' +
+            '<div class="metodo-info">' +
+                '<div class="metodo-icon ' + iconClass + '"><i class="fas ' + iconName + '"></i></div>' +
+                '<div>' +
+                    '<div class="metodo-nombre">' + p.nombre + '</div>' +
+                    '<div class="metodo-cantidad">' + p.cantidad + ' cobros</div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="metodo-total">$' + p.total.toFixed(2) + '</div>' +
+        '</div>';
+    });
+    
+    if (!pagosHtml) {
+        pagosHtml = '<p style="text-align:center;color:#9ca3af;padding:20px">Sin ventas en este turno</p>';
+    }
+    
+    document.getElementById('cortePagosPorMetodo').innerHTML = pagosHtml;
+    document.getElementById('corteTotalVentas').textContent = '$' + totalVentas.toFixed(2);
+    
+    document.getElementById('corteIngresos').textContent = '+$' + data.movimientos.ingresos.toFixed(2);
+    document.getElementById('corteEgresos').textContent = '-$' + data.movimientos.egresos.toFixed(2);
+    
+    document.getElementById('corteSaldoInicial').textContent = '$' + saldoInicial.toFixed(2);
+    document.getElementById('corteVentasEfectivo').textContent = '$' + efectivoVentas.toFixed(2);
+    document.getElementById('corteIngresosArqueo').textContent = '+$' + data.movimientos.ingresos.toFixed(2);
+    document.getElementById('corteEgresosArqueo').textContent = '-$' + data.movimientos.egresos.toFixed(2);
+    document.getElementById('corteEsperado').textContent = '$' + data.efectivo_esperado.toFixed(2);
+    
+    document.getElementById('corteNumVentas').textContent = data.ventas.cantidad_ventas;
+    document.getElementById('corteNumCanceladas').textContent = data.ventas.cantidad_canceladas;
 }
 
-function confirmarCerrarTurno() {
-    if (!turnoActual) return;
+// ==================== CONTADOR DE BILLETES Y MONEDAS ====================
+function ajustarContador(valor, delta) {
+    var inputId = 'cont_' + String(valor).replace('.', '');
+    var input = document.getElementById(inputId);
+    var actual = parseInt(input.value) || 0;
+    input.value = Math.max(0, actual + delta);
+    calcularTotalContado();
+}
+
+function calcularTotalContado() {
+    var total = 0;
     
-    var efectivoDeclarado = parseFloat(document.getElementById('efectivoDeclarado').value);
-    if (isNaN(efectivoDeclarado)) {
-        mostrarToast('Ingresa el efectivo en caja', 'error');
+    denominaciones.forEach(function(d) {
+        var inputId = 'cont_' + String(d).replace('.', '');
+        var subId = 'sub_' + String(d).replace('.', '');
+        var cantidad = parseInt(document.getElementById(inputId).value) || 0;
+        var subtotal = cantidad * d;
+        total += subtotal;
+        document.getElementById(subId).textContent = '$' + subtotal.toFixed(0);
+    });
+    
+    document.getElementById('totalContado').textContent = '$' + total.toFixed(2);
+    
+    if (corteData) {
+        var esperado = corteData.efectivo_esperado;
+        var diferencia = total - esperado;
+        
+        var difBox = document.getElementById('contDiferenciaBox');
+        var difText = document.getElementById('contDiferencia');
+        var statusBox = document.getElementById('conteoStatus');
+        
+        if (total === 0) {
+            difText.textContent = '$0.00';
+            difBox.className = 'conteo-diferencia';
+            statusBox.className = 'conteo-status pendiente';
+            statusBox.innerHTML = '<i class="fas fa-clock"></i><span>Cuenta el efectivo para continuar</span>';
+        } else if (Math.abs(diferencia) < 0.01) {
+            difText.textContent = '$0.00';
+            difBox.className = 'conteo-diferencia exacto';
+            statusBox.className = 'conteo-status correcto';
+            statusBox.innerHTML = '<i class="fas fa-check-circle"></i><span>¡Caja cuadrada! Todo correcto</span>';
+        } else if (diferencia > 0) {
+            difText.textContent = '+$' + diferencia.toFixed(2);
+            difBox.className = 'conteo-diferencia positivo';
+            statusBox.className = 'conteo-status sobrante';
+            statusBox.innerHTML = '<i class="fas fa-arrow-up"></i><span>Sobrante de $' + diferencia.toFixed(2) + '</span>';
+        } else {
+            difText.textContent = '-$' + Math.abs(diferencia).toFixed(2);
+            difBox.className = 'conteo-diferencia negativo';
+            statusBox.className = 'conteo-status faltante';
+            statusBox.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>Faltante de $' + Math.abs(diferencia).toFixed(2) + '</span>';
+        }
+    }
+}
+
+function limpiarContador() {
+    denominaciones.forEach(function(d) {
+        var inputId = 'cont_' + String(d).replace('.', '');
+        document.getElementById(inputId).value = 0;
+    });
+    calcularTotalContado();
+}
+
+function validarClaveAdmin() {
+    var clave = document.getElementById('claveAdmin').value;
+    
+    if (!clave) {
+        mostrarToast('Ingresa la clave de administrador', 'error');
         return;
     }
     
+    API.request('/turnos/validar-admin', 'POST', {
+        empresa_id: API.usuario.empresa_id,
+        password: clave
+    }).then(function(r) {
+        if (r.success) {
+            cerrarModal('modalValidarAdmin');
+            limpiarContador();
+            mostrarToast('Autorizado por ' + r.admin + '. Puede volver a contar.', 'success');
+        } else {
+            mostrarToast('Clave incorrecta', 'error');
+        }
+    });
+}
+
+// ==================== CONFIRMAR CIERRE ====================
+function confirmarCerrarTurno() {
+    if (!turnoActual || !corteData) return;
+    
+    var totalContado = 0;
+    denominaciones.forEach(function(d) {
+        var inputId = 'cont_' + String(d).replace('.', '');
+        var cantidad = parseInt(document.getElementById(inputId).value) || 0;
+        totalContado += cantidad * d;
+    });
+    
+    if (totalContado === 0) {
+        mostrarToast('Debes contar el efectivo en caja', 'error');
+        return;
+    }
+    
+    var diferencia = totalContado - corteData.efectivo_esperado;
+    var mensaje = '';
+    
+    if (Math.abs(diferencia) < 0.01) {
+        mensaje = '¿Confirmar cierre de turno? La caja está cuadrada.';
+    } else if (diferencia > 0) {
+        mensaje = '¿Confirmar cierre de turno? Hay un sobrante de $' + diferencia.toFixed(2);
+    } else {
+        mensaje = '¿Confirmar cierre de turno? Hay un faltante de $' + Math.abs(diferencia).toFixed(2);
+    }
+    
+    if (!confirm(mensaje)) return;
+    
     var observaciones = document.getElementById('observacionesCierre').value;
     
+    var desglose = {};
+    denominaciones.forEach(function(d) {
+        var inputId = 'cont_' + String(d).replace('.', '');
+        desglose['d' + String(d).replace('.', '_')] = parseInt(document.getElementById(inputId).value) || 0;
+    });
+    
     API.request('/turnos/cerrar/' + turnoActual.turno_id, 'POST', {
-        efectivo_declarado: efectivoDeclarado,
+        efectivo_declarado: totalContado,
+        desglose_efectivo: JSON.stringify(desglose),
         observaciones: observaciones,
         cerrado_por: API.usuario.id
     }).then(function(r) {
@@ -186,27 +340,54 @@ function confirmarCerrarTurno() {
 }
 
 function mostrarCorteResumen(corte) {
-    var difClass = corte.diferencia >= 0 ? 'positivo' : 'negativo';
-    var difSign = corte.diferencia >= 0 ? '+' : '';
+    var diferencia = corte.diferencia;
+    var headerClass = 'correcto';
+    var icono = 'fa-check-circle';
+    var titulo = '¡Caja Cuadrada!';
     
-    var html = '<div class="corte-resumen">' +
-        '<div class="corte-icon"><i class="fas fa-check-circle"></i></div>' +
-        '<h3>Turno Cerrado Exitosamente</h3>' +
-        '<div class="corte-detalle">' +
-            '<div class="corte-row"><span>Saldo Inicial:</span><strong>$' + corte.saldo_inicial.toFixed(2) + '</strong></div>' +
-            '<div class="corte-row"><span>Ventas Efectivo:</span><strong>$' + corte.ventas_efectivo.toFixed(2) + '</strong></div>' +
-            '<div class="corte-row"><span>Ventas Tarjeta:</span><strong>$' + corte.ventas_tarjeta.toFixed(2) + '</strong></div>' +
-            '<div class="corte-row"><span>Ventas Transferencia:</span><strong>$' + corte.ventas_transferencia.toFixed(2) + '</strong></div>' +
-            '<div class="corte-row"><span>Ventas Crédito:</span><strong>$' + corte.ventas_credito.toFixed(2) + '</strong></div>' +
-            '<div class="corte-row ingreso"><span>Ingresos:</span><strong>+$' + corte.ingresos.toFixed(2) + '</strong></div>' +
-            '<div class="corte-row egreso"><span>Egresos:</span><strong>-$' + corte.egresos.toFixed(2) + '</strong></div>' +
-            '<div class="corte-row total"><span>Efectivo Esperado:</span><strong>$' + corte.efectivo_esperado.toFixed(2) + '</strong></div>' +
-            '<div class="corte-row total"><span>Efectivo Declarado:</span><strong>$' + corte.efectivo_declarado.toFixed(2) + '</strong></div>' +
-            '<div class="corte-row ' + difClass + '"><span>Diferencia:</span><strong>' + difSign + '$' + Math.abs(corte.diferencia).toFixed(2) + '</strong></div>' +
+    if (diferencia > 0.01) {
+        headerClass = 'sobrante';
+        icono = 'fa-arrow-circle-up';
+        titulo = 'Sobrante en Caja';
+    } else if (diferencia < -0.01) {
+        headerClass = 'faltante';
+        icono = 'fa-exclamation-circle';
+        titulo = 'Faltante en Caja';
+    }
+    
+    var difText = Math.abs(diferencia) < 0.01 ? '$0.00' : (diferencia > 0 ? '+' : '-') + '$' + Math.abs(diferencia).toFixed(2);
+    
+    var html = '<div class="corte-resumen-final">' +
+        '<div class="corte-resumen-header ' + headerClass + '">' +
+            '<div class="icono"><i class="fas ' + icono + '"></i></div>' +
+            '<h3>' + titulo + '</h3>' +
+            '<div class="diferencia-final">' + difText + '</div>' +
         '</div>' +
-        '<div class="corte-stats">' +
+        '<div class="corte-resumen-body">' +
+            '<div class="corte-resumen-grid">' +
+                '<div class="corte-resumen-seccion">' +
+                    '<h5>Ventas por Método</h5>' +
+                    '<div class="item"><span>Efectivo:</span><strong>$' + corte.ventas_efectivo.toFixed(2) + '</strong></div>' +
+                    '<div class="item"><span>Tarjeta:</span><strong>$' + corte.ventas_tarjeta.toFixed(2) + '</strong></div>' +
+                    '<div class="item"><span>Transferencia:</span><strong>$' + corte.ventas_transferencia.toFixed(2) + '</strong></div>' +
+                    '<div class="item"><span>Crédito:</span><strong>$' + corte.ventas_credito.toFixed(2) + '</strong></div>' +
+                    '<div class="item total"><span>Total Ventas:</span><strong>$' + corte.total_ventas.toFixed(2) + '</strong></div>' +
+                '</div>' +
+                '<div class="corte-resumen-seccion">' +
+                    '<h5>Arqueo de Efectivo</h5>' +
+                    '<div class="item"><span>Saldo Inicial:</span><strong>$' + corte.saldo_inicial.toFixed(2) + '</strong></div>' +
+                    '<div class="item"><span>+ Ventas Efectivo:</span><strong>$' + corte.ventas_efectivo.toFixed(2) + '</strong></div>' +
+                    '<div class="item" style="color:#10b981"><span>+ Ingresos:</span><strong>$' + corte.ingresos.toFixed(2) + '</strong></div>' +
+                    '<div class="item" style="color:#ef4444"><span>- Egresos:</span><strong>$' + corte.egresos.toFixed(2) + '</strong></div>' +
+                    '<div class="item total"><span>Esperado:</span><strong>$' + corte.efectivo_esperado.toFixed(2) + '</strong></div>' +
+                    '<div class="item total"><span>Declarado:</span><strong>$' + corte.efectivo_declarado.toFixed(2) + '</strong></div>' +
+                '</div>' +
+            '</div>' +
+        '</div>' +
+        '<div class="corte-resumen-footer">' +
             '<span><i class="fas fa-receipt"></i> ' + corte.cantidad_ventas + ' ventas</span>' +
             '<span><i class="fas fa-times-circle"></i> ' + corte.cantidad_canceladas + ' canceladas</span>' +
+            '<span><i class="fas fa-clock"></i> ' + new Date().toLocaleString('es-MX') + '</span>' +
         '</div>' +
     '</div>';
     
@@ -214,18 +395,19 @@ function mostrarCorteResumen(corte) {
     document.getElementById('modalCorteResumen').classList.add('active');
 }
 
+function imprimirCorte() {
+    mostrarToast('Imprimiendo corte de caja...');
+}
+
 function cerrarCorteYSalir() {
     cerrarModal('modalCorteResumen');
     turnoActual = null;
+    corteData = null;
     actualizarUITurno(false);
     abrirModalAbrirTurno();
 }
 
-function imprimirCorte() {
-    mostrarToast('Imprimiendo corte...');
-}
-
-// ========== MOVIMIENTOS DE CAJA ==========
+// ==================== MOVIMIENTOS DE CAJA ====================
 function abrirModalMovimiento(tipo) {
     if (!turnoActual) {
         mostrarToast('No hay turno abierto', 'error');
@@ -240,7 +422,9 @@ function abrirModalMovimiento(tipo) {
     document.getElementById('movimientoReferencia').value = '';
     
     var header = document.querySelector('#modalMovimiento .modal-header');
-    header.style.background = tipo === 'INGRESO' ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+    header.style.background = tipo === 'INGRESO' ? 
+        'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 
+        'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
     
     document.getElementById('modalMovimiento').classList.add('active');
     setTimeout(function() { document.getElementById('movimientoMonto').focus(); }, 100);
@@ -280,7 +464,7 @@ function confirmarMovimiento() {
     });
 }
 
-// ========== VENTAS EN ESPERA ==========
+// ==================== VENTAS EN ESPERA ====================
 function actualizarBadgeEspera() {
     var btn = document.getElementById('btnEspera');
     if (!btn) return;
@@ -430,7 +614,7 @@ function limpiarVentaActual() {
     renderCarrito();
 }
 
-// ========== CARGAR DATOS ==========
+// ==================== CARGAR DATOS ====================
 function cargarDatos() {
     API.request('/pos/cargar/' + API.usuario.empresa_id + '/' + API.usuario.sucursal_id)
         .then(function(r) {
@@ -535,7 +719,7 @@ function onBuscarKeypress(e) {
     }
 }
 
-// ========== PRECIOS ==========
+// ==================== PRECIOS ====================
 function getPrecioConImpuestos(prod, numPrecio) {
     numPrecio = numPrecio || tipoPrecio;
     
@@ -565,7 +749,7 @@ function cambiarTipoPrecio() {
     focusBuscar();
 }
 
-// ========== MODAL PRODUCTOS ==========
+// ==================== MODAL PRODUCTOS ====================
 function abrirModalProductos() {
     document.getElementById('modalProductos').classList.add('active');
     document.getElementById('filtroNombre').value = '';
@@ -649,7 +833,7 @@ function verificarYAgregar(prod) {
     }
 }
 
-// ========== MODAL CANTIDAD (GRANEL) ==========
+// ==================== MODAL CANTIDAD (GRANEL) ====================
 var productoParaCantidad = null;
 
 function abrirModalCantidad(prod) {
@@ -693,7 +877,7 @@ function confirmarCantidad() {
     focusBuscar();
 }
 
-// ========== MODAL CLIENTE ==========
+// ==================== MODAL CLIENTE ====================
 function abrirModalCliente() {
     document.getElementById('modalCliente').classList.add('active');
     document.getElementById('buscarCliente').value = '';
@@ -756,7 +940,7 @@ function seleccionarCliente(id) {
     focusBuscar();
 }
 
-// ========== MODAL NUEVO PRODUCTO RAPIDO ==========
+// ==================== MODAL NUEVO PRODUCTO RAPIDO ====================
 function abrirModalNuevoProducto() {
     document.getElementById('modalNuevoProducto').classList.add('active');
     document.getElementById('formNuevoProducto').reset();
@@ -787,7 +971,7 @@ function guardarNuevoProducto(e) {
     });
 }
 
-// ========== MODAL NUEVO CLIENTE RAPIDO ==========
+// ==================== MODAL NUEVO CLIENTE RAPIDO ====================
 function abrirModalNuevoCliente() {
     document.getElementById('modalNuevoCliente').classList.add('active');
     document.getElementById('formNuevoCliente').reset();
@@ -816,7 +1000,7 @@ function guardarNuevoCliente(e) {
     });
 }
 
-// ========== CARRITO ==========
+// ==================== CARRITO ====================
 function agregarAlCarrito(prod, cantidad) {
     var precio = getPrecioConImpuestos(prod, tipoPrecio);
     var unidad = prod.unidad_venta || 'PZ';
@@ -863,7 +1047,7 @@ function eliminarDelCarrito(id) {
     focusBuscar();
 }
 
-// ========== EDITAR EN LÍNEA CON MODAL ==========
+// ==================== EDITAR EN LÍNEA ====================
 var editarLineaData = { id: null, tipo: null };
 
 function editarCantidadLinea(id) {
@@ -1110,7 +1294,7 @@ function cancelarVenta() {
     focusBuscar();
 }
 
-// ========== COBRO ==========
+// ==================== COBRO ====================
 function abrirModalCobro() {
     if (!carrito.length) return;
     if (!turnoActual) {
@@ -1277,7 +1461,7 @@ function nuevaVenta() {
     focusBuscar();
 }
 
-// ========== UTILS ==========
+// ==================== UTILS ====================
 function cerrarModal(id) { 
     document.getElementById(id).classList.remove('active'); 
 }
