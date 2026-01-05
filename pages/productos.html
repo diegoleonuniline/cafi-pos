@@ -30,6 +30,7 @@
                 <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i><span>Clientes</span></a>
                 <a href="ventas.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Ventas</span></a>
                 <a href="reportes.html" class="nav-item"><i class="fas fa-file-alt"></i><span>Reportes</span></a>
+                <a href="configuracion.html" class="nav-item"><i class="fas fa-cog"></i><span>Configuración</span></a>
             </nav>
             <div class="sidebar-footer">
                 <div class="user-mini">
@@ -77,7 +78,7 @@
                                 <th>Factor</th>
                                 <th>Costo</th>
                                 <th>Precio 1</th>
-                                <th>IVA</th>
+                                <th>Impuestos</th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
@@ -109,6 +110,7 @@
                         <button type="button" class="tab-btn" data-tab="config"><i class="fas fa-cog"></i> Config</button>
                     </div>
 
+                    <!-- TAB GENERAL -->
                     <div class="tab-content active" id="tab-general">
                         <div class="form-row">
                             <div class="form-group col-8">
@@ -178,6 +180,7 @@
                         </div>
                     </div>
 
+                    <!-- TAB UNIDADES -->
                     <div class="tab-content" id="tab-unidades">
                         <div class="info-box info">
                             <i class="fas fa-info-circle"></i>
@@ -250,6 +253,7 @@
                         </div>
                     </div>
 
+                    <!-- TAB PRECIOS -->
                     <div class="tab-content" id="tab-precios">
                         <div class="form-row">
                             <div class="form-group col-6">
@@ -275,7 +279,7 @@
                                 <label>Precio 1 (Público) <span class="required">*</span></label>
                                 <div class="input-money">
                                     <span>$</span>
-                                    <input type="number" id="precio1" step="0.01" placeholder="0.00" required oninput="calcularMargen(1)">
+                                    <input type="number" id="precio1" step="0.01" placeholder="0.00" required>
                                 </div>
                                 <div class="margin-badge" id="margen1">Margen: --%</div>
                             </div>
@@ -283,7 +287,7 @@
                                 <label>Precio 2 (Mayoreo)</label>
                                 <div class="input-money">
                                     <span>$</span>
-                                    <input type="number" id="precio2" step="0.01" placeholder="0.00" oninput="calcularMargen(2)">
+                                    <input type="number" id="precio2" step="0.01" placeholder="0.00">
                                 </div>
                                 <div class="margin-badge" id="margen2">Margen: --%</div>
                             </div>
@@ -291,7 +295,7 @@
                                 <label>Precio 3 (Especial)</label>
                                 <div class="input-money">
                                     <span>$</span>
-                                    <input type="number" id="precio3" step="0.01" placeholder="0.00" oninput="calcularMargen(3)">
+                                    <input type="number" id="precio3" step="0.01" placeholder="0.00">
                                 </div>
                                 <div class="margin-badge" id="margen3">Margen: --%</div>
                             </div>
@@ -299,7 +303,7 @@
                                 <label>Precio 4</label>
                                 <div class="input-money">
                                     <span>$</span>
-                                    <input type="number" id="precio4" step="0.01" placeholder="0.00" oninput="calcularMargen(4)">
+                                    <input type="number" id="precio4" step="0.01" placeholder="0.00">
                                 </div>
                                 <div class="margin-badge" id="margen4">Margen: --%</div>
                             </div>
@@ -330,44 +334,46 @@
                         </div>
                     </div>
 
-                 <div class="tab-content" id="tab-impuestos">
-    <div class="form-row">
-        <div class="form-group col-12">
-            <label>Impuestos Aplicables</label>
-            <div id="impuestosContainer">
-                <p class="text-muted">Cargando impuestos...</p>
-            </div>
-        </div>
-    </div>
-    <div class="form-row">
-        <div class="form-group col-12">
-            <label class="toggle-switch">
-                <input type="checkbox" id="precio_incluye_impuesto" checked>
-                <span class="slider"></span>
-                <span class="toggle-label">
-                    <strong>Precio incluye impuestos</strong>
-                    <small>Si está activo, los precios ya incluyen los impuestos seleccionados</small>
-                </span>
-            </label>
-        </div>
-    </div>
-    <div class="tax-summary" id="taxSummary">
-        <h4>Resumen de Impuestos (Precio 1)</h4>
-        <div class="tax-row">
-            <span>Precio sin impuestos:</span>
-            <strong id="precioSinImp">$0.00</strong>
-        </div>
-        <div class="tax-row">
-            <span>Impuestos (<span id="tasaTotal">0</span>%):</span>
-            <strong id="impAmount">$0.00</strong>
-        </div>
-        <div class="tax-row total">
-            <span>Precio Final:</span>
-            <strong id="precioFinal">$0.00</strong>
-        </div>
-    </div>
-</div>
+                    <!-- TAB IMPUESTOS -->
+                    <div class="tab-content" id="tab-impuestos">
+                        <div class="form-row">
+                            <div class="form-group col-12">
+                                <label>Impuestos Aplicables</label>
+                                <div id="impuestosContainer">
+                                    <p class="text-muted">Cargando impuestos...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-12">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="precio_incluye_impuesto" checked onchange="convertirPrecios(this.checked)">
+                                    <span class="slider"></span>
+                                    <span class="toggle-label">
+                                        <strong>Precio incluye impuestos</strong>
+                                        <small>Si está activo, los precios ya incluyen los impuestos seleccionados</small>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="tax-summary" id="taxSummary">
+                            <h4>Resumen de Impuestos (Precio 1)</h4>
+                            <div class="tax-row">
+                                <span>Precio sin impuestos:</span>
+                                <strong id="precioSinImp">$0.00</strong>
+                            </div>
+                            <div class="tax-row">
+                                <span>Impuestos (<span id="tasaTotal">0</span>):</span>
+                                <strong id="impAmount">$0.00</strong>
+                            </div>
+                            <div class="tax-row total">
+                                <span>Precio Final:</span>
+                                <strong id="precioFinal">$0.00</strong>
+                            </div>
+                        </div>
+                    </div>
 
+                    <!-- TAB INVENTARIO -->
                     <div class="tab-content" id="tab-inventario">
                         <div class="form-row">
                             <div class="form-group col-4">
@@ -423,6 +429,7 @@
                         </div>
                     </div>
 
+                    <!-- TAB CONFIG -->
                     <div class="tab-content" id="tab-config">
                         <div class="form-row">
                             <div class="form-group col-6">
@@ -522,16 +529,17 @@
             </form>
         </div>
     </div>
-<!-- MODAL DETALLE PRODUCTO -->
-<div class="modal-overlay" id="modalDetalleProducto">
-    <div class="modal modal-md">
-        <div class="modal-header gradient">
-            <h3><i class="fas fa-box"></i> Detalle de Producto</h3>
-            <button class="btn-close light" onclick="cerrarModalDetalle()"><i class="fas fa-times"></i></button>
+
+    <!-- MODAL DETALLE PRODUCTO -->
+    <div class="modal-overlay" id="modalDetalleProducto">
+        <div class="modal modal-md">
+            <div class="modal-header gradient">
+                <h3><i class="fas fa-box"></i> Detalle de Producto</h3>
+                <button class="btn-close light" onclick="cerrarModalDetalle()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="detalleProductoContent"></div>
         </div>
-        <div class="modal-body" id="detalleProductoContent"></div>
     </div>
-</div>
     
     <div id="toast" class="toast"></div>
     <script src="../js/config.js"></script>
