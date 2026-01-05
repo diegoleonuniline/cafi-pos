@@ -395,12 +395,28 @@ function renderTabla(items) {
         tbody.innerHTML = '<tr class="empty-row"><td colspan="11">No hay productos</td></tr>';
         return;
     }
-
     var html = '';
     items.forEach(function(p) {
-        var tasa = parseFloat(p.tasa_impuesto) || 0;
         var precio = parseFloat(p.precio1) || 0;
         var precioFinal = p.precio_venta || precio;
+        
+        // Formatear impuestos como badges
+        var impuestosHtml = '-';
+        if (p.impuestos_detalle && p.impuestos_detalle.trim() !== '') {
+            var partes = p.impuestos_detalle.split(',');
+            impuestosHtml = partes.map(function(imp) {
+                var datos = imp.split(':');
+                var nombre = datos[0] || '';
+                var tipo = datos[1] || 'PORCENTAJE';
+                var valor = parseFloat(datos[2]) || 0;
+                
+                if (tipo === 'FIJO') {
+                    return '<span class="impuesto-badge fijo">' + nombre + ' $' + valor.toFixed(2) + '</span>';
+                } else {
+                    return '<span class="impuesto-badge">' + nombre + ' ' + valor + '%</span>';
+                }
+            }).join(' ');
+        }
         
         html += '<tr>' +
             '<td>' + (p.codigo_barras || p.codigo_interno || '-') + '</td>' +
@@ -411,7 +427,7 @@ function renderTabla(items) {
             '<td class="text-center">' + parseFloat(p.factor_conversion || 1) + '</td>' +
             '<td class="text-right">$' + parseFloat(p.costo || 0).toFixed(2) + '</td>' +
             '<td class="text-right">$' + precioFinal.toFixed(2) + '</td>' +
-            '<td class="text-center">' + (p.impuestos_detalle || '-') + '</td>' +
+            '<td>' + impuestosHtml + '</td>' +
             '<td class="text-center">' +
                 '<span class="badge-status ' + (p.activo === 'Y' ? 'active' : 'inactive') + '">' +
                     (p.activo === 'Y' ? 'Activo' : 'Inactivo') +
