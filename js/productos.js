@@ -58,92 +58,6 @@ async function cargarImpuestos() {
     }
 }
 
-// ==================== IMPUESTOS EDITABLES ====================
-
-function renderImpuestosForm() {
-    var container = document.getElementById('impuestosContainer');
-    if (!container) {
-        console.error('No se encontró impuestosContainer');
-        return;
-    }
-    
-    if (!window.impuestosEmpresa || window.impuestosEmpresa.length === 0) {
-        container.innerHTML = '<p class="text-muted">No hay impuestos configurados. <a href="configuracion.html">Crear impuestos</a></p>';
-        return;
-    }
-    
-    var html = '<div class="impuestos-list">';
-    window.impuestosEmpresa.forEach(function(imp) {
-        // Buscar si este producto tiene este impuesto con valores personalizados
-        var productoImp = window.impuestosProducto.find(function(pi) { 
-            return pi.impuesto_id === imp.impuesto_id; 
-        });
-        var isChecked = !!productoImp;
-        var valorActual = productoImp ? productoImp.valor : imp.valor;
-        var tipoActual = productoImp ? productoImp.tipo : imp.tipo;
-        
-        html += '<div class="impuesto-row ' + (isChecked ? 'active' : '') + '">' +
-            '<label class="impuesto-check">' +
-                '<input type="checkbox" name="impuestos" value="' + imp.impuesto_id + '" ' + 
-                    'data-valor-default="' + imp.valor + '" data-tipo-default="' + imp.tipo + '" ' +
-                    (isChecked ? 'checked' : '') + ' onchange="toggleImpuestoRow(this)">' +
-                '<span class="imp-nombre">' + imp.nombre + '</span>' +
-            '</label>' +
-            '<div class="impuesto-config">' +
-                '<select class="imp-tipo" data-id="' + imp.impuesto_id + '" ' + (isChecked ? '' : 'disabled') + ' onchange="recalcularDesdeImpuestos()">' +
-                    '<option value="PORCENTAJE" ' + (tipoActual === 'PORCENTAJE' ? 'selected' : '') + '>%</option>' +
-                    '<option value="FIJO" ' + (tipoActual === 'FIJO' ? 'selected' : '') + '>$</option>' +
-                '</select>' +
-                '<input type="number" class="imp-valor" data-id="' + imp.impuesto_id + '" value="' + parseFloat(valorActual || 0) + '" step="0.01" placeholder="Valor" ' + (isChecked ? '' : 'disabled') + ' onchange="recalcularDesdeImpuestos()">' +
-            '</div>' +
-        '</div>';
-    });
-    html += '</div>';
-    container.innerHTML = html;
-}
-
-function toggleImpuestoRow(checkbox) {
-    var row = checkbox.closest('.impuesto-row');
-    var tipo = row.querySelector('.imp-tipo');
-    var valor = row.querySelector('.imp-valor');
-    
-    if (checkbox.checked) {
-        row.classList.add('active');
-        tipo.disabled = false;
-        valor.disabled = false;
-        // Poner valor default si está vacío
-        if (!valor.value || valor.value === '0') {
-            valor.value = checkbox.dataset.valorDefault || 0;
-        }
-    } else {
-        row.classList.remove('active');
-        tipo.disabled = true;
-        valor.disabled = true;
-    }
-    
-    recalcularDesdeImpuestos();
-}
-
-function getImpuestosSeleccionados() {
-    var impuestos = [];
-    document.querySelectorAll('input[name="impuestos"]:checked').forEach(function(cb) {
-        var id = cb.value;
-        var tipoEl = document.querySelector('.imp-tipo[data-id="' + id + '"]');
-        var valorEl = document.querySelector('.imp-valor[data-id="' + id + '"]');
-        
-        impuestos.push({
-            impuesto_id: id,
-            tipo: tipoEl ? tipoEl.value : 'PORCENTAJE',
-            valor: valorEl ? (parseFloat(valorEl.value) || 0) : 0
-        });
-    });
-    return impuestos;
-}
-
-function recalcularDesdeImpuestos() {
-    recalcularImpuestos();
-}
-
 async function cargarDatos() {
     try {
         var r = await API.request('/productos/' + API.usuario.empresa_id);
@@ -168,173 +82,6 @@ function setupTabs() {
     });
 }
 
-function setupEventos() {
-    var precioImp = document.getElementById('precio_incluye_impuesto');
-    if (precioImp) {
-        precioImp.addEventListener('change', function() {
-            convertirPrecios(this.checked);
-        });
-    }
-
-    ['precio1', 'precio2', 'precio3', 'precio4'].forEach(function(id) {
-        var input = document.getElementById(id);
-        if (input) {
-            input.addEventListener('input', function() {
-                var num = id.replace('precio', '');
-                var valor = parseFloat(this.value) || 0;
-                
-                if (document.getElementById('precio_incluye_impuesto').checked) {
-                    var factor = getFactorImpuestos();
-                    window.preciosBase['precio' + num] = valor / factor;
-                } else {
-                    window.preciosBase['precio' + num] = valor;
-                }
-                
-                calcularMargen(parseInt(num));
-                calcularImpuestosResumen();
-            });
-        }
-    });
-
-    var imgInput = document.getElementById('imagen_url');
-    if (imgInput) {
-        imgInput.addEventListener('input', function(e) {
-            var preview = document.getElementById('imgPreview');
-            if (e.target.value) {
-                preview.innerHTML = '<img src="' + e.target.value + '" onerror="this.parentElement.innerHTML=\'<i class=\\\'fas fa-image\\\'></i>\'">';
-            } else {
-                preview.innerHTML = '<i class="fas fa-image"></i>';
-            }
-        });
-    }
-
-    var colorPos = document.getElementById('color_pos');
-    if (colorPos) {
-        colorPos.addEventListener('input', function(e) {
-            document.getElementById('color_pos_text').value = e.target.value;
-        });
-    }
-
-    var caducidad = document.getElementById('maneja_caducidad');
-    if (caducidad) {
-        caducidad.addEventListener('change', function(e) {
-            document.getElementById('rowCaducidad').style.display = e.target.checked ? 'flex' : 'none';
-        });
-    }
-}
-// ==================== FUNCIONES DE IMPUESTOS ====================
-
-function getFactorImpuestos() {
-    var total = 0;
-    document.querySelectorAll('input[name="impuestos"]:checked').forEach(function(cb) {
-        var id = cb.value;
-        var tipoEl = document.querySelector('.imp-tipo[data-id="' + id + '"]');
-        var valorEl = document.querySelector('.imp-valor[data-id="' + id + '"]');
-        var tipo = tipoEl ? tipoEl.value : 'PORCENTAJE';
-        var valor = valorEl ? (parseFloat(valorEl.value) || 0) : 0;
-        
-        if (tipo === 'PORCENTAJE') {
-            total += valor;
-        }
-    });
-    return 1 + (total / 100);
-}
-
-function getTasaImpuestos() {
-    var total = 0;
-    document.querySelectorAll('input[name="impuestos"]:checked').forEach(function(cb) {
-        var id = cb.value;
-        var tipoEl = document.querySelector('.imp-tipo[data-id="' + id + '"]');
-        var valorEl = document.querySelector('.imp-valor[data-id="' + id + '"]');
-        var tipo = tipoEl ? tipoEl.value : 'PORCENTAJE';
-        var valor = valorEl ? (parseFloat(valorEl.value) || 0) : 0;
-        
-        if (tipo === 'PORCENTAJE') {
-            total += valor;
-        }
-    });
-    return total;
-}
-
-function getMontoFijoImpuestos() {
-    var total = 0;
-    document.querySelectorAll('input[name="impuestos"]:checked').forEach(function(cb) {
-        var id = cb.value;
-        var tipoEl = document.querySelector('.imp-tipo[data-id="' + id + '"]');
-        var valorEl = document.querySelector('.imp-valor[data-id="' + id + '"]');
-        var tipo = tipoEl ? tipoEl.value : 'PORCENTAJE';
-        var valor = valorEl ? (parseFloat(valorEl.value) || 0) : 0;
-        
-        if (tipo === 'FIJO') {
-            total += valor;
-        }
-    });
-    return total;
-}
-
-// Cuando cambian los impuestos (checkbox, tipo o valor)
-function recalcularDesdeImpuestos() {
-    var factor = getFactorImpuestos();
-    var montoFijo = getMontoFijoImpuestos();
-    var incluyeImpuesto = document.getElementById('precio_incluye_impuesto').checked;
-    
-    ['precio1', 'precio2', 'precio3', 'precio4'].forEach(function(id) {
-        var input = document.getElementById(id);
-        var base = window.preciosBase[id] || 0;
-        
-        if (base > 0) {
-            if (incluyeImpuesto) {
-                // Precio incluye impuesto: mostrar precio con impuesto
-                input.value = (base * factor + montoFijo).toFixed(2);
-            } else {
-                // Precio NO incluye impuesto: mostrar precio base
-                input.value = base.toFixed(2);
-            }
-        }
-    });
-    
-    calcularMargen(1);
-    calcularMargen(2);
-    calcularMargen(3);
-    calcularMargen(4);
-    calcularImpuestosResumen();
-}
-
-// Cuando el usuario cambia el checkbox "Precio incluye impuesto"
-function convertirPrecios(incluyeImpuesto) {
-    var factor = getFactorImpuestos();
-    var montoFijo = getMontoFijoImpuestos();
-    
-    ['precio1', 'precio2', 'precio3', 'precio4'].forEach(function(id) {
-        var input = document.getElementById(id);
-        var valorActual = parseFloat(input.value) || 0;
-        
-        if (valorActual > 0) {
-            if (incluyeImpuesto) {
-                // ANTES: precio NO incluía impuesto (era precio base)
-                // AHORA: precio SÍ incluye impuesto (mostrar precio con impuesto)
-                // El valor actual ES el precio base, guardarlo y mostrar con impuesto
-                window.preciosBase[id] = valorActual;
-                input.value = (valorActual * factor + montoFijo).toFixed(2);
-            } else {
-                // ANTES: precio SÍ incluía impuesto (era precio con impuesto)
-                // AHORA: precio NO incluye impuesto (mostrar precio base)
-                // El valor actual ES el precio con impuesto, calcular base y mostrar
-                var precioBase = (valorActual - montoFijo) / factor;
-                window.preciosBase[id] = precioBase;
-                input.value = precioBase.toFixed(2);
-            }
-        }
-    });
-    
-    calcularMargen(1);
-    calcularMargen(2);
-    calcularMargen(3);
-    calcularMargen(4);
-    calcularImpuestosResumen();
-}
-
-// Cuando el usuario escribe en los inputs de precio
 function setupEventos() {
     var precioImp = document.getElementById('precio_incluye_impuesto');
     if (precioImp) {
@@ -393,11 +140,193 @@ function setupEventos() {
     }
 }
 
+// ==================== IMPUESTOS EDITABLES ====================
+
+function renderImpuestosForm() {
+    var container = document.getElementById('impuestosContainer');
+    if (!container) {
+        console.error('No se encontró impuestosContainer');
+        return;
+    }
+    
+    if (!window.impuestosEmpresa || window.impuestosEmpresa.length === 0) {
+        container.innerHTML = '<p class="text-muted">No hay impuestos configurados. <a href="configuracion.html">Crear impuestos</a></p>';
+        return;
+    }
+    
+    var html = '<div class="impuestos-list">';
+    window.impuestosEmpresa.forEach(function(imp) {
+        var productoImp = window.impuestosProducto.find(function(pi) { 
+            return pi.impuesto_id === imp.impuesto_id; 
+        });
+        var isChecked = !!productoImp;
+        var valorActual = productoImp ? productoImp.valor : imp.valor;
+        var tipoActual = productoImp ? productoImp.tipo : imp.tipo;
+        
+        html += '<div class="impuesto-row ' + (isChecked ? 'active' : '') + '">' +
+            '<label class="impuesto-check">' +
+                '<input type="checkbox" name="impuestos" value="' + imp.impuesto_id + '" ' + 
+                    'data-valor-default="' + imp.valor + '" data-tipo-default="' + imp.tipo + '" ' +
+                    (isChecked ? 'checked' : '') + ' onchange="toggleImpuestoRow(this)">' +
+                '<span class="imp-nombre">' + imp.nombre + '</span>' +
+            '</label>' +
+            '<div class="impuesto-config">' +
+                '<select class="imp-tipo" data-id="' + imp.impuesto_id + '" ' + (isChecked ? '' : 'disabled') + ' onchange="recalcularDesdeImpuestos()">' +
+                    '<option value="PORCENTAJE" ' + (tipoActual === 'PORCENTAJE' ? 'selected' : '') + '>%</option>' +
+                    '<option value="FIJO" ' + (tipoActual === 'FIJO' ? 'selected' : '') + '>$</option>' +
+                '</select>' +
+                '<input type="number" class="imp-valor" data-id="' + imp.impuesto_id + '" value="' + parseFloat(valorActual || 0) + '" step="0.01" placeholder="Valor" ' + (isChecked ? '' : 'disabled') + ' oninput="recalcularDesdeImpuestos()">' +
+            '</div>' +
+        '</div>';
+    });
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function toggleImpuestoRow(checkbox) {
+    var row = checkbox.closest('.impuesto-row');
+    var tipo = row.querySelector('.imp-tipo');
+    var valor = row.querySelector('.imp-valor');
+    
+    if (checkbox.checked) {
+        row.classList.add('active');
+        tipo.disabled = false;
+        valor.disabled = false;
+        if (!valor.value || valor.value === '0') {
+            valor.value = checkbox.dataset.valorDefault || 0;
+        }
+    } else {
+        row.classList.remove('active');
+        tipo.disabled = true;
+        valor.disabled = true;
+    }
+    
+    recalcularDesdeImpuestos();
+}
+
+function getImpuestosSeleccionados() {
+    var impuestos = [];
+    document.querySelectorAll('input[name="impuestos"]:checked').forEach(function(cb) {
+        var id = cb.value;
+        var tipoEl = document.querySelector('.imp-tipo[data-id="' + id + '"]');
+        var valorEl = document.querySelector('.imp-valor[data-id="' + id + '"]');
+        
+        impuestos.push({
+            impuesto_id: id,
+            tipo: tipoEl ? tipoEl.value : 'PORCENTAJE',
+            valor: valorEl ? (parseFloat(valorEl.value) || 0) : 0
+        });
+    });
+    return impuestos;
+}
+
+// ==================== FUNCIONES DE IMPUESTOS ====================
+
+function getFactorImpuestos() {
+    var total = 0;
+    document.querySelectorAll('input[name="impuestos"]:checked').forEach(function(cb) {
+        var id = cb.value;
+        var tipoEl = document.querySelector('.imp-tipo[data-id="' + id + '"]');
+        var valorEl = document.querySelector('.imp-valor[data-id="' + id + '"]');
+        var tipo = tipoEl ? tipoEl.value : 'PORCENTAJE';
+        var valor = valorEl ? (parseFloat(valorEl.value) || 0) : 0;
+        
+        if (tipo === 'PORCENTAJE') {
+            total += valor;
+        }
+    });
+    return 1 + (total / 100);
+}
+
+function getTasaImpuestos() {
+    var total = 0;
+    document.querySelectorAll('input[name="impuestos"]:checked').forEach(function(cb) {
+        var id = cb.value;
+        var tipoEl = document.querySelector('.imp-tipo[data-id="' + id + '"]');
+        var valorEl = document.querySelector('.imp-valor[data-id="' + id + '"]');
+        var tipo = tipoEl ? tipoEl.value : 'PORCENTAJE';
+        var valor = valorEl ? (parseFloat(valorEl.value) || 0) : 0;
+        
+        if (tipo === 'PORCENTAJE') {
+            total += valor;
+        }
+    });
+    return total;
+}
+
+function getMontoFijoImpuestos() {
+    var total = 0;
+    document.querySelectorAll('input[name="impuestos"]:checked').forEach(function(cb) {
+        var id = cb.value;
+        var tipoEl = document.querySelector('.imp-tipo[data-id="' + id + '"]');
+        var valorEl = document.querySelector('.imp-valor[data-id="' + id + '"]');
+        var tipo = tipoEl ? tipoEl.value : 'PORCENTAJE';
+        var valor = valorEl ? (parseFloat(valorEl.value) || 0) : 0;
+        
+        if (tipo === 'FIJO') {
+            total += valor;
+        }
+    });
+    return total;
+}
+
+function recalcularDesdeImpuestos() {
+    var factor = getFactorImpuestos();
+    var montoFijo = getMontoFijoImpuestos();
+    var incluyeImpuesto = document.getElementById('precio_incluye_impuesto').checked;
+    
+    ['precio1', 'precio2', 'precio3', 'precio4'].forEach(function(id) {
+        var input = document.getElementById(id);
+        var base = window.preciosBase[id] || 0;
+        
+        if (base > 0) {
+            if (incluyeImpuesto) {
+                input.value = (base * factor + montoFijo).toFixed(2);
+            } else {
+                input.value = base.toFixed(2);
+            }
+        }
+    });
+    
+    calcularMargen(1);
+    calcularMargen(2);
+    calcularMargen(3);
+    calcularMargen(4);
+    calcularImpuestosResumen();
+}
+
+function convertirPrecios(incluyeImpuesto) {
+    var factor = getFactorImpuestos();
+    var montoFijo = getMontoFijoImpuestos();
+    
+    ['precio1', 'precio2', 'precio3', 'precio4'].forEach(function(id) {
+        var input = document.getElementById(id);
+        var valorActual = parseFloat(input.value) || 0;
+        
+        if (valorActual > 0) {
+            if (incluyeImpuesto) {
+                // ANTES: NO incluía (era base) -> AHORA: SÍ incluye (mostrar con imp)
+                window.preciosBase[id] = valorActual;
+                input.value = (valorActual * factor + montoFijo).toFixed(2);
+            } else {
+                // ANTES: SÍ incluía (tenía imp) -> AHORA: NO incluye (mostrar base)
+                var precioBase = (valorActual - montoFijo) / factor;
+                window.preciosBase[id] = precioBase;
+                input.value = precioBase.toFixed(2);
+            }
+        }
+    });
+    
+    calcularMargen(1);
+    calcularMargen(2);
+    calcularMargen(3);
+    calcularMargen(4);
+    calcularImpuestosResumen();
+}
+
 function calcularMargen(num) {
     var costo = parseFloat(document.getElementById('costo').value) || 0;
     var badge = document.getElementById('margen' + num);
-    
-    // Siempre usar precio base para calcular margen
     var precioBase = window.preciosBase['precio' + num] || 0;
     
     if (costo > 0 && precioBase > 0) {
@@ -420,13 +349,11 @@ function calcularImpuestosResumen() {
     var precioBase, impPorcentaje, impFijo, total;
 
     if (incluyeImp) {
-        // El precio mostrado YA incluye impuesto
         total = precio1;
         precioBase = (precio1 - montoFijo) / factor;
         impPorcentaje = precioBase * (tasa / 100);
         impFijo = montoFijo;
     } else {
-        // El precio mostrado NO incluye impuesto (es el base)
         precioBase = precio1;
         impPorcentaje = precioBase * (tasa / 100);
         impFijo = montoFijo;
@@ -694,7 +621,7 @@ async function abrirModal(item) {
         document.getElementById('costo_promedio').value = item.costo_promedio || '';
         document.getElementById('precio_incluye_impuesto').checked = item.precio_incluye_impuesto === 'Y';
 
-        // Guardar precios base
+        // Guardar precios base después de renderizar impuestos
         var tasa = getTasaImpuestos();
         var montoFijo = getMontoFijoImpuestos();
         var factor = 1 + (tasa/100);
@@ -759,7 +686,6 @@ async function guardar(e) {
     e.preventDefault();
     var id = document.getElementById('editId').value;
 
-    // Obtener impuestos seleccionados con tipo y valor
     var impuestosSeleccionados = getImpuestosSeleccionados();
 
     var data = {
