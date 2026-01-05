@@ -663,19 +663,17 @@ function recuperarVenta(index) {
     focusBuscar();
 }
 
-// DESPUÉS:
+// ==================== ELIMINAR VENTA EN ESPERA (CON AUTORIZACIÓN) ====================
 function eliminarVentaEspera(index) {
-    mostrarConfirmar('¿Eliminar esta venta en espera?', function() {
+    var venta = ventasEnEspera[index];
+    if (!venta) return;
+    
+    solicitarAutorizacionAdmin('¿Autorizar eliminación de venta en espera ($' + venta.total.toFixed(2) + ')?', function(admin) {
         ventasEnEspera.splice(index, 1);
         localStorage.setItem('ventasEnEspera', JSON.stringify(ventasEnEspera));
         renderEsperaList();
         actualizarBadgeEspera();
-        mostrarToast('Venta eliminada de espera');
-    }, {
-        titulo: 'Eliminar Venta',
-        textoBoton: 'Sí, eliminar',
-        tipo: 'danger',
-        icono: 'fa-trash'
+        mostrarToast('Venta eliminada por ' + admin, 'success');
     });
 }
 
@@ -1208,9 +1206,15 @@ function cambiarCantidad(id, d) {
 }
 
 function eliminarDelCarrito(id) {
-    carrito = carrito.filter(function(i) { return i.producto_id !== id; });
-    renderCarrito();
-    focusBuscar();
+    var item = carrito.find(function(i) { return i.producto_id === id; });
+    if (!item) return;
+    
+    solicitarAutorizacionAdmin('¿Autorizar eliminación de "' + item.nombre + '"?', function(admin) {
+        carrito = carrito.filter(function(i) { return i.producto_id !== id; });
+        renderCarrito();
+        mostrarToast('Producto eliminado por ' + admin, 'success');
+        focusBuscar();
+    });
 }
 
 // ==================== EDITAR EN LÍNEA ====================
@@ -1485,20 +1489,17 @@ function aplicarDescuentoGlobal() {
     setTimeout(function() { if (inputEditar) inputEditar.select(); }, 100);
 }
 
-// DESPUÉS:
+// ==================== CANCELAR VENTA (CON AUTORIZACIÓN) ====================
 function cancelarVenta() {
     if (!carrito.length) return;
-    mostrarConfirmar('¿Cancelar venta actual?', function() {
+    
+    solicitarAutorizacionAdmin('¿Autorizar cancelación de venta completa?', function(admin) {
         limpiarVentaActual();
-        mostrarToast('Venta cancelada');
+        mostrarToast('Venta cancelada por ' + admin, 'success');
         focusBuscar();
-    }, {
-        titulo: 'Cancelar Venta',
-        textoBoton: 'Sí, cancelar',
-        tipo: 'danger',
-        icono: 'fa-times-circle'
     });
 }
+
 
 // ==================== COBRO ====================
 function abrirModalCobro() {
