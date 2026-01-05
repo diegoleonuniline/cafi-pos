@@ -557,7 +557,39 @@
             </div>
         </div>
     </div>
-
+<!-- Modal Autorizar Admin -->
+<div class="modal-overlay" id="modalAutorizarAdmin" style="z-index:1100">
+    <div class="modal modal-xs">
+        <div class="modal-header" style="background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);color:white;">
+            <h3 class="modal-title">
+                <i class="fas fa-shield-alt"></i>
+                <span>Autorización Requerida</span>
+            </h3>
+            <button class="btn-close light" onclick="cancelarAutorizacionAdmin()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" style="text-align:center;padding:30px 24px;">
+            <div style="width:60px;height:60px;background:#fef3c7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+                <i class="fas fa-lock" style="font-size:24px;color:#d97706;"></i>
+            </div>
+            <p id="adminAuthMensaje" style="color:#374151;margin-bottom:20px;font-size:14px;line-height:1.5;">
+                Se requiere autorización de administrador
+            </p>
+            <div class="form-group" style="margin:0;">
+                <input type="password" id="claveAdminAuth" placeholder="Clave de administrador" 
+                       style="text-align:center;font-size:18px;padding:14px;letter-spacing:3px;"
+                       onkeypress="if(event.key==='Enter')confirmarAutorizacionAdmin()">
+            </div>
+        </div>
+        <div class="modal-footer" style="justify-content:center;gap:12px;">
+            <button type="button" class="btn btn-outline" onclick="cancelarAutorizacionAdmin()">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button type="button" class="btn btn-warning" onclick="confirmarAutorizacionAdmin()">
+                <i class="fas fa-unlock"></i> Autorizar
+            </button>
+        </div>
+    </div>
+</div>
     <!-- MODAL CERRAR TURNO / CORTE (NUEVO DISEÑO COMPACTO) -->
     <div class="modal-overlay" id="modalCerrarTurno">
         <div class="modal" style="width:650px;max-width:95vw">
