@@ -526,3 +526,212 @@
         padding: 16px;
     }
 }
+/* ========== CONFIG TABS ========== */
+.config-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--gray-200);
+    background: var(--gray-50);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.config-tab {
+    padding: 10px 20px;
+    border: none;
+    background: var(--white);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gray-500);
+    cursor: pointer;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    box-shadow: var(--shadow-sm);
+}
+
+.config-tab:hover {
+    background: var(--gray-100);
+    color: var(--primary);
+}
+
+.config-tab.active {
+    background: var(--gradient);
+    color: var(--white);
+}
+
+.config-content {
+    display: none;
+    padding: 20px;
+}
+
+.config-content.active {
+    display: block;
+}
+
+.config-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.config-header h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--dark);
+    margin: 0;
+}
+
+.empresa-info {
+    background: var(--gray-50);
+    border-radius: var(--radius);
+    padding: 20px;
+}
+
+.empresa-info .info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.empresa-info .info-row:last-child {
+    border-bottom: none;
+}
+
+.empresa-info .info-row span {
+    color: var(--gray-500);
+}
+
+.empresa-info .info-row strong {
+    color: var(--dark);
+}
+
+/* ========== BADGE STATUS ========== */
+.badge-status {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-status.active {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.badge-status.inactive {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* ========== ACTIONS CELL ========== */
+.actions-cell {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.btn-action {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-action.edit {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.btn-action.edit:hover {
+    background: #2563eb;
+    color: white;
+}
+
+.btn-action.delete {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.btn-action.delete:hover {
+    background: #dc2626;
+    color: white;
+}
+
+/* ========== TOGGLE SWITCH ========== */
+.toggle-switch {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.toggle-switch input {
+    display: none;
+}
+
+.toggle-switch .slider {
+    width: 44px;
+    height: 24px;
+    background: var(--gray-300);
+    border-radius: 12px;
+    position: relative;
+    transition: all 0.3s;
+}
+
+.toggle-switch .slider::after {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: white;
+    border-radius: 50%;
+    top: 3px;
+    left: 3px;
+    transition: all 0.3s;
+}
+
+.toggle-switch input:checked + .slider {
+    background: var(--primary);
+}
+
+.toggle-switch input:checked + .slider::after {
+    left: 23px;
+}
+
+.toggle-switch .toggle-label {
+    font-size: 13px;
+    color: var(--gray-600);
+}
+
+.toggle-switch.small .slider {
+    width: 36px;
+    height: 20px;
+}
+
+.toggle-switch.small .slider::after {
+    width: 14px;
+    height: 14px;
+}
+
+.toggle-switch.small input:checked + .slider::after {
+    left: 19px;
+}
+
+/* ========== TEXT UTILITIES ========== */
+.text-center { text-align: center; }
+.text-success { color: #10b981; }
+.text-danger { color: #ef4444; }
+
+/* ========== REQUIRED ========== */
+.required { color: #ef4444; }
