@@ -2653,3 +2653,22 @@ function imprimirVentaDirecto(ventaId) {
     );
 }
 
+function cambiarTabDetalle(tab) {
+    // Quitar active de todos
+    document.querySelectorAll('.detalle-tabs .tab-btn').forEach(function(btn) {
+        btn.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-panel').forEach(function(panel) {
+        panel.classList.remove('active');
+    });
+    
+    // Activar el seleccionado
+    document.querySelector('.tab-btn[onclick*="' + tab + '"]').classList.add('active');
+    document.getElementById('panel' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+}
+// Resetear a tab Info y mostrar/ocultar tab historial
+cambiarTabDetalle('info');
+var tabHistorial = document.getElementById('tabHistorial');
+if (tabHistorial) {
+    tabHistorial.style.display = (historialVentaSeleccionada && historialVentaSeleccionada.length > 0) ? 'flex' : 'none';
+}
