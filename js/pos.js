@@ -1367,7 +1367,7 @@ function confirmarEditarLinea() {
     focusBuscar();
 }
 
-function renderizarCarrito() {
+function renderCarrito() {
     const tbody = document.getElementById('cartBody');
     const emptyMsg = document.getElementById('cartEmpty');
     
@@ -1390,7 +1390,6 @@ function renderizarCarrito() {
         
         return `
         <tr data-index="${index}">
-            <!-- MOBILE: Tarjeta completa -->
             <td class="mobile-card" colspan="7">
                 <div class="card-img"></div>
                 <div class="card-content">
@@ -1411,8 +1410,6 @@ function renderizarCarrito() {
                 <div class="card-total">$${importe.toFixed(2)}</div>
                 <button class="card-delete" onclick="eliminarDelCarrito(${index})"><i class="fas fa-trash"></i></button>
             </td>
-            
-            <!-- DESKTOP: Celdas normales -->
             <td class="col-producto desktop-cell">
                 <div class="cart-item-name">${item.nombre}</div>
                 <div class="cart-item-code">${item.codigo || ''}</div>
