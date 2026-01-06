@@ -1367,47 +1367,85 @@ function confirmarEditarLinea() {
     focusBuscar();
 }
 
-function renderCarrito() {
-    var tbody = document.getElementById('cartBody');
-    var empty = document.getElementById('cartEmpty');
+function renderizarCarrito() {
+    const tbody = document.getElementById('cartBody');
+    const emptyMsg = document.getElementById('cartEmpty');
     
-    if (!carrito.length) {
-        if (tbody) tbody.innerHTML = '';
-        if (empty) empty.style.display = 'flex';
-        actualizarTotales();
+    if (!tbody) return;
+    
+    if (carrito.length === 0) {
+        tbody.innerHTML = '';
+        if (emptyMsg) emptyMsg.style.display = 'flex';
         return;
     }
     
-    if (empty) empty.style.display = 'none';
+    if (emptyMsg) emptyMsg.style.display = 'none';
     
-    var html = '';
-    carrito.forEach(function(item) {
-        var subtotal = item.precio * item.cantidad;
-        var descMonto = subtotal * (item.descuento || 0) / 100;
-        var total = subtotal - descMonto;
+    tbody.innerHTML = carrito.map((item, index) => {
+        const tieneDescuento = item.descuento > 0;
+        const descuentoTexto = tieneDescuento ? `-${item.descuento}%` : '';
+        const precioConDesc = item.precio * (1 - (item.descuento || 0) / 100);
+        const importe = precioConDesc * item.cantidad;
+        const esGranel = item.unidad !== 'PZ';
         
-        var cantHtml = item.esGranel ?
-            '<button class="qty-granel" onclick="editarCantidadLinea(\'' + item.producto_id + '\')">' + item.cantidad.toFixed(3) + '</button>' :
-            '<div class="qty-control">' +
-                '<button onclick="cambiarCantidad(\'' + item.producto_id + '\',-1)">−</button>' +
-                '<span onclick="editarCantidadLinea(\'' + item.producto_id + '\')">' + item.cantidad + '</span>' +
-                '<button onclick="cambiarCantidad(\'' + item.producto_id + '\',1)">+</button>' +
-            '</div>';
-        
-        html += '<tr>' +
-            '<td><div class="cart-item-name">' + item.nombre + '</div><div class="cart-item-code">' + item.codigo + '</div></td>' +
-            '<td class="cart-item-price"><span onclick="editarPrecioLinea(\'' + item.producto_id + '\')" title="Click para editar">$' + item.precio.toFixed(2) + '</span></td>' +
-            '<td class="cart-item-qty">' + cantHtml + '</td>' +
-            '<td class="cart-item-unit"><span class="badge' + (item.esGranel ? ' granel' : '') + '">' + item.unidad + '</span></td>' +
-            '<td class="cart-item-desc"><button class="btn-desc" onclick="editarDescuentoLinea(\'' + item.producto_id + '\')">' + (item.descuento > 0 ? item.descuento + '%' : '-') + '</button></td>' +
-            '<td class="cart-item-total">$' + total.toFixed(2) + '</td>' +
-            '<td><button class="btn-delete" onclick="eliminarDelCarrito(\'' + item.producto_id + '\')"><i class="fas fa-trash"></i></button></td>' +
-        '</tr>';
-    });
-    if (tbody) tbody.innerHTML = html;
+        return `
+        <tr data-index="${index}">
+            <!-- MOBILE: Tarjeta completa -->
+            <td class="mobile-card" colspan="7">
+                <div class="card-img"></div>
+                <div class="card-content">
+                    <div class="card-name">${item.nombre}</div>
+                    <div class="card-price">$${item.precio.toFixed(2)} / ${item.unidad}</div>
+                    <div class="card-qty">
+                        ${esGranel ? `
+                            <button class="qty-granel" onclick="editarCantidadGranel(${index})">${item.cantidad} ${item.unidad}</button>
+                        ` : `
+                            <div class="qty-control">
+                                <button type="button" onclick="cambiarCantidad(${index}, -1)">−</button>
+                                <span>${item.cantidad}</span>
+                                <button type="button" onclick="cambiarCantidad(${index}, 1)">+</button>
+                            </div>
+                        `}
+                    </div>
+                </div>
+                <div class="card-total">$${importe.toFixed(2)}</div>
+                <button class="card-delete" onclick="eliminarDelCarrito(${index})"><i class="fas fa-trash"></i></button>
+            </td>
+            
+            <!-- DESKTOP: Celdas normales -->
+            <td class="col-producto desktop-cell">
+                <div class="cart-item-name">${item.nombre}</div>
+                <div class="cart-item-code">${item.codigo || ''}</div>
+            </td>
+            <td class="col-precio desktop-cell">
+                <span${tieneDescuento ? ' class="precio-tachado"' : ''}>$${item.precio.toFixed(2)}</span>
+                ${tieneDescuento ? `<span class="precio-final">$${precioConDesc.toFixed(2)}</span>` : ''}
+            </td>
+            <td class="col-cantidad desktop-cell">
+                ${esGranel ? `
+                    <button class="qty-granel" onclick="editarCantidadGranel(${index})">${item.cantidad} ${item.unidad}</button>
+                ` : `
+                    <div class="qty-control">
+                        <button type="button" onclick="cambiarCantidad(${index}, -1)">−</button>
+                        <span>${item.cantidad}</span>
+                        <button type="button" onclick="cambiarCantidad(${index}, 1)">+</button>
+                    </div>
+                `}
+            </td>
+            <td class="col-unidad desktop-cell">${item.unidad}</td>
+            <td class="col-desc desktop-cell">
+                <button class="btn-desc" onclick="editarDescuento(${index})">${descuentoTexto || '0%'}</button>
+            </td>
+            <td class="col-importe desktop-cell">$${importe.toFixed(2)}</td>
+            <td class="col-acciones desktop-cell">
+                <button class="btn-delete" onclick="eliminarDelCarrito(${index})"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+        `;
+    }).join('');
+    
     actualizarTotales();
 }
-
 function actualizarTotales() {
     var articulos = 0, subtotal = 0, descuentos = 0;
     
