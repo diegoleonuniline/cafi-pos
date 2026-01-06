@@ -105,8 +105,8 @@ async function cargarSucursales() {
                     <td class="text-center"><span class="badge badge-${s.activo === 'Y' ? 'success' : 'danger'}">${s.activo === 'Y' ? 'Activa' : 'Inactiva'}</span></td>
                     <td class="text-center">
                         <div class="btn-actions">
-                            <button class="btn-edit" onclick="editarSucursal(${s.sucursal_id})"><i class="fas fa-edit"></i></button>
-                            <button class="btn-delete" onclick="eliminarSucursal(${s.sucursal_id})"><i class="fas fa-trash"></i></button>
+                            <button class="btn-edit" onclick="editarSucursal('${s.sucursal_id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete" onclick="eliminarSucursal('${s.sucursal_id}')"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>
@@ -135,7 +135,7 @@ function abrirModalSucursal() {
 }
 
 function editarSucursal(id) {
-    const s = sucursalesData.find(x => x.sucursal_id == id);
+    const s = sucursalesData.find(x => x.sucursal_id === id);
     if (!s) return;
     document.getElementById('sucursalId').value = s.sucursal_id;
     document.getElementById('sucNombre').value = s.nombre || '';
@@ -205,8 +205,8 @@ async function cargarUsuarios() {
                     <td class="text-center"><span class="badge badge-${u.activo === 'Y' ? 'success' : 'danger'}">${u.activo === 'Y' ? 'Activo' : 'Inactivo'}</span></td>
                     <td class="text-center">
                         <div class="btn-actions">
-                            <button class="btn-edit" onclick="editarUsuario(${u.usuario_id})"><i class="fas fa-edit"></i></button>
-                            <button class="btn-delete" onclick="eliminarUsuario(${u.usuario_id})"><i class="fas fa-trash"></i></button>
+                            <button class="btn-edit" onclick="editarUsuario('${u.usuario_id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete" onclick="eliminarUsuario('${u.usuario_id}')"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>
@@ -233,7 +233,7 @@ function abrirModalUsuario() {
 }
 
 function editarUsuario(id) {
-    const u = usuariosData.find(x => x.usuario_id == id);
+    const u = usuariosData.find(x => x.usuario_id === id);
     if (!u) return;
     document.getElementById('usuarioId').value = u.usuario_id;
     document.getElementById('usrNombre').value = u.nombre || '';
@@ -316,13 +316,13 @@ async function cargarImpuestos() {
                 <tr>
                     <td><strong>${i.nombre}</strong></td>
                     <td>${i.clave_sat || '-'}</td>
-                    <td class="text-center">${i.tasa}%</td>
+                    <td class="text-center">${i.tasa || i.valor || 0}%</td>
                     <td class="text-center">${i.es_defecto === 'Y' ? '<i class="fas fa-check-circle" style="color:#22c55e"></i>' : '-'}</td>
                     <td class="text-center"><span class="badge badge-${i.activo === 'Y' ? 'success' : 'danger'}">${i.activo === 'Y' ? 'Activo' : 'Inactivo'}</span></td>
                     <td class="text-center">
                         <div class="btn-actions">
-                            <button class="btn-edit" onclick="editarImpuesto(${i.impuesto_id})"><i class="fas fa-edit"></i></button>
-                            <button class="btn-delete" onclick="eliminarImpuesto(${i.impuesto_id})"><i class="fas fa-trash"></i></button>
+                            <button class="btn-edit" onclick="editarImpuesto('${i.impuesto_id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete" onclick="eliminarImpuesto('${i.impuesto_id}')"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>
@@ -342,11 +342,11 @@ function abrirModalImpuesto() {
 }
 
 function editarImpuesto(id) {
-    const i = impuestosData.find(x => x.impuesto_id == id);
+    const i = impuestosData.find(x => x.impuesto_id === id);
     if (!i) return;
     document.getElementById('impuestoId').value = i.impuesto_id;
     document.getElementById('impNombre').value = i.nombre || '';
-    document.getElementById('impTasa').value = i.tasa || '';
+    document.getElementById('impTasa').value = i.tasa || i.valor || '';
     document.getElementById('impClave').value = i.clave_sat || '002';
     document.getElementById('impDefecto').checked = i.es_defecto === 'Y';
     document.getElementById('impActivo').checked = i.activo === 'Y';
@@ -361,8 +361,12 @@ async function guardarImpuesto(ev) {
         empresa_id: empresaId,
         nombre: document.getElementById('impNombre').value,
         tasa: document.getElementById('impTasa').value,
+        valor: document.getElementById('impTasa').value,
+        tipo: 'PORCENTAJE',
         clave_sat: document.getElementById('impClave').value,
         es_defecto: document.getElementById('impDefecto').checked ? 'Y' : 'N',
+        aplica_ventas: 'Y',
+        aplica_compras: 'Y',
         activo: document.getElementById('impActivo').checked ? 'Y' : 'N'
     };
     
@@ -406,8 +410,8 @@ async function cargarMetodos() {
                     <td class="text-center"><span class="badge badge-${m.activo === 'Y' ? 'success' : 'danger'}">${m.activo === 'Y' ? 'Activo' : 'Inactivo'}</span></td>
                     <td class="text-center">
                         <div class="btn-actions">
-                            <button class="btn-edit" onclick="editarMetodo(${m.metodo_pago_id})"><i class="fas fa-edit"></i></button>
-                            <button class="btn-delete" onclick="eliminarMetodo(${m.metodo_pago_id})"><i class="fas fa-trash"></i></button>
+                            <button class="btn-edit" onclick="editarMetodo('${m.metodo_pago_id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete" onclick="eliminarMetodo('${m.metodo_pago_id}')"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>
@@ -427,7 +431,7 @@ function abrirModalMetodo() {
 }
 
 function editarMetodo(id) {
-    const m = metodosData.find(x => x.metodo_pago_id == id);
+    const m = metodosData.find(x => x.metodo_pago_id === id);
     if (!m) return;
     document.getElementById('metodoId').value = m.metodo_pago_id;
     document.getElementById('metNombre').value = m.nombre || '';
@@ -489,8 +493,8 @@ async function cargarUnidades() {
                     <td class="text-center"><span class="badge badge-${u.activo === 'Y' ? 'success' : 'danger'}">${u.activo === 'Y' ? 'Activa' : 'Inactiva'}</span></td>
                     <td class="text-center">
                         <div class="btn-actions">
-                            <button class="btn-edit" onclick="editarUnidad(${u.unidad_id})"><i class="fas fa-edit"></i></button>
-                            <button class="btn-delete" onclick="eliminarUnidad(${u.unidad_id})"><i class="fas fa-trash"></i></button>
+                            <button class="btn-edit" onclick="editarUnidad('${u.unidad_id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete" onclick="eliminarUnidad('${u.unidad_id}')"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>
@@ -510,7 +514,7 @@ function abrirModalUnidad() {
 }
 
 function editarUnidad(id) {
-    const u = unidadesData.find(x => x.unidad_id == id);
+    const u = unidadesData.find(x => x.unidad_id === id);
     if (!u) return;
     document.getElementById('unidadId').value = u.unidad_id;
     document.getElementById('uniNombre').value = u.nombre || '';
