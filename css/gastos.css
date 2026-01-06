@@ -806,6 +806,259 @@
 .toast.warning { background: #f59e0b; }
 
 /* ============================================
+   NUEVO FORMULARIO DE GASTOS - DISEÑO LIMPIO
+   ============================================ */
+
+.modal-gasto {
+    max-width: 640px;
+    width: 95%;
+}
+
+.gasto-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.gasto-row {
+    display: grid;
+    gap: 14px;
+}
+
+.gasto-row.one { grid-template-columns: 1fr; }
+.gasto-row.two { grid-template-columns: 1fr 1fr; }
+.gasto-row.three { grid-template-columns: 1fr 1fr 1fr; }
+
+.gasto-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.gasto-field label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.gasto-field label i {
+    font-size: 11px;
+    color: var(--primary);
+}
+
+.gasto-field input,
+.gasto-field select {
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+    transition: all 0.2s;
+}
+
+.gasto-field input:focus,
+.gasto-field select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(45, 61, 191, 0.1);
+}
+
+.gasto-field input::placeholder {
+    color: #94a3b8;
+}
+
+/* Montos Card */
+.montos-card {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    padding: 18px;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+}
+
+.monto-field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.monto-field label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.monto-field input {
+    padding: 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: right;
+    background: #fff;
+}
+
+.monto-field input:focus {
+    border-color: var(--primary);
+    outline: none;
+}
+
+.monto-field.total input {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-color: transparent;
+    color: white;
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.btn-iva {
+    padding: 14px 18px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn-iva:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(45, 61, 191, 0.3);
+}
+
+/* Retenciones Toggle */
+.retenciones-toggle {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.retenciones-toggle summary {
+    padding: 12px 16px;
+    cursor: pointer;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    list-style: none;
+}
+
+.retenciones-toggle summary::-webkit-details-marker {
+    display: none;
+}
+
+.retenciones-toggle summary::before {
+    content: '▸';
+    font-size: 10px;
+    transition: transform 0.2s;
+}
+
+.retenciones-toggle[open] summary::before {
+    transform: rotate(90deg);
+}
+
+.retenciones-toggle summary:hover {
+    background: #f1f5f9;
+    color: #334155;
+}
+
+.retenciones-toggle[open] summary {
+    border-bottom: 1px solid #e2e8f0;
+    background: #f1f5f9;
+}
+
+.retenciones-toggle > .gasto-row {
+    padding: 16px;
+}
+
+/* Footer Row */
+.gasto-footer-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #e2e8f0;
+    flex-wrap: wrap;
+}
+
+.gasto-field.small {
+    width: 150px;
+}
+
+.factura-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 10px 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.factura-check:hover {
+    border-color: var(--primary);
+    background: #fff;
+}
+
+.factura-check:has(input:checked) {
+    border-color: var(--primary);
+    background: rgba(45, 61, 191, 0.05);
+}
+
+.factura-check input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+.factura-check span {
+    font-size: 13px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.factura-check:has(input:checked) span {
+    color: var(--primary);
+    font-weight: 500;
+}
+
+.uuid-field {
+    flex: 1;
+    min-width: 200px;
+}
+
+.uuid-field input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.5px;
+}
+
+/* ============================================
    RESPONSIVE
    ============================================ */
 
@@ -871,6 +1124,43 @@
     .modal {
         width: 95%;
         margin: 10px;
+    }
+    
+    /* Nuevo Formulario Responsive */
+    .gasto-row.two,
+    .gasto-row.three {
+        grid-template-columns: 1fr;
+    }
+    
+    .montos-card {
+        flex-wrap: wrap;
+    }
+    
+    .monto-field {
+        flex: 1 1 calc(50% - 6px);
+        min-width: 120px;
+    }
+    
+    .btn-iva {
+        width: 100%;
+        margin-top: 8px;
+    }
+    
+    .gasto-footer-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .gasto-field.small {
+        width: 100%;
+    }
+    
+    .factura-check {
+        justify-content: center;
+    }
+    
+    .uuid-field {
+        min-width: 100%;
     }
 }
 
