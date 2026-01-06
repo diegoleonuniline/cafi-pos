@@ -2,10 +2,14 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#2D3DBF">
     <title>CAFI POS - Punto de Venta</title>
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/pos.css">
+    <link rel="stylesheet" href="../css/pos-mobile.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -22,7 +26,7 @@
                             <path fill="#2E2E2E" d="M3058 1706 c-150 -41 -228 -210 -159 -344 79 -154 289 -183 402 -55 43 50 59 92 59 160 -1 163 -150 281 -302 239z"/>
                         </g>
                     </svg>
-                    CAFI
+                    <span class="desktop-only">CAFI</span>
                 </a>
                 <div class="turno-badge cerrado" id="turnoBadge" onclick="abrirModalAbrirTurno()">
                     <i class="fas fa-circle"></i>
@@ -30,6 +34,7 @@
                 </div>
             </div>
             
+            <!-- DESKTOP: Botones centrales -->
             <div class="header-center">
                 <a href="admin.html" class="header-btn"><i class="fas fa-th-large"></i> Admin</a>
                 <button class="header-btn warning" id="btnEspera" onclick="ponerEnEspera()"><i class="fas fa-pause-circle"></i> Espera</button>
@@ -42,6 +47,11 @@
             </div>
             
             <div class="header-right">
+                <!-- MOBILE: Botón hamburger -->
+                <button class="btn-menu-mobile" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
                 <div class="user-pill">
                     <div class="user-avatar" id="userAvatar">US</div>
                     <div class="user-info">
@@ -73,6 +83,11 @@
                         <button class="tipo-btn" id="btnCredito" onclick="setTipoVenta('CREDITO')">Crédito</button>
                     </div>
                     
+                    <!-- MOBILE: Botón + nuevo cliente -->
+                    <button class="btn-nuevo-cliente-mobile" onclick="abrirModalNuevoCliente()">
+                        <i class="fas fa-user-plus"></i>
+                    </button>
+                    
                     <div class="precio-selector">
                         <span>Precio:</span>
                         <select id="selectPrecio" onchange="cambiarTipoPrecio()">
@@ -93,9 +108,9 @@
                 <div class="search-bar">
                     <div class="search-input-wrapper">
                         <i class="fas fa-barcode"></i>
-                        <input type="text" id="inputBuscar" placeholder="Escanear código de barras o buscar producto..." onkeypress="onBuscarKeypress(event)" autocomplete="off">
+                        <input type="text" id="inputBuscar" placeholder="Escanear código o buscar..." onkeypress="onBuscarKeypress(event)" autocomplete="off">
                     </div>
-                    <button class="btn-buscar" onclick="abrirModalProductos()"><i class="fas fa-search"></i> Buscar <span class="kbd">F2</span></button>
+                    <button class="btn-buscar" onclick="abrirModalProductos()"><i class="fas fa-search"></i> <span class="desktop-only">Buscar</span> <span class="kbd">F2</span></button>
                 </div>
 
                 <!-- CART TABLE -->
@@ -117,11 +132,11 @@
                     <div class="cart-empty" id="cartEmpty">
                         <i class="fas fa-shopping-cart"></i>
                         <h3>Carrito vacío</h3>
-                        <p>Escanea un producto o presiona F2 para buscar</p>
+                        <p>Escanea un producto o usa el buscador</p>
                     </div>
                 </div>
 
-                <!-- ACTIONS -->
+                <!-- DESKTOP: ACTIONS -->
                 <div class="pos-actions">
                     <div class="shortcuts-hint">
                         <span><kbd>F2</kbd> Buscar</span>
@@ -135,9 +150,21 @@
                         <button class="btn-action-pay" onclick="abrirModalCobro()"><i class="fas fa-dollar-sign"></i> Cobrar <span class="kbd">F12</span></button>
                     </div>
                 </div>
+
+                <!-- MOBILE: Total Bar -->
+                <div class="mobile-total-bar">
+                    <div class="mobile-total-info">
+                        <div class="mobile-total-label">TOTAL</div>
+                        <div class="mobile-total-items" id="mobileArticulos">0 artículos</div>
+                    </div>
+                    <div class="mobile-total-amount" id="mobileTotalAmount">$0.00</div>
+                    <button class="mobile-btn-cobrar" onclick="abrirModalCobro()" id="mobileBtnCobrar" disabled>
+                        <i class="fas fa-check"></i> Cobrar
+                    </button>
+                </div>
             </main>
 
-            <!-- RIGHT PANEL -->
+            <!-- RIGHT PANEL (DESKTOP) -->
             <aside class="pos-panel">
                 <div class="panel-total">
                     <span class="total-label">TOTAL A PAGAR</span>
@@ -167,6 +194,111 @@
                 </div>
             </aside>
         </div>
+
+        <!-- MOBILE: Barra de acciones inferior -->
+        <div class="mobile-action-bar">
+            <button class="mobile-action-btn danger" onclick="cancelarVenta()">
+                <i class="fas fa-trash"></i>
+                <span>Borrar</span>
+            </button>
+            <button class="mobile-action-btn warning" onclick="ponerEnEspera()" id="mobileEsperaBtn" style="position:relative">
+                <i class="fas fa-pause"></i>
+                <span>Espera</span>
+            </button>
+            <button class="mobile-action-btn primary" onclick="aplicarDescuentoGlobal()">
+                <i class="fas fa-percent"></i>
+                <span>Desc.</span>
+            </button>
+            <button class="mobile-action-btn success" onclick="abrirModalNuevoProducto()">
+                <i class="fas fa-plus"></i>
+                <span>Producto</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MOBILE: Overlay del menú -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="toggleMobileMenu()"></div>
+
+    <!-- MOBILE: Menú lateral -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <div class="mobile-menu-user">
+                <div class="mobile-menu-avatar" id="mobileUserAvatar">US</div>
+                <div class="mobile-menu-user-info">
+                    <h4 id="mobileUserName">Usuario</h4>
+                    <small id="mobileUserSucursal">Sucursal</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mobile-menu-content">
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-section-title">Acciones Rápidas</div>
+                <div class="mobile-menu-item primary" onclick="abrirModalNuevoProducto(); toggleMobileMenu();">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Nuevo Producto</span>
+                </div>
+                <div class="mobile-menu-item primary" onclick="abrirModalNuevoCliente(); toggleMobileMenu();">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Nuevo Cliente</span>
+                </div>
+            </div>
+            
+            <div class="mobile-menu-divider"></div>
+            
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-section-title">Ventas en Espera</div>
+                <div class="mobile-menu-item warning" onclick="abrirModalEspera(); toggleMobileMenu();">
+                    <i class="fas fa-list"></i>
+                    <span>Ver Ventas en Espera</span>
+                    <span class="mobile-espera-count" id="mobileEsperaCount" style="display:none; margin-left:auto; background:var(--danger); color:#fff; padding:2px 8px; border-radius:10px; font-size:11px;">0</span>
+                </div>
+            </div>
+            
+            <div class="mobile-menu-divider"></div>
+            
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-section-title">Caja</div>
+                <div class="mobile-menu-item success" onclick="abrirModalMovimiento('INGRESO'); toggleMobileMenu();">
+                    <i class="fas fa-arrow-down"></i>
+                    <span>Ingreso de Efectivo</span>
+                </div>
+                <div class="mobile-menu-item danger" onclick="abrirModalMovimiento('EGRESO'); toggleMobileMenu();">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>Retiro de Efectivo</span>
+                </div>
+                <div class="mobile-menu-item" onclick="abrirModalCerrarTurno(); toggleMobileMenu();" id="mobileCorteBtn">
+                    <i class="fas fa-cash-register"></i>
+                    <span>Corte de Caja</span>
+                </div>
+            </div>
+            
+            <div class="mobile-menu-divider"></div>
+            
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-section-title">Historial</div>
+                <div class="mobile-menu-item" onclick="abrirModalVentasTurno(); toggleMobileMenu();">
+                    <i class="fas fa-receipt"></i>
+                    <span>Mis Ventas del Turno</span>
+                </div>
+            </div>
+            
+            <div class="mobile-menu-divider"></div>
+            
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-item" onclick="window.location.href='admin.html'">
+                    <i class="fas fa-th-large"></i>
+                    <span>Panel de Administración</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mobile-menu-footer">
+            <a href="#" onclick="API.logout(); return false;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </div>
     </div>
 
     <!-- ==================== MODALES ==================== -->
@@ -184,7 +316,7 @@
                 </div>
                 <div class="form-group">
                     <label>Saldo Inicial en Caja</label>
-                    <div class="input-money-lg"><span>$</span><input type="number" id="saldoInicial" step="0.01" min="0" placeholder="0.00" value=""></div>
+                    <div class="input-money-lg"><span>$</span><input type="number" id="saldoInicial" step="0.01" min="0" placeholder="0.00" value="" inputmode="decimal"></div>
                     <small class="help-text">Cuenta el efectivo en caja antes de iniciar</small>
                 </div>
             </div>
@@ -212,7 +344,7 @@
                                 <span class="denom">$1000</span>
                                 <div class="contador-controls">
                                     <button type="button" onclick="ajustarContador(1000,-1)">−</button>
-                                    <input type="number" id="cont_1000" value="0" min="0" onchange="calcularTotalContado()">
+                                    <input type="number" id="cont_1000" value="0" min="0" inputmode="numeric" onchange="calcularTotalContado()">
                                     <button type="button" onclick="ajustarContador(1000,1)">+</button>
                                 </div>
                                 <span class="subtotal" id="sub_1000">$0</span>
@@ -221,7 +353,7 @@
                                 <span class="denom">$500</span>
                                 <div class="contador-controls">
                                     <button type="button" onclick="ajustarContador(500,-1)">−</button>
-                                    <input type="number" id="cont_500" value="0" min="0" onchange="calcularTotalContado()">
+                                    <input type="number" id="cont_500" value="0" min="0" inputmode="numeric" onchange="calcularTotalContado()">
                                     <button type="button" onclick="ajustarContador(500,1)">+</button>
                                 </div>
                                 <span class="subtotal" id="sub_500">$0</span>
@@ -230,7 +362,7 @@
                                 <span class="denom">$200</span>
                                 <div class="contador-controls">
                                     <button type="button" onclick="ajustarContador(200,-1)">−</button>
-                                    <input type="number" id="cont_200" value="0" min="0" onchange="calcularTotalContado()">
+                                    <input type="number" id="cont_200" value="0" min="0" inputmode="numeric" onchange="calcularTotalContado()">
                                     <button type="button" onclick="ajustarContador(200,1)">+</button>
                                 </div>
                                 <span class="subtotal" id="sub_200">$0</span>
@@ -239,7 +371,7 @@
                                 <span class="denom">$100</span>
                                 <div class="contador-controls">
                                     <button type="button" onclick="ajustarContador(100,-1)">−</button>
-                                    <input type="number" id="cont_100" value="0" min="0" onchange="calcularTotalContado()">
+                                    <input type="number" id="cont_100" value="0" min="0" inputmode="numeric" onchange="calcularTotalContado()">
                                     <button type="button" onclick="ajustarContador(100,1)">+</button>
                                 </div>
                                 <span class="subtotal" id="sub_100">$0</span>
@@ -248,7 +380,7 @@
                                 <span class="denom">$50</span>
                                 <div class="contador-controls">
                                     <button type="button" onclick="ajustarContador(50,-1)">−</button>
-                                    <input type="number" id="cont_50" value="0" min="0" onchange="calcularTotalContado()">
+                                    <input type="number" id="cont_50" value="0" min="0" inputmode="numeric" onchange="calcularTotalContado()">
                                     <button type="button" onclick="ajustarContador(50,1)">+</button>
                                 </div>
                                 <span class="subtotal" id="sub_50">$0</span>
@@ -257,7 +389,7 @@
                                 <span class="denom">$20</span>
                                 <div class="contador-controls">
                                     <button type="button" onclick="ajustarContador(20,-1)">−</button>
-                                    <input type="number" id="cont_20" value="0" min="0" onchange="calcularTotalContado()">
+                                    <input type="number" id="cont_20" value="0" min="0" inputmode="numeric" onchange="calcularTotalContado()">
                                     <button type="button" onclick="ajustarContador(20,1)">+</button>
                                 </div>
                                 <span class="subtotal" id="sub_20">$0</span>
@@ -268,7 +400,7 @@
                                 <span class="denom">$10</span>
                                 <div class="contador-controls">
                                     <button type="button" onclick="ajustarContador(10,-1)">−</button>
-                                    <input type="number" id="cont_10" value="0" min="0" onchange="calcularTotalContado()">
+                                    <input type="number" id="cont_10" value="0" min="0" inputmode="numeric" onchange="calcularTotalContado()">
                                     <button type="button" onclick="ajustarContador(10,1)">+</button>
                                 </div>
                                 <span class="subtotal" id="sub_10">$0</span>
@@ -277,7 +409,7 @@
                                 <span class="denom">$5</span>
                                 <div class="contador-controls">
                                     <button type="button" onclick="ajustarContador(5,-1)">−</button>
-                                    <input type="number" id="cont_5" value="0" min="0" onchange="calcularTotalContado()">
+                                    <input type="number" id="cont_5" value="0" min="0" inputmode="numeric" onchange="calcularTotalContado()">
                                     <button type="button" onclick="ajustarContador(5,1)">+</button>
                                 </div>
                                 <span class="subtotal" id="sub_5">$0</span>
@@ -286,7 +418,7 @@
                                 <span class="denom">$2</span>
                                 <div class="contador-controls">
                                     <button type="button" onclick="ajustarContador(2,-1)">−</button>
-                                    <input type="number" id="cont_2" value="0" min="0" onchange="calcularTotalContado()">
+                                    <input type="number" id="cont_2" value="0" min="0" inputmode="numeric" onchange="calcularTotalContado()">
                                     <button type="button" onclick="ajustarContador(2,1)">+</button>
                                 </div>
                                 <span class="subtotal" id="sub_2">$0</span>
@@ -295,7 +427,7 @@
                                 <span class="denom">$1</span>
                                 <div class="contador-controls">
                                     <button type="button" onclick="ajustarContador(1,-1)">−</button>
-                                    <input type="number" id="cont_1" value="0" min="0" onchange="calcularTotalContado()">
+                                    <input type="number" id="cont_1" value="0" min="0" inputmode="numeric" onchange="calcularTotalContado()">
                                     <button type="button" onclick="ajustarContador(1,1)">+</button>
                                 </div>
                                 <span class="subtotal" id="sub_1">$0</span>
@@ -304,7 +436,7 @@
                                 <span class="denom">50¢</span>
                                 <div class="contador-controls">
                                     <button type="button" onclick="ajustarContador(0.5,-1)">−</button>
-                                    <input type="number" id="cont_05" value="0" min="0" onchange="calcularTotalContado()">
+                                    <input type="number" id="cont_05" value="0" min="0" inputmode="numeric" onchange="calcularTotalContado()">
                                     <button type="button" onclick="ajustarContador(0.5,1)">+</button>
                                 </div>
                                 <span class="subtotal" id="sub_05">$0</span>
@@ -365,7 +497,7 @@
             </div>
             <div class="modal-body modal-body-center">
                 <p>Ingresa la clave de administrador para volver a contar</p>
-                <input type="password" id="claveAdmin" class="form-control input-center" placeholder="Clave de administrador" onkeypress="if(event.key==='Enter')validarClaveAdmin()">
+                <input type="password" id="claveAdmin" class="form-control input-center" placeholder="Clave de administrador" inputmode="numeric" onkeypress="if(event.key==='Enter')validarClaveAdmin()">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline" onclick="cerrarModal('modalValidarAdmin')">Cancelar</button>
@@ -386,7 +518,7 @@
                 <div class="mov-info-box"><i class="fas fa-info-circle"></i><span>Los movimientos de caja solo afectan el efectivo</span></div>
                 <div class="form-group">
                     <label>Monto</label>
-                    <div class="input-money-lg"><span>$</span><input type="number" id="movimientoMonto" step="0.01" min="0.01" placeholder="0.00" required></div>
+                    <div class="input-money-lg"><span>$</span><input type="number" id="movimientoMonto" step="0.01" min="0.01" placeholder="0.00" required inputmode="decimal"></div>
                 </div>
                 <div class="form-group">
                     <label>Concepto *</label>
@@ -421,7 +553,7 @@
                     <label>Cantidad:</label>
                     <div class="cantidad-control">
                         <button type="button" onclick="ajustarCantidadFiltro(-1)">−</button>
-                        <input type="number" id="filtroCantidad" value="1" min="0.001" step="any">
+                        <input type="number" id="filtroCantidad" value="1" min="0.001" step="any" inputmode="decimal">
                         <button type="button" onclick="ajustarCantidadFiltro(1)">+</button>
                     </div>
                 </div>
@@ -495,7 +627,7 @@
                 <div class="cantidad-input-group">
                     <button class="cant-btn" type="button" onclick="ajustarCantidadModal(-0.1)">−</button>
                     <div class="cantidad-field">
-                        <input type="number" id="inputCantidadModal" value="1" step="0.001" min="0.001" oninput="calcularSubtotalModal()">
+                        <input type="number" id="inputCantidadModal" value="1" step="0.001" min="0.001" inputmode="decimal" oninput="calcularSubtotalModal()">
                         <span id="cantidadUnidad">KG</span>
                     </div>
                     <button class="cant-btn" type="button" onclick="ajustarCantidadModal(0.1)">+</button>
@@ -521,7 +653,7 @@
                 <div class="cobro-metodos" id="metodosPagoContainer"></div>
                 <div class="cobro-efectivo">
                     <label>Monto recibido</label>
-                    <input type="number" id="inputEfectivo" placeholder="0.00" step="0.01" oninput="calcularCambio()">
+                    <input type="number" id="inputEfectivo" placeholder="0.00" step="0.01" inputmode="decimal" oninput="calcularCambio()">
                     <div class="denominaciones">
                         <button type="button" onclick="addEfectivo(20)">+$20</button>
                         <button type="button" onclick="addEfectivo(50)">+$50</button>
@@ -573,7 +705,7 @@
                     <div class="form-group"><label>Código de barras</label><input type="text" id="np_codigo" placeholder="Escanear o escribir código"></div>
                     <div class="form-group"><label>Nombre del producto *</label><input type="text" id="np_nombre" required placeholder="Ej: Refresco 600ml"></div>
                     <div class="form-row">
-                        <div class="form-group"><label>Precio *</label><input type="number" id="np_precio" step="0.01" required placeholder="0.00"></div>
+                        <div class="form-group"><label>Precio *</label><input type="number" id="np_precio" step="0.01" required placeholder="0.00" inputmode="decimal"></div>
                         <div class="form-group">
                             <label>Unidad</label>
                             <select id="np_unidad"><option value="PZ">Pieza</option><option value="KG">Kilogramo</option><option value="LT">Litro</option><option value="MT">Metro</option></select>
@@ -599,7 +731,7 @@
                 <div class="modal-body">
                     <div class="form-group"><label>Nombre *</label><input type="text" id="nc_nombre" required placeholder="Nombre completo"></div>
                     <div class="form-row">
-                        <div class="form-group"><label>Teléfono</label><input type="tel" id="nc_telefono" placeholder="10 dígitos"></div>
+                        <div class="form-group"><label>Teléfono</label><input type="tel" id="nc_telefono" placeholder="10 dígitos" inputmode="tel"></div>
                         <div class="form-group">
                             <label>Tipo de Precio</label>
                             <select id="nc_tipo_precio"><option value="1">Precio 1</option><option value="2">Precio 2</option><option value="3">Precio 3</option><option value="4">Precio 4</option></select>
@@ -627,7 +759,7 @@
                     <label id="editarLineaLabel">Valor</label>
                     <div class="editar-input-wrapper">
                         <span class="editar-prefix" id="editarLineaPrefix"></span>
-                        <input type="number" id="inputEditarLinea" step="any" min="0" onkeypress="onEditarLineaKeypress(event)">
+                        <input type="number" id="inputEditarLinea" step="any" min="0" inputmode="decimal" onkeypress="onEditarLineaKeypress(event)">
                         <span class="editar-suffix" id="editarLineaSuffix"></span>
                     </div>
                 </div>
@@ -805,7 +937,7 @@
                     <div class="cantidad-cancelar-control">
                         <button type="button" onclick="ajustarCantidadCancelar(-1)">−</button>
                         <div class="cantidad-display">
-                            <input type="number" id="cantidadCancelarProd" step="0.001" min="0.001" value="1" oninput="calcularDevolucionProducto()">
+                            <input type="number" id="cantidadCancelarProd" step="0.001" min="0.001" value="1" inputmode="decimal" oninput="calcularDevolucionProducto()">
                             <span id="unidadCancelarProd">PZ</span>
                         </div>
                         <button type="button" onclick="ajustarCantidadCancelar(1)">+</button>
@@ -873,7 +1005,7 @@
                 <div class="cobro-metodos" id="metodosPendienteContainer"></div>
                 <div class="cobro-efectivo">
                     <label>Efectivo recibido</label>
-                    <input type="number" id="inputEfectivoPendiente" step="0.01" min="0" placeholder="0.00" oninput="calcularCambioPendiente()">
+                    <input type="number" id="inputEfectivoPendiente" step="0.01" min="0" placeholder="0.00" inputmode="decimal" oninput="calcularCambioPendiente()">
                     <div class="denominaciones">
                         <button type="button" onclick="addEfectivoPendiente(20)">$20</button>
                         <button type="button" onclick="addEfectivoPendiente(50)">$50</button>
@@ -905,7 +1037,7 @@
                 <div class="auth-icon-container"><i class="fas fa-lock"></i></div>
                 <p id="adminAuthMensaje">Se requiere autorización de administrador</p>
                 <div class="form-group">
-                    <input type="password" id="claveAdminAuth" class="form-control input-center" placeholder="Clave de administrador" onkeypress="if(event.key==='Enter')confirmarAutorizacionAdmin()">
+                    <input type="password" id="claveAdminAuth" class="form-control input-center" placeholder="Clave de administrador" inputmode="numeric" onkeypress="if(event.key==='Enter')confirmarAutorizacionAdmin()">
                 </div>
             </div>
             <div class="modal-footer modal-footer-center">
@@ -931,7 +1063,7 @@
                 </div>
                 <div class="form-group">
                     <label>Monto a devolver</label>
-                    <div class="input-money-lg"><span>$</span><input type="number" id="devolucionMonto" step="0.01" min="0" placeholder="0.00" oninput="validarMontoDevolucion()"></div>
+                    <div class="input-money-lg"><span>$</span><input type="number" id="devolucionMonto" step="0.01" min="0" placeholder="0.00" inputmode="decimal" oninput="validarMontoDevolucion()"></div>
                     <div class="devolucion-shortcuts">
                         <button type="button" onclick="setDevolucion100()">100%</button>
                         <button type="button" onclick="setDevolucion75()">75%</button>
@@ -959,6 +1091,7 @@
     <script src="../js/api.js"></script>
     <script src="../js/pos.js"></script>
     <script>
+        // ==================== RELOJ ====================
         setInterval(function() {
             var now = new Date();
             var h = String(now.getHours()).padStart(2, '0');
@@ -966,6 +1099,97 @@
             var el = document.getElementById('horaActual');
             if (el) el.textContent = h + ':' + m;
         }, 1000);
+
+        // ==================== FUNCIONES MÓVIL ====================
+        
+        // Toggle menú lateral
+        function toggleMobileMenu() {
+            var menu = document.getElementById('mobileMenu');
+            var overlay = document.getElementById('mobileMenuOverlay');
+            if (menu && overlay) {
+                menu.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+        }
+
+        // Actualizar totales en móvil
+        function actualizarTotalesMobile() {
+            var total = typeof calcularTotalFinal === 'function' ? calcularTotalFinal() : 0;
+            var articulos = typeof carrito !== 'undefined' ? carrito.reduce(function(s, i) { return s + i.cantidad; }, 0) : 0;
+            
+            var mobileTotal = document.getElementById('mobileTotalAmount');
+            var mobileArts = document.getElementById('mobileArticulos');
+            var mobileBtn = document.getElementById('mobileBtnCobrar');
+            
+            if (mobileTotal) mobileTotal.textContent = '$' + total.toFixed(2);
+            if (mobileArts) mobileArts.textContent = Math.round(articulos) + ' artículos';
+            if (mobileBtn) mobileBtn.disabled = articulos === 0;
+        }
+
+        // Actualizar info usuario en menú móvil
+        function actualizarMenuMobile() {
+            var u = (typeof API !== 'undefined' && API.usuario) ? API.usuario : {};
+            var mobileAvatar = document.getElementById('mobileUserAvatar');
+            var mobileName = document.getElementById('mobileUserName');
+            var mobileSuc = document.getElementById('mobileUserSucursal');
+            
+            if (mobileAvatar) {
+                var iniciales = (u.nombre || 'U').split(' ').map(function(n) { return n.charAt(0); }).join('').substring(0, 2);
+                mobileAvatar.textContent = iniciales.toUpperCase();
+            }
+            if (mobileName) mobileName.textContent = u.nombre || 'Usuario';
+            if (mobileSuc) mobileSuc.textContent = u.sucursal_nombre || 'Sucursal';
+        }
+
+        // Actualizar badge espera móvil
+        function actualizarBadgeEsperaMobile() {
+            var countEl = document.getElementById('mobileEsperaCount');
+            var count = typeof ventasEnEspera !== 'undefined' ? ventasEnEspera.length : 0;
+            if (countEl) {
+                countEl.textContent = count;
+                countEl.style.display = count > 0 ? 'inline-block' : 'none';
+            }
+        }
+
+        // Override actualizarTotales para incluir móvil
+        (function() {
+            var _actualizarTotalesOriginal = typeof actualizarTotales === 'function' ? actualizarTotales : null;
+            
+            // Esperar a que cargue pos.js
+            var checkInterval = setInterval(function() {
+                if (typeof actualizarTotales === 'function' && actualizarTotales !== window._wrappedActualizarTotales) {
+                    _actualizarTotalesOriginal = actualizarTotales;
+                    window._wrappedActualizarTotales = function() {
+                        if (_actualizarTotalesOriginal) _actualizarTotalesOriginal();
+                        actualizarTotalesMobile();
+                    };
+                    actualizarTotales = window._wrappedActualizarTotales;
+                    clearInterval(checkInterval);
+                }
+            }, 100);
+            
+            // Override actualizarBadgeEspera
+            var checkInterval2 = setInterval(function() {
+                if (typeof actualizarBadgeEspera === 'function' && actualizarBadgeEspera !== window._wrappedActualizarBadgeEspera) {
+                    var _orig = actualizarBadgeEspera;
+                    window._wrappedActualizarBadgeEspera = function() {
+                        _orig();
+                        actualizarBadgeEsperaMobile();
+                    };
+                    actualizarBadgeEspera = window._wrappedActualizarBadgeEspera;
+                    clearInterval(checkInterval2);
+                }
+            }, 100);
+        })();
+
+        // Inicializar móvil al cargar
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                actualizarMenuMobile();
+                actualizarTotalesMobile();
+                actualizarBadgeEsperaMobile();
+            }, 500);
+        });
     </script>
 </body>
 </html>
