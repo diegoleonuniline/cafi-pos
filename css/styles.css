@@ -4077,3 +4077,45 @@ body {
         flex-wrap: wrap;
     }
 }
+/* FIX: Modal Detalle Venta - scroll y botones visibles */
+#modalDetalleVenta .modal {
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+}
+
+#modalDetalleVenta .detalle-header-venta {
+    flex-shrink: 0;
+}
+
+#modalDetalleVenta .detalle-info-grid {
+    flex-shrink: 0;
+}
+
+#modalDetalleVenta .detalle-productos,
+#modalDetalleVenta .detalle-pagos,
+#modalDetalleVenta .detalle-historial {
+    flex-shrink: 0;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+#modalDetalleVenta .detalle-totales {
+    flex-shrink: 0;
+}
+
+#modalDetalleVenta .detalle-acciones {
+    flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    border-top: 1px solid #e5e7eb;
+    z-index: 10;
+}
+
+/* Contenedor scrolleable para el contenido medio */
+.modal-detalle-scroll {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
