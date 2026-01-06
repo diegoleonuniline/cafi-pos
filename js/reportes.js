@@ -3,8 +3,8 @@
    ============================================ */
 
 let datosReporte = {};
-const empresaId = localStorage.getItem('empresa_id') || JSON.parse(localStorage.getItem('usuario') || '{}').empresa_id || 1;
-const sucursalId = localStorage.getItem('sucursal_id') || JSON.parse(localStorage.getItem('usuario') || '{}').sucursal_id || 1;
+const empresaId = localStorage.getItem('empresa_id') || (JSON.parse(localStorage.getItem('usuario') || '{}')).empresa_id || 1;
+const sucursalId = localStorage.getItem('sucursal_id') || (JSON.parse(localStorage.getItem('usuario') || '{}')).sucursal_id || 1;
 
 // ============================================
 // INICIALIZACIÓN
@@ -23,9 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initUsuario() {
     const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
-    const sucursal = JSON.parse(localStorage.getItem('sucursal') || '{}');
     document.getElementById('userName').textContent = usuario.nombre || 'Usuario';
-    document.getElementById('userSucursal').textContent = sucursal.nombre || usuario.sucursal_nombre || 'Sucursal';
+    document.getElementById('userSucursal').textContent = usuario.sucursal_nombre || 'Sucursal';
     document.getElementById('userAvatar').textContent = (usuario.nombre || 'US').substring(0, 2).toUpperCase();
 }
 
@@ -78,7 +77,7 @@ function cargarReporteActivo(reporte) {
 
 async function cargarCategorias() {
     try {
-        const r = await API.get(`/categorias/${empresaId}`);
+        const r = await API.request(`/categorias/${empresaId}`);
         if (r.success) {
             const sel = document.getElementById('productosCategoria');
             (r.categorias || r.data || []).forEach(c => {
@@ -90,7 +89,7 @@ async function cargarCategorias() {
 
 async function cargarUsuarios() {
     try {
-        const r = await API.get(`/usuarios/${empresaId}`);
+        const r = await API.request(`/usuarios/${empresaId}`);
         if (r.success) {
             const sel = document.getElementById('cortesUsuario');
             (r.usuarios || []).forEach(u => {
@@ -102,7 +101,7 @@ async function cargarUsuarios() {
 
 async function cargarMetodosPago() {
     try {
-        const r = await API.get(`/metodos-pago/${empresaId}`);
+        const r = await API.request(`/metodos-pago/${empresaId}`);
         if (r.success) {
             const sel = document.getElementById('pagosMetodo');
             (r.metodos || []).forEach(m => {
@@ -114,7 +113,7 @@ async function cargarMetodosPago() {
 
 async function cargarClientesSelect() {
     try {
-        const r = await API.get(`/clientes/${empresaId}`);
+        const r = await API.request(`/clientes/${empresaId}`);
         if (r.success) {
             const sel = document.getElementById('cxcCliente');
             (r.clientes || r.data || []).forEach(c => {
@@ -137,7 +136,7 @@ async function cargarVentasPeriodo() {
     tabla.innerHTML = `<tr class="loading-row"><td colspan="6"><div class="spinner"></div>Cargando...</td></tr>`;
     
     try {
-        const r = await API.get(`/reportes/ventas-periodo?empresa_id=${empresaId}&desde=${desde}&hasta=${hasta}&agrupar=${agrupar}`);
+        const r = await API.request(`/reportes/ventas-periodo?empresa_id=${empresaId}&desde=${desde}&hasta=${hasta}&agrupar=${agrupar}`);
         
         if (r.success && r.datos && r.datos.length > 0) {
             datosReporte['ventas-periodo'] = r.datos;
@@ -199,7 +198,7 @@ async function cargarVentasUsuario() {
     tabla.innerHTML = `<tr class="loading-row"><td colspan="6"><div class="spinner"></div>Cargando...</td></tr>`;
     
     try {
-        const r = await API.get(`/reportes/ventas-usuario?empresa_id=${empresaId}&desde=${desde}&hasta=${hasta}`);
+        const r = await API.request(`/reportes/ventas-usuario?empresa_id=${empresaId}&desde=${desde}&hasta=${hasta}`);
         
         if (r.success && r.datos && r.datos.length > 0) {
             datosReporte['ventas-usuario'] = r.datos;
@@ -242,7 +241,7 @@ async function cargarProductosVendidos() {
         let url = `/reportes/productos-vendidos?empresa_id=${empresaId}&desde=${desde}&hasta=${hasta}&orden=${orden}`;
         if (categoria) url += `&categoria_id=${categoria}`;
         
-        const r = await API.get(url);
+        const r = await API.request(url);
         
         if (r.success && r.datos && r.datos.length > 0) {
             datosReporte['productos-vendidos'] = r.datos;
@@ -287,7 +286,7 @@ async function cargarCortes() {
         let url = `/reportes/cortes?empresa_id=${empresaId}&desde=${desde}&hasta=${hasta}`;
         if (usuario) url += `&usuario_id=${usuario}`;
         
-        const r = await API.get(url);
+        const r = await API.request(url);
         
         if (r.success && r.cortes && r.cortes.length > 0) {
             let datos = r.cortes;
@@ -349,7 +348,7 @@ function getBadgeEstadoCorte(estado) {
 
 async function verDetalleCorte(id) {
     try {
-        const r = await API.get(`/cortes/${id}`);
+        const r = await API.request(`/cortes/${id}`);
         if (r.success) {
             const c = r.corte;
             const esperado = parseFloat(c.efectivo_esperado) || 0;
@@ -416,7 +415,7 @@ async function cargarPagos() {
         if (metodo) url += `&metodo_id=${metodo}`;
         if (estado) url += `&estado=${estado}`;
         
-        const r = await API.get(url);
+        const r = await API.request(url);
         
         if (r.success && r.pagos && r.pagos.length > 0) {
             datosReporte['pagos'] = r.pagos;
@@ -496,7 +495,7 @@ async function cargarMovimientos() {
         let url = `/reportes/movimientos?empresa_id=${empresaId}&desde=${desde}&hasta=${hasta}`;
         if (tipo) url += `&tipo=${tipo}`;
         
-        const r = await API.get(url);
+        const r = await API.request(url);
         
         if (r.success && r.movimientos && r.movimientos.length > 0) {
             datosReporte['movimientos'] = r.movimientos;
@@ -550,7 +549,7 @@ async function cargarDevoluciones() {
         let url = `/reportes/devoluciones?empresa_id=${empresaId}&desde=${desde}&hasta=${hasta}`;
         if (motivo) url += `&motivo=${motivo}`;
         
-        const r = await API.get(url);
+        const r = await API.request(url);
         
         if (r.success && r.devoluciones && r.devoluciones.length > 0) {
             datosReporte['devoluciones'] = r.devoluciones;
@@ -607,7 +606,7 @@ async function cargarCancelaciones() {
     tabla.innerHTML = `<tr class="loading-row"><td colspan="7"><div class="spinner"></div>Cargando...</td></tr>`;
     
     try {
-        const r = await API.get(`/reportes/cancelaciones?empresa_id=${empresaId}&desde=${desde}&hasta=${hasta}`);
+        const r = await API.request(`/reportes/cancelaciones?empresa_id=${empresaId}&desde=${desde}&hasta=${hasta}`);
         
         if (r.success && r.cancelaciones && r.cancelaciones.length > 0) {
             datosReporte['cancelaciones'] = r.cancelaciones;
@@ -654,7 +653,7 @@ async function cargarClientesFrecuentes() {
     tabla.innerHTML = `<tr class="loading-row"><td colspan="7"><div class="spinner"></div>Cargando...</td></tr>`;
     
     try {
-        const r = await API.get(`/reportes/clientes-frecuentes?empresa_id=${empresaId}&desde=${desde}&hasta=${hasta}&top=${top}`);
+        const r = await API.request(`/reportes/clientes-frecuentes?empresa_id=${empresaId}&desde=${desde}&hasta=${hasta}&top=${top}`);
         
         if (r.success && r.clientes && r.clientes.length > 0) {
             datosReporte['clientes-frecuentes'] = r.clientes;
@@ -692,7 +691,7 @@ async function cargarCuentasCobrar() {
         let url = `/reportes/cuentas-cobrar?empresa_id=${empresaId}`;
         if (cliente) url += `&cliente_id=${cliente}`;
         
-        const r = await API.get(url);
+        const r = await API.request(url);
         
         if (r.success && r.cuentas && r.cuentas.length > 0) {
             let datos = r.cuentas;
