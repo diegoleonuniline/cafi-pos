@@ -1932,11 +1932,12 @@
                     <small class="help-text">Cuenta el efectivo en caja antes de iniciar</small>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-success btn-lg btn-block" onclick="confirmarAbrirTurno()">
-                    <i class="fas fa-play"></i> Abrir Turno
-                </button>
-            </div>
+         <div class="modal-footer">
+    <button class="btn btn-outline" onclick="cerrarModal('modalCobrarPendiente')">Cancelar</button>
+    <button class="btn btn-success" onclick="confirmarCobroPendiente()">
+        <i class="fas fa-check"></i> Confirmar Cobro
+    </button>
+</div>
         </div>
     </div>
 
