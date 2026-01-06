@@ -2642,11 +2642,10 @@
         </div>
     </div>
 </div>
-
 <!-- MODAL: Detalle de Venta -->
 <div class="modal-overlay" id="modalDetalleVenta">
     <div class="modal modal-lg">
-        <!-- Header - usa clase detalle-header-venta -->
+        <!-- Header fijo -->
         <div class="detalle-header-venta">
             <div>
                 <div class="folio-grande" id="detalleVentaFolio">#0001</div>
@@ -2658,7 +2657,7 @@
             </div>
         </div>
         
-        <!-- Info Grid - usa clase detalle-info-grid -->
+        <!-- Info Grid fijo -->
         <div class="detalle-info-grid">
             <div class="detalle-info-item">
                 <label>Cliente</label>
@@ -2678,42 +2677,45 @@
             </div>
         </div>
         
-        <!-- Productos - usa clase detalle-productos -->
-        <div class="detalle-productos">
-            <h4><i class="fas fa-boxes"></i> Productos</h4>
-            <table class="detalle-productos-table">
-                <thead>
-                    <tr>
-                        <th>Producto</th>
-                        <th class="text-center">Cantidad</th>
-                        <th class="text-right">P. Unit.</th>
-                        <th class="text-right">Subtotal</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody id="detalleVentaProductos">
+        <!-- CONTENIDO CON SCROLL -->
+        <div class="modal-detalle-scroll">
+            <!-- Productos -->
+            <div class="detalle-productos">
+                <h4><i class="fas fa-boxes"></i> Productos</h4>
+                <table class="detalle-productos-table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th class="text-center">Cantidad</th>
+                            <th class="text-right">P. Unit.</th>
+                            <th class="text-right">Subtotal</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="detalleVentaProductos">
+                        <!-- Contenido dinámico -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagos -->
+            <div class="detalle-pagos">
+                <h4><i class="fas fa-credit-card"></i> Pagos</h4>
+                <div class="pagos-lista" id="detalleVentaPagos">
                     <!-- Contenido dinámico -->
-                </tbody>
-            </table>
-        </div>
-        
-        <!-- Pagos - usa clase detalle-pagos, pagos-lista -->
-        <div class="detalle-pagos">
-            <h4><i class="fas fa-credit-card"></i> Pagos</h4>
-            <div class="pagos-lista" id="detalleVentaPagos">
-                <!-- Contenido dinámico -->
+                </div>
+            </div>
+            
+            <!-- Historial -->
+            <div class="detalle-historial" id="detalleHistorialContainer" style="display:none">
+                <h4><i class="fas fa-history"></i> Historial de Cambios</h4>
+                <div class="historial-lista" id="detalleVentaHistorial">
+                    <!-- Contenido dinámico -->
+                </div>
             </div>
         </div>
         
-        <!-- Historial - usa clase detalle-historial, historial-lista -->
-        <div class="detalle-historial" id="detalleHistorialContainer" style="display:none">
-            <h4><i class="fas fa-history"></i> Historial de Cambios</h4>
-            <div class="historial-lista" id="detalleVentaHistorial">
-                <!-- Contenido dinámico -->
-            </div>
-        </div>
-        
-        <!-- Totales - usa clase detalle-totales -->
+        <!-- Totales fijo -->
         <div class="detalle-totales">
             <div class="total-row">
                 <span>Subtotal</span>
@@ -2737,7 +2739,7 @@
             </div>
         </div>
         
-        <!-- Acciones - usa clase detalle-acciones, acciones-grupo -->
+        <!-- Acciones SIEMPRE visibles -->
         <div class="detalle-acciones">
             <div class="acciones-grupo" id="accionesVentaActiva">
                 <button class="btn btn-outline" onclick="abrirModalCancelarVenta()">
@@ -2761,6 +2763,7 @@
         </div>
     </div>
 </div>
+
 
 <!-- MODAL: Cancelar Venta Completa -->
 <div class="modal-overlay" id="modalCancelarVenta">
