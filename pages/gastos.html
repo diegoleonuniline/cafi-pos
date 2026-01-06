@@ -221,15 +221,21 @@
                     <div class="gasto-row two">
                         <div class="gasto-field">
                             <label><i class="fas fa-folder"></i> Categoría *</label>
-                            <select id="gastoCategoria" required onchange="cargarConceptosPorCategoria()">
-                                <option value="">Seleccionar...</option>
-                            </select>
+                            <div class="input-with-btn">
+                                <select id="gastoCategoria" required onchange="cargarConceptosPorCategoria()">
+                                    <option value="">Seleccionar...</option>
+                                </select>
+                                <button type="button" class="btn-add-inline" onclick="abrirMiniModal('categoria')" title="Nueva categoría">+</button>
+                            </div>
                         </div>
                         <div class="gasto-field">
                             <label><i class="fas fa-tag"></i> Concepto *</label>
-                            <select id="gastoConcepto" required>
-                                <option value="">Primero seleccione categoría</option>
-                            </select>
+                            <div class="input-with-btn">
+                                <select id="gastoConcepto" required>
+                                    <option value="">Primero seleccione categoría</option>
+                                </select>
+                                <button type="button" class="btn-add-inline" onclick="abrirMiniModal('concepto')" title="Nuevo concepto">+</button>
+                            </div>
                         </div>
                     </div>
 
@@ -237,9 +243,12 @@
                     <div class="gasto-row two">
                         <div class="gasto-field">
                             <label><i class="fas fa-truck"></i> Proveedor</label>
-                            <select id="gastoProveedor" onchange="seleccionarProveedor()">
-                                <option value="">Sin proveedor</option>
-                            </select>
+                            <div class="input-with-btn">
+                                <select id="gastoProveedor" onchange="seleccionarProveedor()">
+                                    <option value="">Sin proveedor</option>
+                                </select>
+                                <button type="button" class="btn-add-inline" onclick="abrirMiniModal('proveedor')" title="Nuevo proveedor">+</button>
+                            </div>
                         </div>
                         <div class="gasto-field">
                             <label><i class="fas fa-pen"></i> O escribir nombre</label>
@@ -347,6 +356,91 @@
             <div class="modal-footer">
                 <button class="btn btn-outline" onclick="cerrarModal('modalDetalle')">Cerrar</button>
                 <button class="btn btn-primary" onclick="imprimirGasto()"><i class="fas fa-print"></i> Imprimir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MINI-MODAL: Nueva Categoría -->
+    <div class="modal-overlay" id="modalMiniCategoria">
+        <div class="modal modal-mini">
+            <div class="modal-header">
+                <h3><i class="fas fa-folder-plus"></i> Nueva Categoría</h3>
+                <button class="modal-close" onclick="cerrarMiniModal('categoria')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="gasto-field">
+                    <label>Nombre *</label>
+                    <input type="text" id="miniCategoriaNombre" placeholder="Ej: Servicios, Nómina...">
+                </div>
+                <div class="gasto-field" style="margin-top:12px;">
+                    <label>Tipo</label>
+                    <select id="miniCategoriaTipo">
+                        <option value="OPERATIVO">Operativo</option>
+                        <option value="ADMINISTRATIVO">Administrativo</option>
+                        <option value="FINANCIERO">Financiero</option>
+                        <option value="OTRO">Otro</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline btn-sm" onclick="cerrarMiniModal('categoria')">Cancelar</button>
+                <button class="btn btn-success btn-sm" onclick="guardarMiniCategoria()"><i class="fas fa-check"></i> Crear</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MINI-MODAL: Nuevo Concepto -->
+    <div class="modal-overlay" id="modalMiniConcepto">
+        <div class="modal modal-mini">
+            <div class="modal-header">
+                <h3><i class="fas fa-tag"></i> Nuevo Concepto</h3>
+                <button class="modal-close" onclick="cerrarMiniModal('concepto')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="gasto-field">
+                    <label>Categoría *</label>
+                    <select id="miniConceptoCategoria" required>
+                        <option value="">Seleccionar...</option>
+                    </select>
+                </div>
+                <div class="gasto-field" style="margin-top:12px;">
+                    <label>Nombre *</label>
+                    <input type="text" id="miniConceptoNombre" placeholder="Ej: Luz, Internet, Gasolina...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline btn-sm" onclick="cerrarMiniModal('concepto')">Cancelar</button>
+                <button class="btn btn-success btn-sm" onclick="guardarMiniConcepto()"><i class="fas fa-check"></i> Crear</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MINI-MODAL: Nuevo Proveedor -->
+    <div class="modal-overlay" id="modalMiniProveedor">
+        <div class="modal modal-mini">
+            <div class="modal-header">
+                <h3><i class="fas fa-truck"></i> Nuevo Proveedor</h3>
+                <button class="modal-close" onclick="cerrarMiniModal('proveedor')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="gasto-field">
+                    <label>Nombre Comercial *</label>
+                    <input type="text" id="miniProveedorNombre" placeholder="Ej: CFE, Telmex...">
+                </div>
+                <div class="gasto-row two" style="margin-top:12px;">
+                    <div class="gasto-field">
+                        <label>RFC</label>
+                        <input type="text" id="miniProveedorRFC" placeholder="Opcional">
+                    </div>
+                    <div class="gasto-field">
+                        <label>Teléfono</label>
+                        <input type="text" id="miniProveedorTelefono" placeholder="Opcional">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline btn-sm" onclick="cerrarMiniModal('proveedor')">Cancelar</button>
+                <button class="btn btn-success btn-sm" onclick="guardarMiniProveedor()"><i class="fas fa-check"></i> Crear</button>
             </div>
         </div>
     </div>
