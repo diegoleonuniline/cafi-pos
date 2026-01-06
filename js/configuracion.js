@@ -90,7 +90,7 @@ async function cargarEmpresa() {
         if (r.success && r.empresa) {
             const e = r.empresa;
             document.getElementById('empNombre').value = e.nombre || '';
-            document.getElementById('empRfc').value = e.rfc || '';
+            document.getElementById('empRFC').value = e.rfc || '';
             document.getElementById('empTelefono').value = e.telefono || '';
             document.getElementById('empEmail').value = e.email || '';
             document.getElementById('empDireccion').value = e.direccion || '';
@@ -105,7 +105,7 @@ async function guardarEmpresa(ev) {
     try {
         const data = {
             nombre: document.getElementById('empNombre').value,
-            rfc: document.getElementById('empRfc').value,
+            rfc: document.getElementById('empRFC').value,
             telefono: document.getElementById('empTelefono').value,
             email: document.getElementById('empEmail').value,
             direccion: document.getElementById('empDireccion').value,
