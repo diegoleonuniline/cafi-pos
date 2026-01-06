@@ -50,669 +50,228 @@
             </header>
 
             <div class="admin-content">
-                <div class="reportes-layout">
-                    <!-- SIDEBAR DE REPORTES -->
-                    <aside class="reportes-sidebar">
-                        <div class="reportes-menu">
-                            <div class="menu-section">
-                                <h4><i class="fas fa-chart-bar"></i> Ventas</h4>
-                                <button class="reporte-btn active" data-reporte="ventas-periodo"><i class="fas fa-calendar-alt"></i> Ventas por Período</button>
-                                <button class="reporte-btn" data-reporte="ventas-usuario"><i class="fas fa-user"></i> Ventas por Usuario</button>
-                                <button class="reporte-btn" data-reporte="productos-vendidos"><i class="fas fa-box"></i> Productos Vendidos</button>
-                            </div>
-                            <div class="menu-section">
-                                <h4><i class="fas fa-cash-register"></i> Caja</h4>
-                                <button class="reporte-btn" data-reporte="cortes"><i class="fas fa-calculator"></i> Cortes de Caja</button>
-                                <button class="reporte-btn" data-reporte="pagos"><i class="fas fa-hand-holding-usd"></i> Pagos Recibidos</button>
-                                <button class="reporte-btn" data-reporte="movimientos"><i class="fas fa-exchange-alt"></i> Movimientos</button>
-                            </div>
-                            <div class="menu-section">
-                                <h4><i class="fas fa-undo-alt"></i> Devoluciones</h4>
-                                <button class="reporte-btn" data-reporte="devoluciones"><i class="fas fa-undo"></i> Devoluciones</button>
-                                <button class="reporte-btn" data-reporte="cancelaciones"><i class="fas fa-times-circle"></i> Cancelaciones</button>
-                            </div>
-                            <div class="menu-section">
-                                <h4><i class="fas fa-users"></i> Clientes</h4>
-                                <button class="reporte-btn" data-reporte="clientes-frecuentes"><i class="fas fa-star"></i> Más Frecuentes</button>
-                                <button class="reporte-btn" data-reporte="cuentas-cobrar"><i class="fas fa-file-invoice-dollar"></i> Cuentas por Cobrar</button>
-                            </div>
-                        </div>
-                    </aside>
+                <!-- TABS HORIZONTALES -->
+                <div class="reportes-tabs-container">
+                    <div class="reportes-tabs">
+                        <button class="tab-btn active" data-reporte="ventas-periodo"><i class="fas fa-calendar-alt"></i><span>Ventas Período</span></button>
+                        <button class="tab-btn" data-reporte="ventas-usuario"><i class="fas fa-user"></i><span>Por Usuario</span></button>
+                        <button class="tab-btn" data-reporte="productos-vendidos"><i class="fas fa-box"></i><span>Productos</span></button>
+                        <button class="tab-btn" data-reporte="cortes"><i class="fas fa-calculator"></i><span>Cortes</span></button>
+                        <button class="tab-btn" data-reporte="pagos"><i class="fas fa-hand-holding-usd"></i><span>Pagos</span></button>
+                        <button class="tab-btn" data-reporte="movimientos"><i class="fas fa-exchange-alt"></i><span>Movimientos</span></button>
+                        <button class="tab-btn" data-reporte="devoluciones"><i class="fas fa-undo"></i><span>Devoluciones</span></button>
+                        <button class="tab-btn" data-reporte="cancelaciones"><i class="fas fa-times-circle"></i><span>Cancelaciones</span></button>
+                        <button class="tab-btn" data-reporte="clientes-frecuentes"><i class="fas fa-star"></i><span>Top Clientes</span></button>
+                        <button class="tab-btn" data-reporte="cuentas-cobrar"><i class="fas fa-file-invoice-dollar"></i><span>Por Cobrar</span></button>
+                    </div>
+                </div>
 
-                    <!-- CONTENIDO DEL REPORTE -->
-                    <div class="reporte-content">
-                        <!-- VENTAS POR PERÍODO -->
-                        <div class="reporte-panel active" id="panel-ventas-periodo">
-                            <div class="panel-header">
-                                <h2><i class="fas fa-calendar-alt"></i> Ventas por Período</h2>
-                                <div class="panel-actions">
-                                    <button class="btn btn-outline btn-sm" onclick="exportarReporte('ventas-periodo')"><i class="fas fa-file-excel"></i> Excel</button>
-                                    <button class="btn btn-outline btn-sm" onclick="imprimirReporte()"><i class="fas fa-print"></i> Imprimir</button>
-                                </div>
-                            </div>
-                            <div class="panel-filtros">
-                                <div class="filtro-grupo">
-                                    <label>Desde</label>
-                                    <input type="date" id="ventasFechaDesde">
-                                </div>
-                                <div class="filtro-grupo">
-                                    <label>Hasta</label>
-                                    <input type="date" id="ventasFechaHasta">
-                                </div>
-                                <div class="filtro-grupo">
-                                    <label>Agrupar por</label>
+                <!-- CONTENIDO DE REPORTES -->
+                <div class="reporte-wrapper">
+                    <!-- VENTAS POR PERÍODO -->
+                    <div class="reporte-panel active" id="panel-ventas-periodo">
+                        <div class="panel-toolbar">
+                            <div class="toolbar-filters">
+                                <div class="filter-item"><label>Desde</label><input type="date" id="ventasFechaDesde"></div>
+                                <div class="filter-item"><label>Hasta</label><input type="date" id="ventasFechaHasta"></div>
+                                <div class="filter-item">
+                                    <label>Agrupar</label>
                                     <select id="ventasAgrupar">
-                                        <option value="dia">Día</option>
-                                        <option value="semana">Semana</option>
-                                        <option value="mes">Mes</option>
+                                        <option value="dia">Por Día</option>
+                                        <option value="semana">Por Semana</option>
+                                        <option value="mes">Por Mes</option>
                                     </select>
                                 </div>
-                                <button class="btn btn-primary" onclick="cargarVentasPeriodo()"><i class="fas fa-search"></i> Consultar</button>
+                                <button class="btn-filtrar" onclick="cargarVentasPeriodo()"><i class="fas fa-search"></i> Consultar</button>
                             </div>
-                            <div class="panel-stats">
-                                <div class="stat-card blue">
-                                    <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value" id="ventasTotalVentas">0</span>
-                                        <span class="stat-label">Ventas</span>
-                                    </div>
-                                </div>
-                                <div class="stat-card green">
-                                    <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value" id="ventasTotalMonto">$0.00</span>
-                                        <span class="stat-label">Total Vendido</span>
-                                    </div>
-                                </div>
-                                <div class="stat-card purple">
-                                    <div class="stat-icon"><i class="fas fa-receipt"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value" id="ventasTicketProm">$0.00</span>
-                                        <span class="stat-label">Ticket Promedio</span>
-                                    </div>
-                                </div>
-                                <div class="stat-card orange">
-                                    <div class="stat-icon"><i class="fas fa-box"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value" id="ventasProductos">0</span>
-                                        <span class="stat-label">Productos</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="panel-tabla">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Período</th>
-                                            <th class="text-center">Ventas</th>
-                                            <th class="text-right">Subtotal</th>
-                                            <th class="text-right">Impuestos</th>
-                                            <th class="text-right">Total</th>
-                                            <th class="text-center">Productos</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tablaVentasPeriodo"></tbody>
-                                </table>
+                            <div class="toolbar-actions">
+                                <button class="btn-export" onclick="exportarReporte('ventas-periodo')"><i class="fas fa-file-excel"></i> Excel</button>
+                                <button class="btn-print" onclick="imprimirReporte()"><i class="fas fa-print"></i></button>
                             </div>
                         </div>
-
-                        <!-- VENTAS POR USUARIO -->
-                        <div class="reporte-panel" id="panel-ventas-usuario">
-                            <div class="panel-header">
-                                <h2><i class="fas fa-user"></i> Ventas por Usuario</h2>
-                                <div class="panel-actions">
-                                    <button class="btn btn-outline btn-sm" onclick="exportarReporte('ventas-usuario')"><i class="fas fa-file-excel"></i> Excel</button>
-                                </div>
-                            </div>
-                            <div class="panel-filtros">
-                                <div class="filtro-grupo">
-                                    <label>Desde</label>
-                                    <input type="date" id="usuarioFechaDesde">
-                                </div>
-                                <div class="filtro-grupo">
-                                    <label>Hasta</label>
-                                    <input type="date" id="usuarioFechaHasta">
-                                </div>
-                                <button class="btn btn-primary" onclick="cargarVentasUsuario()"><i class="fas fa-search"></i> Consultar</button>
-                            </div>
-                            <div class="panel-tabla">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Usuario</th>
-                                            <th class="text-center">Ventas</th>
-                                            <th class="text-right">Total</th>
-                                            <th class="text-right">Promedio</th>
-                                            <th class="text-center">Productos</th>
-                                            <th class="text-center">% del Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tablaVentasUsuario"></tbody>
-                                </table>
-                            </div>
+                        <div class="panel-stats-row">
+                            <div class="mini-stat blue"><i class="fas fa-shopping-cart"></i><div><span id="ventasTotalVentas">0</span><small>Ventas</small></div></div>
+                            <div class="mini-stat green"><i class="fas fa-dollar-sign"></i><div><span id="ventasTotalMonto">$0.00</span><small>Total</small></div></div>
+                            <div class="mini-stat purple"><i class="fas fa-receipt"></i><div><span id="ventasTicketProm">$0.00</span><small>Ticket Prom.</small></div></div>
+                            <div class="mini-stat orange"><i class="fas fa-box"></i><div><span id="ventasProductos">0</span><small>Productos</small></div></div>
                         </div>
-
-                        <!-- PRODUCTOS VENDIDOS -->
-                        <div class="reporte-panel" id="panel-productos-vendidos">
-                            <div class="panel-header">
-                                <h2><i class="fas fa-box"></i> Productos Vendidos</h2>
-                                <div class="panel-actions">
-                                    <button class="btn btn-outline btn-sm" onclick="exportarReporte('productos-vendidos')"><i class="fas fa-file-excel"></i> Excel</button>
-                                </div>
-                            </div>
-                            <div class="panel-filtros">
-                                <div class="filtro-grupo">
-                                    <label>Desde</label>
-                                    <input type="date" id="productosFechaDesde">
-                                </div>
-                                <div class="filtro-grupo">
-                                    <label>Hasta</label>
-                                    <input type="date" id="productosFechaHasta">
-                                </div>
-                                <div class="filtro-grupo">
-                                    <label>Categoría</label>
-                                    <select id="productosCategoria">
-                                        <option value="">Todas</option>
-                                    </select>
-                                </div>
-                                <div class="filtro-grupo">
-                                    <label>Ordenar</label>
-                                    <select id="productosOrden">
-                                        <option value="cantidad">Más vendidos</option>
-                                        <option value="monto">Mayor ingreso</option>
-                                    </select>
-                                </div>
-                                <button class="btn btn-primary" onclick="cargarProductosVendidos()"><i class="fas fa-search"></i> Consultar</button>
-                            </div>
-                            <div class="panel-tabla">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Código</th>
-                                            <th>Producto</th>
-                                            <th>Categoría</th>
-                                            <th class="text-center">Cantidad</th>
-                                            <th class="text-right">Total</th>
-                                            <th class="text-right">Costo</th>
-                                            <th class="text-right">Utilidad</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tablaProductosVendidos"></tbody>
-                                </table>
-                            </div>
+                        <div class="panel-table">
+                            <table><thead><tr><th>Período</th><th class="center">Ventas</th><th class="right">Subtotal</th><th class="right">Impuestos</th><th class="right">Total</th><th class="center">Productos</th></tr></thead><tbody id="tablaVentasPeriodo"></tbody></table>
                         </div>
+                    </div>
 
-                        <!-- CORTES DE CAJA -->
-                        <div class="reporte-panel" id="panel-cortes">
-                            <div class="panel-header">
-                                <h2><i class="fas fa-calculator"></i> Cortes de Caja</h2>
-                                <div class="panel-actions">
-                                    <button class="btn btn-outline btn-sm" onclick="exportarReporte('cortes')"><i class="fas fa-file-excel"></i> Excel</button>
-                                </div>
+                    <!-- VENTAS POR USUARIO -->
+                    <div class="reporte-panel" id="panel-ventas-usuario">
+                        <div class="panel-toolbar">
+                            <div class="toolbar-filters">
+                                <div class="filter-item"><label>Desde</label><input type="date" id="usuarioFechaDesde"></div>
+                                <div class="filter-item"><label>Hasta</label><input type="date" id="usuarioFechaHasta"></div>
+                                <button class="btn-filtrar" onclick="cargarVentasUsuario()"><i class="fas fa-search"></i> Consultar</button>
                             </div>
-                            <div class="panel-filtros">
-                                <div class="filtro-grupo">
-                                    <label>Desde</label>
-                                    <input type="date" id="cortesFechaDesde">
-                                </div>
-                                <div class="filtro-grupo">
-                                    <label>Hasta</label>
-                                    <input type="date" id="cortesFechaHasta">
-                                </div>
-                                <div class="filtro-grupo">
-                                    <label>Usuario</label>
-                                    <select id="cortesUsuario">
-                                        <option value="">Todos</option>
-                                    </select>
-                                </div>
-                                <div class="filtro-grupo">
-                                    <label>Estado</label>
-                                    <select id="cortesEstado">
-                                        <option value="">Todos</option>
-                                        <option value="CORRECTO">Correcto</option>
-                                        <option value="SOBRANTE">Sobrante</option>
-                                        <option value="FALTANTE">Faltante</option>
-                                    </select>
-                                </div>
-                                <button class="btn btn-primary" onclick="cargarCortes()"><i class="fas fa-search"></i> Consultar</button>
-                            </div>
-                            <div class="panel-stats">
-                                <div class="stat-card blue">
-                                    <div class="stat-icon"><i class="fas fa-calculator"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value" id="cortesTotal">0</span>
-                                        <span class="stat-label">Cortes</span>
-                                    </div>
-                                </div>
-                                <div class="stat-card green">
-                                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value" id="cortesCorrectos">0</span>
-                                        <span class="stat-label">Correctos</span>
-                                    </div>
-                                </div>
-                                <div class="stat-card orange">
-                                    <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value" id="cortesSobrantes">0</span>
-                                        <span class="stat-label">Sobrantes</span>
-                                    </div>
-                                </div>
-                                <div class="stat-card red">
-                                    <div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value" id="cortesFaltantes">0</span>
-                                        <span class="stat-label">Faltantes</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="panel-tabla">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Folio</th>
-                                            <th>Fecha</th>
-                                            <th>Usuario</th>
-                                            <th>Turno</th>
-                                            <th class="text-right">Esperado</th>
-                                            <th class="text-right">Declarado</th>
-                                            <th class="text-right">Diferencia</th>
-                                            <th>Estado</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tablaCortes"></tbody>
-                                </table>
-                            </div>
+                            <div class="toolbar-actions"><button class="btn-export" onclick="exportarReporte('ventas-usuario')"><i class="fas fa-file-excel"></i> Excel</button></div>
                         </div>
-
-                        <!-- PAGOS RECIBIDOS -->
-                        <div class="reporte-panel" id="panel-pagos">
-                            <div class="panel-header">
-                                <h2><i class="fas fa-hand-holding-usd"></i> Pagos Recibidos</h2>
-                                <div class="panel-actions">
-                                    <button class="btn btn-outline btn-sm" onclick="exportarReporte('pagos')"><i class="fas fa-file-excel"></i> Excel</button>
-                                </div>
-                            </div>
-                            <div class="panel-filtros">
-                                <div class="filtro-grupo">
-                                    <label>Desde</label>
-                                    <input type="date" id="pagosFechaDesde">
-                                </div>
-                                <div class="filtro-grupo">
-                                    <label>Hasta</label>
-                                    <input type="date" id="pagosFechaHasta">
-                                </div>
-                                <div class="filtro-grupo">
-                                    <label>Método</label>
-                                    <select id="pagosMetodo">
-                                        <option value="">Todos</option>
-                                    </select>
-                                </div>
-                                <div class="filtro-grupo">
-                                    <label>Estado</label>
-                                    <select id="pagosEstado">
-                                        <option value="">Todos</option>
-                                        <option value="APLICADO">Aplicado</option>
-                                        <option value="CANCELADO">Cancelado</option>
-                                    </select>
-                                </div>
-                                <button class="btn btn-primary" onclick="cargarPagos()"><i class="fas fa-search"></i> Consultar</button>
-                            </div>
-                            <div class="panel-stats">
-                                <div class="stat-card green">
-                                    <div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value" id="pagosEfectivo">$0.00</span>
-                                        <span class="stat-label">Efectivo</span>
-                                    </div>
-                                </div>
-                                <div class="stat-card blue">
-                                    <div class="stat-icon"><i class="fas fa-credit-card"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value" id="pagosTarjeta">$0.00</span>
-                                        <span class="stat-label">Tarjeta</span>
-                                    </div>
-                                </div>
-                                <div class="stat-card purple">
-                                    <div class="stat-icon"><i class="fas fa-exchange-alt"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value" id="pagosTransferencia">$0.00</span>
-                                        <span class="stat-label">Transferencia</span>
-                                    </div>
-                                </div>
-                                <div class="stat-card orange">
-                                    <div class="stat-icon"><i class="fas fa-coins"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value" id="pagosOtros">$0.00</span>
-                                        <span class="stat-label">Otros</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="panel-tabla">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Folio</th>
-                                            <th>Fecha</th>
-                                            <th>Venta</th>
-                                            <th>Cliente</th>
-                                            <th>Método</th>
-                                            <th class="text-right">Monto</th>
-                                            <th>Referencia</th>
-                                            <th>Estado</th>
-                                            <th>Usuario</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tablaPagos"></tbody>
-                                </table>
-                            </div>
+                        <div class="panel-table">
+                            <table><thead><tr><th>Usuario</th><th class="center">Ventas</th><th class="right">Total</th><th class="right">Promedio</th><th class="center">Productos</th><th class="center">% Total</th></tr></thead><tbody id="tablaVentasUsuario"></tbody></table>
                         </div>
+                    </div>
 
-                        <!-- MOVIMIENTOS DE CAJA -->
-                        <div class="reporte-panel" id="panel-movimientos">
-                            <div class="panel-header">
-                                <h2><i class="fas fa-exchange-alt"></i> Movimientos de Caja</h2>
-                                <div class="panel-actions">
-                                    <button class="btn btn-outline btn-sm" onclick="exportarReporte('movimientos')"><i class="fas fa-file-excel"></i> Excel</button>
-                                </div>
+                    <!-- PRODUCTOS VENDIDOS -->
+                    <div class="reporte-panel" id="panel-productos-vendidos">
+                        <div class="panel-toolbar">
+                            <div class="toolbar-filters">
+                                <div class="filter-item"><label>Desde</label><input type="date" id="productosFechaDesde"></div>
+                                <div class="filter-item"><label>Hasta</label><input type="date" id="productosFechaHasta"></div>
+                                <div class="filter-item"><label>Categoría</label><select id="productosCategoria"><option value="">Todas</option></select></div>
+                                <div class="filter-item"><label>Ordenar</label><select id="productosOrden"><option value="cantidad">Más vendidos</option><option value="monto">Mayor ingreso</option></select></div>
+                                <button class="btn-filtrar" onclick="cargarProductosVendidos()"><i class="fas fa-search"></i> Consultar</button>
                             </div>
-                            <div class="panel-filtros">
-                                <div class="filtro-grupo">
-                                    <label>Desde</label>
-                                    <input type="date" id="movsFechaDesde">
-                                </div>
-                                <div class="filtro-grupo">
-                                    <label>Hasta</label>
-                                    <input type="date" id="movsFechaHasta">
-                                </div>
-                                <div class="filtro-grupo">
-                                    <label>Tipo</label>
-                                    <select id="movsTipo">
-                                        <option value="">Todos</option>
-                                        <option value="INGRESO">Ingresos</option>
-                                        <option value="EGRESO">Egresos</option>
-                                    </select>
-                                </div>
-                                <button class="btn btn-primary" onclick="cargarMovimientos()"><i class="fas fa-search"></i> Consultar</button>
-                            </div>
-                            <div class="panel-stats">
-                                <div class="stat-card green">
-                                    <div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value" id="movsIngresos">$0.00</span>
-                                        <span class="stat-label">Ingresos</span>
-                                    </div>
-                                </div>
-                                <div class="stat-card red">
-                                    <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value" id="movsEgresos">$0.00</span>
-                                        <span class="stat-label">Egresos</span>
-                                    </div>
-                                </div>
-                                <div class="stat-card blue">
-                                    <div class="stat-icon"><i class="fas fa-balance-scale"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value" id="movsBalance">$0.00</span>
-                                        <span class="stat-label">Balance</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="panel-tabla">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Fecha</th>
-                                            <th>Tipo</th>
-                                            <th>Concepto</th>
-                                            <th class="text-right">Monto</th>
-                                            <th>Usuario</th>
-                                            <th>Turno</th>
-                                            <th>Observaciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tablaMovimientos"></tbody>
-                                </table>
-                            </div>
+                            <div class="toolbar-actions"><button class="btn-export" onclick="exportarReporte('productos-vendidos')"><i class="fas fa-file-excel"></i> Excel</button></div>
                         </div>
-
-                        <!-- DEVOLUCIONES -->
-                        <div class="reporte-panel" id="panel-devoluciones">
-                            <div class="panel-header">
-                                <h2><i class="fas fa-undo"></i> Devoluciones</h2>
-                                <div class="panel-actions">
-                                    <button class="btn btn-outline btn-sm" onclick="exportarReporte('devoluciones')"><i class="fas fa-file-excel"></i> Excel</button>
-                                </div>
-                            </div>
-                            <div class="panel-filtros">
-                                <div class="filtro-grupo">
-                                    <label>Desde</label>
-                                    <input type="date" id="devsFechaDesde">
-                                </div>
-                                <div class="filtro-grupo">
-                                    <label>Hasta</label>
-                                    <input type="date" id="devsFechaHasta">
-                                </div>
-                                <div class="filtro-grupo">
-                                    <label>Motivo</label>
-                                    <select id="devsMotivo">
-                                        <option value="">Todos</option>
-                                        <option value="DEFECTUOSO">Defectuoso</option>
-                                        <option value="EQUIVOCADO">Equivocado</option>
-                                        <option value="GARANTIA">Garantía</option>
-                                        <option value="OTRO">Otro</option>
-                                    </select>
-                                </div>
-                                <button class="btn btn-primary" onclick="cargarDevoluciones()"><i class="fas fa-search"></i> Consultar</button>
-                            </div>
-                            <div class="panel-stats">
-                                <div class="stat-card orange">
-                                    <div class="stat-icon"><i class="fas fa-undo-alt"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value" id="devsTotal">0</span>
-                                        <span class="stat-label">Devoluciones</span>
-                                    </div>
-                                </div>
-                                <div class="stat-card red">
-                                    <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value" id="devsMonto">$0.00</span>
-                                        <span class="stat-label">Monto Total</span>
-                                    </div>
-                                </div>
-                                <div class="stat-card blue">
-                                    <div class="stat-icon"><i class="fas fa-box"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value" id="devsProductos">0</span>
-                                        <span class="stat-label">Productos</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="panel-tabla">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Folio</th>
-                                            <th>Fecha</th>
-                                            <th>Venta Original</th>
-                                            <th>Cliente</th>
-                                            <th>Producto</th>
-                                            <th class="text-center">Cantidad</th>
-                                            <th class="text-right">Monto</th>
-                                            <th>Motivo</th>
-                                            <th>Usuario</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tablaDevoluciones"></tbody>
-                                </table>
-                            </div>
+                        <div class="panel-table">
+                            <table><thead><tr><th>Código</th><th>Producto</th><th>Categoría</th><th class="center">Cantidad</th><th class="right">Total</th><th class="right">Costo</th><th class="right">Utilidad</th></tr></thead><tbody id="tablaProductosVendidos"></tbody></table>
                         </div>
+                    </div>
 
-                        <!-- CANCELACIONES -->
-                        <div class="reporte-panel" id="panel-cancelaciones">
-                            <div class="panel-header">
-                                <h2><i class="fas fa-times-circle"></i> Cancelaciones</h2>
-                                <div class="panel-actions">
-                                    <button class="btn btn-outline btn-sm" onclick="exportarReporte('cancelaciones')"><i class="fas fa-file-excel"></i> Excel</button>
-                                </div>
+                    <!-- CORTES DE CAJA -->
+                    <div class="reporte-panel" id="panel-cortes">
+                        <div class="panel-toolbar">
+                            <div class="toolbar-filters">
+                                <div class="filter-item"><label>Desde</label><input type="date" id="cortesFechaDesde"></div>
+                                <div class="filter-item"><label>Hasta</label><input type="date" id="cortesFechaHasta"></div>
+                                <div class="filter-item"><label>Usuario</label><select id="cortesUsuario"><option value="">Todos</option></select></div>
+                                <div class="filter-item"><label>Estado</label><select id="cortesEstado"><option value="">Todos</option><option value="CORRECTO">Correcto</option><option value="SOBRANTE">Sobrante</option><option value="FALTANTE">Faltante</option></select></div>
+                                <button class="btn-filtrar" onclick="cargarCortes()"><i class="fas fa-search"></i> Consultar</button>
                             </div>
-                            <div class="panel-filtros">
-                                <div class="filtro-grupo">
-                                    <label>Desde</label>
-                                    <input type="date" id="cancFechaDesde">
-                                </div>
-                                <div class="filtro-grupo">
-                                    <label>Hasta</label>
-                                    <input type="date" id="cancFechaHasta">
-                                </div>
-                                <button class="btn btn-primary" onclick="cargarCancelaciones()"><i class="fas fa-search"></i> Consultar</button>
-                            </div>
-                            <div class="panel-stats">
-                                <div class="stat-card red">
-                                    <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value" id="cancTotal">0</span>
-                                        <span class="stat-label">Cancelaciones</span>
-                                    </div>
-                                </div>
-                                <div class="stat-card orange">
-                                    <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value" id="cancMonto">$0.00</span>
-                                        <span class="stat-label">Monto Total</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="panel-tabla">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Folio</th>
-                                            <th>Fecha Venta</th>
-                                            <th>Fecha Cancelación</th>
-                                            <th>Cliente</th>
-                                            <th class="text-right">Total</th>
-                                            <th>Motivo</th>
-                                            <th>Autorizó</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tablaCancelaciones"></tbody>
-                                </table>
-                            </div>
+                            <div class="toolbar-actions"><button class="btn-export" onclick="exportarReporte('cortes')"><i class="fas fa-file-excel"></i> Excel</button></div>
                         </div>
-
-                        <!-- CLIENTES FRECUENTES -->
-                        <div class="reporte-panel" id="panel-clientes-frecuentes">
-                            <div class="panel-header">
-                                <h2><i class="fas fa-star"></i> Clientes Más Frecuentes</h2>
-                                <div class="panel-actions">
-                                    <button class="btn btn-outline btn-sm" onclick="exportarReporte('clientes-frecuentes')"><i class="fas fa-file-excel"></i> Excel</button>
-                                </div>
-                            </div>
-                            <div class="panel-filtros">
-                                <div class="filtro-grupo">
-                                    <label>Desde</label>
-                                    <input type="date" id="clientesFechaDesde">
-                                </div>
-                                <div class="filtro-grupo">
-                                    <label>Hasta</label>
-                                    <input type="date" id="clientesFechaHasta">
-                                </div>
-                                <div class="filtro-grupo">
-                                    <label>Top</label>
-                                    <select id="clientesTop">
-                                        <option value="10">10</option>
-                                        <option value="20">20</option>
-                                        <option value="50">50</option>
-                                        <option value="100">100</option>
-                                    </select>
-                                </div>
-                                <button class="btn btn-primary" onclick="cargarClientesFrecuentes()"><i class="fas fa-search"></i> Consultar</button>
-                            </div>
-                            <div class="panel-tabla">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Cliente</th>
-                                            <th>Teléfono</th>
-                                            <th class="text-center">Compras</th>
-                                            <th class="text-right">Total</th>
-                                            <th class="text-right">Promedio</th>
-                                            <th>Última Compra</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tablaClientesFrecuentes"></tbody>
-                                </table>
-                            </div>
+                        <div class="panel-stats-row">
+                            <div class="mini-stat blue"><i class="fas fa-calculator"></i><div><span id="cortesTotal">0</span><small>Cortes</small></div></div>
+                            <div class="mini-stat green"><i class="fas fa-check-circle"></i><div><span id="cortesCorrectos">0</span><small>Correctos</small></div></div>
+                            <div class="mini-stat orange"><i class="fas fa-arrow-up"></i><div><span id="cortesSobrantes">0</span><small>Sobrantes</small></div></div>
+                            <div class="mini-stat red"><i class="fas fa-arrow-down"></i><div><span id="cortesFaltantes">0</span><small>Faltantes</small></div></div>
                         </div>
+                        <div class="panel-table">
+                            <table><thead><tr><th>Folio</th><th>Fecha</th><th>Usuario</th><th>Turno</th><th class="right">Esperado</th><th class="right">Declarado</th><th class="right">Diferencia</th><th class="center">Estado</th><th class="center">Ver</th></tr></thead><tbody id="tablaCortes"></tbody></table>
+                        </div>
+                    </div>
 
-                        <!-- CUENTAS POR COBRAR -->
-                        <div class="reporte-panel" id="panel-cuentas-cobrar">
-                            <div class="panel-header">
-                                <h2><i class="fas fa-file-invoice-dollar"></i> Cuentas por Cobrar</h2>
-                                <div class="panel-actions">
-                                    <button class="btn btn-outline btn-sm" onclick="exportarReporte('cuentas-cobrar')"><i class="fas fa-file-excel"></i> Excel</button>
-                                </div>
+                    <!-- PAGOS RECIBIDOS -->
+                    <div class="reporte-panel" id="panel-pagos">
+                        <div class="panel-toolbar">
+                            <div class="toolbar-filters">
+                                <div class="filter-item"><label>Desde</label><input type="date" id="pagosFechaDesde"></div>
+                                <div class="filter-item"><label>Hasta</label><input type="date" id="pagosFechaHasta"></div>
+                                <div class="filter-item"><label>Método</label><select id="pagosMetodo"><option value="">Todos</option></select></div>
+                                <div class="filter-item"><label>Estado</label><select id="pagosEstado"><option value="">Todos</option><option value="APLICADO">Aplicado</option><option value="CANCELADO">Cancelado</option></select></div>
+                                <button class="btn-filtrar" onclick="cargarPagos()"><i class="fas fa-search"></i> Consultar</button>
                             </div>
-                            <div class="panel-filtros">
-                                <div class="filtro-grupo">
-                                    <label>Estado</label>
-                                    <select id="cxcEstado">
-                                        <option value="">Todos</option>
-                                        <option value="PENDIENTE">Pendientes</option>
-                                        <option value="VENCIDO">Vencidos</option>
-                                    </select>
-                                </div>
-                                <div class="filtro-grupo">
-                                    <label>Cliente</label>
-                                    <select id="cxcCliente">
-                                        <option value="">Todos</option>
-                                    </select>
-                                </div>
-                                <button class="btn btn-primary" onclick="cargarCuentasCobrar()"><i class="fas fa-search"></i> Consultar</button>
+                            <div class="toolbar-actions"><button class="btn-export" onclick="exportarReporte('pagos')"><i class="fas fa-file-excel"></i> Excel</button></div>
+                        </div>
+                        <div class="panel-stats-row">
+                            <div class="mini-stat green"><i class="fas fa-money-bill-wave"></i><div><span id="pagosEfectivo">$0.00</span><small>Efectivo</small></div></div>
+                            <div class="mini-stat blue"><i class="fas fa-credit-card"></i><div><span id="pagosTarjeta">$0.00</span><small>Tarjeta</small></div></div>
+                            <div class="mini-stat purple"><i class="fas fa-exchange-alt"></i><div><span id="pagosTransferencia">$0.00</span><small>Transferencia</small></div></div>
+                            <div class="mini-stat orange"><i class="fas fa-coins"></i><div><span id="pagosOtros">$0.00</span><small>Otros</small></div></div>
+                        </div>
+                        <div class="panel-table">
+                            <table><thead><tr><th>Folio</th><th>Fecha</th><th>Venta</th><th>Cliente</th><th>Método</th><th class="right">Monto</th><th>Referencia</th><th class="center">Estado</th><th>Usuario</th></tr></thead><tbody id="tablaPagos"></tbody></table>
+                        </div>
+                    </div>
+
+                    <!-- MOVIMIENTOS DE CAJA -->
+                    <div class="reporte-panel" id="panel-movimientos">
+                        <div class="panel-toolbar">
+                            <div class="toolbar-filters">
+                                <div class="filter-item"><label>Desde</label><input type="date" id="movsFechaDesde"></div>
+                                <div class="filter-item"><label>Hasta</label><input type="date" id="movsFechaHasta"></div>
+                                <div class="filter-item"><label>Tipo</label><select id="movsTipo"><option value="">Todos</option><option value="INGRESO">Ingresos</option><option value="EGRESO">Egresos</option></select></div>
+                                <button class="btn-filtrar" onclick="cargarMovimientos()"><i class="fas fa-search"></i> Consultar</button>
                             </div>
-                            <div class="panel-stats">
-                                <div class="stat-card orange">
-                                    <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value" id="cxcCuentas">0</span>
-                                        <span class="stat-label">Cuentas</span>
-                                    </div>
-                                </div>
-                                <div class="stat-card red">
-                                    <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value" id="cxcMonto">$0.00</span>
-                                        <span class="stat-label">Por Cobrar</span>
-                                    </div>
-                                </div>
-                                <div class="stat-card purple">
-                                    <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value" id="cxcVencidas">0</span>
-                                        <span class="stat-label">Vencidas</span>
-                                    </div>
-                                </div>
+                            <div class="toolbar-actions"><button class="btn-export" onclick="exportarReporte('movimientos')"><i class="fas fa-file-excel"></i> Excel</button></div>
+                        </div>
+                        <div class="panel-stats-row">
+                            <div class="mini-stat green"><i class="fas fa-arrow-down"></i><div><span id="movsIngresos">$0.00</span><small>Ingresos</small></div></div>
+                            <div class="mini-stat red"><i class="fas fa-arrow-up"></i><div><span id="movsEgresos">$0.00</span><small>Egresos</small></div></div>
+                            <div class="mini-stat blue"><i class="fas fa-balance-scale"></i><div><span id="movsBalance">$0.00</span><small>Balance</small></div></div>
+                        </div>
+                        <div class="panel-table">
+                            <table><thead><tr><th>Fecha</th><th>Tipo</th><th>Concepto</th><th class="right">Monto</th><th>Usuario</th><th>Turno</th><th>Observaciones</th></tr></thead><tbody id="tablaMovimientos"></tbody></table>
+                        </div>
+                    </div>
+
+                    <!-- DEVOLUCIONES -->
+                    <div class="reporte-panel" id="panel-devoluciones">
+                        <div class="panel-toolbar">
+                            <div class="toolbar-filters">
+                                <div class="filter-item"><label>Desde</label><input type="date" id="devsFechaDesde"></div>
+                                <div class="filter-item"><label>Hasta</label><input type="date" id="devsFechaHasta"></div>
+                                <div class="filter-item"><label>Motivo</label><select id="devsMotivo"><option value="">Todos</option><option value="DEFECTUOSO">Defectuoso</option><option value="EQUIVOCADO">Equivocado</option><option value="GARANTIA">Garantía</option><option value="OTRO">Otro</option></select></div>
+                                <button class="btn-filtrar" onclick="cargarDevoluciones()"><i class="fas fa-search"></i> Consultar</button>
                             </div>
-                            <div class="panel-tabla">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Folio Venta</th>
-                                            <th>Fecha</th>
-                                            <th>Cliente</th>
-                                            <th class="text-right">Total</th>
-                                            <th class="text-right">Pagado</th>
-                                            <th class="text-right">Pendiente</th>
-                                            <th>Vencimiento</th>
-                                            <th>Estado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tablaCuentasCobrar"></tbody>
-                                </table>
+                            <div class="toolbar-actions"><button class="btn-export" onclick="exportarReporte('devoluciones')"><i class="fas fa-file-excel"></i> Excel</button></div>
+                        </div>
+                        <div class="panel-stats-row">
+                            <div class="mini-stat orange"><i class="fas fa-undo-alt"></i><div><span id="devsTotal">0</span><small>Devoluciones</small></div></div>
+                            <div class="mini-stat red"><i class="fas fa-dollar-sign"></i><div><span id="devsMonto">$0.00</span><small>Monto</small></div></div>
+                            <div class="mini-stat blue"><i class="fas fa-box"></i><div><span id="devsProductos">0</span><small>Productos</small></div></div>
+                        </div>
+                        <div class="panel-table">
+                            <table><thead><tr><th>Folio</th><th>Fecha</th><th>Venta</th><th>Cliente</th><th>Producto</th><th class="center">Cant.</th><th class="right">Monto</th><th>Motivo</th><th>Usuario</th></tr></thead><tbody id="tablaDevoluciones"></tbody></table>
+                        </div>
+                    </div>
+
+                    <!-- CANCELACIONES -->
+                    <div class="reporte-panel" id="panel-cancelaciones">
+                        <div class="panel-toolbar">
+                            <div class="toolbar-filters">
+                                <div class="filter-item"><label>Desde</label><input type="date" id="cancFechaDesde"></div>
+                                <div class="filter-item"><label>Hasta</label><input type="date" id="cancFechaHasta"></div>
+                                <button class="btn-filtrar" onclick="cargarCancelaciones()"><i class="fas fa-search"></i> Consultar</button>
                             </div>
+                            <div class="toolbar-actions"><button class="btn-export" onclick="exportarReporte('cancelaciones')"><i class="fas fa-file-excel"></i> Excel</button></div>
+                        </div>
+                        <div class="panel-stats-row">
+                            <div class="mini-stat red"><i class="fas fa-times-circle"></i><div><span id="cancTotal">0</span><small>Cancelaciones</small></div></div>
+                            <div class="mini-stat orange"><i class="fas fa-dollar-sign"></i><div><span id="cancMonto">$0.00</span><small>Monto</small></div></div>
+                        </div>
+                        <div class="panel-table">
+                            <table><thead><tr><th>Folio</th><th>Fecha Venta</th><th>Fecha Cancelación</th><th>Cliente</th><th class="right">Total</th><th>Motivo</th><th>Autorizó</th></tr></thead><tbody id="tablaCancelaciones"></tbody></table>
+                        </div>
+                    </div>
+
+                    <!-- CLIENTES FRECUENTES -->
+                    <div class="reporte-panel" id="panel-clientes-frecuentes">
+                        <div class="panel-toolbar">
+                            <div class="toolbar-filters">
+                                <div class="filter-item"><label>Desde</label><input type="date" id="clientesFechaDesde"></div>
+                                <div class="filter-item"><label>Hasta</label><input type="date" id="clientesFechaHasta"></div>
+                                <div class="filter-item"><label>Top</label><select id="clientesTop"><option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option></select></div>
+                                <button class="btn-filtrar" onclick="cargarClientesFrecuentes()"><i class="fas fa-search"></i> Consultar</button>
+                            </div>
+                            <div class="toolbar-actions"><button class="btn-export" onclick="exportarReporte('clientes-frecuentes')"><i class="fas fa-file-excel"></i> Excel</button></div>
+                        </div>
+                        <div class="panel-table">
+                            <table><thead><tr><th class="center">#</th><th>Cliente</th><th>Teléfono</th><th class="center">Compras</th><th class="right">Total</th><th class="right">Promedio</th><th>Última Compra</th></tr></thead><tbody id="tablaClientesFrecuentes"></tbody></table>
+                        </div>
+                    </div>
+
+                    <!-- CUENTAS POR COBRAR -->
+                    <div class="reporte-panel" id="panel-cuentas-cobrar">
+                        <div class="panel-toolbar">
+                            <div class="toolbar-filters">
+                                <div class="filter-item"><label>Estado</label><select id="cxcEstado"><option value="">Todos</option><option value="PENDIENTE">Pendientes</option><option value="VENCIDO">Vencidos</option></select></div>
+                                <div class="filter-item"><label>Cliente</label><select id="cxcCliente"><option value="">Todos</option></select></div>
+                                <button class="btn-filtrar" onclick="cargarCuentasCobrar()"><i class="fas fa-search"></i> Consultar</button>
+                            </div>
+                            <div class="toolbar-actions"><button class="btn-export" onclick="exportarReporte('cuentas-cobrar')"><i class="fas fa-file-excel"></i> Excel</button></div>
+                        </div>
+                        <div class="panel-stats-row">
+                            <div class="mini-stat orange"><i class="fas fa-file-invoice"></i><div><span id="cxcCuentas">0</span><small>Cuentas</small></div></div>
+                            <div class="mini-stat red"><i class="fas fa-dollar-sign"></i><div><span id="cxcMonto">$0.00</span><small>Por Cobrar</small></div></div>
+                            <div class="mini-stat purple"><i class="fas fa-exclamation-triangle"></i><div><span id="cxcVencidas">0</span><small>Vencidas</small></div></div>
+                        </div>
+                        <div class="panel-table">
+                            <table><thead><tr><th>Folio</th><th>Fecha</th><th>Cliente</th><th class="right">Total</th><th class="right">Pagado</th><th class="right">Pendiente</th><th>Vencimiento</th><th class="center">Estado</th></tr></thead><tbody id="tablaCuentasCobrar"></tbody></table>
                         </div>
                     </div>
                 </div>
@@ -722,15 +281,15 @@
 
     <!-- MODAL DETALLE CORTE -->
     <div class="modal-overlay" id="modalDetalleCorte">
-        <div class="modal modal-lg">
-            <div class="modal-header gradient">
+        <div class="modal">
+            <div class="modal-header">
                 <h3><i class="fas fa-cash-register"></i> Detalle de Corte</h3>
-                <button class="btn-close light" onclick="cerrarModal('modalDetalleCorte')"><i class="fas fa-times"></i></button>
+                <button class="modal-close" onclick="cerrarModal('modalDetalleCorte')"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body" id="detalleCorteContent"></div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="imprimirCorte()"><i class="fas fa-print"></i> Imprimir</button>
-                <button class="btn btn-primary" onclick="cerrarModal('modalDetalleCorte')">Cerrar</button>
+                <button class="btn-secondary" onclick="imprimirCorte()"><i class="fas fa-print"></i> Imprimir</button>
+                <button class="btn-primary" onclick="cerrarModal('modalDetalleCorte')">Cerrar</button>
             </div>
         </div>
     </div>
