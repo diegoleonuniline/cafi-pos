@@ -326,86 +326,108 @@
         width: 100%;
     }
     
+    .cart-table thead {
+        display: none !important;
+    }
+    
     .cart-table tbody {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 10px;
     }
     
-    .cart-table tr {
-        display: flex;
-        align-items: center;
+    /* Cada fila = tarjeta con CSS Grid */
+    .cart-table tbody tr {
+        display: grid !important;
+        grid-template-columns: 56px 1fr auto;
+        grid-template-rows: auto auto auto;
+        align-items: start;
         padding: 12px;
         background: #fff;
-        gap: 12px;
+        gap: 2px 12px;
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    
+    /* Imagen placeholder - columna 1, todas las filas */
+    .cart-table tbody tr::before {
+        content: '';
+        grid-column: 1;
+        grid-row: 1 / 4;
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
         border-radius: 12px;
         border: 1px solid #e5e7eb;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        align-self: center;
     }
     
-    /* Producto - imagen placeholder */
-    .cart-table .col-producto,
-    .cart-table td:first-child {
-        display: flex;
-        flex-direction: column;
-        flex: 1;
+    /* Reset todas las celdas */
+    .cart-table tbody td {
+        padding: 0;
+        border: none;
+        background: none;
+    }
+    
+    /* COLUMNA 1: PRODUCTO (nombre) - grid col 2, row 1 */
+    .cart-table tbody td:nth-child(1),
+    .cart-table tbody td.col-producto {
+        grid-column: 2;
+        grid-row: 1;
+        display: block !important;
         min-width: 0;
-        order: 2;
-        gap: 2px;
     }
     
-    .cart-table td:first-child::before {
-        content: '';
-        display: none;
-    }
-    
-    .cart-item-name {
-        font-size: 13px;
+    .cart-table tbody td:nth-child(1) .cart-item-name,
+    .cart-table tbody .col-producto .cart-item-name {
+        font-size: 14px;
         font-weight: 600;
         color: #111827;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        line-height: 1.3;
-        display: block;
-    }
-    
-    .cart-item-code {
-        display: none;
-    }
-    
-    /* Precio unitario - mostrar debajo del nombre */
-    .cart-item-price,
-    .cart-table .col-precio {
+        line-height: 1.4;
         display: block !important;
-        order: 2;
-        font-size: 11px;
-        color: #6b7280;
-        margin-top: 2px;
     }
     
-    /* Cantidad - compacta estilo pill */
-    .cart-item-qty,
-    .cart-table .col-cantidad {
-        order: 3;
-        flex-shrink: 0;
+    .cart-table tbody td:nth-child(1) .cart-item-code,
+    .cart-table tbody .col-producto .cart-item-code {
+        display: none !important;
+    }
+    
+    /* COLUMNA 2: PRECIO UNITARIO - grid col 2, row 2 */
+    .cart-table tbody td:nth-child(2),
+    .cart-table tbody td.col-precio {
+        grid-column: 2;
+        grid-row: 2;
+        display: block !important;
+        font-size: 13px !important;
+        color: #6b7280 !important;
+        font-weight: 400 !important;
+    }
+    
+    /* COLUMNA 3: CANTIDAD - grid col 2, row 3 */
+    .cart-table tbody td:nth-child(3),
+    .cart-table tbody td.col-cantidad {
+        grid-column: 2;
+        grid-row: 3;
+        margin-top: 4px;
     }
     
     .qty-control {
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: 0;
         background: #f3f4f6;
         border-radius: 8px;
         overflow: hidden;
-        height: 28px;
+        height: 32px;
     }
     
     .qty-control button {
-        width: 28px;
-        height: 28px;
+        width: 32px;
+        height: 32px;
         font-size: 14px;
-        border-radius: 0;
         background: transparent;
         border: none;
         color: #6b7280;
@@ -414,22 +436,20 @@
         justify-content: center;
     }
     
-    .qty-control button:first-child {
+    .qty-control button:first-child:active {
         color: #ef4444;
+        background: #fef2f2;
     }
     
-    .qty-control button:last-child {
+    .qty-control button:last-child:active {
         color: var(--primary);
-    }
-    
-    .qty-control button:active {
-        background: #e5e7eb;
+        background: #eef2ff;
     }
     
     .qty-control span {
-        min-width: 24px;
-        height: 28px;
-        font-size: 12px;
+        min-width: 28px;
+        height: 32px;
+        font-size: 13px;
         font-weight: 700;
         display: flex;
         align-items: center;
@@ -438,9 +458,9 @@
     }
     
     .qty-granel {
-        height: 28px;
-        padding: 0 10px;
-        font-size: 11px;
+        height: 32px;
+        padding: 0 12px;
+        font-size: 12px;
         border-radius: 8px;
         background: #ecfdf5;
         border: 1px solid #10b981;
@@ -448,21 +468,34 @@
         font-weight: 600;
     }
     
-    /* Importe - destacado */
-    .cart-item-total,
-    .cart-table .col-importe {
-        order: 4;
-        font-size: 14px;
-        font-weight: 700;
-        color: #111827;
-        min-width: 65px;
-        text-align: right;
-        flex-shrink: 0;
+    /* COLUMNA 4: UNIDAD - ocultar */
+    .cart-table tbody td:nth-child(4),
+    .cart-table tbody td.col-unidad {
+        display: none !important;
     }
     
-    /* Botón eliminar - oculto, swipe to delete o tap en cantidad */
-    .cart-table .col-acciones,
-    .cart-table td:last-child {
+    /* COLUMNA 5: DESCUENTO - ocultar */
+    .cart-table tbody td:nth-child(5),
+    .cart-table tbody td.col-desc {
+        display: none !important;
+    }
+    
+    /* COLUMNA 6: IMPORTE TOTAL - grid col 3, all rows */
+    .cart-table tbody td:nth-child(6),
+    .cart-table tbody td.col-importe {
+        grid-column: 3;
+        grid-row: 1 / 4;
+        align-self: center;
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        color: #111827 !important;
+        text-align: right;
+        white-space: nowrap;
+    }
+    
+    /* COLUMNA 7: ACCIONES - ocultar */
+    .cart-table tbody td:nth-child(7),
+    .cart-table tbody td.col-acciones {
         display: none !important;
     }
     
