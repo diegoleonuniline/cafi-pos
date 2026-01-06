@@ -1809,7 +1809,16 @@ function cancelarAutorizacionAdmin() {
 }
 
 // ==================== MIS VENTAS DEL TURNO ====================
+// Agregar estas funciones a pos.js (reemplazar las existentes)
 
+var ventasTurno = [];
+var ventaSeleccionada = null;
+var productosVentaSeleccionada = [];
+var pagosVentaSeleccionada = [];
+var historialVentaSeleccionada = [];
+var ventaReabierta = null;
+
+// ==================== CARGAR VENTAS DEL TURNO ====================
 function abrirModalVentasTurno() {
     if (!turnoActual) {
         mostrarToast('No hay turno abierto', 'error');
@@ -1895,8 +1904,8 @@ function renderVentasTurno(ventas) {
         var esCancelada = v.estatus === 'CANCELADA';
         var folioStr = v.serie ? v.serie + '-' + v.folio : (v.folio || (v.venta_id ? v.venta_id.slice(-8) : '-'));
         
-        var estadoClass = (v.estatus || 'PAGADA').toLowerCase();
-        var tipoClass = (v.tipo_venta || 'CONTADO').toLowerCase();
+        var estadoClass = (v.estatus || 'pagada').toLowerCase();
+        var tipoClass = (v.tipo_venta || 'contado').toLowerCase();
         
         html += '<tr class="' + (esCancelada ? 'cancelada' : '') + '" onclick="verDetalleVenta(\'' + v.venta_id + '\')">' +
             '<td><span class="folio">' + folioStr + '</span></td>' +
@@ -1957,29 +1966,28 @@ function mostrarDetalleVenta() {
     var folioStr = v.serie ? v.serie + '-' + v.folio : (v.folio || (v.venta_id ? v.venta_id.slice(-8) : '-'));
     var esCancelada = v.estatus === 'CANCELADA';
     
-    // Header
+    // Header - usa clases de pos-ventas.css
     setElementText('detalleVentaFolio', '#' + folioStr);
     setElementText('detalleVentaFecha', fechaStr + ' - ' + horaStr);
     
     var badgeEstado = document.getElementById('detalleVentaEstado');
     if (badgeEstado) {
         badgeEstado.textContent = v.estatus || 'PAGADA';
-        badgeEstado.className = 'badge-estado-lg ' + (v.estatus || 'PAGADA').toLowerCase();
+        badgeEstado.className = 'badge-estado-lg ' + (v.estatus || 'pagada').toLowerCase();
     }
     
-    // Info grid
+    // Info grid - clases: detalle-info-item
     setElementText('detalleVentaCliente', v.cliente_nombre || 'Público General');
     setElementText('detalleVentaVendedor', v.usuario_nombre || 'Usuario');
     setElementText('detalleVentaTipo', v.tipo_venta || 'Contado');
     
-    // Método de pago principal
     var metodoPrincipal = 'Efectivo';
     if (pagosVentaSeleccionada && pagosVentaSeleccionada.length > 0) {
         metodoPrincipal = pagosVentaSeleccionada[0].metodo_nombre || 'Efectivo';
     }
     setElementText('detalleVentaMetodo', metodoPrincipal);
     
-    // Productos
+    // Productos - usa detalle-productos-table
     var productosContainer = document.getElementById('detalleVentaProductos');
     if (productosContainer) {
         var productosHtml = '';
@@ -2009,19 +2017,18 @@ function mostrarDetalleVenta() {
         productosContainer.innerHTML = productosHtml;
     }
     
-    // Pagos
+    // Pagos - usa pagos-lista, pago-item-detalle
     var pagosContainer = document.getElementById('detalleVentaPagos');
     if (pagosContainer) {
         var pagosHtml = '';
         if (pagosVentaSeleccionada && pagosVentaSeleccionada.length > 0) {
             pagosVentaSeleccionada.forEach(function(p) {
-                var tipo = (p.tipo || 'EFECTIVO').toLowerCase();
-                var icono = tipo === 'efectivo' ? 'fa-money-bill-wave' : (tipo === 'tarjeta' ? 'fa-credit-card' : 'fa-exchange-alt');
+                var tipo = (p.tipo || 'efectivo').toLowerCase();
                 var cancelado = p.estatus === 'CANCELADO';
                 
                 pagosHtml += '<div class="pago-item-detalle ' + (cancelado ? 'cancelado' : '') + '">' +
                     '<div class="pago-metodo">' +
-                        '<i class="fas ' + icono + ' ' + tipo + '"></i>' +
+                        '<i class="fas fa-' + (tipo === 'efectivo' ? 'money-bill-wave' : (tipo === 'tarjeta' ? 'credit-card' : 'exchange-alt')) + ' ' + tipo + '"></i>' +
                         '<span>' + (p.metodo_nombre || 'Efectivo') + (cancelado ? ' (Cancelado)' : '') + '</span>' +
                     '</div>' +
                     '<div class="pago-monto">$' + parseFloat(p.monto || 0).toFixed(2) + '</div>' +
@@ -2033,7 +2040,7 @@ function mostrarDetalleVenta() {
         pagosContainer.innerHTML = pagosHtml;
     }
     
-    // Historial
+    // Historial - usa historial-lista, historial-item
     var historialContainer = document.getElementById('detalleHistorialContainer');
     var historialLista = document.getElementById('detalleVentaHistorial');
     if (historialContainer && historialLista) {
@@ -2070,7 +2077,7 @@ function mostrarDetalleVenta() {
         }
     }
     
-    // Totales
+    // Totales - usa detalle-totales, total-row
     var subtotal = parseFloat(v.subtotal) || parseFloat(v.total) || 0;
     var descuento = parseFloat(v.descuento) || 0;
     var total = parseFloat(v.total) || 0;
@@ -2102,7 +2109,7 @@ function mostrarDetalleVenta() {
         }
     }
     
-    // Mostrar/ocultar acciones según estado
+    // Acciones - usa detalle-acciones, acciones-grupo
     var accionesActiva = document.getElementById('accionesVentaActiva');
     if (accionesActiva) {
         accionesActiva.style.display = esCancelada ? 'none' : 'flex';
@@ -2120,6 +2127,7 @@ function abrirModalCancelarVenta() {
     var folioStr = v.serie ? v.serie + '-' + v.folio : (v.folio || (v.venta_id ? v.venta_id.slice(-8) : '-'));
     var pagado = parseFloat(v.pagado) || 0;
     
+    // Usa clases cancelar-dato
     setElementText('cancelarVentaFolio', '#' + folioStr);
     setElementText('cancelarVentaTotal', '$' + parseFloat(v.total || 0).toFixed(2));
     setElementText('cancelarVentaDevolucion', pagado > 0 ? '$' + pagado.toFixed(2) : '$0.00');
@@ -2161,7 +2169,7 @@ function confirmarCancelarVenta() {
     
     var motivoFinal = motivo === 'OTRO' ? motivoTexto : motivo;
     
-    solicitarAutorizacionAdmin('¿Autorizar cancelación de venta #' + (ventaSeleccionada.folio || ''), function(admin) {
+    solicitarAutorizacionAdmin('¿Autorizar cancelación de venta #' + (ventaSeleccionada.folio || '') + '?', function(admin) {
         API.request('/ventas/cancelar-completa/' + ventaSeleccionada.venta_id, 'POST', {
             motivo_cancelacion: motivoFinal,
             cancelado_por: API.usuario.id,
@@ -2186,6 +2194,7 @@ function abrirModalCancelarProducto(detalleId) {
     var prod = productosVentaSeleccionada.find(function(p) { return p.detalle_id === detalleId; });
     if (!prod || prod.estatus === 'CANCELADO') return;
     
+    // Usa clases producto-cancelar-info
     setElementText('cancelarProdNombre', prod.producto_nombre || prod.descripcion || 'Producto');
     setElementText('cancelarProdDetalle', 'Cantidad: ' + parseFloat(prod.cantidad || 0) + ' | Precio: $' + parseFloat(prod.precio_unitario || 0).toFixed(2));
     setElementText('unidadCancelarProd', prod.unidad || prod.unidad_id || 'PZ');
@@ -2224,6 +2233,7 @@ function calcularDevolucionProducto() {
     var cantidad = cantidadInput ? (parseFloat(cantidadInput.value) || 0) : 0;
     var precio = precioInput ? (parseFloat(precioInput.value) || 0) : 0;
     var devolucion = cantidad * precio;
+    // Usa clase devolucion-preview
     setElementText('devolucionProducto', '$' + devolucion.toFixed(2));
 }
 
@@ -2291,11 +2301,12 @@ function abrirModalCambiarPago() {
         return;
     }
     
-    var tipo = (pagoActual.tipo || 'EFECTIVO').toLowerCase();
-    var icono = tipo === 'efectivo' ? 'fa-money-bill-wave' : (tipo === 'tarjeta' ? 'fa-credit-card' : 'fa-exchange-alt');
-    
+    // Usa clases pago-actual-info
     var iconoEl = document.getElementById('pagoActualIcono');
-    if (iconoEl) iconoEl.className = 'fas ' + icono;
+    if (iconoEl) {
+        var tipo = (pagoActual.tipo || 'EFECTIVO').toLowerCase();
+        iconoEl.className = 'fas fa-' + (tipo === 'efectivo' ? 'money-bill-wave' : (tipo === 'tarjeta' ? 'credit-card' : 'exchange-alt'));
+    }
     
     setElementText('pagoActualMetodo', pagoActual.metodo_nombre || 'Efectivo');
     setElementText('pagoActualMonto', '$' + parseFloat(pagoActual.monto || 0).toFixed(2));
@@ -2308,7 +2319,7 @@ function abrirModalCambiarPago() {
     if (referenciaInput) referenciaInput.value = '';
     if (motivoInput) motivoInput.value = '';
     
-    // Renderizar métodos disponibles
+    // Renderizar métodos disponibles - usa clase metodos-cambio, metodo-opcion
     var metodosContainer = document.getElementById('metodosCambioContainer');
     if (metodosContainer) {
         var metodosHtml = '';
@@ -2469,6 +2480,7 @@ function abrirModalCobrarPendiente() {
     var nuevos = totalActual - ventaReabierta.total_original;
     var porCobrar = totalActual - ventaReabierta.pagado;
     
+    // Usa clases pendiente-header, pendiente-resumen, pendiente-linea
     setElementText('pendienteMonto', '$' + porCobrar.toFixed(2));
     setElementText('pendienteOriginal', '$' + ventaReabierta.total_original.toFixed(2));
     setElementText('pendienteNuevos', '$' + (nuevos > 0 ? nuevos.toFixed(2) : '0.00'));
@@ -2640,3 +2652,4 @@ function imprimirVentaDirecto(ventaId) {
         '</body></html>'
     );
 }
+
