@@ -48,7 +48,8 @@
     min-width: max-content;
 }
 
-.tab-btn {
+.tab-btn,
+.config-tab {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -64,16 +65,19 @@
     white-space: nowrap;
 }
 
-.tab-btn i {
+.tab-btn i,
+.config-tab i {
     font-size: 14px;
 }
 
-.tab-btn:hover {
+.tab-btn:hover,
+.config-tab:hover {
     background: #f1f5f9;
     color: #334155;
 }
 
-.tab-btn.active {
+.tab-btn.active,
+.config-tab.active {
     background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     color: #fff;
     box-shadow: 0 4px 12px rgba(45, 61, 191, 0.3);
@@ -1010,15 +1014,18 @@
         padding: 8px;
     }
     
-    .tab-btn span {
+    .tab-btn span,
+    .config-tab span {
         display: none;
     }
     
-    .tab-btn {
+    .tab-btn,
+    .config-tab {
         padding: 12px 14px;
     }
     
-    .tab-btn i {
+    .tab-btn i,
+    .config-tab i {
         font-size: 16px;
     }
 }
@@ -1079,7 +1086,8 @@
         gap: 2px;
     }
     
-    .tab-btn {
+    .tab-btn,
+    .config-tab {
         padding: 10px 12px;
         flex: 1;
         justify-content: center;
