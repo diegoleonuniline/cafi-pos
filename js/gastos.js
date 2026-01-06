@@ -4,7 +4,7 @@
 
 const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
 const empresaId = usuario.empresa_id || localStorage.getItem('empresa_id') || 1;
-const baseUrl = (typeof API !== 'undefined' && API.baseUrl) ? API.baseUrl : 'https://cafipos-api-production.up.railway.app/api';
+const baseUrl = (typeof CONFIG !== 'undefined' && CONFIG.API_URL) ? CONFIG.API_URL : 'https://cafi-api-90dac8d1c99f.herokuapp.com/api';
 
 // Data
 let gastosData = [];
