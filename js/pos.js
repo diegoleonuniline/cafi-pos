@@ -16,6 +16,14 @@ var ventasEnEspera = JSON.parse(localStorage.getItem('ventasEnEspera') || '[]');
 var UNIDADES_GRANEL = ['KG', 'GR', 'LT', 'ML', 'MT'];
 var denominaciones = [1000, 500, 200, 100, 50, 20, 10, 5, 2, 1, 0.5];
 
+// Variables para Mis Ventas
+var ventasTurno = [];
+var ventaSeleccionada = null;
+var productosVentaSeleccionada = [];
+var pagosVentaSeleccionada = [];
+var historialVentaSeleccionada = [];
+var ventaReabierta = null;
+
 document.addEventListener('DOMContentLoaded', function() {
     cargarUsuario();
     verificarTurno();
@@ -23,6 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupKeyboard();
     actualizarBadgeEspera();
 });
+
 function setElementText(id, text, isHtml) {
     var el = document.getElementById(id);
     if (el) {
@@ -33,6 +42,7 @@ function setElementText(id, text, isHtml) {
         }
     }
 }
+
 function cargarUsuario() {
     var u = API.usuario;
     document.getElementById('userName').textContent = u.nombre || 'Usuario';
@@ -135,7 +145,6 @@ function confirmarAbrirTurno() {
 }
 
 // ==================== CORTE DE CAJA ====================
-// ==================== CORTE DE CAJA ====================
 function abrirModalCerrarTurno() {
     if (!turnoActual) return;
     
@@ -163,21 +172,14 @@ function renderFormularioCorte(data) {
     var ingresos = parseFloat(movimientos.ingresos) || 0;
     var egresos = parseFloat(movimientos.egresos) || 0;
     
-    // Mostrar movimientos
     setElementText('corteIngresosDisplay', '$' + ingresos.toFixed(2));
     setElementText('corteEgresosDisplay', '$' + egresos.toFixed(2));
     
-    // Renderizar métodos de pago para declarar
     var metodosHtml = '';
     var pagosPorMetodo = data.pagos_por_metodo || [];
     
-    // Siempre incluir efectivo primero (ya se cuenta con billetes)
-    // Los demás métodos se declaran manualmente
-    
     pagosPorMetodo.forEach(function(p) {
         var tipo = (p.tipo || 'EFECTIVO').toUpperCase();
-        
-        // El efectivo se cuenta con billetes, no se declara aquí
         if (tipo === 'EFECTIVO') return;
         
         var iconClass = 'otro';
@@ -263,7 +265,6 @@ function limpiarContador() {
 function confirmarCerrarTurno() {
     if (!turnoActual || !corteData) return;
     
-    // Calcular efectivo contado
     var efectivoContado = 0;
     denominaciones.forEach(function(d) {
         var inputId = 'cont_' + String(d).replace('.', '');
@@ -274,7 +275,6 @@ function confirmarCerrarTurno() {
         }
     });
     
-    // Recopilar declaraciones por método
     var declaraciones = [];
     var totalDeclaradoOtros = 0;
     
@@ -295,7 +295,6 @@ function confirmarCerrarTurno() {
     var obsInput = document.getElementById('observacionesCierre');
     var observaciones = obsInput ? obsInput.value : '';
     
-    // Confirmar cierre
     if (!confirm('¿Confirmar cierre de turno?')) return;
     
     API.request('/turnos/cerrar/' + turnoActual.turno_id, 'POST', {
@@ -333,19 +332,15 @@ function mostrarCorteResumen(corte, efectivoDeclarado, declaraciones) {
     
     var difMonto = Math.abs(diferencia) < 0.01 ? '$0.00' : (diferencia > 0 ? '+' : '-') + '$' + Math.abs(diferencia).toFixed(2);
     
-    // Construir HTML del resumen comparativo
     var html = '<div class="corte-resumen-container">' +
         '<div class="corte-resumen-header-resultado ' + headerClass + '">' +
             '<div class="icono"><i class="fas ' + icono + '"></i></div>' +
             '<h3>' + titulo + '</h3>' +
             '<div class="diferencia-monto">' + difMonto + '</div>' +
         '</div>' +
-        
         '<div class="corte-comparativo">' +
             '<div class="corte-comparativo-titulo">Comparativo Esperado vs Declarado</div>' +
             '<div class="corte-comparativo-grid">' +
-                
-                // Columna izquierda: Sistema (esperado)
                 '<div class="corte-columna">' +
                     '<h5><i class="fas fa-laptop"></i> Sistema (Esperado)</h5>' +
                     '<div class="corte-linea"><span>Saldo Inicial:</span><span class="esperado">$' + (corte.saldo_inicial || 0).toFixed(2) + '</span></div>' +
@@ -357,13 +352,10 @@ function mostrarCorteResumen(corte, efectivoDeclarado, declaraciones) {
                     '<div class="corte-linea"><span style="color:#ef4444">- Egresos:</span><span class="esperado" style="color:#ef4444">$' + (corte.egresos || 0).toFixed(2) + '</span></div>' +
                     '<div class="corte-linea total"><span>Efectivo Esperado:</span><span class="esperado">$' + (corte.efectivo_esperado || 0).toFixed(2) + '</span></div>' +
                 '</div>' +
-                
-                // Columna derecha: Declarado
                 '<div class="corte-columna">' +
                     '<h5><i class="fas fa-user"></i> Declarado (Contado)</h5>' +
                     '<div class="corte-linea"><span>Efectivo Contado:</span><span class="declarado">$' + efectivoDeclarado.toFixed(2) + '</span></div>';
     
-    // Agregar declaraciones de otros métodos
     declaraciones.forEach(function(d) {
         var esperado = 0;
         if (corteData && corteData.pagos_por_metodo) {
@@ -378,14 +370,12 @@ function mostrarCorteResumen(corte, efectivoDeclarado, declaraciones) {
         html += '<div class="corte-linea"><span>' + d.tipo + ':</span><span class="declarado">$' + d.declarado.toFixed(2) + ' <small class="' + difClass + '">(' + difText + ')</small></span></div>';
     });
     
-    // Diferencia final
     var difClass = Math.abs(diferencia) < 0.01 ? 'diferencia-cero' : (diferencia > 0 ? 'diferencia-positiva' : 'diferencia-negativa');
     
     html += '<div class="corte-linea total"><span>Diferencia:</span><span class="' + difClass + '">' + difMonto + '</span></div>' +
                 '</div>' +
             '</div>' +
         '</div>' +
-        
         '<div class="corte-stats-footer">' +
             '<span><i class="fas fa-receipt"></i> ' + (corte.cantidad_ventas || 0) + ' ventas</span>' +
             '<span><i class="fas fa-times-circle"></i> ' + (corte.cantidad_canceladas || 0) + ' canceladas</span>' +
@@ -395,7 +385,6 @@ function mostrarCorteResumen(corte, efectivoDeclarado, declaraciones) {
     
     setElementText('corteResumenContent', html, true);
     
-    // Cambiar color del header según resultado
     var headerEl = document.getElementById('corteResumenHeader');
     if (headerEl) {
         if (headerClass === 'correcto') {
@@ -412,7 +401,6 @@ function mostrarCorteResumen(corte, efectivoDeclarado, declaraciones) {
 }
 
 function solicitarReconteo() {
-    // Abrir modal de validación admin
     var claveInput = document.getElementById('claveAdmin');
     if (claveInput) claveInput.value = '';
     
@@ -431,7 +419,7 @@ function validarClaveAdmin() {
         return;
     }
     
-    API.request('/turnos/validar-admin', 'POST', {
+    API.request('/auth/validar-admin', 'POST', {
         empresa_id: API.usuario.empresa_id,
         password: clave
     }).then(function(r) {
@@ -439,7 +427,6 @@ function validarClaveAdmin() {
             cerrarModal('modalValidarAdmin');
             cerrarModal('modalCorteResumen');
             
-            // Reabrir turno para reconteo
             API.request('/turnos/reabrir/' + turnoActual.turno_id, 'POST', {
                 autorizado_por: r.admin
             }).then(function(r2) {
@@ -467,6 +454,7 @@ function cerrarCorteYSalir() {
     actualizarUITurno(false);
     abrirModalAbrirTurno();
 }
+
 // ==================== MOVIMIENTOS DE CAJA ====================
 function abrirModalMovimiento(tipo) {
     if (!turnoActual) {
@@ -663,7 +651,6 @@ function recuperarVenta(index) {
     focusBuscar();
 }
 
-// ==================== ELIMINAR VENTA EN ESPERA (CON AUTORIZACIÓN) ====================
 function eliminarVentaEspera(index) {
     var venta = ventasEnEspera[index];
     if (!venta) return;
@@ -683,6 +670,7 @@ function limpiarVentaActual() {
     tipoVenta = 'CONTADO';
     descuentoGlobal = 0;
     tipoPrecio = 1;
+    ventaReabierta = null;
     
     setElementText('clienteNombre', 'Público General');
     setElementText('clientePanel', 'Público General');
@@ -754,9 +742,7 @@ function renderMetodosPago() {
     
     var html = '';
     metodosPago.forEach(function(m, i) {
-        // Asignar icono basado en tipo o nombre
         var icono = getIconoMetodo(m);
-        
         html += '<button type="button" class="metodo-btn' + (i === 0 ? ' active' : '') + '" data-metodo-id="' + m.metodo_pago_id + '">' +
             '<i class="fas ' + icono + '"></i><span>' + m.nombre + '</span>' +
         '</button>';
@@ -775,7 +761,6 @@ function getIconoMetodo(metodo) {
     var tipo = (metodo.tipo || '').toUpperCase();
     var nombre = (metodo.nombre || '').toLowerCase();
     
-    // Por tipo
     if (tipo === 'EFECTIVO') return 'fa-money-bill-wave';
     if (tipo === 'TARJETA' || tipo === 'TARJETA_DEBITO') return 'fa-credit-card';
     if (tipo === 'TARJETA_CREDITO') return 'fa-credit-card';
@@ -783,7 +768,6 @@ function getIconoMetodo(metodo) {
     if (tipo === 'CHEQUE') return 'fa-money-check';
     if (tipo === 'VALES') return 'fa-ticket-alt';
     
-    // Por nombre
     if (nombre.indexOf('efectivo') >= 0 || nombre.indexOf('cash') >= 0) return 'fa-money-bill-wave';
     if (nombre.indexOf('tarjeta') >= 0 || nombre.indexOf('card') >= 0) return 'fa-credit-card';
     if (nombre.indexOf('débito') >= 0 || nombre.indexOf('debito') >= 0) return 'fa-credit-card';
@@ -794,7 +778,6 @@ function getIconoMetodo(metodo) {
     if (nombre.indexOf('paypal') >= 0) return 'fa-paypal';
     if (nombre.indexOf('mercado') >= 0) return 'fa-handshake';
     
-    // Default
     return 'fa-wallet';
 }
 
@@ -1500,12 +1483,17 @@ function cancelarVenta() {
     });
 }
 
-
 // ==================== COBRO ====================
 function abrirModalCobro() {
     if (!carrito.length) return;
     if (!turnoActual) {
         mostrarToast('No hay turno abierto', 'error');
+        return;
+    }
+    
+    // Si hay venta reabierta, ir a cobrar pendiente
+    if (ventaReabierta) {
+        abrirModalCobrarPendiente();
         return;
     }
     
@@ -1708,7 +1696,7 @@ function mostrarToast(msg, tipo) {
     }
 }
 
-// ==================== MODAL CONFIRMAR (REEMPLAZO DE confirm()) ====================
+// ==================== MODAL CONFIRMAR ====================
 var confirmarCallback = null;
 
 function mostrarConfirmar(mensaje, onAceptar, opciones) {
@@ -1716,7 +1704,7 @@ function mostrarConfirmar(mensaje, onAceptar, opciones) {
     
     var titulo = opciones.titulo || 'Confirmar';
     var textoBoton = opciones.textoBoton || 'Aceptar';
-    var tipo = opciones.tipo || 'primary'; // primary, danger, warning, success
+    var tipo = opciones.tipo || 'primary';
     var icono = opciones.icono || 'fa-question-circle';
     
     setElementText('confirmarMensaje', mensaje);
@@ -1759,6 +1747,7 @@ function cerrarConfirmar(aceptado) {
     }
     confirmarCallback = null;
 }
+
 // ==================== AUTORIZACIÓN ADMIN ====================
 var accionPendienteAdmin = null;
 
@@ -1767,15 +1756,12 @@ function solicitarAutorizacionAdmin(mensaje, onAutorizado, opciones) {
     
     accionPendienteAdmin = onAutorizado;
     
-    // Mostrar mensaje personalizado
     var msgEl = document.getElementById('adminAuthMensaje');
     if (msgEl) msgEl.textContent = mensaje || 'Se requiere autorización de administrador';
     
-    // Limpiar input
     var claveInput = document.getElementById('claveAdminAuth');
     if (claveInput) claveInput.value = '';
     
-    // Mostrar modal
     var modal = document.getElementById('modalAutorizarAdmin');
     if (modal) modal.classList.add('active');
     
@@ -1793,7 +1779,6 @@ function confirmarAutorizacionAdmin() {
         return;
     }
     
-    // Validar con el servidor
     API.request('/auth/validar-admin', 'POST', {
         empresa_id: API.usuario.empresa_id,
         password: clave
@@ -1802,7 +1787,6 @@ function confirmarAutorizacionAdmin() {
             cerrarModal('modalAutorizarAdmin');
             mostrarToast('Autorizado por: ' + r.admin, 'success');
             
-            // Ejecutar la acción pendiente
             if (accionPendienteAdmin) {
                 accionPendienteAdmin(r.admin);
                 accionPendienteAdmin = null;
@@ -1823,16 +1807,9 @@ function cancelarAutorizacionAdmin() {
     cerrarModal('modalAutorizarAdmin');
     accionPendienteAdmin = null;
 }
+
 // ==================== MIS VENTAS DEL TURNO ====================
-// Agregar estas funciones a pos.js
 
-var ventasTurno = [];
-var ventaSeleccionada = null;
-var productosVentaSeleccionada = [];
-var pagosVentaSeleccionada = [];
-var historialVentaSeleccionada = [];
-
-// ==================== CARGAR VENTAS DEL TURNO ====================
 function abrirModalVentasTurno() {
     if (!turnoActual) {
         mostrarToast('No hay turno abierto', 'error');
@@ -1873,9 +1850,13 @@ function calcularStatsTurno() {
 }
 
 function filtrarVentasTurno() {
-    var busqueda = (document.getElementById('filtroVentasTurno').value || '').toLowerCase();
-    var estado = document.getElementById('filtroEstadoVenta').value;
-    var tipo = document.getElementById('filtroTipoVentaTurno').value;
+    var busquedaEl = document.getElementById('filtroVentasTurno');
+    var estadoEl = document.getElementById('filtroEstadoVenta');
+    var tipoEl = document.getElementById('filtroTipoVentaTurno');
+    
+    var busqueda = busquedaEl ? (busquedaEl.value || '').toLowerCase() : '';
+    var estado = estadoEl ? estadoEl.value : '';
+    var tipo = tipoEl ? tipoEl.value : '';
     
     var filtradas = ventasTurno.filter(function(v) {
         var matchBusq = !busqueda || 
@@ -1893,7 +1874,7 @@ function renderVentasTurno(ventas) {
     var tbody = document.getElementById('ventasTurnoBody');
     if (!tbody) return;
     
-    if (!ventas.length) {
+    if (!ventas || !ventas.length) {
         tbody.innerHTML = '<tr><td colspan="8" class="ventas-empty">' +
             '<i class="fas fa-receipt"></i>' +
             '<h4>No hay ventas</h4>' +
@@ -1904,10 +1885,15 @@ function renderVentasTurno(ventas) {
     
     var html = '';
     ventas.forEach(function(v) {
-        var fecha = v.fecha_hora ? new Date(v.fecha_hora.replace(' ', 'T')) : new Date();
+        var fecha;
+        try {
+            fecha = v.fecha_hora ? new Date(v.fecha_hora.replace(' ', 'T')) : new Date();
+        } catch(e) {
+            fecha = new Date();
+        }
         var hora = fecha.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
         var esCancelada = v.estatus === 'CANCELADA';
-        var folioStr = v.serie ? v.serie + '-' + v.folio : (v.folio || v.venta_id.slice(-8));
+        var folioStr = v.serie ? v.serie + '-' + v.folio : (v.folio || (v.venta_id ? v.venta_id.slice(-8) : '-'));
         
         var estadoClass = (v.estatus || 'PAGADA').toLowerCase();
         var tipoClass = (v.tipo_venta || 'CONTADO').toLowerCase();
@@ -1960,10 +1946,15 @@ function mostrarDetalleVenta() {
     var v = ventaSeleccionada;
     if (!v) return;
     
-    var fecha = v.fecha_hora ? new Date(v.fecha_hora.replace(' ', 'T')) : new Date();
+    var fecha;
+    try {
+        fecha = v.fecha_hora ? new Date(v.fecha_hora.replace(' ', 'T')) : new Date();
+    } catch(e) {
+        fecha = new Date();
+    }
     var fechaStr = fecha.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     var horaStr = fecha.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
-    var folioStr = v.serie ? v.serie + '-' + v.folio : (v.folio || v.venta_id.slice(-8));
+    var folioStr = v.serie ? v.serie + '-' + v.folio : (v.folio || (v.venta_id ? v.venta_id.slice(-8) : '-'));
     var esCancelada = v.estatus === 'CANCELADA';
     
     // Header
@@ -1983,77 +1974,100 @@ function mostrarDetalleVenta() {
     
     // Método de pago principal
     var metodoPrincipal = 'Efectivo';
-    if (pagosVentaSeleccionada.length > 0) {
+    if (pagosVentaSeleccionada && pagosVentaSeleccionada.length > 0) {
         metodoPrincipal = pagosVentaSeleccionada[0].metodo_nombre || 'Efectivo';
     }
     setElementText('detalleVentaMetodo', metodoPrincipal);
     
     // Productos
-    var productosHtml = '';
-    productosVentaSeleccionada.forEach(function(p) {
-        var subtotal = parseFloat(p.cantidad) * parseFloat(p.precio_unitario);
-        var descMonto = subtotal * (parseFloat(p.descuento_pct) || 0) / 100;
-        var total = subtotal - descMonto;
-        var cancelado = p.estatus === 'CANCELADO';
-        
-        productosHtml += '<tr class="' + (cancelado ? 'cancelado' : '') + '">' +
-            '<td class="producto-nombre">' + (p.producto_nombre || p.descripcion) + 
-                (cancelado ? ' <small style="color:#dc2626">(Cancelado)</small>' : '') + '</td>' +
-            '<td class="text-center">' + parseFloat(p.cantidad).toFixed(p.unidad === 'KG' ? 3 : 0) + ' ' + (p.unidad || p.unidad_id || 'PZ') + '</td>' +
-            '<td class="text-right">$' + parseFloat(p.precio_unitario).toFixed(2) + '</td>' +
-            '<td class="text-right">$' + total.toFixed(2) + '</td>' +
-            '<td class="producto-estado">' +
-                (cancelado ? '<span class="badge-estado cancelada">Cancelado</span>' :
-                    (!esCancelada ? '<button class="btn-cancelar-prod" onclick="abrirModalCancelarProducto(\'' + p.detalle_id + '\')" title="Cancelar producto"><i class="fas fa-minus"></i></button>' : '')) +
-            '</td>' +
-        '</tr>';
-    });
-    document.getElementById('detalleVentaProductos').innerHTML = productosHtml;
+    var productosContainer = document.getElementById('detalleVentaProductos');
+    if (productosContainer) {
+        var productosHtml = '';
+        if (productosVentaSeleccionada && productosVentaSeleccionada.length > 0) {
+            productosVentaSeleccionada.forEach(function(p) {
+                var subtotal = parseFloat(p.cantidad || 0) * parseFloat(p.precio_unitario || 0);
+                var descMonto = subtotal * (parseFloat(p.descuento_pct) || 0) / 100;
+                var total = subtotal - descMonto;
+                var cancelado = p.estatus === 'CANCELADO';
+                var unidad = p.unidad || p.unidad_id || 'PZ';
+                
+                productosHtml += '<tr class="' + (cancelado ? 'cancelado' : '') + '">' +
+                    '<td class="producto-nombre">' + (p.producto_nombre || p.descripcion || 'Producto') + 
+                        (cancelado ? ' <small style="color:#dc2626">(Cancelado)</small>' : '') + '</td>' +
+                    '<td class="text-center">' + parseFloat(p.cantidad || 0).toFixed(unidad === 'KG' ? 3 : 0) + ' ' + unidad + '</td>' +
+                    '<td class="text-right">$' + parseFloat(p.precio_unitario || 0).toFixed(2) + '</td>' +
+                    '<td class="text-right">$' + total.toFixed(2) + '</td>' +
+                    '<td class="producto-estado">' +
+                        (cancelado ? '<span class="badge-estado cancelada">Cancelado</span>' :
+                            (!esCancelada ? '<button class="btn-cancelar-prod" onclick="abrirModalCancelarProducto(\'' + p.detalle_id + '\')" title="Cancelar producto"><i class="fas fa-minus"></i></button>' : '')) +
+                    '</td>' +
+                '</tr>';
+            });
+        } else {
+            productosHtml = '<tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:20px">Sin productos</td></tr>';
+        }
+        productosContainer.innerHTML = productosHtml;
+    }
     
     // Pagos
-    var pagosHtml = '';
-    pagosVentaSeleccionada.forEach(function(p) {
-        var tipo = (p.tipo || 'EFECTIVO').toLowerCase();
-        var icono = tipo === 'efectivo' ? 'fa-money-bill-wave' : (tipo === 'tarjeta' ? 'fa-credit-card' : 'fa-exchange-alt');
-        var cancelado = p.estatus === 'CANCELADO';
-        
-        pagosHtml += '<div class="pago-item-detalle ' + (cancelado ? 'cancelado' : '') + '">' +
-            '<div class="pago-metodo">' +
-                '<i class="fas ' + icono + ' ' + tipo + '"></i>' +
-                '<span>' + (p.metodo_nombre || 'Efectivo') + (cancelado ? ' (Cancelado)' : '') + '</span>' +
-            '</div>' +
-            '<div class="pago-monto">$' + parseFloat(p.monto).toFixed(2) + '</div>' +
-        '</div>';
-    });
-    document.getElementById('detalleVentaPagos').innerHTML = pagosHtml || '<p style="color:#9ca3af;text-align:center">Sin pagos registrados</p>';
+    var pagosContainer = document.getElementById('detalleVentaPagos');
+    if (pagosContainer) {
+        var pagosHtml = '';
+        if (pagosVentaSeleccionada && pagosVentaSeleccionada.length > 0) {
+            pagosVentaSeleccionada.forEach(function(p) {
+                var tipo = (p.tipo || 'EFECTIVO').toLowerCase();
+                var icono = tipo === 'efectivo' ? 'fa-money-bill-wave' : (tipo === 'tarjeta' ? 'fa-credit-card' : 'fa-exchange-alt');
+                var cancelado = p.estatus === 'CANCELADO';
+                
+                pagosHtml += '<div class="pago-item-detalle ' + (cancelado ? 'cancelado' : '') + '">' +
+                    '<div class="pago-metodo">' +
+                        '<i class="fas ' + icono + ' ' + tipo + '"></i>' +
+                        '<span>' + (p.metodo_nombre || 'Efectivo') + (cancelado ? ' (Cancelado)' : '') + '</span>' +
+                    '</div>' +
+                    '<div class="pago-monto">$' + parseFloat(p.monto || 0).toFixed(2) + '</div>' +
+                '</div>';
+            });
+        } else {
+            pagosHtml = '<p style="color:#9ca3af;text-align:center">Sin pagos registrados</p>';
+        }
+        pagosContainer.innerHTML = pagosHtml;
+    }
     
     // Historial
     var historialContainer = document.getElementById('detalleHistorialContainer');
-    if (historialVentaSeleccionada.length > 0) {
-        historialContainer.style.display = 'block';
-        var historialHtml = '';
-        historialVentaSeleccionada.forEach(function(h) {
-            var tipo = (h.tipo_accion || 'modificacion').toLowerCase();
-            var icono = 'fa-edit';
-            if (tipo === 'creacion') icono = 'fa-plus-circle';
-            if (tipo === 'cancelacion') icono = 'fa-times-circle';
-            if (tipo === 'pago' || tipo === 'cambio_pago') icono = 'fa-credit-card';
-            if (tipo === 'reapertura') icono = 'fa-folder-open';
-            
-            var fecha = h.fecha ? new Date(h.fecha.replace(' ', 'T')) : new Date();
-            var fechaStr = fecha.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
-            
-            historialHtml += '<div class="historial-item ' + tipo + '">' +
-                '<div class="historial-icono"><i class="fas ' + icono + '"></i></div>' +
-                '<div class="historial-contenido">' +
-                    '<div class="historial-texto">' + (h.descripcion || 'Modificación') + '</div>' +
-                    '<div class="historial-meta">' + (h.usuario_nombre || 'Usuario') + ' • ' + fechaStr + '</div>' +
-                '</div>' +
-            '</div>';
-        });
-        document.getElementById('detalleVentaHistorial').innerHTML = historialHtml;
-    } else {
-        historialContainer.style.display = 'none';
+    var historialLista = document.getElementById('detalleVentaHistorial');
+    if (historialContainer && historialLista) {
+        if (historialVentaSeleccionada && historialVentaSeleccionada.length > 0) {
+            historialContainer.style.display = 'block';
+            var historialHtml = '';
+            historialVentaSeleccionada.forEach(function(h) {
+                var tipo = (h.tipo_accion || 'modificacion').toLowerCase();
+                var icono = 'fa-edit';
+                if (tipo === 'creacion') icono = 'fa-plus-circle';
+                if (tipo === 'cancelacion' || tipo === 'producto_cancelado') icono = 'fa-times-circle';
+                if (tipo === 'pago' || tipo === 'cambio_pago' || tipo === 'complemento_pago') icono = 'fa-credit-card';
+                if (tipo === 'reapertura') icono = 'fa-folder-open';
+                
+                var fechaH;
+                try {
+                    fechaH = h.fecha ? new Date(h.fecha.replace(' ', 'T')) : new Date();
+                } catch(e) {
+                    fechaH = new Date();
+                }
+                var fechaStr = fechaH.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+                
+                historialHtml += '<div class="historial-item ' + tipo + '">' +
+                    '<div class="historial-icono"><i class="fas ' + icono + '"></i></div>' +
+                    '<div class="historial-contenido">' +
+                        '<div class="historial-texto">' + (h.descripcion || 'Modificación') + '</div>' +
+                        '<div class="historial-meta">' + (h.usuario_nombre || 'Usuario') + ' • ' + fechaStr + '</div>' +
+                    '</div>' +
+                '</div>';
+            });
+            historialLista.innerHTML = historialHtml;
+        } else {
+            historialContainer.style.display = 'none';
+        }
     }
     
     // Totales
@@ -2066,22 +2080,26 @@ function mostrarDetalleVenta() {
     setElementText('detalleVentaSubtotal', '$' + subtotal.toFixed(2));
     
     var rowDescuentos = document.getElementById('rowDescuentos');
-    if (descuento > 0) {
-        rowDescuentos.style.display = 'flex';
-        setElementText('detalleVentaDescuentos', '-$' + descuento.toFixed(2));
-    } else {
-        rowDescuentos.style.display = 'none';
+    if (rowDescuentos) {
+        if (descuento > 0) {
+            rowDescuentos.style.display = 'flex';
+            setElementText('detalleVentaDescuentos', '-$' + descuento.toFixed(2));
+        } else {
+            rowDescuentos.style.display = 'none';
+        }
     }
     
     setElementText('detalleVentaTotal', '$' + total.toFixed(2));
     setElementText('detalleVentaPagado', '$' + pagado.toFixed(2));
     
     var rowPendiente = document.getElementById('rowPendiente');
-    if (pendiente > 0.01) {
-        rowPendiente.style.display = 'flex';
-        setElementText('detalleVentaPendiente', '$' + pendiente.toFixed(2));
-    } else {
-        rowPendiente.style.display = 'none';
+    if (rowPendiente) {
+        if (pendiente > 0.01) {
+            rowPendiente.style.display = 'flex';
+            setElementText('detalleVentaPendiente', '$' + pendiente.toFixed(2));
+        } else {
+            rowPendiente.style.display = 'none';
+        }
     }
     
     // Mostrar/ocultar acciones según estado
@@ -2099,16 +2117,20 @@ function abrirModalCancelarVenta() {
     if (!ventaSeleccionada) return;
     
     var v = ventaSeleccionada;
-    var folioStr = v.serie ? v.serie + '-' + v.folio : (v.folio || v.venta_id.slice(-8));
+    var folioStr = v.serie ? v.serie + '-' + v.folio : (v.folio || (v.venta_id ? v.venta_id.slice(-8) : '-'));
     var pagado = parseFloat(v.pagado) || 0;
     
     setElementText('cancelarVentaFolio', '#' + folioStr);
-    setElementText('cancelarVentaTotal', '$' + parseFloat(v.total).toFixed(2));
+    setElementText('cancelarVentaTotal', '$' + parseFloat(v.total || 0).toFixed(2));
     setElementText('cancelarVentaDevolucion', pagado > 0 ? '$' + pagado.toFixed(2) : '$0.00');
     
-    document.getElementById('motivoCancelarVenta').value = '';
-    document.getElementById('otroMotivoCancelar').value = '';
-    document.getElementById('otroMotivoCancelarGrupo').style.display = 'none';
+    var motivoSelect = document.getElementById('motivoCancelarVenta');
+    var otroInput = document.getElementById('otroMotivoCancelar');
+    var otroGrupo = document.getElementById('otroMotivoCancelarGrupo');
+    
+    if (motivoSelect) motivoSelect.value = '';
+    if (otroInput) otroInput.value = '';
+    if (otroGrupo) otroGrupo.style.display = 'none';
     
     var modal = document.getElementById('modalCancelarVenta');
     if (modal) modal.classList.add('active');
@@ -2117,35 +2139,38 @@ function abrirModalCancelarVenta() {
 function toggleOtroMotivoCancelar() {
     var select = document.getElementById('motivoCancelarVenta');
     var grupo = document.getElementById('otroMotivoCancelarGrupo');
-    grupo.style.display = select.value === 'OTRO' ? 'block' : 'none';
+    if (grupo) grupo.style.display = select && select.value === 'OTRO' ? 'block' : 'none';
 }
 
 function confirmarCancelarVenta() {
-    var motivoSelect = document.getElementById('motivoCancelarVenta').value;
-    var motivoOtro = document.getElementById('otroMotivoCancelar').value;
+    var motivoSelect = document.getElementById('motivoCancelarVenta');
+    var motivoOtro = document.getElementById('otroMotivoCancelar');
     
-    if (!motivoSelect) {
+    var motivo = motivoSelect ? motivoSelect.value : '';
+    var motivoTexto = motivoOtro ? motivoOtro.value : '';
+    
+    if (!motivo) {
         mostrarToast('Selecciona un motivo de cancelación', 'error');
         return;
     }
     
-    if (motivoSelect === 'OTRO' && !motivoOtro.trim()) {
+    if (motivo === 'OTRO' && !motivoTexto.trim()) {
         mostrarToast('Especifica el motivo de cancelación', 'error');
         return;
     }
     
-    var motivo = motivoSelect === 'OTRO' ? motivoOtro : motivoSelect;
+    var motivoFinal = motivo === 'OTRO' ? motivoTexto : motivo;
     
-    solicitarAutorizacionAdmin('¿Autorizar cancelación de venta #' + ventaSeleccionada.folio + '?', function(admin) {
+    solicitarAutorizacionAdmin('¿Autorizar cancelación de venta #' + (ventaSeleccionada.folio || ''), function(admin) {
         API.request('/ventas/cancelar-completa/' + ventaSeleccionada.venta_id, 'POST', {
-            motivo_cancelacion: motivo,
+            motivo_cancelacion: motivoFinal,
             cancelado_por: API.usuario.id,
             autorizado_por: admin
         }).then(function(r) {
             if (r.success) {
                 cerrarModal('modalCancelarVenta');
                 cerrarModal('modalDetalleVenta');
-                mostrarToast('Venta cancelada correctamente', 'success');
+                mostrarToast('Venta cancelada. Devolución: $' + (r.devolucion || 0).toFixed(2), 'success');
                 cargarVentasTurno();
             } else {
                 mostrarToast(r.error || 'Error al cancelar', 'error');
@@ -2161,15 +2186,21 @@ function abrirModalCancelarProducto(detalleId) {
     var prod = productosVentaSeleccionada.find(function(p) { return p.detalle_id === detalleId; });
     if (!prod || prod.estatus === 'CANCELADO') return;
     
-    setElementText('cancelarProdNombre', prod.producto_nombre || prod.descripcion);
-    setElementText('cancelarProdDetalle', 'Cantidad: ' + parseFloat(prod.cantidad) + ' | Precio: $' + parseFloat(prod.precio_unitario).toFixed(2));
+    setElementText('cancelarProdNombre', prod.producto_nombre || prod.descripcion || 'Producto');
+    setElementText('cancelarProdDetalle', 'Cantidad: ' + parseFloat(prod.cantidad || 0) + ' | Precio: $' + parseFloat(prod.precio_unitario || 0).toFixed(2));
     setElementText('unidadCancelarProd', prod.unidad || prod.unidad_id || 'PZ');
     
-    document.getElementById('cancelarProductoDetalleId').value = detalleId;
-    document.getElementById('cancelarProductoPrecio').value = prod.precio_unitario;
-    document.getElementById('cancelarProductoCantMax').value = prod.cantidad;
-    document.getElementById('cantidadCancelarProd').value = parseFloat(prod.cantidad);
-    document.getElementById('motivoCancelarProducto').value = '';
+    var detalleIdInput = document.getElementById('cancelarProductoDetalleId');
+    var precioInput = document.getElementById('cancelarProductoPrecio');
+    var cantMaxInput = document.getElementById('cancelarProductoCantMax');
+    var cantidadInput = document.getElementById('cantidadCancelarProd');
+    var motivoInput = document.getElementById('motivoCancelarProducto');
+    
+    if (detalleIdInput) detalleIdInput.value = detalleId;
+    if (precioInput) precioInput.value = prod.precio_unitario || 0;
+    if (cantMaxInput) cantMaxInput.value = prod.cantidad || 1;
+    if (cantidadInput) cantidadInput.value = parseFloat(prod.cantidad || 0);
+    if (motivoInput) motivoInput.value = '';
     
     calcularDevolucionProducto();
     
@@ -2179,26 +2210,44 @@ function abrirModalCancelarProducto(detalleId) {
 
 function ajustarCantidadCancelar(delta) {
     var input = document.getElementById('cantidadCancelarProd');
-    var max = parseFloat(document.getElementById('cancelarProductoCantMax').value) || 1;
-    var nuevo = Math.max(0.001, Math.min(max, (parseFloat(input.value) || 0) + delta));
-    input.value = nuevo;
+    var maxInput = document.getElementById('cancelarProductoCantMax');
+    var max = maxInput ? (parseFloat(maxInput.value) || 1) : 1;
+    var actual = input ? (parseFloat(input.value) || 0) : 0;
+    var nuevo = Math.max(0.001, Math.min(max, actual + delta));
+    if (input) input.value = nuevo;
     calcularDevolucionProducto();
 }
 
 function calcularDevolucionProducto() {
-    var cantidad = parseFloat(document.getElementById('cantidadCancelarProd').value) || 0;
-    var precio = parseFloat(document.getElementById('cancelarProductoPrecio').value) || 0;
+    var cantidadInput = document.getElementById('cantidadCancelarProd');
+    var precioInput = document.getElementById('cancelarProductoPrecio');
+    var cantidad = cantidadInput ? (parseFloat(cantidadInput.value) || 0) : 0;
+    var precio = precioInput ? (parseFloat(precioInput.value) || 0) : 0;
     var devolucion = cantidad * precio;
     setElementText('devolucionProducto', '$' + devolucion.toFixed(2));
 }
 
 function confirmarCancelarProducto() {
-    var detalleId = document.getElementById('cancelarProductoDetalleId').value;
-    var cantidad = parseFloat(document.getElementById('cantidadCancelarProd').value) || 0;
-    var motivo = document.getElementById('motivoCancelarProducto').value;
+    var detalleIdInput = document.getElementById('cancelarProductoDetalleId');
+    var cantidadInput = document.getElementById('cantidadCancelarProd');
+    var motivoInput = document.getElementById('motivoCancelarProducto');
+    
+    var detalleId = detalleIdInput ? detalleIdInput.value : '';
+    var cantidad = cantidadInput ? (parseFloat(cantidadInput.value) || 0) : 0;
+    var motivo = motivoInput ? motivoInput.value : '';
+    
+    if (!detalleId) {
+        mostrarToast('Error: producto no identificado', 'error');
+        return;
+    }
     
     if (!motivo) {
         mostrarToast('Selecciona un motivo', 'error');
+        return;
+    }
+    
+    if (!ventaSeleccionada) {
+        mostrarToast('Error: venta no seleccionada', 'error');
         return;
     }
     
@@ -2212,7 +2261,7 @@ function confirmarCancelarProducto() {
         }).then(function(r) {
             if (r.success) {
                 cerrarModal('modalCancelarProducto');
-                mostrarToast('Producto cancelado. Devolución: $' + r.devolucion.toFixed(2), 'success');
+                mostrarToast('Producto cancelado. Devolución: $' + (r.devolucion || 0).toFixed(2), 'success');
                 verDetalleVenta(ventaSeleccionada.venta_id);
                 cargarVentasTurno();
             } else {
@@ -2226,7 +2275,12 @@ function confirmarCancelarProducto() {
 
 // ==================== CAMBIAR MÉTODO DE PAGO ====================
 function abrirModalCambiarPago() {
-    if (!ventaSeleccionada || !pagosVentaSeleccionada.length) {
+    if (!ventaSeleccionada) {
+        mostrarToast('No hay venta seleccionada', 'error');
+        return;
+    }
+    
+    if (!pagosVentaSeleccionada || !pagosVentaSeleccionada.length) {
         mostrarToast('No hay pagos para modificar', 'error');
         return;
     }
@@ -2240,28 +2294,38 @@ function abrirModalCambiarPago() {
     var tipo = (pagoActual.tipo || 'EFECTIVO').toLowerCase();
     var icono = tipo === 'efectivo' ? 'fa-money-bill-wave' : (tipo === 'tarjeta' ? 'fa-credit-card' : 'fa-exchange-alt');
     
-    document.getElementById('pagoActualIcono').className = 'fas ' + icono;
+    var iconoEl = document.getElementById('pagoActualIcono');
+    if (iconoEl) iconoEl.className = 'fas ' + icono;
+    
     setElementText('pagoActualMetodo', pagoActual.metodo_nombre || 'Efectivo');
-    setElementText('pagoActualMonto', '$' + parseFloat(pagoActual.monto).toFixed(2));
-    document.getElementById('cambiarPagoId').value = pagoActual.pago_id;
-    document.getElementById('referenciaCambio').value = '';
-    document.getElementById('motivoCambioPago').value = '';
+    setElementText('pagoActualMonto', '$' + parseFloat(pagoActual.monto || 0).toFixed(2));
+    
+    var pagoIdInput = document.getElementById('cambiarPagoId');
+    var referenciaInput = document.getElementById('referenciaCambio');
+    var motivoInput = document.getElementById('motivoCambioPago');
+    
+    if (pagoIdInput) pagoIdInput.value = pagoActual.pago_id;
+    if (referenciaInput) referenciaInput.value = '';
+    if (motivoInput) motivoInput.value = '';
     
     // Renderizar métodos disponibles
-    var metodosHtml = '';
-    metodosPago.forEach(function(m) {
-        var mTipo = (m.tipo || 'EFECTIVO').toLowerCase();
-        var mIcono = 'fa-wallet';
-        if (mTipo === 'efectivo') mIcono = 'fa-money-bill-wave';
-        else if (mTipo === 'tarjeta' || mTipo.indexOf('tarjeta') >= 0) mIcono = 'fa-credit-card';
-        else if (mTipo === 'transferencia') mIcono = 'fa-university';
-        
-        metodosHtml += '<button type="button" class="metodo-opcion" data-metodo-id="' + m.metodo_pago_id + '" onclick="seleccionarMetodoCambio(this)">' +
-            '<i class="fas ' + mIcono + '"></i>' +
-            '<span>' + m.nombre + '</span>' +
-        '</button>';
-    });
-    document.getElementById('metodosCambioContainer').innerHTML = metodosHtml;
+    var metodosContainer = document.getElementById('metodosCambioContainer');
+    if (metodosContainer) {
+        var metodosHtml = '';
+        metodosPago.forEach(function(m) {
+            var mTipo = (m.tipo || 'EFECTIVO').toLowerCase();
+            var mIcono = 'fa-wallet';
+            if (mTipo === 'efectivo') mIcono = 'fa-money-bill-wave';
+            else if (mTipo === 'tarjeta' || mTipo.indexOf('tarjeta') >= 0) mIcono = 'fa-credit-card';
+            else if (mTipo === 'transferencia') mIcono = 'fa-university';
+            
+            metodosHtml += '<button type="button" class="metodo-opcion" data-metodo-id="' + m.metodo_pago_id + '" onclick="seleccionarMetodoCambio(this)">' +
+                '<i class="fas ' + mIcono + '"></i>' +
+                '<span>' + m.nombre + '</span>' +
+            '</button>';
+        });
+        metodosContainer.innerHTML = metodosHtml;
+    }
     
     var modal = document.getElementById('modalCambiarPago');
     if (modal) modal.classList.add('active');
@@ -2275,10 +2339,19 @@ function seleccionarMetodoCambio(btn) {
 }
 
 function confirmarCambiarPago() {
-    var pagoId = document.getElementById('cambiarPagoId').value;
+    var pagoIdInput = document.getElementById('cambiarPagoId');
+    var referenciaInput = document.getElementById('referenciaCambio');
+    var motivoInput = document.getElementById('motivoCambioPago');
     var metodoActivo = document.querySelector('#metodosCambioContainer .metodo-opcion.active');
-    var referencia = document.getElementById('referenciaCambio').value;
-    var motivo = document.getElementById('motivoCambioPago').value;
+    
+    var pagoId = pagoIdInput ? pagoIdInput.value : '';
+    var referencia = referenciaInput ? referenciaInput.value : '';
+    var motivo = motivoInput ? motivoInput.value : '';
+    
+    if (!pagoId) {
+        mostrarToast('Error: pago no identificado', 'error');
+        return;
+    }
     
     if (!metodoActivo) {
         mostrarToast('Selecciona el nuevo método de pago', 'error');
@@ -2287,6 +2360,11 @@ function confirmarCambiarPago() {
     
     if (!motivo.trim()) {
         mostrarToast('Ingresa el motivo del cambio', 'error');
+        return;
+    }
+    
+    if (!ventaSeleccionada) {
+        mostrarToast('Error: venta no seleccionada', 'error');
         return;
     }
     
@@ -2318,8 +2396,7 @@ function confirmarCambiarPago() {
 function abrirModalReabrirVenta() {
     if (!ventaSeleccionada) return;
     
-    solicitarAutorizacionAdmin('¿Autorizar reapertura de venta #' + ventaSeleccionada.folio + ' para agregar productos?', function(admin) {
-        // Cargar productos de la venta al carrito
+    solicitarAutorizacionAdmin('¿Autorizar reapertura de venta #' + (ventaSeleccionada.folio || '') + ' para agregar productos?', function(admin) {
         if (carrito.length > 0) {
             if (!confirm('Hay productos en el carrito actual. ¿Guardarlos en espera?')) {
                 return;
@@ -2327,35 +2404,37 @@ function abrirModalReabrirVenta() {
             ponerEnEspera();
         }
         
-        // Marcar venta como reabierta
         API.request('/ventas/reabrir/' + ventaSeleccionada.venta_id, 'POST', {
             usuario_id: API.usuario.id,
             autorizado_por: admin
         }).then(function(r) {
             if (r.success) {
                 // Cargar productos al carrito
-                productosVentaSeleccionada.forEach(function(p) {
-                    if (p.estatus !== 'CANCELADO') {
-                        carrito.push({
-                            producto_id: p.producto_id,
-                            codigo: p.codigo_barras || '',
-                            nombre: p.producto_nombre || p.descripcion,
-                            precio: parseFloat(p.precio_unitario),
-                            precioOriginal: parseFloat(p.precio_unitario),
-                            cantidad: parseFloat(p.cantidad),
-                            unidad: p.unidad || p.unidad_id || 'PZ',
-                            esGranel: ['KG', 'GR', 'LT', 'ML', 'MT'].indexOf((p.unidad || 'PZ').toUpperCase()) >= 0,
-                            descuento: parseFloat(p.descuento_pct) || 0,
-                            esReabierto: true,
-                            detalle_original_id: p.detalle_id
-                        });
-                    }
-                });
+                if (productosVentaSeleccionada && productosVentaSeleccionada.length > 0) {
+                    productosVentaSeleccionada.forEach(function(p) {
+                        if (p.estatus !== 'CANCELADO') {
+                            carrito.push({
+                                producto_id: p.producto_id,
+                                codigo: p.codigo_barras || '',
+                                nombre: p.producto_nombre || p.descripcion || 'Producto',
+                                precio: parseFloat(p.precio_unitario) || 0,
+                                precioOriginal: parseFloat(p.precio_unitario) || 0,
+                                cantidad: parseFloat(p.cantidad) || 1,
+                                unidad: p.unidad || p.unidad_id || 'PZ',
+                                esGranel: ['KG', 'GR', 'LT', 'ML', 'MT'].indexOf((p.unidad || 'PZ').toUpperCase()) >= 0,
+                                descuento: parseFloat(p.descuento_pct) || 0,
+                                esReabierto: true,
+                                detalle_original_id: p.detalle_id
+                            });
+                        }
+                    });
+                }
                 
                 // Guardar referencia de venta reabierta
                 ventaReabierta = {
                     venta_id: ventaSeleccionada.venta_id,
-                    total_original: parseFloat(ventaSeleccionada.total),
+                    folio: ventaSeleccionada.folio,
+                    total_original: parseFloat(ventaSeleccionada.total) || 0,
                     pagado: parseFloat(ventaSeleccionada.pagado) || 0,
                     cliente: ventaSeleccionada.cliente_id ? {
                         cliente_id: ventaSeleccionada.cliente_id,
@@ -2376,21 +2455,11 @@ function abrirModalReabrirVenta() {
             } else {
                 mostrarToast(r.error || 'Error al reabrir venta', 'error');
             }
+        }).catch(function(e) {
+            mostrarToast('Error de conexión', 'error');
         });
     });
 }
-
-var ventaReabierta = null;
-
-// Modificar abrirModalCobro para manejar ventas reabiertas
-var _abrirModalCobroOriginal = abrirModalCobro;
-abrirModalCobro = function() {
-    if (ventaReabierta) {
-        abrirModalCobrarPendiente();
-    } else {
-        _abrirModalCobroOriginal();
-    }
-};
 
 // ==================== COBRAR PENDIENTE (VENTA REABIERTA) ====================
 function abrirModalCobrarPendiente() {
@@ -2406,32 +2475,35 @@ function abrirModalCobrarPendiente() {
     setElementText('pendientePagado', '$' + ventaReabierta.pagado.toFixed(2));
     setElementText('pendientePorCobrar', '$' + porCobrar.toFixed(2));
     
-    document.getElementById('inputEfectivoPendiente').value = '';
+    var inputEfectivo = document.getElementById('inputEfectivoPendiente');
+    if (inputEfectivo) inputEfectivo.value = '';
     setElementText('cambioPendiente', '$0.00');
     
     // Renderizar métodos de pago
-    var metodosHtml = '';
-    metodosPago.forEach(function(m, i) {
-        var tipo = (m.tipo || 'EFECTIVO').toLowerCase();
-        var icono = getIconoMetodo(m);
-        metodosHtml += '<button type="button" class="metodo-btn' + (i === 0 ? ' active' : '') + '" data-metodo-id="' + m.metodo_pago_id + '">' +
-            '<i class="fas ' + icono + '"></i><span>' + m.nombre + '</span>' +
-        '</button>';
-    });
-    document.getElementById('metodosPendienteContainer').innerHTML = metodosHtml;
-    
-    document.querySelectorAll('#metodosPendienteContainer .metodo-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('#metodosPendienteContainer .metodo-btn').forEach(function(b) { b.classList.remove('active'); });
-            btn.classList.add('active');
+    var metodosContainer = document.getElementById('metodosPendienteContainer');
+    if (metodosContainer) {
+        var metodosHtml = '';
+        metodosPago.forEach(function(m, i) {
+            var icono = getIconoMetodo(m);
+            metodosHtml += '<button type="button" class="metodo-btn' + (i === 0 ? ' active' : '') + '" data-metodo-id="' + m.metodo_pago_id + '">' +
+                '<i class="fas ' + icono + '"></i><span>' + m.nombre + '</span>' +
+            '</button>';
         });
-    });
+        metodosContainer.innerHTML = metodosHtml;
+        
+        document.querySelectorAll('#metodosPendienteContainer .metodo-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#metodosPendienteContainer .metodo-btn').forEach(function(b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+            });
+        });
+    }
     
     var modal = document.getElementById('modalCobrarPendiente');
     if (modal) modal.classList.add('active');
     
     setTimeout(function() {
-        document.getElementById('inputEfectivoPendiente').focus();
+        if (inputEfectivo) inputEfectivo.focus();
     }, 100);
 }
 
@@ -2445,25 +2517,31 @@ function addEfectivoPendiente(monto) {
 
 function setExactoPendiente() {
     var porCobrar = calcularTotalFinal() - ventaReabierta.pagado;
-    document.getElementById('inputEfectivoPendiente').value = porCobrar.toFixed(2);
+    var inp = document.getElementById('inputEfectivoPendiente');
+    if (inp) inp.value = porCobrar.toFixed(2);
     calcularCambioPendiente();
 }
 
 function limpiarEfectivoPendiente() {
-    document.getElementById('inputEfectivoPendiente').value = '';
+    var inp = document.getElementById('inputEfectivoPendiente');
+    if (inp) inp.value = '';
     calcularCambioPendiente();
 }
 
 function calcularCambioPendiente() {
-    var porCobrar = calcularTotalFinal() - ventaReabierta.pagado;
-    var recibido = parseFloat(document.getElementById('inputEfectivoPendiente').value) || 0;
+    var porCobrar = calcularTotalFinal() - (ventaReabierta ? ventaReabierta.pagado : 0);
+    var inp = document.getElementById('inputEfectivoPendiente');
+    var recibido = inp ? (parseFloat(inp.value) || 0) : 0;
     var cambio = Math.max(0, recibido - porCobrar);
     setElementText('cambioPendiente', '$' + cambio.toFixed(2));
 }
 
 function confirmarCobroPendiente() {
+    if (!ventaReabierta) return;
+    
     var porCobrar = calcularTotalFinal() - ventaReabierta.pagado;
-    var recibido = parseFloat(document.getElementById('inputEfectivoPendiente').value) || 0;
+    var inp = document.getElementById('inputEfectivoPendiente');
+    var recibido = inp ? (parseFloat(inp.value) || 0) : 0;
     
     if (recibido < porCobrar) {
         mostrarToast('Monto insuficiente', 'error');
@@ -2498,7 +2576,6 @@ function confirmarCobroPendiente() {
         if (r.success) {
             cerrarModal('modalCobrarPendiente');
             
-            // Mostrar éxito
             setElementText('exitoFolio', '#' + (ventaReabierta.folio || r.folio));
             setElementText('exitoTotal', '$' + calcularTotalFinal().toFixed(2));
             setElementText('exitoCambio', '$' + (recibido - porCobrar).toFixed(2));
@@ -2506,7 +2583,6 @@ function confirmarCobroPendiente() {
             var modal = document.getElementById('modalExito');
             if (modal) modal.classList.add('active');
             
-            // Limpiar
             ventaReabierta = null;
             limpiarVentaActual();
         } else {
@@ -2530,8 +2606,13 @@ function imprimirVentaDirecto(ventaId) {
         return;
     }
     
-    var fecha = new Date(venta.fecha_hora);
-    var folioStr = venta.serie ? venta.serie + '-' + venta.folio : (venta.folio || venta.venta_id.slice(-8));
+    var fecha;
+    try {
+        fecha = venta.fecha_hora ? new Date(venta.fecha_hora.replace(' ', 'T')) : new Date();
+    } catch(e) {
+        fecha = new Date();
+    }
+    var folioStr = venta.serie ? venta.serie + '-' + venta.folio : (venta.folio || (venta.venta_id ? venta.venta_id.slice(-8) : '-'));
     
     var ventana = window.open('', '_blank', 'width=350,height=600');
     ventana.document.write(
@@ -2552,7 +2633,7 @@ function imprimirVentaDirecto(ventaId) {
         '<div>Fecha: ' + fecha.toLocaleDateString('es-MX') + ' ' + fecha.toLocaleTimeString('es-MX', {hour:'2-digit',minute:'2-digit'}) + '</div>' +
         '<div>Cliente: ' + (venta.cliente_nombre || 'Público General') + '</div>' +
         '<div class="line"></div>' +
-        '<div class="row total"><span>TOTAL:</span><span>$' + parseFloat(venta.total).toFixed(2) + '</span></div>' +
+        '<div class="row total"><span>TOTAL:</span><span>$' + parseFloat(venta.total || 0).toFixed(2) + '</span></div>' +
         '<div class="line"></div>' +
         '<div class="center">¡Gracias por su compra!</div>' +
         '<script>window.print();</script>' +
