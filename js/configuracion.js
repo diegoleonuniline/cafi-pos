@@ -101,7 +101,6 @@ async function cargarSucursales() {
                     <td><strong>${s.nombre}</strong></td>
                     <td>${s.direccion || '-'}</td>
                     <td>${s.telefono || '-'}</td>
-                    <td>${s.encargado || '-'}</td>
                     <td class="text-center"><span class="badge badge-${s.activo === 'Y' ? 'success' : 'danger'}">${s.activo === 'Y' ? 'Activa' : 'Inactiva'}</span></td>
                     <td class="text-center">
                         <div class="btn-actions">
@@ -141,8 +140,6 @@ function editarSucursal(id) {
     document.getElementById('sucNombre').value = s.nombre || '';
     document.getElementById('sucDireccion').value = s.direccion || '';
     document.getElementById('sucTelefono').value = s.telefono || '';
-    document.getElementById('sucEmail').value = s.email || '';
-    document.getElementById('sucEncargado').value = s.encargado || '';
     document.getElementById('sucActivo').checked = s.activo === 'Y';
     document.getElementById('modalSucursalTitulo').textContent = 'Editar Sucursal';
     abrirModal('modalSucursal');
@@ -156,8 +153,6 @@ async function guardarSucursal(ev) {
         nombre: document.getElementById('sucNombre').value,
         direccion: document.getElementById('sucDireccion').value,
         telefono: document.getElementById('sucTelefono').value,
-        email: document.getElementById('sucEmail').value,
-        encargado: document.getElementById('sucEncargado').value,
         activo: document.getElementById('sucActivo').checked ? 'Y' : 'N'
     };
     
@@ -228,6 +223,7 @@ function abrirModalUsuario() {
     document.getElementById('modalUsuarioTitulo').textContent = 'Nuevo Usuario';
     document.getElementById('lblPassword').textContent = 'Contraseña *';
     document.getElementById('usrPassword').required = true;
+    document.getElementById('usrEmail').disabled = false; // Habilitar para nuevo usuario
     document.getElementById('usrActivo').checked = true;
     abrirModal('modalUsuario');
 }
@@ -239,6 +235,7 @@ function editarUsuario(id) {
     document.getElementById('usrNombre').value = u.nombre || '';
     document.getElementById('usrUsuario').value = u.usuario || '';
     document.getElementById('usrEmail').value = u.email || '';
+    document.getElementById('usrEmail').disabled = true; // No editable - es el login
     document.getElementById('usrTelefono').value = u.telefono || '';
     document.getElementById('usrPassword').value = '';
     document.getElementById('usrPassword2').value = '';
@@ -271,12 +268,16 @@ async function guardarUsuario(ev) {
         empresa_id: empresaId,
         nombre: document.getElementById('usrNombre').value,
         usuario: document.getElementById('usrUsuario').value,
-        email: document.getElementById('usrEmail').value,
         telefono: document.getElementById('usrTelefono').value,
         rol: document.getElementById('usrRol').value,
         sucursal_id: document.getElementById('usrSucursal').value,
         activo: document.getElementById('usrActivo').checked ? 'Y' : 'N'
     };
+    
+    // Solo enviar email si es nuevo usuario
+    if (!id) {
+        data.email = document.getElementById('usrEmail').value;
+    }
     
     if (pass) data.password = pass;
     
