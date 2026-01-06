@@ -2040,42 +2040,45 @@ function mostrarDetalleVenta() {
         pagosContainer.innerHTML = pagosHtml;
     }
     
-    // Historial - usa historial-lista, historial-item
-    var historialContainer = document.getElementById('detalleHistorialContainer');
-    var historialLista = document.getElementById('detalleVentaHistorial');
-    if (historialContainer && historialLista) {
-        if (historialVentaSeleccionada && historialVentaSeleccionada.length > 0) {
-            historialContainer.style.display = 'block';
-            var historialHtml = '';
-            historialVentaSeleccionada.forEach(function(h) {
-                var tipo = (h.tipo_accion || 'modificacion').toLowerCase();
-                var icono = 'fa-edit';
-                if (tipo === 'creacion') icono = 'fa-plus-circle';
-                if (tipo === 'cancelacion' || tipo === 'producto_cancelado') icono = 'fa-times-circle';
-                if (tipo === 'pago' || tipo === 'cambio_pago' || tipo === 'complemento_pago') icono = 'fa-credit-card';
-                if (tipo === 'reapertura') icono = 'fa-folder-open';
-                
-                var fechaH;
-                try {
-                    fechaH = h.fecha ? new Date(h.fecha.replace(' ', 'T')) : new Date();
-                } catch(e) {
-                    fechaH = new Date();
-                }
-                var fechaStr = fechaH.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
-                
-                historialHtml += '<div class="historial-item ' + tipo + '">' +
-                    '<div class="historial-icono"><i class="fas ' + icono + '"></i></div>' +
-                    '<div class="historial-contenido">' +
-                        '<div class="historial-texto">' + (h.descripcion || 'Modificación') + '</div>' +
-                        '<div class="historial-meta">' + (h.usuario_nombre || 'Usuario') + ' • ' + fechaStr + '</div>' +
-                    '</div>' +
-                '</div>';
-            });
-            historialLista.innerHTML = historialHtml;
-        } else {
-            historialContainer.style.display = 'none';
+ var tabHistorial = document.getElementById('tabHistorial');
+var historialLista = document.getElementById('detalleVentaHistorial');
+
+if (historialVentaSeleccionada && historialVentaSeleccionada.length > 0) {
+    if (tabHistorial) tabHistorial.style.display = 'flex';
+    
+    var historialHtml = '';
+    historialVentaSeleccionada.forEach(function(h) {
+        var tipo = (h.tipo_accion || 'modificacion').toLowerCase();
+        var icono = 'fa-edit';
+        if (tipo === 'creacion') icono = 'fa-plus-circle';
+        if (tipo === 'cancelacion' || tipo === 'producto_cancelado') icono = 'fa-times-circle';
+        if (tipo === 'pago' || tipo === 'cambio_pago' || tipo === 'complemento_pago') icono = 'fa-credit-card';
+        if (tipo === 'reapertura') icono = 'fa-folder-open';
+        
+        var fechaH;
+        try {
+            fechaH = h.fecha ? new Date(h.fecha.replace(' ', 'T')) : new Date();
+        } catch(e) {
+            fechaH = new Date();
         }
-    }
+        var fechaStr = fechaH.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+        
+        historialHtml += '<div class="historial-item ' + tipo + '">' +
+            '<div class="historial-icono"><i class="fas ' + icono + '"></i></div>' +
+            '<div class="historial-contenido">' +
+                '<div class="historial-texto">' + (h.descripcion || 'Modificación') + '</div>' +
+                '<div class="historial-meta">' + (h.usuario_nombre || 'Usuario') + ' • ' + fechaStr + '</div>' +
+            '</div>' +
+        '</div>';
+    });
+    if (historialLista) historialLista.innerHTML = historialHtml;
+} else {
+    if (tabHistorial) tabHistorial.style.display = 'none';
+}
+
+// Resetear a tab Info
+cambiarTabDetalle('info');
+
     
     // Totales - usa detalle-totales, total-row
     var subtotal = parseFloat(v.subtotal) || parseFloat(v.total) || 0;
