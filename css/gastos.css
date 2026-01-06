@@ -1058,6 +1058,71 @@
     letter-spacing: 0.5px;
 }
 
+/* Input con botón + */
+.input-with-btn {
+    display: flex;
+    gap: 6px;
+}
+
+.input-with-btn select {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+}
+
+.input-with-btn select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(45, 61, 191, 0.1);
+}
+
+.btn-add-inline {
+    width: 40px;
+    height: 40px;
+    border: 2px dashed #cbd5e1;
+    background: #f8fafc;
+    border-radius: 8px;
+    color: #64748b;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-add-inline:hover {
+    border-color: var(--primary);
+    background: rgba(45, 61, 191, 0.05);
+    color: var(--primary);
+    border-style: solid;
+}
+
+/* Mini Modal */
+.modal-mini {
+    max-width: 400px;
+}
+
+.modal-mini .modal-header {
+    padding: 16px 20px;
+}
+
+.modal-mini .modal-header h3 {
+    font-size: 16px;
+}
+
+.modal-mini .modal-body {
+    padding: 20px;
+}
+
+.modal-mini .modal-footer {
+    padding: 12px 20px;
+}
+
 /* ============================================
    RESPONSIVE
    ============================================ */
