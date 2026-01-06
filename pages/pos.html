@@ -9,7 +9,7 @@
     <title>CAFI POS - Punto de Venta</title>
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/pos.css">
-    <link rel="stylesheet" href="../css/pos-mobile.css">
+    <link rel="stylesheet" href="../css/pos-mobile.css?v=4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;700&display=swap">
 </head>
@@ -1129,7 +1129,75 @@
             if (mobileTotal) mobileTotal.textContent = '$' + total.toFixed(2);
             if (mobileArts) mobileArts.textContent = Math.round(articulos) + ' Arts';
             if (mobileBtn) mobileBtn.disabled = articulos === 0;
+            
+            // Transformar carrito para móvil
+            transformarCarritoMobile();
         }
+        
+        // Transformar estructura del carrito para móvil
+        function transformarCarritoMobile() {
+            if (window.innerWidth > 768) return;
+            
+            var rows = document.querySelectorAll('#cartBody tr');
+            rows.forEach(function(row) {
+                if (row.dataset.mobileTransformed) return;
+                
+                var colProducto = row.querySelector('.col-producto');
+                var colPrecio = row.querySelector('.col-precio');
+                var colCantidad = row.querySelector('.col-cantidad');
+                var colImporte = row.querySelector('.col-importe');
+                
+                if (!colProducto || !colPrecio || !colCantidad || !colImporte) return;
+                
+                // Obtener valores
+                var nombre = colProducto.querySelector('.cart-item-name');
+                var precioText = colPrecio.textContent.trim();
+                var totalText = colImporte.textContent.trim();
+                var qtyControl = colCantidad.innerHTML;
+                
+                // Crear nueva estructura
+                row.innerHTML = '';
+                row.className = 'cart-row-mobile';
+                row.dataset.mobileTransformed = 'true';
+                
+                // Celda única con todo el contenido
+                var cell = document.createElement('td');
+                cell.className = 'cart-cell-mobile';
+                cell.innerHTML = 
+                    '<div class="cart-card">' +
+                        '<div class="cart-card-img"></div>' +
+                        '<div class="cart-card-info">' +
+                            '<div class="cart-card-name">' + (nombre ? nombre.textContent : 'Producto') + '</div>' +
+                            '<div class="cart-card-price">' + precioText + '</div>' +
+                            '<div class="cart-card-qty">' + qtyControl + '</div>' +
+                        '</div>' +
+                        '<div class="cart-card-total">' + totalText + '</div>' +
+                    '</div>';
+                
+                row.appendChild(cell);
+            });
+        }
+        
+        // Observer para detectar cambios en el carrito
+        var cartObserver = new MutationObserver(function(mutations) {
+            transformarCarritoMobile();
+        });
+        
+        // Iniciar observer cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            var cartBody = document.getElementById('cartBody');
+            if (cartBody) {
+                cartObserver.observe(cartBody, { childList: true, subtree: true });
+            }
+            
+            // Transformar al cargar y al cambiar tamaño
+            transformarCarritoMobile();
+            window.addEventListener('resize', function() {
+                if (window.innerWidth <= 768) {
+                    transformarCarritoMobile();
+                }
+            });
+        });
 
         // Actualizar info usuario en menú móvil
         function actualizarMenuMobile() {
