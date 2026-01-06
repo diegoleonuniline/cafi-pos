@@ -190,143 +190,147 @@
         </main>
     </div>
 
-    <!-- MODAL GASTO -->
+    <!-- MODAL GASTO - DISEÑO LIMPIO -->
     <div class="modal-overlay" id="modalGasto">
-        <div class="modal modal-lg">
+        <div class="modal modal-gasto">
             <div class="modal-header">
-                <h3><i class="fas fa-money-bill-wave"></i> <span id="modalGastoTitulo">Nuevo Gasto</span></h3>
+                <h3><i class="fas fa-receipt"></i> <span id="modalGastoTitulo">Nuevo Gasto</span></h3>
                 <button class="modal-close" onclick="cerrarModal('modalGasto')"><i class="fas fa-times"></i></button>
             </div>
             <form id="formGasto" onsubmit="guardarGasto(event)">
                 <input type="hidden" id="gastoId">
-                <div class="modal-body">
-                    <div class="form-section">
-                        <h4><i class="fas fa-info-circle"></i> Información General</h4>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Fecha <span class="required">*</span></label>
-                                <input type="date" id="gastoFecha" required>
-                            </div>
-                            <div class="form-group">
-                                <label>No. Documento</label>
-                                <input type="text" id="gastoDocumento" placeholder="Factura, recibo, etc.">
-                            </div>
-                            <div class="form-group">
-                                <label>Sucursal</label>
-                                <select id="gastoSucursal"></select>
-                            </div>
+                <div class="modal-body gasto-form">
+                    
+                    <!-- Fila 1: Fecha, Documento, Sucursal -->
+                    <div class="gasto-row three">
+                        <div class="gasto-field">
+                            <label><i class="fas fa-calendar"></i> Fecha *</label>
+                            <input type="date" id="gastoFecha" required>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Categoría <span class="required">*</span></label>
-                                <select id="gastoCategoria" required onchange="cargarConceptosPorCategoria()">
-                                    <option value="">Seleccionar...</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Concepto <span class="required">*</span></label>
-                                <select id="gastoConcepto" required>
-                                    <option value="">Primero seleccione categoría...</option>
-                                </select>
-                            </div>
+                        <div class="gasto-field">
+                            <label><i class="fas fa-file-alt"></i> Documento</label>
+                            <input type="text" id="gastoDocumento" placeholder="Factura, recibo...">
                         </div>
-                        <div class="form-group">
-                            <label>Descripción</label>
-                            <textarea id="gastoDescripcion" rows="2" placeholder="Detalle del gasto..."></textarea>
+                        <div class="gasto-field">
+                            <label><i class="fas fa-store"></i> Sucursal</label>
+                            <select id="gastoSucursal"></select>
                         </div>
                     </div>
 
-                    <div class="form-section">
-                        <h4><i class="fas fa-truck"></i> Proveedor</h4>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Proveedor</label>
-                                <select id="gastoProveedor" onchange="seleccionarProveedor()">
-                                    <option value="">Sin proveedor / Otro</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Nombre Proveedor</label>
-                                <input type="text" id="gastoProveedorNombre" placeholder="Si no está en lista">
-                            </div>
+                    <!-- Fila 2: Categoría y Concepto -->
+                    <div class="gasto-row two">
+                        <div class="gasto-field">
+                            <label><i class="fas fa-folder"></i> Categoría *</label>
+                            <select id="gastoCategoria" required onchange="cargarConceptosPorCategoria()">
+                                <option value="">Seleccionar...</option>
+                            </select>
+                        </div>
+                        <div class="gasto-field">
+                            <label><i class="fas fa-tag"></i> Concepto *</label>
+                            <select id="gastoConcepto" required>
+                                <option value="">Primero seleccione categoría</option>
+                            </select>
                         </div>
                     </div>
 
-                    <div class="form-section">
-                        <h4><i class="fas fa-calculator"></i> Montos</h4>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Subtotal <span class="required">*</span></label>
-                                <input type="number" id="gastoSubtotal" step="0.01" min="0" required onchange="calcularTotal()">
-                            </div>
-                            <div class="form-group">
-                                <label>IVA</label>
-                                <input type="number" id="gastoIVA" step="0.01" min="0" value="0" onchange="calcularTotal()">
-                            </div>
-                            <div class="form-group">
-                                <label>Total</label>
-                                <input type="number" id="gastoTotal" step="0.01" readonly class="input-total">
-                            </div>
+                    <!-- Fila 3: Proveedor -->
+                    <div class="gasto-row two">
+                        <div class="gasto-field">
+                            <label><i class="fas fa-truck"></i> Proveedor</label>
+                            <select id="gastoProveedor" onchange="seleccionarProveedor()">
+                                <option value="">Sin proveedor</option>
+                            </select>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
+                        <div class="gasto-field">
+                            <label><i class="fas fa-pen"></i> O escribir nombre</label>
+                            <input type="text" id="gastoProveedorNombre" placeholder="Nombre manual...">
+                        </div>
+                    </div>
+
+                    <!-- Descripción -->
+                    <div class="gasto-row one">
+                        <div class="gasto-field">
+                            <label><i class="fas fa-align-left"></i> Descripción</label>
+                            <input type="text" id="gastoDescripcion" placeholder="Detalle del gasto...">
+                        </div>
+                    </div>
+
+                    <!-- Montos - Diseño destacado -->
+                    <div class="montos-card">
+                        <div class="monto-field">
+                            <label>Subtotal *</label>
+                            <input type="number" id="gastoSubtotal" step="0.01" min="0" required onchange="calcularTotal()" placeholder="0.00">
+                        </div>
+                        <div class="monto-field">
+                            <label>IVA</label>
+                            <input type="number" id="gastoIVA" step="0.01" min="0" value="0" onchange="calcularTotal()" placeholder="0.00">
+                        </div>
+                        <div class="monto-field total">
+                            <label>Total</label>
+                            <input type="number" id="gastoTotal" step="0.01" readonly placeholder="0.00">
+                        </div>
+                        <button type="button" class="btn-iva" onclick="calcularIVA16()" title="Calcular IVA 16%">
+                            +16%
+                        </button>
+                    </div>
+
+                    <!-- Retenciones colapsable -->
+                    <details class="retenciones-toggle">
+                        <summary><i class="fas fa-hand-holding-usd"></i> Retenciones (opcional)</summary>
+                        <div class="gasto-row two" style="margin-top:10px;">
+                            <div class="gasto-field">
                                 <label>ISR Retenido</label>
                                 <input type="number" id="gastoISR" step="0.01" min="0" value="0">
                             </div>
-                            <div class="form-group">
+                            <div class="gasto-field">
                                 <label>IVA Retenido</label>
                                 <input type="number" id="gastoIVARet" step="0.01" min="0" value="0">
                             </div>
-                            <div class="form-group">
-                                <label>&nbsp;</label>
-                                <button type="button" class="btn btn-outline btn-sm" onclick="calcularIVA16()">
-                                    <i class="fas fa-calculator"></i> Calcular IVA 16%
-                                </button>
-                            </div>
+                        </div>
+                    </details>
+
+                    <!-- Pago -->
+                    <div class="gasto-row three">
+                        <div class="gasto-field">
+                            <label><i class="fas fa-credit-card"></i> Método Pago</label>
+                            <select id="gastoMetodoPago">
+                                <option value="">Seleccionar...</option>
+                            </select>
+                        </div>
+                        <div class="gasto-field">
+                            <label><i class="fas fa-university"></i> Cuenta</label>
+                            <select id="gastoCuenta">
+                                <option value="">Seleccionar...</option>
+                            </select>
+                        </div>
+                        <div class="gasto-field">
+                            <label><i class="fas fa-hashtag"></i> Referencia</label>
+                            <input type="text" id="gastoReferencia" placeholder="Cheque, transf...">
                         </div>
                     </div>
 
-                    <div class="form-section">
-                        <h4><i class="fas fa-credit-card"></i> Pago</h4>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Método de Pago</label>
-                                <select id="gastoMetodoPago">
-                                    <option value="">Seleccionar...</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Cuenta Bancaria</label>
-                                <select id="gastoCuenta">
-                                    <option value="">Seleccionar...</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Referencia</label>
-                                <input type="text" id="gastoReferencia" placeholder="No. transferencia, cheque, etc.">
-                            </div>
+                    <!-- Estado y Factura -->
+                    <div class="gasto-footer-row">
+                        <div class="gasto-field small">
+                            <label>Estado</label>
+                            <select id="gastoEstado">
+                                <option value="PAGADO">Pagado</option>
+                                <option value="PENDIENTE">Pendiente</option>
+                            </select>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Estado</label>
-                                <select id="gastoEstado">
-                                    <option value="PAGADO">Pagado</option>
-                                    <option value="PENDIENTE">Pendiente</option>
-                                </select>
-                            </div>
-                            <div class="form-group checkbox-inline">
-                                <label><input type="checkbox" id="gastoTieneFactura"> Tiene Factura (CFDI)</label>
-                            </div>
-                        </div>
-                        <div class="form-group" id="uuidContainer" style="display:none;">
-                            <label>UUID Factura</label>
-                            <input type="text" id="gastoUUID" placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX">
+                        <label class="factura-check">
+                            <input type="checkbox" id="gastoTieneFactura">
+                            <span><i class="fas fa-file-invoice"></i> Tiene Factura CFDI</span>
+                        </label>
+                        <div class="gasto-field uuid-field" id="uuidContainer" style="display:none;">
+                            <input type="text" id="gastoUUID" placeholder="UUID de la factura...">
                         </div>
                     </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline" onclick="cerrarModal('modalGasto')">Cancelar</button>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar Gasto</button>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Guardar</button>
                 </div>
             </form>
         </div>
