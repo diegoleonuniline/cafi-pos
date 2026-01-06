@@ -562,3 +562,174 @@ function toast(msg, tipo = 'success') {
     t.className = `toast show ${tipo}`;
     setTimeout(() => t.classList.remove('show'), 3000);
 }
+
+// ==================== MINI MODALES ====================
+
+function abrirMiniModal(tipo) {
+    if (tipo === 'categoria') {
+        document.getElementById('miniCategoriaNombre').value = '';
+        document.getElementById('miniCategoriaTipo').value = 'OPERATIVO';
+        abrirModal('modalMiniCategoria');
+        setTimeout(() => document.getElementById('miniCategoriaNombre').focus(), 100);
+    } else if (tipo === 'concepto') {
+        // Cargar categorías en el select del mini modal
+        const selCat = document.getElementById('miniConceptoCategoria');
+        selCat.innerHTML = '<option value="">Seleccionar...</option>';
+        categoriasGastoData.forEach(c => {
+            selCat.innerHTML += `<option value="${c.categoria_gasto_id}">${c.nombre}</option>`;
+        });
+        // Pre-seleccionar la categoría actual si hay una
+        const catActual = document.getElementById('gastoCategoria').value;
+        if (catActual) selCat.value = catActual;
+        
+        document.getElementById('miniConceptoNombre').value = '';
+        abrirModal('modalMiniConcepto');
+        setTimeout(() => document.getElementById('miniConceptoNombre').focus(), 100);
+    } else if (tipo === 'proveedor') {
+        document.getElementById('miniProveedorNombre').value = '';
+        document.getElementById('miniProveedorRFC').value = '';
+        document.getElementById('miniProveedorTelefono').value = '';
+        abrirModal('modalMiniProveedor');
+        setTimeout(() => document.getElementById('miniProveedorNombre').focus(), 100);
+    }
+}
+
+function cerrarMiniModal(tipo) {
+    if (tipo === 'categoria') cerrarModal('modalMiniCategoria');
+    else if (tipo === 'concepto') cerrarModal('modalMiniConcepto');
+    else if (tipo === 'proveedor') cerrarModal('modalMiniProveedor');
+}
+
+async function guardarMiniCategoria() {
+    const nombre = document.getElementById('miniCategoriaNombre').value.trim();
+    const tipo = document.getElementById('miniCategoriaTipo').value;
+    
+    if (!nombre) {
+        toast('Ingresa el nombre de la categoría', 'error');
+        return;
+    }
+    
+    try {
+        const res = await API.request('/categorias-gasto', {
+            method: 'POST',
+            body: JSON.stringify({
+                empresa_id: empresaId,
+                nombre: nombre,
+                tipo: tipo
+            })
+        });
+        
+        if (res.success) {
+            toast('Categoría creada');
+            cerrarMiniModal('categoria');
+            
+            // Recargar categorías y seleccionar la nueva
+            await cargarCatalogos();
+            document.getElementById('gastoCategoria').value = res.categoria_gasto_id || res.id;
+            cargarConceptosPorCategoria();
+        } else {
+            toast(res.error || 'Error al crear', 'error');
+        }
+    } catch (e) {
+        toast('Error: ' + e.message, 'error');
+    }
+}
+
+async function guardarMiniConcepto() {
+    const categoriaId = document.getElementById('miniConceptoCategoria').value;
+    const nombre = document.getElementById('miniConceptoNombre').value.trim();
+    
+    if (!categoriaId) {
+        toast('Selecciona una categoría', 'error');
+        return;
+    }
+    if (!nombre) {
+        toast('Ingresa el nombre del concepto', 'error');
+        return;
+    }
+    
+    try {
+        const res = await API.request('/conceptos-gasto', {
+            method: 'POST',
+            body: JSON.stringify({
+                empresa_id: empresaId,
+                categoria_gasto_id: categoriaId,
+                nombre: nombre
+            })
+        });
+        
+        if (res.success) {
+            toast('Concepto creado');
+            cerrarMiniModal('concepto');
+            
+            // Recargar conceptos
+            const conRes = await API.request(`/conceptos-gasto/${empresaId}`);
+            if (conRes.success) {
+                conceptosGastoData = conRes.conceptos || [];
+            }
+            
+            // Seleccionar categoría y cargar sus conceptos
+            document.getElementById('gastoCategoria').value = categoriaId;
+            cargarConceptosPorCategoria();
+            
+            // Seleccionar el nuevo concepto
+            setTimeout(() => {
+                document.getElementById('gastoConcepto').value = res.concepto_gasto_id || res.id;
+            }, 100);
+        } else {
+            toast(res.error || 'Error al crear', 'error');
+        }
+    } catch (e) {
+        toast('Error: ' + e.message, 'error');
+    }
+}
+
+async function guardarMiniProveedor() {
+    const nombre = document.getElementById('miniProveedorNombre').value.trim();
+    const rfc = document.getElementById('miniProveedorRFC').value.trim();
+    const telefono = document.getElementById('miniProveedorTelefono').value.trim();
+    
+    if (!nombre) {
+        toast('Ingresa el nombre del proveedor', 'error');
+        return;
+    }
+    
+    try {
+        const res = await API.request('/proveedores', {
+            method: 'POST',
+            body: JSON.stringify({
+                empresa_id: empresaId,
+                nombre_comercial: nombre,
+                razon_social: nombre,
+                rfc: rfc || null,
+                telefono: telefono || null
+            })
+        });
+        
+        if (res.success) {
+            toast('Proveedor creado');
+            cerrarMiniModal('proveedor');
+            
+            // Recargar proveedores y seleccionar el nuevo
+            const provRes = await API.request(`/proveedores/${empresaId}`);
+            if (provRes.success) {
+                proveedoresData = provRes.proveedores || [];
+                
+                // Actualizar select
+                const sel = document.getElementById('gastoProveedor');
+                sel.innerHTML = '<option value="">Sin proveedor</option>';
+                proveedoresData.forEach(p => {
+                    sel.innerHTML += `<option value="${p.proveedor_id}">${p.nombre_comercial || p.razon_social}</option>`;
+                });
+                
+                // Seleccionar el nuevo
+                sel.value = res.proveedor_id || res.id;
+                seleccionarProveedor();
+            }
+        } else {
+            toast(res.error || 'Error al crear', 'error');
+        }
+    } catch (e) {
+        toast('Error: ' + e.message, 'error');
+    }
+}
