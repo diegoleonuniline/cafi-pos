@@ -1940,6 +1940,69 @@
         </div>
     </div>
 
+    <!-- MODAL: Devolución -->
+<div class="modal-overlay" id="modalDevolucion">
+    <div class="modal modal-sm">
+        <div class="modal-header" style="background:linear-gradient(135deg,#8b5cf6 0%,#6d28d9 100%)">
+            <div class="modal-title"><i class="fas fa-hand-holding-usd"></i> Devolución</div>
+            <button class="btn-close light" onclick="cerrarModal('modalDevolucion')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="devolucionContexto">
+            <input type="hidden" id="devolucionMaximo">
+            
+            <!-- Resumen -->
+            <div class="devolucion-resumen">
+                <div class="devolucion-concepto" id="devolucionConcepto">Cancelación de producto</div>
+                <div class="devolucion-max">
+                    <span>Máximo a devolver:</span>
+                    <strong id="devolucionMaxLabel">$0.00</strong>
+                </div>
+            </div>
+            
+            <!-- Monto -->
+            <div class="form-group">
+                <label>Monto a devolver</label>
+                <div class="input-money-lg">
+                    <span>$</span>
+                    <input type="number" id="devolucionMonto" step="0.01" min="0" placeholder="0.00" oninput="validarMontoDevolucion()">
+                </div>
+                <div class="devolucion-shortcuts">
+                    <button type="button" onclick="setDevolucion100()">100%</button>
+                    <button type="button" onclick="setDevolucion75()">75%</button>
+                    <button type="button" onclick="setDevolucion50()">50%</button>
+                    <button type="button" onclick="setDevolucionMonto(0)">Sin devolución</button>
+                </div>
+            </div>
+            
+            <!-- Método -->
+            <div class="form-group">
+                <label>Método de devolución</label>
+                <div class="metodos-devolucion" id="metodosDevolucion">
+                    <!-- Dinámico -->
+                </div>
+            </div>
+            
+            <!-- Referencia -->
+            <div class="form-group" id="grupoRefDevolucion" style="display:none">
+                <label>Referencia (opcional)</label>
+                <input type="text" id="devolucionReferencia" class="form-control" placeholder="# de operación, autorización, etc.">
+            </div>
+            
+            <!-- Notas -->
+            <div class="form-group">
+                <label>Notas (opcional)</label>
+                <textarea id="devolucionNotas" class="form-control" rows="2" placeholder="Observaciones..."></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="cerrarModal('modalDevolucion')">Cancelar</button>
+            <button class="btn" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff" onclick="confirmarDevolucion()">
+                <i class="fas fa-check"></i> Confirmar Devolución
+            </button>
+        </div>
+    </div>
+</div>
     <!-- Modal Autorizar Admin -->
     <div class="modal-overlay" id="modalAutorizarAdmin" style="z-index:1100">
         <div class="modal modal-xs">
