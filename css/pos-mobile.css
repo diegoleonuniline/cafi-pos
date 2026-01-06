@@ -215,7 +215,7 @@
         display: none;
     }
     
-    /* ==================== CARRITO MÓVIL ==================== */
+    /* ==================== CARRITO MÓVIL - COMPACTO ==================== */
     .cart-container {
         flex: 1;
         overflow-y: auto;
@@ -231,19 +231,19 @@
         display: flex;
         flex-direction: column;
         gap: 1px;
-        background: #e2e8f0;
+        background: #f1f5f9;
     }
     
     .cart-table tr {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        padding: 12px;
+        padding: 8px 12px;
         background: #fff;
-        gap: 8px;
+        gap: 6px;
     }
     
-    /* Producto nombre y código */
+    /* Producto nombre */
     .cart-table .col-producto,
     .cart-table td:first-child {
         flex: 1;
@@ -252,89 +252,119 @@
     }
     
     .cart-item-name {
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 600;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        line-height: 1.2;
     }
     
     .cart-item-code {
-        font-size: 11px;
+        font-size: 10px;
         color: #94a3b8;
+        display: none;
     }
     
     /* Precio unitario */
-    .cart-item-price {
+    .cart-item-price,
+    .cart-table .col-precio {
         order: 2;
-        font-size: 12px;
+        font-size: 11px;
         color: #64748b;
     }
     
     /* Cantidad */
-    .cart-item-qty {
+    .cart-item-qty,
+    .cart-table .col-cantidad {
         order: 3;
         margin-left: auto;
     }
     
     .qty-control {
-        gap: 4px;
+        gap: 2px;
     }
     
     .qty-control button {
-        width: 36px;
-        height: 36px;
-        font-size: 16px;
-        border-radius: 8px;
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+        border-radius: 6px;
     }
     
     .qty-control span {
-        min-width: 36px;
-        font-size: 16px;
+        min-width: 32px;
+        font-size: 13px;
+        font-weight: 600;
     }
     
     .qty-granel {
-        height: 36px;
-        padding: 0 14px;
-        font-size: 14px;
+        height: 28px;
+        padding: 0 10px;
+        font-size: 12px;
+        border-radius: 6px;
     }
     
     /* Importe */
-    .cart-item-total {
+    .cart-item-total,
+    .cart-table .col-importe {
         order: 4;
-        font-size: 16px;
+        font-size: 14px;
         font-weight: 700;
         color: var(--dark);
-        min-width: 80px;
+        min-width: 70px;
         text-align: right;
     }
     
-    /* Botón eliminar */
+    /* Botón eliminar - en nueva línea debajo */
+    .cart-table .col-acciones,
     .cart-table td:last-child {
         order: 5;
+        width: 100%;
+        display: flex;
+        justify-content: flex-start;
+        margin-top: 4px;
+        padding-top: 6px;
+        border-top: 1px dashed #e2e8f0;
     }
     
     .btn-delete {
-        width: 36px;
-        height: 36px;
-        font-size: 14px;
+        width: auto;
+        height: 24px;
+        padding: 0 10px;
+        font-size: 11px;
+        gap: 4px;
+        border-radius: 4px;
+        background: #fef2f2;
+        color: var(--danger);
+        border: none;
+    }
+    
+    .btn-delete::before {
+        content: "Eliminar";
+        font-family: inherit;
+    }
+    
+    .btn-delete i {
+        font-size: 10px;
     }
     
     /* Carrito vacío */
     .cart-empty {
-        padding: 60px 20px;
+        padding: 40px 20px;
     }
     
     .cart-empty i {
-        font-size: 48px;
+        font-size: 40px;
     }
     
     .cart-empty h3 {
-        font-size: 18px;
+        font-size: 16px;
+        margin-top: 12px;
     }
     
     .cart-empty p {
-        font-size: 13px;
+        font-size: 12px;
     }
     
     /* ==================== TOTAL FLOTANTE ==================== */
@@ -654,11 +684,11 @@
         overflow-y: auto;
     }
     
-    /* Modal productos */
+    /* Modal productos - COMPACTO */
     .modal-filters {
         flex-wrap: wrap;
-        gap: 10px;
-        padding: 12px;
+        gap: 8px;
+        padding: 10px 12px;
     }
     
     .filter-search {
@@ -667,6 +697,7 @@
     
     .filter-search input {
         font-size: 16px;
+        height: 40px;
     }
     
     .filter-select,
@@ -674,31 +705,111 @@
         flex: 1;
     }
     
+    .filter-select label,
+    .filter-cantidad label {
+        font-size: 11px;
+    }
+    
+    .filter-select select {
+        height: 36px;
+        font-size: 13px;
+    }
+    
+    .cantidad-control {
+        height: 36px;
+    }
+    
+    .cantidad-control button {
+        width: 32px;
+        font-size: 14px;
+    }
+    
+    .cantidad-control input {
+        width: 40px;
+        font-size: 14px;
+    }
+    
+    /* Ocultar thead en modal productos */
+    .productos-table thead {
+        display: none;
+    }
+    
+    .productos-table tbody {
+        display: block;
+    }
+    
     .productos-table tr {
         display: flex;
-        flex-wrap: wrap;
-        padding: 12px;
-        gap: 8px;
-        border-bottom: 1px solid #e2e8f0;
+        align-items: center;
+        padding: 10px 12px;
+        gap: 10px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .productos-table tr:active {
+        background: #f8fafc;
     }
     
     .productos-table td {
         padding: 0;
     }
     
-    .productos-table .producto-img {
-        width: 48px;
-        height: 48px;
+    /* Imagen producto - más pequeña */
+    .productos-table td:first-child {
+        flex-shrink: 0;
     }
     
-    .productos-table .producto-nombre {
+    .productos-table .producto-img,
+    .productos-table td:first-child img,
+    .productos-table td:first-child .producto-img-placeholder {
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 8px;
+        font-size: 12px;
+    }
+    
+    /* Código - ocultar */
+    .productos-table td:nth-child(2) {
+        display: none;
+    }
+    
+    /* Nombre producto */
+    .productos-table td:nth-child(3) {
         flex: 1;
-        font-size: 14px;
+        min-width: 0;
     }
     
+    .productos-table .producto-nombre,
+    .productos-table td:nth-child(3) {
+        font-size: 13px !important;
+        font-weight: 500;
+        line-height: 1.3;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* Unidad */
+    .productos-table td:nth-child(4) {
+        font-size: 11px;
+        color: #94a3b8;
+        padding: 2px 6px;
+        background: #f1f5f9;
+        border-radius: 4px;
+    }
+    
+    /* Desc - ocultar */
+    .productos-table td:nth-child(5) {
+        display: none;
+    }
+    
+    /* Precio */
+    .productos-table td:last-child,
     .productos-table .producto-precio {
-        font-size: 16px;
+        font-size: 14px !important;
         font-weight: 700;
+        color: var(--primary);
+        white-space: nowrap;
     }
     
     /* Modal cobro */
