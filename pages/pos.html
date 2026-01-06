@@ -115,28 +115,30 @@
                     <button class="btn-buscar" onclick="abrirModalProductos()"><i class="fas fa-search"></i> <span class="desktop-only">Buscar</span> <span class="kbd">F2</span></button>
                 </div>
 
-                <!-- CART TABLE -->
-                <div class="cart-container">
-                    <table class="cart-table">
-                        <thead>
-                            <tr>
-                                <th class="col-producto">Producto</th>
-                                <th class="col-precio">Precio</th>
-                                <th class="col-cantidad">Cantidad</th>
-                                <th class="col-unidad">Unidad</th>
-                                <th class="col-desc">Desc.</th>
-                                <th class="col-importe">Importe</th>
-                                <th class="col-acciones"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="cartBody"></tbody>
-                    </table>
-                    <div class="cart-empty" id="cartEmpty">
-                        <i class="fas fa-shopping-cart"></i>
-                        <h3>Carrito vacío</h3>
-                        <p>Escanea un producto o usa el buscador</p>
-                    </div>
-                </div>
+              <!-- CART TABLE - Reemplaza todo el cart-container -->
+<div class="cart-container">
+    <table class="cart-table">
+        <thead>
+            <tr>
+                <th class="col-producto">Producto</th>
+                <th class="col-precio">Precio</th>
+                <th class="col-cantidad">Cantidad</th>
+                <th class="col-unidad">Unidad</th>
+                <th class="col-desc">Desc.</th>
+                <th class="col-importe">Importe</th>
+                <th class="col-acciones"></th>
+            </tr>
+        </thead>
+        <tbody id="cartBody">
+            <!-- Las filas se generan dinámicamente, ejemplo de estructura: -->
+        </tbody>
+    </table>
+    <div class="cart-empty" id="cartEmpty">
+        <i class="fas fa-shopping-cart"></i>
+        <h3>Carrito vacío</h3>
+        <p>Escanea un producto o usa el buscador</p>
+    </div>
+</div>
 
                 <!-- DESKTOP: ACTIONS -->
                 <div class="pos-actions">
