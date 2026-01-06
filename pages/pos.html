@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="../css/pos.css">
     <link rel="stylesheet" href="../css/pos-mobile.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;700&display=swap">
 </head>
 <body>
     <div class="app">
@@ -47,12 +48,12 @@
             </div>
             
             <div class="header-right">
-                <!-- MOBILE: Botón hamburger -->
+                <!-- MOBILE: Botón hamburger (oculto, usamos avatar) -->
                 <button class="btn-menu-mobile" onclick="toggleMobileMenu()">
                     <i class="fas fa-bars"></i>
                 </button>
                 
-                <div class="user-pill">
+                <div class="user-pill" onclick="toggleMobileMenu()">
                     <div class="user-avatar" id="userAvatar">US</div>
                     <div class="user-info">
                         <span class="user-name" id="userName">Usuario</span>
@@ -83,9 +84,10 @@
                         <button class="tipo-btn" id="btnCredito" onclick="setTipoVenta('CREDITO')">Crédito</button>
                     </div>
                     
-                    <!-- MOBILE: Botón + nuevo cliente -->
-                    <button class="btn-nuevo-cliente-mobile" onclick="abrirModalNuevoCliente()">
-                        <i class="fas fa-user-plus"></i>
+                    <!-- MOBILE: Botón +Prod -->
+                    <button class="btn-add-prod-mobile" onclick="abrirModalNuevoProducto()">
+                        <i class="fas fa-plus"></i>
+                        <span>Prod</span>
                     </button>
                     
                     <div class="precio-selector">
@@ -153,13 +155,16 @@
 
                 <!-- MOBILE: Total Bar -->
                 <div class="mobile-total-bar">
-                    <div class="mobile-total-info">
-                        <div class="mobile-total-label">TOTAL</div>
-                        <div class="mobile-total-items" id="mobileArticulos">0 artículos</div>
+                    <div class="total-row">
+                        <div class="mobile-total-info">
+                            <div class="mobile-total-label">TOTAL A PAGAR</div>
+                            <div class="mobile-total-items" id="mobileArticulos">0 Arts</div>
+                        </div>
+                        <div class="mobile-total-amount" id="mobileTotalAmount">$0.00</div>
                     </div>
-                    <div class="mobile-total-amount" id="mobileTotalAmount">$0.00</div>
                     <button class="mobile-btn-cobrar" onclick="abrirModalCobro()" id="mobileBtnCobrar" disabled>
-                        <i class="fas fa-check"></i> Cobrar
+                        <span>Cobrar</span>
+                        <span class="kbd">F12</span>
                     </button>
                 </div>
             </main>
@@ -198,20 +203,20 @@
         <!-- MOBILE: Barra de acciones inferior -->
         <div class="mobile-action-bar">
             <button class="mobile-action-btn danger" onclick="cancelarVenta()">
-                <i class="fas fa-trash"></i>
+                <i class="fas fa-backspace"></i>
                 <span>Borrar</span>
             </button>
-            <button class="mobile-action-btn warning" onclick="ponerEnEspera()" id="mobileEsperaBtn" style="position:relative">
-                <i class="fas fa-pause"></i>
+            <button class="mobile-action-btn warning" onclick="ponerEnEspera()" id="mobileEsperaBtn">
+                <i class="fas fa-pause-circle"></i>
                 <span>Espera</span>
             </button>
             <button class="mobile-action-btn primary" onclick="aplicarDescuentoGlobal()">
-                <i class="fas fa-percent"></i>
+                <i class="fas fa-tag"></i>
                 <span>Desc.</span>
             </button>
-            <button class="mobile-action-btn success" onclick="abrirModalNuevoProducto()">
-                <i class="fas fa-plus"></i>
-                <span>Producto</span>
+            <button class="mobile-action-btn success" onclick="abrirModalProductos()">
+                <i class="fas fa-boxes"></i>
+                <span>Stock</span>
             </button>
         </div>
     </div>
@@ -1122,7 +1127,7 @@
             var mobileBtn = document.getElementById('mobileBtnCobrar');
             
             if (mobileTotal) mobileTotal.textContent = '$' + total.toFixed(2);
-            if (mobileArts) mobileArts.textContent = Math.round(articulos) + ' artículos';
+            if (mobileArts) mobileArts.textContent = Math.round(articulos) + ' Arts';
             if (mobileBtn) mobileBtn.disabled = articulos === 0;
         }
 
