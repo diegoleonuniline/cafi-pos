@@ -322,8 +322,11 @@
     }
     
     .cart-table {
-        display: block;
+        display: block !important;
         width: 100%;
+        background: transparent !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
     }
     
     .cart-table thead {
@@ -331,85 +334,92 @@
     }
     
     .cart-table tbody {
-        display: flex;
+        display: flex !important;
         flex-direction: column;
         gap: 10px;
     }
     
-    /* Cada fila = tarjeta */
+    /* ===== TARJETA DEL PRODUCTO ===== */
     .cart-table tbody tr {
-        display: flex !important;
-        align-items: center;
-        padding: 12px;
-        padding-left: 80px;
-        background: #fff;
-        gap: 8px;
-        border-radius: 16px;
-        border: 1px solid #e5e7eb;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        display: grid !important;
+        grid-template-columns: 56px 1fr auto;
+        grid-template-rows: auto auto auto;
+        grid-template-areas:
+            "img nombre total"
+            "img precio total"
+            "img qty total";
+        gap: 2px 12px;
+        padding: 12px !important;
+        background: #fff !important;
+        border-radius: 16px !important;
+        border: 1px solid #e5e7eb !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
         position: relative;
-        min-height: 80px;
-        flex-wrap: wrap;
+        align-items: center;
     }
     
-    /* Imagen placeholder */
+    /* Imagen placeholder con ::before */
     .cart-table tbody tr::before {
         content: '';
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
+        grid-area: img;
         width: 56px;
         height: 56px;
         background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
         border-radius: 12px;
         border: 1px solid #e5e7eb;
+        align-self: center;
     }
     
-    /* Reset celdas */
+    /* Reset todas las celdas */
     .cart-table tbody td {
         padding: 0 !important;
         border: none !important;
         background: none !important;
+        display: block !important;
     }
     
-    /* TD1: Producto (nombre + código) */
-    .cart-table tbody td:first-child {
-        flex: 1;
-        min-width: 0;
-        order: 1;
+    /* TD1: Nombre del producto */
+    .cart-table tbody td:nth-child(1) {
+        grid-area: nombre;
+        align-self: end;
     }
     
-    .cart-table tbody td:first-child .cart-item-name {
-        font-size: 14px;
-        font-weight: 600;
-        color: #111827;
+    .cart-table tbody td:nth-child(1) .cart-item-name {
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        color: #111827 !important;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         line-height: 1.3;
+        display: block;
     }
     
-    .cart-table tbody td:first-child .cart-item-code {
-        display: none;
+    .cart-table tbody td:nth-child(1) .cart-item-code {
+        display: none !important;
     }
     
     /* TD2: Precio unitario */
-    .cart-table tbody td.cart-item-price {
-        order: 2;
+    .cart-table tbody td:nth-child(2) {
+        grid-area: precio;
         font-size: 13px !important;
         color: #6b7280 !important;
-        flex-basis: 100%;
-        margin-left: 0;
+        align-self: center;
+    }
+    
+    .cart-table tbody td:nth-child(2) span {
+        font-size: 13px !important;
+        color: #6b7280 !important;
     }
     
     /* TD3: Cantidad */
-    .cart-table tbody td.cart-item-qty {
-        order: 3;
+    .cart-table tbody td:nth-child(3) {
+        grid-area: qty;
+        align-self: start;
     }
     
     .qty-control {
-        display: inline-flex;
+        display: inline-flex !important;
         align-items: center;
         background: #f3f4f6;
         border-radius: 8px;
@@ -427,6 +437,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        cursor: pointer;
     }
     
     .qty-control button:active {
@@ -455,30 +466,28 @@
         font-weight: 600;
     }
     
-    /* TD4: Unidad - ocultar */
-    .cart-table tbody td.cart-item-unit {
+    /* TD4: Unidad - OCULTAR */
+    .cart-table tbody td:nth-child(4) {
         display: none !important;
     }
     
-    /* TD5: Descuento - ocultar */
-    .cart-table tbody td.cart-item-desc {
+    /* TD5: Descuento - OCULTAR */
+    .cart-table tbody td:nth-child(5) {
         display: none !important;
     }
     
-    /* TD6: Total - absoluto derecha */
-    .cart-table tbody td.cart-item-total {
-        position: absolute !important;
-        right: 12px;
-        top: 50%;
-        transform: translateY(-50%);
+    /* TD6: Total/Importe */
+    .cart-table tbody td:nth-child(6) {
+        grid-area: total;
         font-size: 16px !important;
         font-weight: 700 !important;
         color: #111827 !important;
-        order: 6;
+        text-align: right;
+        align-self: center;
     }
     
-    /* TD7: Eliminar - ocultar */
-    .cart-table tbody td:last-child {
+    /* TD7: Botón eliminar - OCULTAR */
+    .cart-table tbody td:nth-child(7) {
         display: none !important;
     }
     
