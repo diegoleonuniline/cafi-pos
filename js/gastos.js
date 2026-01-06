@@ -2,7 +2,8 @@
    GASTOS.JS - CAFI POS
    ============================================ */
 
-const empresaId = localStorage.getItem('empresa_id') || (JSON.parse(localStorage.getItem('usuario') || '{}')).empresa_id || 1;
+const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+const empresaId = usuario.empresa_id || localStorage.getItem('empresa_id') || 1;
 
 // Data
 let gastosData = [];
@@ -62,7 +63,10 @@ function formatMoney(num) {
 
 function formatDateDisplay(dateStr) {
     if (!dateStr) return '-';
-    const d = new Date(dateStr + 'T00:00:00');
+    // Limpiar el string de fecha
+    const cleanDate = dateStr.toString().split('T')[0];
+    const [year, month, day] = cleanDate.split('-');
+    const d = new Date(year, month - 1, day);
     return d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
