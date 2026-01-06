@@ -1823,3 +1823,739 @@ function cancelarAutorizacionAdmin() {
     cerrarModal('modalAutorizarAdmin');
     accionPendienteAdmin = null;
 }
+// ==================== MIS VENTAS DEL TURNO ====================
+// Agregar estas funciones a pos.js
+
+var ventasTurno = [];
+var ventaSeleccionada = null;
+var productosVentaSeleccionada = [];
+var pagosVentaSeleccionada = [];
+var historialVentaSeleccionada = [];
+
+// ==================== CARGAR VENTAS DEL TURNO ====================
+function abrirModalVentasTurno() {
+    if (!turnoActual) {
+        mostrarToast('No hay turno abierto', 'error');
+        return;
+    }
+    
+    var modal = document.getElementById('modalVentasTurno');
+    if (modal) modal.classList.add('active');
+    
+    cargarVentasTurno();
+}
+
+function cargarVentasTurno() {
+    API.request('/ventas/turno/' + turnoActual.turno_id)
+        .then(function(r) {
+            if (r.success) {
+                ventasTurno = r.ventas || [];
+                calcularStatsTurno();
+                filtrarVentasTurno();
+            } else {
+                mostrarToast('Error cargando ventas', 'error');
+            }
+        })
+        .catch(function(e) {
+            console.error(e);
+            mostrarToast('Error de conexión', 'error');
+        });
+}
+
+function calcularStatsTurno() {
+    var activas = ventasTurno.filter(function(v) { return v.estatus !== 'CANCELADA'; });
+    var canceladas = ventasTurno.filter(function(v) { return v.estatus === 'CANCELADA'; });
+    var total = activas.reduce(function(sum, v) { return sum + parseFloat(v.total || 0); }, 0);
+    
+    setElementText('statVentasTurno', activas.length);
+    setElementText('statMontoTurno', '$' + total.toFixed(2));
+    setElementText('statCanceladasTurno', canceladas.length);
+}
+
+function filtrarVentasTurno() {
+    var busqueda = (document.getElementById('filtroVentasTurno').value || '').toLowerCase();
+    var estado = document.getElementById('filtroEstadoVenta').value;
+    var tipo = document.getElementById('filtroTipoVentaTurno').value;
+    
+    var filtradas = ventasTurno.filter(function(v) {
+        var matchBusq = !busqueda || 
+            (v.folio && v.folio.toString().indexOf(busqueda) >= 0) ||
+            (v.cliente_nombre && v.cliente_nombre.toLowerCase().indexOf(busqueda) >= 0);
+        var matchEstado = !estado || v.estatus === estado;
+        var matchTipo = !tipo || v.tipo_venta === tipo;
+        return matchBusq && matchEstado && matchTipo;
+    });
+    
+    renderVentasTurno(filtradas);
+}
+
+function renderVentasTurno(ventas) {
+    var tbody = document.getElementById('ventasTurnoBody');
+    if (!tbody) return;
+    
+    if (!ventas.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="ventas-empty">' +
+            '<i class="fas fa-receipt"></i>' +
+            '<h4>No hay ventas</h4>' +
+            '<p>Las ventas de este turno aparecerán aquí</p>' +
+        '</td></tr>';
+        return;
+    }
+    
+    var html = '';
+    ventas.forEach(function(v) {
+        var fecha = v.fecha_hora ? new Date(v.fecha_hora.replace(' ', 'T')) : new Date();
+        var hora = fecha.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+        var esCancelada = v.estatus === 'CANCELADA';
+        var folioStr = v.serie ? v.serie + '-' + v.folio : (v.folio || v.venta_id.slice(-8));
+        
+        var estadoClass = (v.estatus || 'PAGADA').toLowerCase();
+        var tipoClass = (v.tipo_venta || 'CONTADO').toLowerCase();
+        
+        html += '<tr class="' + (esCancelada ? 'cancelada' : '') + '" onclick="verDetalleVenta(\'' + v.venta_id + '\')">' +
+            '<td><span class="folio">' + folioStr + '</span></td>' +
+            '<td class="hora">' + hora + '</td>' +
+            '<td>' + (v.cliente_nombre || 'Público General') + '</td>' +
+            '<td class="text-center">' + (v.num_productos || '-') + '</td>' +
+            '<td class="text-center"><span class="badge-estado ' + tipoClass + '">' + (v.tipo_venta || 'CONTADO') + '</span></td>' +
+            '<td class="text-center"><span class="badge-estado ' + estadoClass + '">' + (v.estatus || 'PAGADA') + '</span></td>' +
+            '<td class="total">$' + parseFloat(v.total || 0).toFixed(2) + '</td>' +
+            '<td>' +
+                '<div class="acciones-venta">' +
+                    '<button class="btn-ver" onclick="event.stopPropagation();verDetalleVenta(\'' + v.venta_id + '\')" title="Ver detalle">' +
+                        '<i class="fas fa-eye"></i>' +
+                    '</button>' +
+                    '<button class="btn-print" onclick="event.stopPropagation();imprimirVentaDirecto(\'' + v.venta_id + '\')" title="Imprimir">' +
+                        '<i class="fas fa-print"></i>' +
+                    '</button>' +
+                '</div>' +
+            '</td>' +
+        '</tr>';
+    });
+    tbody.innerHTML = html;
+}
+
+// ==================== VER DETALLE DE VENTA ====================
+function verDetalleVenta(ventaId) {
+    API.request('/ventas/detalle-completo/' + ventaId)
+        .then(function(r) {
+            if (r.success) {
+                ventaSeleccionada = r.venta;
+                productosVentaSeleccionada = r.productos || [];
+                pagosVentaSeleccionada = r.pagos || [];
+                historialVentaSeleccionada = r.historial || [];
+                
+                mostrarDetalleVenta();
+            } else {
+                mostrarToast('Error cargando detalle', 'error');
+            }
+        })
+        .catch(function(e) {
+            console.error(e);
+            mostrarToast('Error de conexión', 'error');
+        });
+}
+
+function mostrarDetalleVenta() {
+    var v = ventaSeleccionada;
+    if (!v) return;
+    
+    var fecha = v.fecha_hora ? new Date(v.fecha_hora.replace(' ', 'T')) : new Date();
+    var fechaStr = fecha.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    var horaStr = fecha.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+    var folioStr = v.serie ? v.serie + '-' + v.folio : (v.folio || v.venta_id.slice(-8));
+    var esCancelada = v.estatus === 'CANCELADA';
+    
+    // Header
+    setElementText('detalleVentaFolio', '#' + folioStr);
+    setElementText('detalleVentaFecha', fechaStr + ' - ' + horaStr);
+    
+    var badgeEstado = document.getElementById('detalleVentaEstado');
+    if (badgeEstado) {
+        badgeEstado.textContent = v.estatus || 'PAGADA';
+        badgeEstado.className = 'badge-estado-lg ' + (v.estatus || 'PAGADA').toLowerCase();
+    }
+    
+    // Info grid
+    setElementText('detalleVentaCliente', v.cliente_nombre || 'Público General');
+    setElementText('detalleVentaVendedor', v.usuario_nombre || 'Usuario');
+    setElementText('detalleVentaTipo', v.tipo_venta || 'Contado');
+    
+    // Método de pago principal
+    var metodoPrincipal = 'Efectivo';
+    if (pagosVentaSeleccionada.length > 0) {
+        metodoPrincipal = pagosVentaSeleccionada[0].metodo_nombre || 'Efectivo';
+    }
+    setElementText('detalleVentaMetodo', metodoPrincipal);
+    
+    // Productos
+    var productosHtml = '';
+    productosVentaSeleccionada.forEach(function(p) {
+        var subtotal = parseFloat(p.cantidad) * parseFloat(p.precio_unitario);
+        var descMonto = subtotal * (parseFloat(p.descuento_pct) || 0) / 100;
+        var total = subtotal - descMonto;
+        var cancelado = p.estatus === 'CANCELADO';
+        
+        productosHtml += '<tr class="' + (cancelado ? 'cancelado' : '') + '">' +
+            '<td class="producto-nombre">' + (p.producto_nombre || p.descripcion) + 
+                (cancelado ? ' <small style="color:#dc2626">(Cancelado)</small>' : '') + '</td>' +
+            '<td class="text-center">' + parseFloat(p.cantidad).toFixed(p.unidad === 'KG' ? 3 : 0) + ' ' + (p.unidad || p.unidad_id || 'PZ') + '</td>' +
+            '<td class="text-right">$' + parseFloat(p.precio_unitario).toFixed(2) + '</td>' +
+            '<td class="text-right">$' + total.toFixed(2) + '</td>' +
+            '<td class="producto-estado">' +
+                (cancelado ? '<span class="badge-estado cancelada">Cancelado</span>' :
+                    (!esCancelada ? '<button class="btn-cancelar-prod" onclick="abrirModalCancelarProducto(\'' + p.detalle_id + '\')" title="Cancelar producto"><i class="fas fa-minus"></i></button>' : '')) +
+            '</td>' +
+        '</tr>';
+    });
+    document.getElementById('detalleVentaProductos').innerHTML = productosHtml;
+    
+    // Pagos
+    var pagosHtml = '';
+    pagosVentaSeleccionada.forEach(function(p) {
+        var tipo = (p.tipo || 'EFECTIVO').toLowerCase();
+        var icono = tipo === 'efectivo' ? 'fa-money-bill-wave' : (tipo === 'tarjeta' ? 'fa-credit-card' : 'fa-exchange-alt');
+        var cancelado = p.estatus === 'CANCELADO';
+        
+        pagosHtml += '<div class="pago-item-detalle ' + (cancelado ? 'cancelado' : '') + '">' +
+            '<div class="pago-metodo">' +
+                '<i class="fas ' + icono + ' ' + tipo + '"></i>' +
+                '<span>' + (p.metodo_nombre || 'Efectivo') + (cancelado ? ' (Cancelado)' : '') + '</span>' +
+            '</div>' +
+            '<div class="pago-monto">$' + parseFloat(p.monto).toFixed(2) + '</div>' +
+        '</div>';
+    });
+    document.getElementById('detalleVentaPagos').innerHTML = pagosHtml || '<p style="color:#9ca3af;text-align:center">Sin pagos registrados</p>';
+    
+    // Historial
+    var historialContainer = document.getElementById('detalleHistorialContainer');
+    if (historialVentaSeleccionada.length > 0) {
+        historialContainer.style.display = 'block';
+        var historialHtml = '';
+        historialVentaSeleccionada.forEach(function(h) {
+            var tipo = (h.tipo_accion || 'modificacion').toLowerCase();
+            var icono = 'fa-edit';
+            if (tipo === 'creacion') icono = 'fa-plus-circle';
+            if (tipo === 'cancelacion') icono = 'fa-times-circle';
+            if (tipo === 'pago' || tipo === 'cambio_pago') icono = 'fa-credit-card';
+            if (tipo === 'reapertura') icono = 'fa-folder-open';
+            
+            var fecha = h.fecha ? new Date(h.fecha.replace(' ', 'T')) : new Date();
+            var fechaStr = fecha.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+            
+            historialHtml += '<div class="historial-item ' + tipo + '">' +
+                '<div class="historial-icono"><i class="fas ' + icono + '"></i></div>' +
+                '<div class="historial-contenido">' +
+                    '<div class="historial-texto">' + (h.descripcion || 'Modificación') + '</div>' +
+                    '<div class="historial-meta">' + (h.usuario_nombre || 'Usuario') + ' • ' + fechaStr + '</div>' +
+                '</div>' +
+            '</div>';
+        });
+        document.getElementById('detalleVentaHistorial').innerHTML = historialHtml;
+    } else {
+        historialContainer.style.display = 'none';
+    }
+    
+    // Totales
+    var subtotal = parseFloat(v.subtotal) || parseFloat(v.total) || 0;
+    var descuento = parseFloat(v.descuento) || 0;
+    var total = parseFloat(v.total) || 0;
+    var pagado = parseFloat(v.pagado) || 0;
+    var pendiente = total - pagado;
+    
+    setElementText('detalleVentaSubtotal', '$' + subtotal.toFixed(2));
+    
+    var rowDescuentos = document.getElementById('rowDescuentos');
+    if (descuento > 0) {
+        rowDescuentos.style.display = 'flex';
+        setElementText('detalleVentaDescuentos', '-$' + descuento.toFixed(2));
+    } else {
+        rowDescuentos.style.display = 'none';
+    }
+    
+    setElementText('detalleVentaTotal', '$' + total.toFixed(2));
+    setElementText('detalleVentaPagado', '$' + pagado.toFixed(2));
+    
+    var rowPendiente = document.getElementById('rowPendiente');
+    if (pendiente > 0.01) {
+        rowPendiente.style.display = 'flex';
+        setElementText('detalleVentaPendiente', '$' + pendiente.toFixed(2));
+    } else {
+        rowPendiente.style.display = 'none';
+    }
+    
+    // Mostrar/ocultar acciones según estado
+    var accionesActiva = document.getElementById('accionesVentaActiva');
+    if (accionesActiva) {
+        accionesActiva.style.display = esCancelada ? 'none' : 'flex';
+    }
+    
+    var modal = document.getElementById('modalDetalleVenta');
+    if (modal) modal.classList.add('active');
+}
+
+// ==================== CANCELAR VENTA COMPLETA ====================
+function abrirModalCancelarVenta() {
+    if (!ventaSeleccionada) return;
+    
+    var v = ventaSeleccionada;
+    var folioStr = v.serie ? v.serie + '-' + v.folio : (v.folio || v.venta_id.slice(-8));
+    var pagado = parseFloat(v.pagado) || 0;
+    
+    setElementText('cancelarVentaFolio', '#' + folioStr);
+    setElementText('cancelarVentaTotal', '$' + parseFloat(v.total).toFixed(2));
+    setElementText('cancelarVentaDevolucion', pagado > 0 ? '$' + pagado.toFixed(2) : '$0.00');
+    
+    document.getElementById('motivoCancelarVenta').value = '';
+    document.getElementById('otroMotivoCancelar').value = '';
+    document.getElementById('otroMotivoCancelarGrupo').style.display = 'none';
+    
+    var modal = document.getElementById('modalCancelarVenta');
+    if (modal) modal.classList.add('active');
+}
+
+function toggleOtroMotivoCancelar() {
+    var select = document.getElementById('motivoCancelarVenta');
+    var grupo = document.getElementById('otroMotivoCancelarGrupo');
+    grupo.style.display = select.value === 'OTRO' ? 'block' : 'none';
+}
+
+function confirmarCancelarVenta() {
+    var motivoSelect = document.getElementById('motivoCancelarVenta').value;
+    var motivoOtro = document.getElementById('otroMotivoCancelar').value;
+    
+    if (!motivoSelect) {
+        mostrarToast('Selecciona un motivo de cancelación', 'error');
+        return;
+    }
+    
+    if (motivoSelect === 'OTRO' && !motivoOtro.trim()) {
+        mostrarToast('Especifica el motivo de cancelación', 'error');
+        return;
+    }
+    
+    var motivo = motivoSelect === 'OTRO' ? motivoOtro : motivoSelect;
+    
+    solicitarAutorizacionAdmin('¿Autorizar cancelación de venta #' + ventaSeleccionada.folio + '?', function(admin) {
+        API.request('/ventas/cancelar-completa/' + ventaSeleccionada.venta_id, 'POST', {
+            motivo_cancelacion: motivo,
+            cancelado_por: API.usuario.id,
+            autorizado_por: admin
+        }).then(function(r) {
+            if (r.success) {
+                cerrarModal('modalCancelarVenta');
+                cerrarModal('modalDetalleVenta');
+                mostrarToast('Venta cancelada correctamente', 'success');
+                cargarVentasTurno();
+            } else {
+                mostrarToast(r.error || 'Error al cancelar', 'error');
+            }
+        }).catch(function(e) {
+            mostrarToast('Error de conexión', 'error');
+        });
+    });
+}
+
+// ==================== CANCELAR PRODUCTO INDIVIDUAL ====================
+function abrirModalCancelarProducto(detalleId) {
+    var prod = productosVentaSeleccionada.find(function(p) { return p.detalle_id === detalleId; });
+    if (!prod || prod.estatus === 'CANCELADO') return;
+    
+    setElementText('cancelarProdNombre', prod.producto_nombre || prod.descripcion);
+    setElementText('cancelarProdDetalle', 'Cantidad: ' + parseFloat(prod.cantidad) + ' | Precio: $' + parseFloat(prod.precio_unitario).toFixed(2));
+    setElementText('unidadCancelarProd', prod.unidad || prod.unidad_id || 'PZ');
+    
+    document.getElementById('cancelarProductoDetalleId').value = detalleId;
+    document.getElementById('cancelarProductoPrecio').value = prod.precio_unitario;
+    document.getElementById('cancelarProductoCantMax').value = prod.cantidad;
+    document.getElementById('cantidadCancelarProd').value = parseFloat(prod.cantidad);
+    document.getElementById('motivoCancelarProducto').value = '';
+    
+    calcularDevolucionProducto();
+    
+    var modal = document.getElementById('modalCancelarProducto');
+    if (modal) modal.classList.add('active');
+}
+
+function ajustarCantidadCancelar(delta) {
+    var input = document.getElementById('cantidadCancelarProd');
+    var max = parseFloat(document.getElementById('cancelarProductoCantMax').value) || 1;
+    var nuevo = Math.max(0.001, Math.min(max, (parseFloat(input.value) || 0) + delta));
+    input.value = nuevo;
+    calcularDevolucionProducto();
+}
+
+function calcularDevolucionProducto() {
+    var cantidad = parseFloat(document.getElementById('cantidadCancelarProd').value) || 0;
+    var precio = parseFloat(document.getElementById('cancelarProductoPrecio').value) || 0;
+    var devolucion = cantidad * precio;
+    setElementText('devolucionProducto', '$' + devolucion.toFixed(2));
+}
+
+function confirmarCancelarProducto() {
+    var detalleId = document.getElementById('cancelarProductoDetalleId').value;
+    var cantidad = parseFloat(document.getElementById('cantidadCancelarProd').value) || 0;
+    var motivo = document.getElementById('motivoCancelarProducto').value;
+    
+    if (!motivo) {
+        mostrarToast('Selecciona un motivo', 'error');
+        return;
+    }
+    
+    solicitarAutorizacionAdmin('¿Autorizar cancelación de producto?', function(admin) {
+        API.request('/ventas/cancelar-producto/' + detalleId, 'POST', {
+            venta_id: ventaSeleccionada.venta_id,
+            cantidad_cancelar: cantidad,
+            motivo: motivo,
+            cancelado_por: API.usuario.id,
+            autorizado_por: admin
+        }).then(function(r) {
+            if (r.success) {
+                cerrarModal('modalCancelarProducto');
+                mostrarToast('Producto cancelado. Devolución: $' + r.devolucion.toFixed(2), 'success');
+                verDetalleVenta(ventaSeleccionada.venta_id);
+                cargarVentasTurno();
+            } else {
+                mostrarToast(r.error || 'Error al cancelar producto', 'error');
+            }
+        }).catch(function(e) {
+            mostrarToast('Error de conexión', 'error');
+        });
+    });
+}
+
+// ==================== CAMBIAR MÉTODO DE PAGO ====================
+function abrirModalCambiarPago() {
+    if (!ventaSeleccionada || !pagosVentaSeleccionada.length) {
+        mostrarToast('No hay pagos para modificar', 'error');
+        return;
+    }
+    
+    var pagoActual = pagosVentaSeleccionada.find(function(p) { return p.estatus !== 'CANCELADO'; });
+    if (!pagoActual) {
+        mostrarToast('No hay pagos activos', 'error');
+        return;
+    }
+    
+    var tipo = (pagoActual.tipo || 'EFECTIVO').toLowerCase();
+    var icono = tipo === 'efectivo' ? 'fa-money-bill-wave' : (tipo === 'tarjeta' ? 'fa-credit-card' : 'fa-exchange-alt');
+    
+    document.getElementById('pagoActualIcono').className = 'fas ' + icono;
+    setElementText('pagoActualMetodo', pagoActual.metodo_nombre || 'Efectivo');
+    setElementText('pagoActualMonto', '$' + parseFloat(pagoActual.monto).toFixed(2));
+    document.getElementById('cambiarPagoId').value = pagoActual.pago_id;
+    document.getElementById('referenciaCambio').value = '';
+    document.getElementById('motivoCambioPago').value = '';
+    
+    // Renderizar métodos disponibles
+    var metodosHtml = '';
+    metodosPago.forEach(function(m) {
+        var mTipo = (m.tipo || 'EFECTIVO').toLowerCase();
+        var mIcono = 'fa-wallet';
+        if (mTipo === 'efectivo') mIcono = 'fa-money-bill-wave';
+        else if (mTipo === 'tarjeta' || mTipo.indexOf('tarjeta') >= 0) mIcono = 'fa-credit-card';
+        else if (mTipo === 'transferencia') mIcono = 'fa-university';
+        
+        metodosHtml += '<button type="button" class="metodo-opcion" data-metodo-id="' + m.metodo_pago_id + '" onclick="seleccionarMetodoCambio(this)">' +
+            '<i class="fas ' + mIcono + '"></i>' +
+            '<span>' + m.nombre + '</span>' +
+        '</button>';
+    });
+    document.getElementById('metodosCambioContainer').innerHTML = metodosHtml;
+    
+    var modal = document.getElementById('modalCambiarPago');
+    if (modal) modal.classList.add('active');
+}
+
+function seleccionarMetodoCambio(btn) {
+    document.querySelectorAll('#metodosCambioContainer .metodo-opcion').forEach(function(b) {
+        b.classList.remove('active');
+    });
+    btn.classList.add('active');
+}
+
+function confirmarCambiarPago() {
+    var pagoId = document.getElementById('cambiarPagoId').value;
+    var metodoActivo = document.querySelector('#metodosCambioContainer .metodo-opcion.active');
+    var referencia = document.getElementById('referenciaCambio').value;
+    var motivo = document.getElementById('motivoCambioPago').value;
+    
+    if (!metodoActivo) {
+        mostrarToast('Selecciona el nuevo método de pago', 'error');
+        return;
+    }
+    
+    if (!motivo.trim()) {
+        mostrarToast('Ingresa el motivo del cambio', 'error');
+        return;
+    }
+    
+    var nuevoMetodoId = metodoActivo.getAttribute('data-metodo-id');
+    
+    solicitarAutorizacionAdmin('¿Autorizar cambio de método de pago?', function(admin) {
+        API.request('/ventas/cambiar-pago/' + pagoId, 'POST', {
+            venta_id: ventaSeleccionada.venta_id,
+            nuevo_metodo_id: nuevoMetodoId,
+            referencia: referencia,
+            motivo: motivo,
+            modificado_por: API.usuario.id,
+            autorizado_por: admin
+        }).then(function(r) {
+            if (r.success) {
+                cerrarModal('modalCambiarPago');
+                mostrarToast('Método de pago cambiado correctamente', 'success');
+                verDetalleVenta(ventaSeleccionada.venta_id);
+            } else {
+                mostrarToast(r.error || 'Error al cambiar pago', 'error');
+            }
+        }).catch(function(e) {
+            mostrarToast('Error de conexión', 'error');
+        });
+    });
+}
+
+// ==================== REABRIR VENTA ====================
+function abrirModalReabrirVenta() {
+    if (!ventaSeleccionada) return;
+    
+    solicitarAutorizacionAdmin('¿Autorizar reapertura de venta #' + ventaSeleccionada.folio + ' para agregar productos?', function(admin) {
+        // Cargar productos de la venta al carrito
+        if (carrito.length > 0) {
+            if (!confirm('Hay productos en el carrito actual. ¿Guardarlos en espera?')) {
+                return;
+            }
+            ponerEnEspera();
+        }
+        
+        // Marcar venta como reabierta
+        API.request('/ventas/reabrir/' + ventaSeleccionada.venta_id, 'POST', {
+            usuario_id: API.usuario.id,
+            autorizado_por: admin
+        }).then(function(r) {
+            if (r.success) {
+                // Cargar productos al carrito
+                productosVentaSeleccionada.forEach(function(p) {
+                    if (p.estatus !== 'CANCELADO') {
+                        carrito.push({
+                            producto_id: p.producto_id,
+                            codigo: p.codigo_barras || '',
+                            nombre: p.producto_nombre || p.descripcion,
+                            precio: parseFloat(p.precio_unitario),
+                            precioOriginal: parseFloat(p.precio_unitario),
+                            cantidad: parseFloat(p.cantidad),
+                            unidad: p.unidad || p.unidad_id || 'PZ',
+                            esGranel: ['KG', 'GR', 'LT', 'ML', 'MT'].indexOf((p.unidad || 'PZ').toUpperCase()) >= 0,
+                            descuento: parseFloat(p.descuento_pct) || 0,
+                            esReabierto: true,
+                            detalle_original_id: p.detalle_id
+                        });
+                    }
+                });
+                
+                // Guardar referencia de venta reabierta
+                ventaReabierta = {
+                    venta_id: ventaSeleccionada.venta_id,
+                    total_original: parseFloat(ventaSeleccionada.total),
+                    pagado: parseFloat(ventaSeleccionada.pagado) || 0,
+                    cliente: ventaSeleccionada.cliente_id ? {
+                        cliente_id: ventaSeleccionada.cliente_id,
+                        nombre: ventaSeleccionada.cliente_nombre
+                    } : null
+                };
+                
+                if (ventaReabierta.cliente) {
+                    clienteSeleccionado = ventaReabierta.cliente;
+                    setElementText('clienteNombre', ventaReabierta.cliente.nombre);
+                    setElementText('clientePanel', ventaReabierta.cliente.nombre);
+                }
+                
+                cerrarModal('modalDetalleVenta');
+                cerrarModal('modalVentasTurno');
+                renderCarrito();
+                mostrarToast('Venta reabierta. Agrega productos y cobra la diferencia.', 'success');
+            } else {
+                mostrarToast(r.error || 'Error al reabrir venta', 'error');
+            }
+        });
+    });
+}
+
+var ventaReabierta = null;
+
+// Modificar abrirModalCobro para manejar ventas reabiertas
+var _abrirModalCobroOriginal = abrirModalCobro;
+abrirModalCobro = function() {
+    if (ventaReabierta) {
+        abrirModalCobrarPendiente();
+    } else {
+        _abrirModalCobroOriginal();
+    }
+};
+
+// ==================== COBRAR PENDIENTE (VENTA REABIERTA) ====================
+function abrirModalCobrarPendiente() {
+    if (!ventaReabierta) return;
+    
+    var totalActual = calcularTotalFinal();
+    var nuevos = totalActual - ventaReabierta.total_original;
+    var porCobrar = totalActual - ventaReabierta.pagado;
+    
+    setElementText('pendienteMonto', '$' + porCobrar.toFixed(2));
+    setElementText('pendienteOriginal', '$' + ventaReabierta.total_original.toFixed(2));
+    setElementText('pendienteNuevos', '$' + (nuevos > 0 ? nuevos.toFixed(2) : '0.00'));
+    setElementText('pendientePagado', '$' + ventaReabierta.pagado.toFixed(2));
+    setElementText('pendientePorCobrar', '$' + porCobrar.toFixed(2));
+    
+    document.getElementById('inputEfectivoPendiente').value = '';
+    setElementText('cambioPendiente', '$0.00');
+    
+    // Renderizar métodos de pago
+    var metodosHtml = '';
+    metodosPago.forEach(function(m, i) {
+        var tipo = (m.tipo || 'EFECTIVO').toLowerCase();
+        var icono = getIconoMetodo(m);
+        metodosHtml += '<button type="button" class="metodo-btn' + (i === 0 ? ' active' : '') + '" data-metodo-id="' + m.metodo_pago_id + '">' +
+            '<i class="fas ' + icono + '"></i><span>' + m.nombre + '</span>' +
+        '</button>';
+    });
+    document.getElementById('metodosPendienteContainer').innerHTML = metodosHtml;
+    
+    document.querySelectorAll('#metodosPendienteContainer .metodo-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('#metodosPendienteContainer .metodo-btn').forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+        });
+    });
+    
+    var modal = document.getElementById('modalCobrarPendiente');
+    if (modal) modal.classList.add('active');
+    
+    setTimeout(function() {
+        document.getElementById('inputEfectivoPendiente').focus();
+    }, 100);
+}
+
+function addEfectivoPendiente(monto) {
+    var inp = document.getElementById('inputEfectivoPendiente');
+    if (inp) {
+        inp.value = (parseFloat(inp.value) || 0) + monto;
+        calcularCambioPendiente();
+    }
+}
+
+function setExactoPendiente() {
+    var porCobrar = calcularTotalFinal() - ventaReabierta.pagado;
+    document.getElementById('inputEfectivoPendiente').value = porCobrar.toFixed(2);
+    calcularCambioPendiente();
+}
+
+function limpiarEfectivoPendiente() {
+    document.getElementById('inputEfectivoPendiente').value = '';
+    calcularCambioPendiente();
+}
+
+function calcularCambioPendiente() {
+    var porCobrar = calcularTotalFinal() - ventaReabierta.pagado;
+    var recibido = parseFloat(document.getElementById('inputEfectivoPendiente').value) || 0;
+    var cambio = Math.max(0, recibido - porCobrar);
+    setElementText('cambioPendiente', '$' + cambio.toFixed(2));
+}
+
+function confirmarCobroPendiente() {
+    var porCobrar = calcularTotalFinal() - ventaReabierta.pagado;
+    var recibido = parseFloat(document.getElementById('inputEfectivoPendiente').value) || 0;
+    
+    if (recibido < porCobrar) {
+        mostrarToast('Monto insuficiente', 'error');
+        return;
+    }
+    
+    var metodoActivo = document.querySelector('#metodosPendienteContainer .metodo-btn.active');
+    var metodoPagoId = metodoActivo ? metodoActivo.getAttribute('data-metodo-id') : (metodosPago[0] ? metodosPago[0].metodo_pago_id : 'EFECTIVO');
+    
+    // Productos nuevos (los que no tienen detalle_original_id)
+    var productosNuevos = carrito.filter(function(item) { return !item.esReabierto; });
+    
+    API.request('/ventas/cobrar-complemento/' + ventaReabierta.venta_id, 'POST', {
+        monto_cobrado: porCobrar,
+        metodo_pago_id: metodoPagoId,
+        cambio: recibido - porCobrar,
+        productos_nuevos: productosNuevos.map(function(item) {
+            return {
+                producto_id: item.producto_id,
+                descripcion: item.nombre,
+                cantidad: item.cantidad,
+                unidad_id: item.unidad,
+                precio_unitario: item.precio,
+                descuento: item.descuento || 0,
+                subtotal: item.precio * item.cantidad * (1 - (item.descuento || 0) / 100)
+            };
+        }),
+        nuevo_total: calcularTotalFinal(),
+        usuario_id: API.usuario.id,
+        turno_id: turnoActual.turno_id
+    }).then(function(r) {
+        if (r.success) {
+            cerrarModal('modalCobrarPendiente');
+            
+            // Mostrar éxito
+            setElementText('exitoFolio', '#' + (ventaReabierta.folio || r.folio));
+            setElementText('exitoTotal', '$' + calcularTotalFinal().toFixed(2));
+            setElementText('exitoCambio', '$' + (recibido - porCobrar).toFixed(2));
+            
+            var modal = document.getElementById('modalExito');
+            if (modal) modal.classList.add('active');
+            
+            // Limpiar
+            ventaReabierta = null;
+            limpiarVentaActual();
+        } else {
+            mostrarToast(r.error || 'Error al procesar pago', 'error');
+        }
+    }).catch(function(e) {
+        mostrarToast('Error de conexión', 'error');
+    });
+}
+
+// ==================== IMPRIMIR ====================
+function imprimirVentaDetalle() {
+    if (!ventaSeleccionada) return;
+    imprimirVentaDirecto(ventaSeleccionada.venta_id);
+}
+
+function imprimirVentaDirecto(ventaId) {
+    var venta = ventasTurno.find(function(v) { return v.venta_id === ventaId; });
+    if (!venta) {
+        mostrarToast('Venta no encontrada', 'error');
+        return;
+    }
+    
+    var fecha = new Date(venta.fecha_hora);
+    var folioStr = venta.serie ? venta.serie + '-' + venta.folio : (venta.folio || venta.venta_id.slice(-8));
+    
+    var ventana = window.open('', '_blank', 'width=350,height=600');
+    ventana.document.write(
+        '<!DOCTYPE html><html><head><title>Ticket</title>' +
+        '<style>' +
+            'body{font-family:monospace;font-size:12px;width:280px;margin:0 auto;padding:10px}' +
+            '.center{text-align:center}' +
+            '.right{text-align:right}' +
+            '.bold{font-weight:bold}' +
+            '.line{border-top:1px dashed #000;margin:8px 0}' +
+            '.row{display:flex;justify-content:space-between}' +
+            '.total{font-size:16px;font-weight:bold}' +
+        '</style></head><body>' +
+        '<div class="center bold" style="font-size:16px">CAFI POS</div>' +
+        '<div class="center">Ticket de Venta</div>' +
+        '<div class="line"></div>' +
+        '<div>Folio: ' + folioStr + '</div>' +
+        '<div>Fecha: ' + fecha.toLocaleDateString('es-MX') + ' ' + fecha.toLocaleTimeString('es-MX', {hour:'2-digit',minute:'2-digit'}) + '</div>' +
+        '<div>Cliente: ' + (venta.cliente_nombre || 'Público General') + '</div>' +
+        '<div class="line"></div>' +
+        '<div class="row total"><span>TOTAL:</span><span>$' + parseFloat(venta.total).toFixed(2) + '</span></div>' +
+        '<div class="line"></div>' +
+        '<div class="center">¡Gracias por su compra!</div>' +
+        '<script>window.print();</script>' +
+        '</body></html>'
+    );
+}
