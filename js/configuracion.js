@@ -34,13 +34,13 @@ function initUsuario() {
 }
 
 function initTabs() {
-    document.querySelectorAll('.tab-btn').forEach(btn => {
+    document.querySelectorAll('.config-tab').forEach(btn => {
         btn.addEventListener('click', () => {
             const tab = btn.dataset.tab;
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.config-tab').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.config-panel').forEach(p => p.classList.remove('active'));
             btn.classList.add('active');
-            document.getElementById(`panel-${tab}`).classList.add('active');
+            document.getElementById(`panel-${tab}`)?.classList.add('active');
             cargarTab(tab);
         });
     });
@@ -52,7 +52,7 @@ function cargarTab(tab) {
         'sucursales': cargarSucursales,
         'usuarios': () => { cargarSucursales(); cargarUsuarios(); },
         'impuestos': cargarImpuestos,
-        'metodos-pago': cargarMetodos,
+        'metodos': cargarMetodos,
         'unidades': cargarUnidades,
         'categorias': cargarCategorias,
         'subcategorias': () => { cargarCategorias(); cargarSubcategorias(); },
@@ -72,7 +72,7 @@ function initForms() {
     document.getElementById('formUsuario')?.addEventListener('submit', guardarUsuario);
     document.getElementById('formImpuesto')?.addEventListener('submit', guardarImpuesto);
     document.getElementById('formMetodo')?.addEventListener('submit', guardarMetodo);
-    document.getElementById('formUnidad')?.addEventListener('submit', guardarUnidad);
+    // Unidades es solo lectura, no tiene formulario
     document.getElementById('formCategoria')?.addEventListener('submit', guardarCategoria);
     document.getElementById('formSubcategoria')?.addEventListener('submit', guardarSubcategoria);
     document.getElementById('formMarca')?.addEventListener('submit', guardarMarca);
