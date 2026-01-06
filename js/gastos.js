@@ -4,6 +4,7 @@
 
 const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
 const empresaId = usuario.empresa_id || localStorage.getItem('empresa_id') || 1;
+const baseUrl = (typeof API !== 'undefined' && API.baseUrl) ? API.baseUrl : 'https://cafipos-api-production.up.railway.app/api';
 
 // Data
 let gastosData = [];
@@ -543,7 +544,7 @@ function seleccionarProveedor() {
 function exportarExcel() {
     const desde = document.getElementById('filtroDesde').value;
     const hasta = document.getElementById('filtroHasta').value;
-    window.open(`${API.baseUrl}/gastos/exportar/${empresaId}?desde=${desde}&hasta=${hasta}`, '_blank');
+    window.open(`${baseUrl}/gastos/exportar/${empresaId}?desde=${desde}&hasta=${hasta}`, '_blank');
 }
 
 // ==================== UTILS ====================
@@ -610,7 +611,7 @@ async function guardarMiniCategoria() {
     }
     
     try {
-        const res = await fetch(`${API.baseUrl}/categorias-gasto`, {
+        const res = await fetch(`${baseUrl}/categorias-gasto`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -650,7 +651,7 @@ async function guardarMiniConcepto() {
     }
     
     try {
-        const res = await fetch(`${API.baseUrl}/conceptos-gasto`, {
+        const res = await fetch(`${baseUrl}/conceptos-gasto`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -665,7 +666,7 @@ async function guardarMiniConcepto() {
             cerrarMiniModal('concepto');
             
             // Recargar conceptos
-            const conRes = await fetch(`${API.baseUrl}/conceptos-gasto/${empresaId}`).then(r => r.json());
+            const conRes = await fetch(`${baseUrl}/conceptos-gasto/${empresaId}`).then(r => r.json());
             if (conRes.success) {
                 conceptosGastoData = conRes.conceptos || [];
             }
@@ -697,7 +698,7 @@ async function guardarMiniProveedor() {
     }
     
     try {
-        const res = await fetch(`${API.baseUrl}/proveedores`, {
+        const res = await fetch(`${baseUrl}/proveedores`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -714,7 +715,7 @@ async function guardarMiniProveedor() {
             cerrarMiniModal('proveedor');
             
             // Recargar proveedores y seleccionar el nuevo
-            const provRes = await fetch(`${API.baseUrl}/proveedores/${empresaId}`).then(r => r.json());
+            const provRes = await fetch(`${baseUrl}/proveedores/${empresaId}`).then(r => r.json());
             if (provRes.success) {
                 proveedoresData = provRes.proveedores || [];
                 
