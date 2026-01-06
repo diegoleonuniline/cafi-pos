@@ -173,6 +173,322 @@
     </div>
 </div>
 
+<!-- CATEGORÍAS -->
+<div class="config-panel" id="panel-categorias">
+    <div class="panel-toolbar">
+        <div class="toolbar-title"><i class="fas fa-folder"></i><h3>Categorías de Productos</h3></div>
+        <div class="toolbar-actions"><button class="btn btn-success" onclick="abrirModalCategoria()"><i class="fas fa-plus"></i> Nueva</button></div>
+    </div>
+    <div class="panel-table">
+        <table>
+            <thead><tr><th>Código</th><th>Nombre</th><th>Color</th><th class="center">POS</th><th class="center">Estado</th><th class="center">Acciones</th></tr></thead>
+            <tbody id="tablaCategorias"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- SUBCATEGORÍAS -->
+<div class="config-panel" id="panel-subcategorias">
+    <div class="panel-toolbar">
+        <div class="toolbar-title"><i class="fas fa-folder-tree"></i><h3>Subcategorías</h3></div>
+        <div class="toolbar-actions"><button class="btn btn-success" onclick="abrirModalSubcategoria()"><i class="fas fa-plus"></i> Nueva</button></div>
+    </div>
+    <div class="panel-table">
+        <table>
+            <thead><tr><th>Código</th><th>Nombre</th><th>Categoría</th><th class="center">Orden</th><th class="center">Estado</th><th class="center">Acciones</th></tr></thead>
+            <tbody id="tablaSubcategorias"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- MARCAS -->
+<div class="config-panel" id="panel-marcas">
+    <div class="panel-toolbar">
+        <div class="toolbar-title"><i class="fas fa-tag"></i><h3>Marcas</h3></div>
+        <div class="toolbar-actions"><button class="btn btn-success" onclick="abrirModalMarca()"><i class="fas fa-plus"></i> Nueva</button></div>
+    </div>
+    <div class="panel-table">
+        <table>
+            <thead><tr><th>Nombre</th><th>Logo</th><th class="center">Estado</th><th class="center">Acciones</th></tr></thead>
+            <tbody id="tablaMarcas"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- GRUPOS CLIENTE -->
+<div class="config-panel" id="panel-grupos">
+    <div class="panel-toolbar">
+        <div class="toolbar-title"><i class="fas fa-users-cog"></i><h3>Grupos de Clientes</h3></div>
+        <div class="toolbar-actions"><button class="btn btn-success" onclick="abrirModalGrupo()"><i class="fas fa-plus"></i> Nuevo</button></div>
+    </div>
+    <div class="panel-table">
+        <table>
+            <thead><tr><th>Nombre</th><th class="center">Tipo Precio</th><th class="center">Descuento %</th><th class="center">Estado</th><th class="center">Acciones</th></tr></thead>
+            <tbody id="tablaGrupos"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- PROVEEDORES -->
+<div class="config-panel" id="panel-proveedores">
+    <div class="panel-toolbar">
+        <div class="toolbar-title"><i class="fas fa-truck"></i><h3>Proveedores</h3></div>
+        <div class="toolbar-actions"><button class="btn btn-success" onclick="abrirModalProveedor()"><i class="fas fa-plus"></i> Nuevo</button></div>
+    </div>
+    <div class="panel-table">
+        <table>
+            <thead><tr><th>Código</th><th>Nombre</th><th>RFC</th><th>Teléfono</th><th>Email</th><th class="center">Estado</th><th class="center">Acciones</th></tr></thead>
+            <tbody id="tablaProveedores"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- CUENTAS BANCARIAS -->
+<div class="config-panel" id="panel-cuentas">
+    <div class="panel-toolbar">
+        <div class="toolbar-title"><i class="fas fa-university"></i><h3>Cuentas Bancarias</h3></div>
+        <div class="toolbar-actions"><button class="btn btn-success" onclick="abrirModalCuenta()"><i class="fas fa-plus"></i> Nueva</button></div>
+    </div>
+    <div class="panel-table">
+        <table>
+            <thead><tr><th>Banco</th><th>Número Cuenta</th><th>CLABE</th><th>Moneda</th><th class="right">Saldo</th><th class="center">Estado</th><th class="center">Acciones</th></tr></thead>
+            <tbody id="tablaCuentas"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- CATEGORÍAS GASTO -->
+<div class="config-panel" id="panel-categorias-gasto">
+    <div class="panel-toolbar">
+        <div class="toolbar-title"><i class="fas fa-receipt"></i><h3>Categorías de Gasto</h3></div>
+        <div class="toolbar-actions"><button class="btn btn-success" onclick="abrirModalCategoriaGasto()"><i class="fas fa-plus"></i> Nueva</button></div>
+    </div>
+    <div class="panel-table">
+        <table>
+            <thead><tr><th>Código</th><th>Nombre</th><th>Tipo</th><th class="center">Estado</th><th class="center">Acciones</th></tr></thead>
+            <tbody id="tablaCategoriasGasto"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- CONCEPTOS GASTO -->
+<div class="config-panel" id="panel-conceptos-gasto">
+    <div class="panel-toolbar">
+        <div class="toolbar-title"><i class="fas fa-file-invoice-dollar"></i><h3>Conceptos de Gasto</h3></div>
+        <div class="toolbar-actions"><button class="btn btn-success" onclick="abrirModalConceptoGasto()"><i class="fas fa-plus"></i> Nuevo</button></div>
+    </div>
+    <div class="panel-table">
+        <table>
+            <thead><tr><th>Código</th><th>Nombre</th><th>Categoría</th><th class="center">Req. Factura</th><th class="center">Estado</th><th class="center">Acciones</th></tr></thead>
+            <tbody id="tablaConceptosGasto"></tbody>
+        </table>
+    </div>
+</div>
+                    
+<!-- MODAL CATEGORÍA -->
+<div class="modal-overlay" id="modalCategoria">
+    <div class="modal">
+        <div class="modal-header"><h3 id="modalCategoriaTitulo">Nueva Categoría</h3><button class="modal-close" onclick="cerrarModal('modalCategoria')"><i class="fas fa-times"></i></button></div>
+        <form id="formCategoria" onsubmit="guardarCategoria(event)">
+            <input type="hidden" id="categoriaId">
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group"><label>Código</label><input type="text" id="catCodigo"></div>
+                    <div class="form-group"><label>Nombre *</label><input type="text" id="catNombre" required></div>
+                </div>
+                <div class="form-group"><label>Descripción</label><textarea id="catDescripcion" rows="2"></textarea></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Color</label><input type="color" id="catColor" value="#3498db"></div>
+                    <div class="form-group"><label>Icono</label><input type="text" id="catIcono" placeholder="fa-folder"></div>
+                    <div class="form-group"><label>Orden</label><input type="number" id="catOrden" value="0"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group checkbox-group"><label><input type="checkbox" id="catMostrarPOS" checked> Mostrar en POS</label></div>
+                    <div class="form-group checkbox-group"><label><input type="checkbox" id="catActivo" checked> Activo</label></div>
+                </div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" onclick="cerrarModal('modalCategoria')">Cancelar</button><button type="submit" class="btn btn-primary">Guardar</button></div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL SUBCATEGORÍA -->
+<div class="modal-overlay" id="modalSubcategoria">
+    <div class="modal">
+        <div class="modal-header"><h3 id="modalSubcategoriaTitulo">Nueva Subcategoría</h3><button class="modal-close" onclick="cerrarModal('modalSubcategoria')"><i class="fas fa-times"></i></button></div>
+        <form id="formSubcategoria" onsubmit="guardarSubcategoria(event)">
+            <input type="hidden" id="subcategoriaId">
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group"><label>Categoría *</label><select id="scatCategoria" required></select></div>
+                    <div class="form-group"><label>Código</label><input type="text" id="scatCodigo"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Nombre *</label><input type="text" id="scatNombre" required></div>
+                    <div class="form-group"><label>Orden</label><input type="number" id="scatOrden" value="0"></div>
+                </div>
+                <div class="form-group checkbox-group"><label><input type="checkbox" id="scatActivo" checked> Activo</label></div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" onclick="cerrarModal('modalSubcategoria')">Cancelar</button><button type="submit" class="btn btn-primary">Guardar</button></div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL MARCA -->
+<div class="modal-overlay" id="modalMarca">
+    <div class="modal">
+        <div class="modal-header"><h3 id="modalMarcaTitulo">Nueva Marca</h3><button class="modal-close" onclick="cerrarModal('modalMarca')"><i class="fas fa-times"></i></button></div>
+        <form id="formMarca" onsubmit="guardarMarca(event)">
+            <input type="hidden" id="marcaId">
+            <div class="modal-body">
+                <div class="form-group"><label>Nombre *</label><input type="text" id="mrcNombre" required></div>
+                <div class="form-group"><label>URL Logo</label><input type="text" id="mrcLogo" placeholder="https://..."></div>
+                <div class="form-group checkbox-group"><label><input type="checkbox" id="mrcActivo" checked> Activo</label></div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" onclick="cerrarModal('modalMarca')">Cancelar</button><button type="submit" class="btn btn-primary">Guardar</button></div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL GRUPO CLIENTE -->
+<div class="modal-overlay" id="modalGrupo">
+    <div class="modal">
+        <div class="modal-header"><h3 id="modalGrupoTitulo">Nuevo Grupo</h3><button class="modal-close" onclick="cerrarModal('modalGrupo')"><i class="fas fa-times"></i></button></div>
+        <form id="formGrupo" onsubmit="guardarGrupo(event)">
+            <input type="hidden" id="grupoId">
+            <div class="modal-body">
+                <div class="form-group"><label>Nombre *</label><input type="text" id="grpNombre" required></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Tipo Precio</label><select id="grpTipoPrecio"><option value="1">Precio 1</option><option value="2">Precio 2</option><option value="3">Precio 3</option><option value="4">Precio 4</option></select></div>
+                    <div class="form-group"><label>Descuento %</label><input type="number" id="grpDescuento" step="0.01" value="0"></div>
+                </div>
+                <div class="form-group checkbox-group"><label><input type="checkbox" id="grpActivo" checked> Activo</label></div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" onclick="cerrarModal('modalGrupo')">Cancelar</button><button type="submit" class="btn btn-primary">Guardar</button></div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL PROVEEDOR -->
+<div class="modal-overlay" id="modalProveedor">
+    <div class="modal modal-lg">
+        <div class="modal-header"><h3 id="modalProveedorTitulo">Nuevo Proveedor</h3><button class="modal-close" onclick="cerrarModal('modalProveedor')"><i class="fas fa-times"></i></button></div>
+        <form id="formProveedor" onsubmit="guardarProveedor(event)">
+            <input type="hidden" id="proveedorId">
+            <div class="modal-body">
+                <h4>Datos Generales</h4>
+                <div class="form-row">
+                    <div class="form-group"><label>Código</label><input type="text" id="provCodigo"></div>
+                    <div class="form-group"><label>Tipo</label><select id="provTipo"><option value="MORAL">Moral</option><option value="FISICA">Física</option></select></div>
+                    <div class="form-group"><label>RFC</label><input type="text" id="provRFC"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Razón Social</label><input type="text" id="provRazonSocial"></div>
+                    <div class="form-group"><label>Nombre Comercial *</label><input type="text" id="provNombre" required></div>
+                </div>
+                <h4>Dirección</h4>
+                <div class="form-row">
+                    <div class="form-group"><label>Estado</label><input type="text" id="provEstado"></div>
+                    <div class="form-group"><label>Ciudad</label><input type="text" id="provCiudad"></div>
+                    <div class="form-group"><label>C.P.</label><input type="text" id="provCP"></div>
+                </div>
+                <div class="form-group"><label>Dirección</label><input type="text" id="provDireccion"></div>
+                <h4>Contacto</h4>
+                <div class="form-row">
+                    <div class="form-group"><label>Teléfono</label><input type="tel" id="provTelefono"></div>
+                    <div class="form-group"><label>Celular</label><input type="tel" id="provCelular"></div>
+                    <div class="form-group"><label>Email</label><input type="email" id="provEmail"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Contacto</label><input type="text" id="provContacto"></div>
+                    <div class="form-group"><label>Tel. Contacto</label><input type="tel" id="provContactoTel"></div>
+                    <div class="form-group"><label>Email Contacto</label><input type="email" id="provContactoEmail"></div>
+                </div>
+                <h4>Datos Bancarios y Crédito</h4>
+                <div class="form-row">
+                    <div class="form-group"><label>Banco</label><input type="text" id="provBanco"></div>
+                    <div class="form-group"><label>Cuenta</label><input type="text" id="provCuentaBanco"></div>
+                    <div class="form-group"><label>CLABE</label><input type="text" id="provClabe"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Días Crédito</label><input type="number" id="provDiasCredito" value="0"></div>
+                    <div class="form-group"><label>Límite Crédito</label><input type="number" id="provLimiteCredito" step="0.01" value="0"></div>
+                </div>
+                <div class="form-group"><label>Notas</label><textarea id="provNotas" rows="2"></textarea></div>
+                <div class="form-group checkbox-group"><label><input type="checkbox" id="provActivo" checked> Activo</label></div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" onclick="cerrarModal('modalProveedor')">Cancelar</button><button type="submit" class="btn btn-primary">Guardar</button></div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL CUENTA BANCARIA -->
+<div class="modal-overlay" id="modalCuenta">
+    <div class="modal">
+        <div class="modal-header"><h3 id="modalCuentaTitulo">Nueva Cuenta</h3><button class="modal-close" onclick="cerrarModal('modalCuenta')"><i class="fas fa-times"></i></button></div>
+        <form id="formCuenta" onsubmit="guardarCuenta(event)">
+            <input type="hidden" id="cuentaId">
+            <div class="modal-body">
+                <div class="form-group"><label>Banco *</label><input type="text" id="ctaBanco" required></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Número Cuenta</label><input type="text" id="ctaNumero"></div>
+                    <div class="form-group"><label>CLABE</label><input type="text" id="ctaClabe"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Moneda</label><select id="ctaMoneda"><option value="MXN">MXN</option><option value="USD">USD</option></select></div>
+                    <div class="form-group"><label>Saldo Inicial</label><input type="number" id="ctaSaldo" step="0.01" value="0"></div>
+                </div>
+                <div class="form-group checkbox-group"><label><input type="checkbox" id="ctaActiva" checked> Activa</label></div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" onclick="cerrarModal('modalCuenta')">Cancelar</button><button type="submit" class="btn btn-primary">Guardar</button></div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL CATEGORÍA GASTO -->
+<div class="modal-overlay" id="modalCategoriaGasto">
+    <div class="modal">
+        <div class="modal-header"><h3 id="modalCategoriaGastoTitulo">Nueva Categoría de Gasto</h3><button class="modal-close" onclick="cerrarModal('modalCategoriaGasto')"><i class="fas fa-times"></i></button></div>
+        <form id="formCategoriaGasto" onsubmit="guardarCategoriaGasto(event)">
+            <input type="hidden" id="categoriaGastoId">
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group"><label>Código</label><input type="text" id="catgCodigo"></div>
+                    <div class="form-group"><label>Nombre *</label><input type="text" id="catgNombre" required></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Tipo</label><select id="catgTipo"><option value="OPERATIVO">Operativo</option><option value="ADMINISTRATIVO">Administrativo</option><option value="FINANCIERO">Financiero</option><option value="OTRO">Otro</option></select></div>
+                    <div class="form-group"><label>Cuenta Contable</label><input type="text" id="catgCuenta"></div>
+                </div>
+                <div class="form-group checkbox-group"><label><input type="checkbox" id="catgActivo" checked> Activo</label></div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" onclick="cerrarModal('modalCategoriaGasto')">Cancelar</button><button type="submit" class="btn btn-primary">Guardar</button></div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL CONCEPTO GASTO -->
+<div class="modal-overlay" id="modalConceptoGasto">
+    <div class="modal">
+        <div class="modal-header"><h3 id="modalConceptoGastoTitulo">Nuevo Concepto de Gasto</h3><button class="modal-close" onclick="cerrarModal('modalConceptoGasto')"><i class="fas fa-times"></i></button></div>
+        <form id="formConceptoGasto" onsubmit="guardarConceptoGasto(event)">
+            <input type="hidden" id="conceptoGastoId">
+            <div class="modal-body">
+                <div class="form-group"><label>Categoría *</label><select id="congCategoria" required></select></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Código</label><input type="text" id="congCodigo"></div>
+                    <div class="form-group"><label>Nombre *</label><input type="text" id="congNombre" required></div>
+                </div>
+                <div class="form-group"><label>Descripción</label><textarea id="congDescripcion" rows="2"></textarea></div>
+                <div class="form-group checkbox-group"><label><input type="checkbox" id="congReqFactura"> Requiere Factura</label></div>
+                <div class="form-group checkbox-group"><label><input type="checkbox" id="congActivo" checked> Activo</label></div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" onclick="cerrarModal('modalConceptoGasto')">Cancelar</button><button type="submit" class="btn btn-primary">Guardar</button></div>
+        </form>
+    </div>
+</div>
+
+                    
     <!-- MODAL SUCURSAL -->
     <div class="modal-overlay" id="modalSucursal">
         <div class="modal modal-xl">
