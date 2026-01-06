@@ -2657,13 +2657,25 @@ function imprimirVentaDirecto(ventaId) {
 }
 
 function cambiarTabDetalle(tab) {
-    // Quitar active de todos
-    document.querySelectorAll('.detalle-tabs .tab-btn').forEach(function(btn) {
+    var tabBtns = document.querySelectorAll('.detalle-tabs .tab-btn');
+    var panels = document.querySelectorAll('.tab-panel');
+    
+    if (!tabBtns.length || !panels.length) return; // <-- Agregar esta validación
+    
+    tabBtns.forEach(function(btn) {
         btn.classList.remove('active');
     });
-    document.querySelectorAll('.tab-panel').forEach(function(panel) {
+    panels.forEach(function(panel) {
         panel.classList.remove('active');
     });
+    
+    var tabBtn = document.querySelector('.tab-btn[onclick*="' + tab + '"]');
+    var panelId = 'panel' + tab.charAt(0).toUpperCase() + tab.slice(1);
+    var panel = document.getElementById(panelId);
+    
+    if (tabBtn) tabBtn.classList.add('active');
+    if (panel) panel.classList.add('active');
+}
     
     // Activar el seleccionado
     document.querySelector('.tab-btn[onclick*="' + tab + '"]').classList.add('active');
