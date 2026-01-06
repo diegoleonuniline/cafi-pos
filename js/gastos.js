@@ -610,14 +610,15 @@ async function guardarMiniCategoria() {
     }
     
     try {
-        const res = await API.request('/categorias-gasto', {
+        const res = await fetch(`${API.baseUrl}/categorias-gasto`, {
             method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 empresa_id: empresaId,
                 nombre: nombre,
                 tipo: tipo
             })
-        });
+        }).then(r => r.json());
         
         if (res.success) {
             toast('Categoría creada');
@@ -649,21 +650,22 @@ async function guardarMiniConcepto() {
     }
     
     try {
-        const res = await API.request('/conceptos-gasto', {
+        const res = await fetch(`${API.baseUrl}/conceptos-gasto`, {
             method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 empresa_id: empresaId,
                 categoria_gasto_id: categoriaId,
                 nombre: nombre
             })
-        });
+        }).then(r => r.json());
         
         if (res.success) {
             toast('Concepto creado');
             cerrarMiniModal('concepto');
             
             // Recargar conceptos
-            const conRes = await API.request(`/conceptos-gasto/${empresaId}`);
+            const conRes = await fetch(`${API.baseUrl}/conceptos-gasto/${empresaId}`).then(r => r.json());
             if (conRes.success) {
                 conceptosGastoData = conRes.conceptos || [];
             }
@@ -695,8 +697,9 @@ async function guardarMiniProveedor() {
     }
     
     try {
-        const res = await API.request('/proveedores', {
+        const res = await fetch(`${API.baseUrl}/proveedores`, {
             method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 empresa_id: empresaId,
                 nombre_comercial: nombre,
@@ -704,14 +707,14 @@ async function guardarMiniProveedor() {
                 rfc: rfc || null,
                 telefono: telefono || null
             })
-        });
+        }).then(r => r.json());
         
         if (res.success) {
             toast('Proveedor creado');
             cerrarMiniModal('proveedor');
             
             // Recargar proveedores y seleccionar el nuevo
-            const provRes = await API.request(`/proveedores/${empresaId}`);
+            const provRes = await fetch(`${API.baseUrl}/proveedores/${empresaId}`).then(r => r.json());
             if (provRes.success) {
                 proveedoresData = provRes.proveedores || [];
                 
