@@ -2559,29 +2559,18 @@
             if (el) el.textContent = h + ':' + m;
         }, 1000);
     </script>
-    <!-- ==================== MODALES MIS VENTAS DEL TURNO ==================== -->
-<!-- Agregar este link en el <head> de pos.html -->
-<!-- <link rel="stylesheet" href="../css/pos-ventas.css"> -->
+  <!-- ==================== MODALES MIS VENTAS ==================== -->
+<!-- Agregar estos modales al final del body en pos.html -->
 
-<!-- BOTÓN PARA AGREGAR EN HEADER CENTER (después del botón Corte) -->
-<!--
-<button class="header-btn" onclick="abrirModalVentasTurno()">
-    <i class="fas fa-receipt"></i> Mis Ventas
-</button>
--->
-
-<!-- MODAL: LISTA DE VENTAS DEL TURNO -->
+<!-- MODAL: Ventas del Turno -->
 <div class="modal-overlay" id="modalVentasTurno">
     <div class="modal modal-lg">
-        <div class="modal-header" style="background:linear-gradient(135deg,#6366f1 0%,#4f46e5 100%)">
-            <div class="modal-title">
-                <i class="fas fa-receipt"></i>
-                <span>Mis Ventas del Turno</span>
-            </div>
+        <div class="modal-header">
+            <div class="modal-title"><i class="fas fa-receipt"></i> Mis Ventas del Turno</div>
             <button class="btn-close light" onclick="cerrarModal('modalVentasTurno')"><i class="fas fa-times"></i></button>
         </div>
         
-        <!-- Filtros -->
+        <!-- Filtros - usa clase ventas-filtros -->
         <div class="ventas-filtros">
             <div class="filtro-search">
                 <i class="fas fa-search"></i>
@@ -2606,10 +2595,10 @@
             </div>
         </div>
         
-        <!-- Stats -->
+        <!-- Stats - usa clase ventas-stats, stat-mini -->
         <div class="ventas-stats">
             <div class="stat-mini ventas">
-                <i class="fas fa-receipt"></i>
+                <i class="fas fa-shopping-cart"></i>
                 <div class="stat-data">
                     <span class="stat-valor" id="statVentasTurno">0</span>
                     <span class="stat-label">Ventas</span>
@@ -2619,7 +2608,7 @@
                 <i class="fas fa-dollar-sign"></i>
                 <div class="stat-data">
                     <span class="stat-valor" id="statMontoTurno">$0.00</span>
-                    <span class="stat-label">Total Vendido</span>
+                    <span class="stat-label">Total</span>
                 </div>
             </div>
             <div class="stat-mini canceladas">
@@ -2631,7 +2620,7 @@
             </div>
         </div>
         
-        <!-- Tabla -->
+        <!-- Tabla - usa clase ventas-table-container, ventas-table -->
         <div class="ventas-table-container">
             <table class="ventas-table">
                 <thead>
@@ -2639,38 +2628,37 @@
                         <th>Folio</th>
                         <th>Hora</th>
                         <th>Cliente</th>
-                        <th>Productos</th>
-                        <th>Tipo</th>
-                        <th>Estado</th>
+                        <th class="text-center">Productos</th>
+                        <th class="text-center">Tipo</th>
+                        <th class="text-center">Estado</th>
                         <th class="text-right">Total</th>
                         <th></th>
                     </tr>
                 </thead>
-                <tbody id="ventasTurnoBody"></tbody>
+                <tbody id="ventasTurnoBody">
+                    <!-- Contenido dinámico -->
+                </tbody>
             </table>
-        </div>
-        
-        <div class="modal-footer">
-            <button class="btn btn-outline" onclick="cerrarModal('modalVentasTurno')">Cerrar</button>
         </div>
     </div>
 </div>
 
-<!-- MODAL: DETALLE DE VENTA -->
+<!-- MODAL: Detalle de Venta -->
 <div class="modal-overlay" id="modalDetalleVenta">
-    <div class="modal" style="width:700px;max-width:95vw">
-        <!-- Header con folio y estado -->
-        <div class="detalle-header-venta" id="detalleVentaHeader">
+    <div class="modal modal-lg">
+        <!-- Header - usa clase detalle-header-venta -->
+        <div class="detalle-header-venta">
             <div>
                 <div class="folio-grande" id="detalleVentaFolio">#0001</div>
-                <div class="fecha-venta" id="detalleVentaFecha">Lunes 6 de Enero, 2025 - 10:30 AM</div>
+                <div class="fecha-venta" id="detalleVentaFecha">Fecha</div>
             </div>
             <div class="estado-venta">
                 <span class="badge-estado-lg pagada" id="detalleVentaEstado">PAGADA</span>
+                <button class="btn-close light" onclick="cerrarModal('modalDetalleVenta')" style="margin-left:16px"><i class="fas fa-times"></i></button>
             </div>
         </div>
         
-        <!-- Info grid -->
+        <!-- Info Grid - usa clase detalle-info-grid -->
         <div class="detalle-info-grid">
             <div class="detalle-info-item">
                 <label>Cliente</label>
@@ -2685,108 +2673,113 @@
                 <span id="detalleVentaTipo">Contado</span>
             </div>
             <div class="detalle-info-item">
-                <label>Método Pago</label>
+                <label>Método de Pago</label>
                 <span id="detalleVentaMetodo">Efectivo</span>
             </div>
         </div>
         
-        <!-- Productos -->
-        <div class="detalle-productos" style="max-height:200px;overflow-y:auto">
-            <h4><i class="fas fa-box"></i> Productos</h4>
+        <!-- Productos - usa clase detalle-productos -->
+        <div class="detalle-productos">
+            <h4><i class="fas fa-boxes"></i> Productos</h4>
             <table class="detalle-productos-table">
                 <thead>
                     <tr>
                         <th>Producto</th>
-                        <th class="text-center">Cant.</th>
-                        <th class="text-right">Precio</th>
+                        <th class="text-center">Cantidad</th>
+                        <th class="text-right">P. Unit.</th>
                         <th class="text-right">Subtotal</th>
                         <th></th>
                     </tr>
                 </thead>
-                <tbody id="detalleVentaProductos"></tbody>
+                <tbody id="detalleVentaProductos">
+                    <!-- Contenido dinámico -->
+                </tbody>
             </table>
         </div>
         
-        <!-- Pagos registrados -->
-        <div class="detalle-pagos" id="detallePagosContainer">
-            <h4><i class="fas fa-credit-card"></i> Pagos Registrados</h4>
-            <div class="pagos-lista" id="detalleVentaPagos"></div>
+        <!-- Pagos - usa clase detalle-pagos, pagos-lista -->
+        <div class="detalle-pagos">
+            <h4><i class="fas fa-credit-card"></i> Pagos</h4>
+            <div class="pagos-lista" id="detalleVentaPagos">
+                <!-- Contenido dinámico -->
+            </div>
         </div>
         
-        <!-- Historial de cambios -->
+        <!-- Historial - usa clase detalle-historial, historial-lista -->
         <div class="detalle-historial" id="detalleHistorialContainer" style="display:none">
             <h4><i class="fas fa-history"></i> Historial de Cambios</h4>
-            <div class="historial-lista" id="detalleVentaHistorial"></div>
+            <div class="historial-lista" id="detalleVentaHistorial">
+                <!-- Contenido dinámico -->
+            </div>
         </div>
         
-        <!-- Totales -->
+        <!-- Totales - usa clase detalle-totales -->
         <div class="detalle-totales">
             <div class="total-row">
-                <span>Subtotal:</span>
+                <span>Subtotal</span>
                 <span id="detalleVentaSubtotal">$0.00</span>
             </div>
             <div class="total-row" id="rowDescuentos" style="display:none">
-                <span>Descuentos:</span>
+                <span>Descuentos</span>
                 <span id="detalleVentaDescuentos" class="text-danger">-$0.00</span>
             </div>
             <div class="total-row grande">
-                <span>TOTAL:</span>
+                <span>Total</span>
                 <span id="detalleVentaTotal">$0.00</span>
             </div>
-            <div class="total-row" id="rowPagado">
-                <span>Pagado:</span>
+            <div class="total-row">
+                <span>Pagado</span>
                 <span id="detalleVentaPagado">$0.00</span>
             </div>
             <div class="total-row pendiente" id="rowPendiente" style="display:none">
-                <span>Pendiente:</span>
+                <span>Pendiente</span>
                 <span id="detalleVentaPendiente">$0.00</span>
             </div>
         </div>
         
-        <!-- Acciones -->
+        <!-- Acciones - usa clase detalle-acciones, acciones-grupo -->
         <div class="detalle-acciones">
-            <div class="acciones-grupo">
-                <button class="btn btn-outline" onclick="cerrarModal('modalDetalleVenta')">
-                    <i class="fas fa-times"></i> Cerrar
+            <div class="acciones-grupo" id="accionesVentaActiva">
+                <button class="btn btn-outline" onclick="abrirModalCancelarVenta()">
+                    <i class="fas fa-ban"></i> Cancelar Venta
                 </button>
+                <button class="btn btn-outline" onclick="abrirModalCambiarPago()">
+                    <i class="fas fa-exchange-alt"></i> Cambiar Pago
+                </button>
+                <button class="btn btn-warning" onclick="abrirModalReabrirVenta()">
+                    <i class="fas fa-folder-open"></i> Reabrir
+                </button>
+            </div>
+            <div class="acciones-grupo">
                 <button class="btn btn-outline" onclick="imprimirVentaDetalle()">
                     <i class="fas fa-print"></i> Imprimir
                 </button>
-            </div>
-            <div class="acciones-grupo" id="accionesVentaActiva">
-                <button class="btn" style="background:#fef3c7;color:#92400e" onclick="abrirModalReabrirVenta()">
-                    <i class="fas fa-folder-open"></i> Reabrir
-                </button>
-                <button class="btn" style="background:#dbeafe;color:#2563eb" onclick="abrirModalCambiarPago()">
-                    <i class="fas fa-exchange-alt"></i> Cambiar Pago
-                </button>
-                <button class="btn" style="background:#fee2e2;color:#dc2626" onclick="abrirModalCancelarVenta()">
-                    <i class="fas fa-ban"></i> Cancelar Venta
+                <button class="btn btn-primary" onclick="cerrarModal('modalDetalleVenta')">
+                    <i class="fas fa-check"></i> Cerrar
                 </button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- MODAL: CANCELAR VENTA COMPLETA -->
-<div class="modal-overlay" id="modalCancelarVenta" style="z-index:1050">
+<!-- MODAL: Cancelar Venta Completa -->
+<div class="modal-overlay" id="modalCancelarVenta">
     <div class="modal modal-sm">
         <div class="modal-header" style="background:linear-gradient(135deg,#ef4444 0%,#dc2626 100%)">
-            <div class="modal-title">
-                <i class="fas fa-ban"></i>
-                <span>Cancelar Venta</span>
-            </div>
+            <div class="modal-title"><i class="fas fa-ban"></i> Cancelar Venta</div>
             <button class="btn-close light" onclick="cerrarModal('modalCancelarVenta')"><i class="fas fa-times"></i></button>
         </div>
         <div class="modal-body">
+            <!-- Warning - usa clase cancelar-warning -->
             <div class="cancelar-warning">
                 <i class="fas fa-exclamation-triangle"></i>
                 <div class="warning-texto">
-                    <h4>¿Cancelar esta venta?</h4>
-                    <p>Esta acción no se puede deshacer. Si la venta ya fue pagada, se generará una devolución.</p>
+                    <h4>¡Atención!</h4>
+                    <p>Esta acción cancelará la venta completa y no se puede deshacer.</p>
                 </div>
             </div>
             
+            <!-- Resumen - usa clase cancelar-resumen, cancelar-dato -->
             <div class="cancelar-resumen">
                 <div class="cancelar-dato">
                     <label>Folio</label>
@@ -2798,19 +2791,18 @@
                 </div>
                 <div class="cancelar-dato">
                     <label>Devolución</label>
-                    <span class="devolucion" id="cancelarVentaDevolucion">$0.00</span>
+                    <span id="cancelarVentaDevolucion" class="devolucion">$0.00</span>
                 </div>
             </div>
             
             <div class="form-group">
-                <label>Motivo de cancelación *</label>
+                <label>Motivo de Cancelación *</label>
                 <select id="motivoCancelarVenta" class="form-control" onchange="toggleOtroMotivoCancelar()">
                     <option value="">Seleccionar motivo...</option>
-                    <option value="CLIENTE_CAMBIO">El cliente cambió de opinión</option>
-                    <option value="ERROR_PRODUCTO">Error en productos</option>
-                    <option value="ERROR_PRECIO">Error en precio</option>
-                    <option value="NO_DISPONIBLE">Producto no disponible</option>
-                    <option value="DUPLICADA">Venta duplicada</option>
+                    <option value="CLIENTE_SOLICITA">Cliente solicitó cancelación</option>
+                    <option value="ERROR_CAPTURA">Error en captura</option>
+                    <option value="PRODUCTO_DEFECTUOSO">Producto defectuoso</option>
+                    <option value="SIN_EXISTENCIA">Sin existencia</option>
                     <option value="OTRO">Otro motivo</option>
                 </select>
             </div>
@@ -2821,47 +2813,51 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-outline" onclick="cerrarModal('modalCancelarVenta')">No, volver</button>
-            <button class="btn" style="background:#ef4444;color:#fff" onclick="confirmarCancelarVenta()">
-                <i class="fas fa-ban"></i> Sí, Cancelar Venta
+            <button class="btn btn-outline" onclick="cerrarModal('modalCancelarVenta')">Cancelar</button>
+            <button class="btn" style="background:#ef4444;color:white" onclick="confirmarCancelarVenta()">
+                <i class="fas fa-ban"></i> Confirmar Cancelación
             </button>
         </div>
     </div>
 </div>
 
-<!-- MODAL: CANCELAR PRODUCTO INDIVIDUAL -->
-<div class="modal-overlay" id="modalCancelarProducto" style="z-index:1050">
+<!-- MODAL: Cancelar Producto Individual -->
+<div class="modal-overlay" id="modalCancelarProducto">
     <div class="modal modal-sm">
         <div class="modal-header" style="background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%)">
-            <div class="modal-title">
-                <i class="fas fa-minus-circle"></i>
-                <span>Cancelar Producto</span>
-            </div>
+            <div class="modal-title"><i class="fas fa-minus-circle"></i> Cancelar Producto</div>
             <button class="btn-close light" onclick="cerrarModal('modalCancelarProducto')"><i class="fas fa-times"></i></button>
         </div>
         <div class="modal-body">
+            <input type="hidden" id="cancelarProductoDetalleId">
+            <input type="hidden" id="cancelarProductoPrecio">
+            <input type="hidden" id="cancelarProductoCantMax">
+            
+            <!-- Info producto - usa clase producto-cancelar-info -->
             <div class="producto-cancelar-info">
                 <div class="prod-icono"><i class="fas fa-box"></i></div>
                 <div class="prod-datos">
-                    <h4 id="cancelarProdNombre">Nombre del producto</h4>
-                    <p id="cancelarProdDetalle">Cantidad: 2 | Precio: $50.00</p>
+                    <h4 id="cancelarProdNombre">Producto</h4>
+                    <p id="cancelarProdDetalle">Cantidad: 0 | Precio: $0.00</p>
                 </div>
             </div>
             
+            <!-- Control cantidad - usa clase cantidad-cancelar-control -->
             <div class="form-group">
                 <label style="text-align:center;display:block">Cantidad a cancelar</label>
                 <div class="cantidad-cancelar-control">
                     <button type="button" onclick="ajustarCantidadCancelar(-1)">−</button>
                     <div class="cantidad-display">
-                        <input type="number" id="cantidadCancelarProd" value="1" min="1" step="1" oninput="calcularDevolucionProducto()">
+                        <input type="number" id="cantidadCancelarProd" step="0.001" min="0.001" value="1" oninput="calcularDevolucionProducto()">
                         <span id="unidadCancelarProd">PZ</span>
                     </div>
                     <button type="button" onclick="ajustarCantidadCancelar(1)">+</button>
                 </div>
             </div>
             
+            <!-- Devolucion preview - usa clase devolucion-preview -->
             <div class="devolucion-preview">
-                <span>Devolución:</span>
+                <span>Monto a devolver:</span>
                 <strong id="devolucionProducto">$0.00</strong>
             </div>
             
@@ -2869,37 +2865,33 @@
                 <label>Motivo *</label>
                 <select id="motivoCancelarProducto" class="form-control">
                     <option value="">Seleccionar motivo...</option>
-                    <option value="CLIENTE_NO_QUIERE">El cliente ya no lo quiere</option>
-                    <option value="DEFECTUOSO">Producto defectuoso</option>
-                    <option value="ERROR_AGREGAR">Se agregó por error</option>
+                    <option value="CLIENTE_NO_QUIERE">Cliente ya no lo quiere</option>
+                    <option value="ERROR_CANTIDAD">Error en cantidad</option>
+                    <option value="PRODUCTO_DAÑADO">Producto dañado</option>
                     <option value="PRECIO_INCORRECTO">Precio incorrecto</option>
                 </select>
             </div>
-            
-            <input type="hidden" id="cancelarProductoDetalleId">
-            <input type="hidden" id="cancelarProductoPrecio">
-            <input type="hidden" id="cancelarProductoCantMax">
         </div>
         <div class="modal-footer">
             <button class="btn btn-outline" onclick="cerrarModal('modalCancelarProducto')">Cancelar</button>
             <button class="btn btn-warning" onclick="confirmarCancelarProducto()">
-                <i class="fas fa-minus-circle"></i> Cancelar Producto
+                <i class="fas fa-minus"></i> Cancelar Producto
             </button>
         </div>
     </div>
 </div>
 
-<!-- MODAL: CAMBIAR MÉTODO DE PAGO -->
-<div class="modal-overlay" id="modalCambiarPago" style="z-index:1050">
+<!-- MODAL: Cambiar Método de Pago -->
+<div class="modal-overlay" id="modalCambiarPago">
     <div class="modal modal-sm">
-        <div class="modal-header" style="background:linear-gradient(135deg,#3b82f6 0%,#1d4ed8 100%)">
-            <div class="modal-title">
-                <i class="fas fa-exchange-alt"></i>
-                <span>Cambiar Método de Pago</span>
-            </div>
+        <div class="modal-header">
+            <div class="modal-title"><i class="fas fa-exchange-alt"></i> Cambiar Método de Pago</div>
             <button class="btn-close light" onclick="cerrarModal('modalCambiarPago')"><i class="fas fa-times"></i></button>
         </div>
         <div class="modal-body">
+            <input type="hidden" id="cambiarPagoId">
+            
+            <!-- Pago actual - usa clase pago-actual-info -->
             <div class="pago-actual-info">
                 <div class="pago-icono"><i class="fas fa-money-bill-wave" id="pagoActualIcono"></i></div>
                 <div class="pago-actual-detalle">
@@ -2911,20 +2903,21 @@
             
             <div class="form-group">
                 <label>Nuevo método de pago</label>
-                <div class="metodos-cambio" id="metodosCambioContainer"></div>
+                <!-- Métodos - usa clase metodos-cambio, metodo-opcion -->
+                <div class="metodos-cambio" id="metodosCambioContainer">
+                    <!-- Contenido dinámico -->
+                </div>
             </div>
             
             <div class="form-group">
                 <label>Referencia (opcional)</label>
-                <input type="text" id="referenciaCambio" class="form-control" placeholder="Núm. transacción, voucher, etc.">
+                <input type="text" id="referenciaCambio" class="form-control" placeholder="Número de operación, etc.">
             </div>
             
             <div class="form-group">
                 <label>Motivo del cambio *</label>
-                <input type="text" id="motivoCambioPago" class="form-control" placeholder="¿Por qué se cambia el método?">
+                <textarea id="motivoCambioPago" class="form-control" rows="2" placeholder="¿Por qué se cambia el método?"></textarea>
             </div>
-            
-            <input type="hidden" id="cambiarPagoId">
         </div>
         <div class="modal-footer">
             <button class="btn btn-outline" onclick="cerrarModal('modalCambiarPago')">Cancelar</button>
@@ -2935,15 +2928,17 @@
     </div>
 </div>
 
-<!-- MODAL: COBRAR PENDIENTE (REAPERTURA) -->
-<div class="modal-overlay" id="modalCobrarPendiente" style="z-index:1050">
-    <div class="modal modal-md">
+<!-- MODAL: Cobrar Pendiente (Venta Reabierta) -->
+<div class="modal-overlay" id="modalCobrarPendiente">
+    <div class="modal modal-sm">
+        <!-- Header - usa clase pendiente-header -->
         <div class="pendiente-header">
-            <small>MONTO A COBRAR</small>
+            <small>Cobrar Complemento</small>
             <h2 id="pendienteMonto">$0.00</h2>
-            <span class="badge-complemento">COMPLEMENTO DE PAGO</span>
+            <span class="badge-complemento">Venta Reabierta</span>
         </div>
         
+        <!-- Resumen - usa clase pendiente-resumen, pendiente-linea -->
         <div class="pendiente-resumen">
             <div class="pendiente-linea">
                 <span>Total original:</span>
@@ -2964,24 +2959,29 @@
         </div>
         
         <div class="cobro-body">
-            <div class="cobro-metodos" id="metodosPendienteContainer"></div>
+            <div class="cobro-metodos" id="metodosPendienteContainer">
+                <!-- Contenido dinámico -->
+            </div>
+            
             <div class="cobro-efectivo">
-                <label>Monto recibido</label>
-                <input type="number" id="inputEfectivoPendiente" placeholder="0.00" step="0.01" oninput="calcularCambioPendiente()">
+                <label>Efectivo recibido</label>
+                <input type="number" id="inputEfectivoPendiente" step="0.01" min="0" placeholder="0.00" oninput="calcularCambioPendiente()">
+                
                 <div class="denominaciones">
-                    <button type="button" onclick="addEfectivoPendiente(20)">+$20</button>
-                    <button type="button" onclick="addEfectivoPendiente(50)">+$50</button>
-                    <button type="button" onclick="addEfectivoPendiente(100)">+$100</button>
-                    <button type="button" onclick="addEfectivoPendiente(200)">+$200</button>
-                    <button type="button" onclick="addEfectivoPendiente(500)">+$500</button>
+                    <button type="button" onclick="addEfectivoPendiente(20)">$20</button>
+                    <button type="button" onclick="addEfectivoPendiente(50)">$50</button>
+                    <button type="button" onclick="addEfectivoPendiente(100)">$100</button>
+                    <button type="button" onclick="addEfectivoPendiente(200)">$200</button>
+                    <button type="button" onclick="addEfectivoPendiente(500)">$500</button>
                     <button type="button" onclick="setExactoPendiente()">Exacto</button>
-                    <button type="button" onclick="limpiarEfectivoPendiente()">Limpiar</button>
-                    <button type="button" onclick="addEfectivoPendiente(1000)">+$1000</button>
+                    <button type="button" onclick="addEfectivoPendiente(1000)">$1000</button>
+                    <button type="button" onclick="limpiarEfectivoPendiente()">C</button>
                 </div>
-                <div class="cobro-cambio">
-                    <span>Cambio</span>
-                    <strong id="cambioPendiente">$0.00</strong>
-                </div>
+            </div>
+            
+            <div class="cobro-cambio">
+                <span>Cambio</span>
+                <strong id="cambioPendiente">$0.00</strong>
             </div>
         </div>
         
@@ -2989,6 +2989,33 @@
             <button class="btn btn-outline" onclick="cerrarModal('modalCobrarPendiente')">Cancelar</button>
             <button class="btn btn-success btn-lg" onclick="confirmarCobroPendiente()">
                 <i class="fas fa-check"></i> Cobrar Complemento
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Autorizar Admin (genérico para usar en cualquier acción) -->
+<div class="modal-overlay" id="modalAutorizarAdmin">
+    <div class="modal modal-xs">
+        <div class="modal-header" style="background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%)">
+            <div class="modal-title"><i class="fas fa-lock"></i> Autorización Requerida</div>
+            <button class="btn-close light" onclick="cancelarAutorizacionAdmin()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <p id="adminAuthMensaje" style="text-align:center;margin-bottom:20px;color:#374151">
+                Se requiere autorización de administrador para esta acción.
+            </p>
+            
+            <div class="form-group">
+                <label><i class="fas fa-key"></i> Clave de Administrador</label>
+                <input type="password" id="claveAdminAuth" class="form-control" placeholder="Ingresa la clave..." 
+                    onkeypress="if(event.key==='Enter')confirmarAutorizacionAdmin()">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="cancelarAutorizacionAdmin()">Cancelar</button>
+            <button class="btn btn-warning" onclick="confirmarAutorizacionAdmin()">
+                <i class="fas fa-unlock"></i> Autorizar
             </button>
         </div>
     </div>
