@@ -266,6 +266,85 @@
 .btn-export i { color: #22c55e; }
 
 /* ============================================
+   TABLE ACTION BUTTONS
+   ============================================ */
+
+.btn-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
+
+.btn-edit,
+.btn-delete,
+.btn-view {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: #f1f5f9;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 13px;
+}
+
+.btn-edit {
+    color: var(--primary);
+}
+
+.btn-edit:hover {
+    background: var(--primary);
+    color: #fff;
+}
+
+.btn-delete {
+    color: var(--danger);
+}
+
+.btn-delete:hover {
+    background: var(--danger);
+    color: #fff;
+}
+
+.btn-view {
+    color: var(--info);
+}
+
+.btn-view:hover {
+    background: var(--info);
+    color: #fff;
+}
+
+/* Legacy support */
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: #f1f5f9;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-action.edit { color: var(--primary); }
+.btn-action.edit:hover { background: var(--primary); color: #fff; }
+.btn-action.delete { color: var(--danger); }
+.btn-action.delete:hover { background: var(--danger); color: #fff; }
+.btn-action.view { color: var(--info); }
+.btn-action.view:hover { background: var(--info); color: #fff; }
+
+.actions-cell {
+    display: flex;
+    gap: 6px;
+}
+
+/* ============================================
    STATS ROW
    ============================================ */
 
@@ -355,8 +434,11 @@
     letter-spacing: 0.5px;
 }
 
-.panel-table th.center { text-align: center; }
-.panel-table th.right { text-align: right; }
+.panel-table th.center,
+.panel-table td.center { text-align: center; }
+
+.panel-table th.right,
+.panel-table td.right { text-align: right; }
 
 .panel-table td {
     padding: 12px 16px;
@@ -372,8 +454,9 @@
     border-bottom: none;
 }
 
-.text-center { text-align: center; }
-.text-right { text-align: right; }
+/* Table text utilities */
+.text-center, .center { text-align: center; }
+.text-right, .right { text-align: right; }
 .text-success { color: #22c55e; }
 .text-danger { color: #ef4444; }
 
@@ -397,55 +480,6 @@
 .badge-info { background: #dbeafe; color: #2563eb; }
 .badge-purple { background: #f3e8ff; color: #7c3aed; }
 .badge-gray { background: #f1f5f9; color: #64748b; }
-
-/* ============================================
-   ACTION BUTTONS
-   ============================================ */
-
-.btn-action {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    background: #f1f5f9;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.btn-action.edit {
-    color: var(--primary);
-}
-
-.btn-action.edit:hover {
-    background: var(--primary);
-    color: #fff;
-}
-
-.btn-action.delete {
-    color: var(--danger);
-}
-
-.btn-action.delete:hover {
-    background: var(--danger);
-    color: #fff;
-}
-
-.btn-action.view {
-    color: var(--info);
-}
-
-.btn-action.view:hover {
-    background: var(--info);
-    color: #fff;
-}
-
-.actions-cell {
-    display: flex;
-    gap: 6px;
-}
 
 /* ============================================
    MODAL
@@ -585,6 +619,12 @@
     box-sizing: border-box;
 }
 
+.form-group input[type="color"] {
+    padding: 4px;
+    height: 42px;
+    cursor: pointer;
+}
+
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
@@ -613,6 +653,12 @@
 .form-row-3 {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.form-row-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 16px;
 }
 
@@ -792,6 +838,50 @@
 }
 
 /* ============================================
+   INFO BOX (Read-only catalog notice)
+   ============================================ */
+
+.info-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 18px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.info-box i {
+    color: #3b82f6;
+    font-size: 18px;
+    margin-top: 2px;
+}
+
+.info-box p {
+    margin: 0;
+    font-size: 13px;
+    color: #1e40af;
+    line-height: 1.5;
+}
+
+.info-box.warning {
+    background: #fffbeb;
+    border-color: #fde68a;
+}
+
+.info-box.warning i { color: #f59e0b; }
+.info-box.warning p { color: #92400e; }
+
+.info-box.success {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+}
+
+.info-box.success i { color: #10b981; }
+.info-box.success p { color: #065f46; }
+
+/* ============================================
    EMPTY STATE
    ============================================ */
 
@@ -873,6 +963,43 @@
 .toast.warning { background: #f59e0b; }
 
 /* ============================================
+   COLOR PREVIEW
+   ============================================ */
+
+.color-preview {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    vertical-align: middle;
+    margin-right: 8px;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+/* ============================================
+   LOGO PREVIEW
+   ============================================ */
+
+.logo-preview {
+    max-height: 30px;
+    max-width: 80px;
+    object-fit: contain;
+    border-radius: 4px;
+}
+
+/* ============================================
+   CURRENCY DISPLAY
+   ============================================ */
+
+.currency {
+    font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+    font-weight: 600;
+}
+
+.currency.positive { color: var(--success); }
+.currency.negative { color: var(--danger); }
+
+/* ============================================
    RESPONSIVE
    ============================================ */
 
@@ -924,7 +1051,8 @@
     }
     
     .form-row,
-    .form-row-3 {
+    .form-row-3,
+    .form-row-4 {
         grid-template-columns: 1fr;
     }
     
@@ -935,6 +1063,10 @@
     .modal {
         width: 95%;
         margin: 10px;
+    }
+    
+    .modal-body {
+        max-height: 70vh;
     }
 }
 
@@ -956,6 +1088,19 @@
     .checkbox-group {
         flex-direction: column;
     }
+    
+    .btn-actions {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .btn-edit,
+    .btn-delete,
+    .btn-view {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
 }
 
 /* ============================================
@@ -969,7 +1114,10 @@
     .panel-toolbar,
     .modal-overlay,
     .toast,
-    .btn-action {
+    .btn-action,
+    .btn-edit,
+    .btn-delete,
+    .btn-actions {
         display: none !important;
     }
     
@@ -986,7 +1134,15 @@
         box-shadow: none;
     }
     
+    .config-panel {
+        display: block !important;
+    }
+    
     .panel-table {
         border: 1px solid #ccc;
+    }
+    
+    .badge {
+        border: 1px solid currentColor;
     }
 }
