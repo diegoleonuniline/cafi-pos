@@ -2660,7 +2660,7 @@ function cambiarTabDetalle(tab) {
     var tabBtns = document.querySelectorAll('.detalle-tabs .tab-btn');
     var panels = document.querySelectorAll('.tab-panel');
     
-    if (!tabBtns.length || !panels.length) return; // <-- Agregar esta validación
+    if (!tabBtns.length || !panels.length) return;
     
     tabBtns.forEach(function(btn) {
         btn.classList.remove('active');
@@ -2675,11 +2675,6 @@ function cambiarTabDetalle(tab) {
     
     if (tabBtn) tabBtn.classList.add('active');
     if (panel) panel.classList.add('active');
-}
-    
-    // Activar el seleccionado
-    document.querySelector('.tab-btn[onclick*="' + tab + '"]').classList.add('active');
-    document.getElementById('panel' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
 }
 // Resetear a tab Info y mostrar/ocultar tab historial
 cambiarTabDetalle('info');
