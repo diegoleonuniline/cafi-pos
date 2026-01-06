@@ -3,439 +3,515 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuración - CAFI</title>
+    <title>CAFI - Configuración</title>
+    <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/configuracion.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" href="data:,">
 </head>
 <body>
-    <div class="config-container">
-        <!-- HEADER -->
-        <div class="config-header">
-            <div class="header-left">
-                <a href="../index.html" class="btn-back"><i class="fas fa-arrow-left"></i></a>
-                <h1><i class="fas fa-cog"></i> Configuración</h1>
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <svg viewBox="0 0 500 500" width="40" height="40">
+                    <g transform="translate(0,500) scale(0.1,-0.1)">
+                        <path fill="#2D3DBF" d="M905 3775 c-5 -2 -22 -6 -37 -9 -62 -14 -127 -102 -128 -174 0 -43 24 -100 58 -135 39 -41 107 -57 246 -57 l121 0 136 -137 137 -138 59 -145 c33 -80 89 -219 124 -309 l64 -165 7 105 c9 150 39 265 103 394 74 150 174 267 305 357 24 16 16 17 -180 17 l-205 1 -175 176 c-96 96 -193 185 -215 197 -37 20 -56 22 -225 24 -102 1 -189 1 -195 -2z"/>
+                        <path fill="#6C2BD9" d="M3270 3352 c143 -112 231 -234 285 -399 14 -43 28 -105 32 -138 9 -98 16 -96 -293 -93 l-259 3 -30 58 c-43 83 -88 133 -148 165 -48 25 -61 27 -172 27 -112 0 -124 -2 -178 -29 -60 -30 -126 -95 -157 -156 -39 -77 -52 -147 -48 -264 3 -104 6 -116 40 -188 78 -163 207 -239 382 -225 135 12 252 97 286 210 23 80 11 77 301 77 l258 0 18 -23 17 -24 40 101 c21 56 99 254 174 441 80 202 135 355 136 377 1 45 -32 84 -83 98 -20 6 -168 10 -336 10 l-300 0 35 -28z"/>
+                        <path fill="#fff" d="M2147 1706 c-175 -48 -237 -282 -109 -412 93 -94 263 -88 351 11 46 53 61 93 61 165 0 162 -149 278 -303 236z"/>
+                        <path fill="#fff" d="M3058 1706 c-150 -41 -228 -210 -159 -344 79 -154 289 -183 402 -55 43 50 59 92 59 160 -1 163 -150 281 -302 239z"/>
+                    </g>
+                </svg>
+                <span>CAFI</span>
             </div>
-            <div class="header-right">
-                <span id="empresaNombre" class="empresa-badge"></span>
-            </div>
-        </div>
-
-        <!-- TABS -->
-        <div class="config-tabs-container">
-            <div class="config-tabs">
-                <button class="tab-btn active" data-tab="empresa">
-                    <i class="fas fa-building"></i>
-                    <span>Empresa</span>
-                </button>
-                <button class="tab-btn" data-tab="sucursales">
-                    <i class="fas fa-store"></i>
-                    <span>Sucursales</span>
-                </button>
-                <button class="tab-btn" data-tab="usuarios">
-                    <i class="fas fa-users"></i>
-                    <span>Usuarios</span>
-                </button>
-                <button class="tab-btn" data-tab="impuestos">
-                    <i class="fas fa-percent"></i>
-                    <span>Impuestos</span>
-                </button>
-                <button class="tab-btn" data-tab="metodos">
-                    <i class="fas fa-credit-card"></i>
-                    <span>Métodos Pago</span>
-                </button>
-                <button class="tab-btn" data-tab="unidades">
-                    <i class="fas fa-balance-scale"></i>
-                    <span>Unidades</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- CONTENIDO -->
-        <div class="config-content">
-
-            <!-- ==================== TAB EMPRESA ==================== -->
-            <div class="config-panel active" id="panel-empresa">
-                <div class="panel-header">
-                    <h2><i class="fas fa-building"></i> Datos de la Empresa</h2>
+            <nav class="sidebar-nav">
+                <a href="pos.html" class="nav-item"><i class="fas fa-cash-register"></i><span>Punto de Venta</span></a>
+                <a href="admin.html" class="nav-item"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+                <a href="productos.html" class="nav-item"><i class="fas fa-box"></i><span>Productos</span></a>
+                <a href="categorias.html" class="nav-item"><i class="fas fa-tags"></i><span>Categorías</span></a>
+                <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i><span>Clientes</span></a>
+                <a href="ventas.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Ventas</span></a>
+                <a href="reportes.html" class="nav-item"><i class="fas fa-file-alt"></i><span>Reportes</span></a>
+                <a href="configuracion.html" class="nav-item active"><i class="fas fa-cog"></i><span>Configuración</span></a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-mini">
+                    <div class="user-avatar" id="userAvatar">AD</div>
+                    <div class="user-info">
+                        <span id="userName">Usuario</span>
+                        <small id="userSucursal">Sucursal</small>
+                    </div>
                 </div>
-                <form id="formEmpresa" class="form-empresa">
-                    <div class="form-section">
-                        <h3>Información General</h3>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Nombre / Razón Social *</label>
-                                <input type="text" id="empNombre" required>
-                            </div>
-                            <div class="form-group">
-                                <label>RFC</label>
-                                <input type="text" id="empRFC" maxlength="13" style="text-transform:uppercase">
+                <button class="btn-logout" onclick="API.logout()"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1><i class="fas fa-cog"></i> Configuración</h1>
+            </header>
+
+            <div class="admin-content">
+                <!-- TABS HORIZONTALES -->
+                <div class="config-tabs-container">
+                    <div class="config-tabs">
+                        <button class="tab-btn active" data-tab="empresa"><i class="fas fa-building"></i><span>Empresa</span></button>
+                        <button class="tab-btn" data-tab="sucursales"><i class="fas fa-store"></i><span>Sucursales</span></button>
+                        <button class="tab-btn" data-tab="usuarios"><i class="fas fa-users-cog"></i><span>Usuarios</span></button>
+                        <button class="tab-btn" data-tab="impuestos"><i class="fas fa-percentage"></i><span>Impuestos</span></button>
+                        <button class="tab-btn" data-tab="metodos-pago"><i class="fas fa-credit-card"></i><span>Métodos de Pago</span></button>
+                        <button class="tab-btn" data-tab="unidades"><i class="fas fa-balance-scale"></i><span>Unidades</span></button>
+                    </div>
+                </div>
+
+                <!-- CONTENIDO -->
+                <div class="config-wrapper">
+                    
+                    <!-- ==================== EMPRESA ==================== -->
+                    <div class="config-panel active" id="panel-empresa">
+                        <div class="empresa-card">
+                            <h2 id="empresaNombreHeader">Mi Empresa</h2>
+                            <p id="empresaRfcHeader">RFC: XXXX000000XXX</p>
+                        </div>
+                        
+                        <div class="panel-toolbar">
+                            <div class="toolbar-title"><i class="fas fa-building"></i><h3>Datos de la Empresa</h3></div>
+                            <div class="toolbar-actions">
+                                <button class="btn btn-primary" onclick="editarEmpresa()"><i class="fas fa-edit"></i> Editar</button>
                             </div>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Teléfono</label>
-                                <input type="tel" id="empTelefono">
+                        
+                        <div class="empresa-details">
+                            <div class="detail-item">
+                                <i class="fas fa-building"></i>
+                                <div><label>Razón Social</label><span id="empresaNombre">-</span></div>
                             </div>
-                            <div class="form-group">
-                                <label>Email</label>
-                                <input type="email" id="empEmail">
+                            <div class="detail-item">
+                                <i class="fas fa-id-card"></i>
+                                <div><label>RFC</label><span id="empresaRfc">-</span></div>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <div><label>Dirección</label><span id="empresaDireccion">-</span></div>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-phone"></i>
+                                <div><label>Teléfono</label><span id="empresaTelefono">-</span></div>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-envelope"></i>
+                                <div><label>Email</label><span id="empresaEmail">-</span></div>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-globe"></i>
+                                <div><label>Sitio Web</label><span id="empresaWeb">-</span></div>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-dollar-sign"></i>
+                                <div><label>Moneda</label><span id="empresaMoneda">-</span></div>
                             </div>
                         </div>
                     </div>
-                    <div class="form-section">
-                        <h3>Dirección</h3>
+
+                    <!-- ==================== SUCURSALES ==================== -->
+                    <div class="config-panel" id="panel-sucursales">
+                        <div class="panel-toolbar">
+                            <div class="toolbar-title"><i class="fas fa-store"></i><h3>Sucursales</h3></div>
+                            <div class="toolbar-actions">
+                                <button class="btn btn-success" onclick="nuevaSucursal()"><i class="fas fa-plus"></i> Nueva Sucursal</button>
+                            </div>
+                        </div>
+                        
+                        <div class="panel-stats-row">
+                            <div class="mini-stat blue"><i class="fas fa-store"></i><div><span id="sucursalesTotal">0</span><small>Total</small></div></div>
+                            <div class="mini-stat green"><i class="fas fa-check-circle"></i><div><span id="sucursalesActivas">0</span><small>Activas</small></div></div>
+                            <div class="mini-stat red"><i class="fas fa-times-circle"></i><div><span id="sucursalesInactivas">0</span><small>Inactivas</small></div></div>
+                        </div>
+                        
+                        <div class="panel-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Dirección</th>
+                                        <th>Teléfono</th>
+                                        <th>Responsable</th>
+                                        <th class="center">Estado</th>
+                                        <th class="center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaSucursales"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ==================== USUARIOS ==================== -->
+                    <div class="config-panel" id="panel-usuarios">
+                        <div class="panel-toolbar">
+                            <div class="toolbar-title"><i class="fas fa-users-cog"></i><h3>Usuarios del Sistema</h3></div>
+                            <div class="toolbar-actions">
+                                <button class="btn btn-success" onclick="nuevoUsuario()"><i class="fas fa-plus"></i> Nuevo Usuario</button>
+                            </div>
+                        </div>
+                        
+                        <div class="panel-stats-row">
+                            <div class="mini-stat blue"><i class="fas fa-users"></i><div><span id="usuariosTotal">0</span><small>Total</small></div></div>
+                            <div class="mini-stat green"><i class="fas fa-user-check"></i><div><span id="usuariosActivos">0</span><small>Activos</small></div></div>
+                            <div class="mini-stat purple"><i class="fas fa-user-shield"></i><div><span id="usuariosAdmin">0</span><small>Admins</small></div></div>
+                        </div>
+                        
+                        <div class="panel-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Email</th>
+                                        <th>Rol</th>
+                                        <th>Sucursal</th>
+                                        <th class="center">Estado</th>
+                                        <th class="center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaUsuarios"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ==================== IMPUESTOS ==================== -->
+                    <div class="config-panel" id="panel-impuestos">
+                        <div class="panel-toolbar">
+                            <div class="toolbar-title"><i class="fas fa-percentage"></i><h3>Impuestos</h3></div>
+                            <div class="toolbar-actions">
+                                <button class="btn btn-success" onclick="nuevoImpuesto()"><i class="fas fa-plus"></i> Nuevo Impuesto</button>
+                            </div>
+                        </div>
+                        
+                        <div class="panel-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Tipo</th>
+                                        <th class="center">Tasa %</th>
+                                        <th class="center">Incluido</th>
+                                        <th class="center">Activo</th>
+                                        <th class="center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaImpuestos"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ==================== MÉTODOS DE PAGO ==================== -->
+                    <div class="config-panel" id="panel-metodos-pago">
+                        <div class="panel-toolbar">
+                            <div class="toolbar-title"><i class="fas fa-credit-card"></i><h3>Métodos de Pago</h3></div>
+                            <div class="toolbar-actions">
+                                <button class="btn btn-success" onclick="nuevoMetodoPago()"><i class="fas fa-plus"></i> Nuevo Método</button>
+                            </div>
+                        </div>
+                        
+                        <div class="panel-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Tipo</th>
+                                        <th class="center">Comisión %</th>
+                                        <th class="center">Comisión Fija</th>
+                                        <th class="center">Requiere Ref.</th>
+                                        <th class="center">Activo</th>
+                                        <th class="center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaMetodosPago"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ==================== UNIDADES DE MEDIDA ==================== -->
+                    <div class="config-panel" id="panel-unidades">
+                        <div class="panel-toolbar">
+                            <div class="toolbar-title"><i class="fas fa-balance-scale"></i><h3>Unidades de Medida</h3></div>
+                            <div class="toolbar-actions">
+                                <button class="btn btn-success" onclick="nuevaUnidad()"><i class="fas fa-plus"></i> Nueva Unidad</button>
+                            </div>
+                        </div>
+                        
+                        <div class="panel-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Abreviatura</th>
+                                        <th>Tipo</th>
+                                        <th class="center">Sistema</th>
+                                        <th class="center">Activo</th>
+                                        <th class="center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaUnidades"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ==================== MODAL EMPRESA ==================== -->
+    <div class="modal-overlay" id="modalEmpresa">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3><i class="fas fa-building"></i> Editar Empresa</h3>
+                <button class="modal-close" onclick="cerrarModal('modalEmpresa')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="formEmpresa">
+                    <div class="form-row">
                         <div class="form-group">
-                            <label>Dirección</label>
-                            <textarea id="empDireccion" rows="2"></textarea>
+                            <label>Razón Social <span class="required">*</span></label>
+                            <input type="text" name="nombre" id="inputEmpresaNombre" required>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Régimen Fiscal</label>
-                                <input type="text" id="empRegimen">
-                            </div>
-                            <div class="form-group">
-                                <label>Código Postal</label>
-                                <input type="text" id="empCP" maxlength="10">
-                            </div>
+                        <div class="form-group">
+                            <label>RFC <span class="required">*</span></label>
+                            <input type="text" name="rfc" id="inputEmpresaRfc" maxlength="13" required>
                         </div>
                     </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Guardar Cambios</button>
+                    <div class="form-group">
+                        <label>Dirección</label>
+                        <input type="text" name="direccion" id="inputEmpresaDireccion">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Teléfono</label>
+                            <input type="tel" name="telefono" id="inputEmpresaTelefono">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="email" id="inputEmpresaEmail">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Sitio Web</label>
+                            <input type="url" name="sitio_web" id="inputEmpresaWeb" placeholder="https://">
+                        </div>
+                        <div class="form-group">
+                            <label>Moneda</label>
+                            <select name="moneda" id="inputEmpresaMoneda">
+                                <option value="MXN">MXN - Peso Mexicano</option>
+                                <option value="USD">USD - Dólar Americano</option>
+                                <option value="EUR">EUR - Euro</option>
+                            </select>
+                        </div>
                     </div>
                 </form>
             </div>
-
-            <!-- ==================== TAB SUCURSALES ==================== -->
-            <div class="config-panel" id="panel-sucursales">
-                <div class="panel-header">
-                    <h2><i class="fas fa-store"></i> Sucursales</h2>
-                    <button class="btn-add" onclick="abrirModalSucursal()"><i class="fas fa-plus"></i> Nueva Sucursal</button>
-                </div>
-                <div class="panel-table">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Nombre</th>
-                                <th>Tipo</th>
-                                <th>Ciudad</th>
-                                <th>Responsable</th>
-                                <th>Horario</th>
-                                <th class="center">Estado</th>
-                                <th class="center">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaSucursales"></tbody>
-                    </table>
-                </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="cerrarModal('modalEmpresa')">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarEmpresa()"><i class="fas fa-save"></i> Guardar</button>
             </div>
-
-            <!-- ==================== TAB USUARIOS ==================== -->
-            <div class="config-panel" id="panel-usuarios">
-                <div class="panel-header">
-                    <h2><i class="fas fa-users"></i> Usuarios</h2>
-                    <button class="btn-add" onclick="abrirModalUsuario()"><i class="fas fa-plus"></i> Nuevo Usuario</button>
-                </div>
-                <div class="panel-table">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Email</th>
-                                <th>Rol</th>
-                                <th>Sucursal</th>
-                                <th class="center">Estado</th>
-                                <th class="center">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaUsuarios"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- ==================== TAB IMPUESTOS ==================== -->
-            <div class="config-panel" id="panel-impuestos">
-                <div class="panel-header">
-                    <h2><i class="fas fa-percent"></i> Impuestos</h2>
-                    <button class="btn-add" onclick="abrirModalImpuesto()"><i class="fas fa-plus"></i> Nuevo Impuesto</button>
-                </div>
-                <div class="panel-table">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Tipo</th>
-                                <th class="center">Valor</th>
-                                <th class="center">Incluido en Precio</th>
-                                <th class="center">Ventas</th>
-                                <th class="center">Compras</th>
-                                <th class="center">Estado</th>
-                                <th class="center">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaImpuestos"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- ==================== TAB MÉTODOS DE PAGO ==================== -->
-            <div class="config-panel" id="panel-metodos">
-                <div class="panel-header">
-                    <h2><i class="fas fa-credit-card"></i> Métodos de Pago</h2>
-                    <button class="btn-add" onclick="abrirModalMetodo()"><i class="fas fa-plus"></i> Nuevo Método</button>
-                </div>
-                <div class="panel-table">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Tipo</th>
-                                <th class="center">Req. Referencia</th>
-                                <th class="center">Permite Cambio</th>
-                                <th class="center">Comisión %</th>
-                                <th class="center">Comisión Fija</th>
-                                <th class="center">Estado</th>
-                                <th class="center">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaMetodos"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- ==================== TAB UNIDADES ==================== -->
-            <div class="config-panel" id="panel-unidades">
-                <div class="panel-header">
-                    <h2><i class="fas fa-balance-scale"></i> Unidades de Medida</h2>
-                    <button class="btn-add" onclick="abrirModalUnidad()"><i class="fas fa-plus"></i> Nueva Unidad</button>
-                </div>
-                <div class="panel-table">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Abreviatura</th>
-                                <th>Tipo</th>
-                                <th class="center">Sistema</th>
-                                <th class="center">Estado</th>
-                                <th class="center">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaUnidades"></tbody>
-                    </table>
-                </div>
-            </div>
-
         </div>
     </div>
 
     <!-- ==================== MODAL SUCURSAL ==================== -->
     <div class="modal-overlay" id="modalSucursal">
-        <div class="modal modal-lg">
+        <div class="modal modal-xl">
             <div class="modal-header">
                 <h3><i class="fas fa-store"></i> <span id="modalSucursalTitulo">Nueva Sucursal</span></h3>
                 <button class="modal-close" onclick="cerrarModal('modalSucursal')"><i class="fas fa-times"></i></button>
             </div>
-            <form id="formSucursal">
-                <div class="modal-body">
-                    <input type="hidden" id="sucursalId">
+            <div class="modal-body">
+                <form id="formSucursal">
+                    <input type="hidden" name="id" id="sucursalId">
                     
-                    <!-- Información básica -->
                     <div class="form-section">
                         <h4><i class="fas fa-info-circle"></i> Información Básica</h4>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Código</label>
-                                <input type="text" id="sucCodigo" placeholder="Ej: SUC001">
+                                <label>Nombre <span class="required">*</span></label>
+                                <input type="text" name="nombre" id="sucursalNombre" required>
                             </div>
                             <div class="form-group">
-                                <label>Nombre *</label>
-                                <input type="text" id="sucNombre" required>
+                                <label>Código</label>
+                                <input type="text" name="codigo" id="sucursalCodigo" maxlength="10">
                             </div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group">
-                                <label>Tipo *</label>
-                                <select id="sucTipo" required>
-                                    <option value="TIENDA">Tienda</option>
-                                    <option value="BODEGA">Bodega</option>
-                                    <option value="OFICINA">Oficina</option>
-                                    <option value="FRANQUICIA">Franquicia</option>
-                                </select>
-                            </div>
                             <div class="form-group">
                                 <label>Responsable</label>
-                                <input type="text" id="sucResponsable">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Dirección -->
-                    <div class="form-section">
-                        <h4><i class="fas fa-map-marker-alt"></i> Dirección</h4>
-                        <div class="form-group">
-                            <label>Dirección</label>
-                            <input type="text" id="sucDireccion" placeholder="Calle y número">
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Colonia</label>
-                                <input type="text" id="sucColonia">
-                            </div>
-                            <div class="form-group">
-                                <label>Ciudad</label>
-                                <input type="text" id="sucCiudad">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Estado/Provincia</label>
-                                <input type="text" id="sucEstado">
-                            </div>
-                            <div class="form-group">
-                                <label>Código Postal</label>
-                                <input type="text" id="sucCP" maxlength="10">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Contacto -->
-                    <div class="form-section">
-                        <h4><i class="fas fa-phone"></i> Contacto</h4>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Teléfono</label>
-                                <input type="tel" id="sucTelefono">
+                                <input type="text" name="responsable" id="sucursalResponsable">
                             </div>
                             <div class="form-group">
                                 <label>Email</label>
-                                <input type="email" id="sucEmail">
+                                <input type="email" name="email" id="sucursalEmail">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Teléfono</label>
+                            <input type="tel" name="telefono" id="sucursalTelefono">
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4><i class="fas fa-map-marker-alt"></i> Dirección</h4>
+                        <div class="form-group">
+                            <label>Calle y Número</label>
+                            <input type="text" name="direccion" id="sucursalDireccion">
+                        </div>
+                        <div class="form-row-3">
+                            <div class="form-group">
+                                <label>Colonia</label>
+                                <input type="text" name="colonia" id="sucursalColonia">
+                            </div>
+                            <div class="form-group">
+                                <label>Ciudad</label>
+                                <input type="text" name="ciudad" id="sucursalCiudad">
+                            </div>
+                            <div class="form-group">
+                                <label>Estado</label>
+                                <input type="text" name="estado" id="sucursalEstado">
+                            </div>
+                        </div>
+                        <div class="form-row-3">
+                            <div class="form-group">
+                                <label>Código Postal</label>
+                                <input type="text" name="codigo_postal" id="sucursalCP" maxlength="5">
+                            </div>
+                            <div class="form-group">
+                                <label>Latitud</label>
+                                <input type="text" name="latitud" id="sucursalLatitud" placeholder="ej: 19.4326">
+                            </div>
+                            <div class="form-group">
+                                <label>Longitud</label>
+                                <input type="text" name="longitud" id="sucursalLongitud" placeholder="ej: -99.1332">
                             </div>
                         </div>
                     </div>
-
-                    <!-- Horario -->
+                    
                     <div class="form-section">
-                        <h4><i class="fas fa-clock"></i> Horario de Operación</h4>
+                        <h4><i class="fas fa-clock"></i> Horario de Atención</h4>
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Hora Apertura</label>
-                                <input type="time" id="sucHoraApertura" value="09:00">
+                                <input type="time" name="hora_apertura" id="sucursalHoraApertura">
                             </div>
                             <div class="form-group">
                                 <label>Hora Cierre</label>
-                                <input type="time" id="sucHoraCierre" value="20:00">
+                                <input type="time" name="hora_cierre" id="sucursalHoraCierre">
                             </div>
                         </div>
                         <div class="form-group">
                             <label>Días de Operación</label>
-                            <div class="dias-operacion">
-                                <label class="dia-check"><input type="checkbox" id="diaL" checked> <span>Lun</span></label>
-                                <label class="dia-check"><input type="checkbox" id="diaM" checked> <span>Mar</span></label>
-                                <label class="dia-check"><input type="checkbox" id="diaX" checked> <span>Mié</span></label>
-                                <label class="dia-check"><input type="checkbox" id="diaJ" checked> <span>Jue</span></label>
-                                <label class="dia-check"><input type="checkbox" id="diaV" checked> <span>Vie</span></label>
-                                <label class="dia-check"><input type="checkbox" id="diaS" checked> <span>Sáb</span></label>
-                                <label class="dia-check"><input type="checkbox" id="diaD"> <span>Dom</span></label>
+                            <div class="checkbox-group" id="sucursalDias">
+                                <label class="checkbox-item"><input type="checkbox" name="dia_lunes" value="1"> Lunes</label>
+                                <label class="checkbox-item"><input type="checkbox" name="dia_martes" value="1"> Martes</label>
+                                <label class="checkbox-item"><input type="checkbox" name="dia_miercoles" value="1"> Miércoles</label>
+                                <label class="checkbox-item"><input type="checkbox" name="dia_jueves" value="1"> Jueves</label>
+                                <label class="checkbox-item"><input type="checkbox" name="dia_viernes" value="1"> Viernes</label>
+                                <label class="checkbox-item"><input type="checkbox" name="dia_sabado" value="1"> Sábado</label>
+                                <label class="checkbox-item"><input type="checkbox" name="dia_domingo" value="1"> Domingo</label>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Permisos -->
+                    
                     <div class="form-section">
-                        <h4><i class="fas fa-lock"></i> Permisos</h4>
-                        <div class="permisos-grid">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="sucPermiteVenta" checked>
-                                <span>Permite Ventas</span>
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="sucPermiteCompra" checked>
-                                <span>Permite Compras</span>
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="sucPermiteTraspaso" checked>
-                                <span>Permite Traspasos</span>
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="sucActivo" checked>
-                                <span>Sucursal Activa</span>
-                            </label>
+                        <h4><i class="fas fa-cogs"></i> Permisos</h4>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item"><input type="checkbox" name="permite_credito" id="sucursalPermiteCredito"> Permite Crédito</label>
+                            <label class="checkbox-item"><input type="checkbox" name="permite_apartado" id="sucursalPermiteApartado"> Permite Apartado</label>
+                            <label class="checkbox-item"><input type="checkbox" name="permite_devolucion" id="sucursalPermiteDevolucion"> Permite Devolución</label>
                         </div>
                     </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="cerrarModal('modalSucursal')">Cancelar</button>
-                    <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Guardar</button>
-                </div>
-            </form>
+                    
+                    <div class="form-group">
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="activo" id="sucursalActivo" checked>
+                            <span class="toggle-slider"></span>
+                            Sucursal Activa
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="cerrarModal('modalSucursal')">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarSucursal()"><i class="fas fa-save"></i> Guardar</button>
+            </div>
         </div>
     </div>
 
     <!-- ==================== MODAL USUARIO ==================== -->
     <div class="modal-overlay" id="modalUsuario">
-        <div class="modal">
+        <div class="modal modal-lg">
             <div class="modal-header">
-                <h3><i class="fas fa-user-plus"></i> <span id="modalUsuarioTitulo">Nuevo Usuario</span></h3>
+                <h3><i class="fas fa-user"></i> <span id="modalUsuarioTitulo">Nuevo Usuario</span></h3>
                 <button class="modal-close" onclick="cerrarModal('modalUsuario')"><i class="fas fa-times"></i></button>
             </div>
-            <form id="formUsuario">
-                <div class="modal-body">
-                    <input type="hidden" id="usuarioId">
-                    <div class="form-group">
-                        <label>Nombre Completo *</label>
-                        <input type="text" id="usrNombre" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email (Login) *</label>
-                        <input type="email" id="usrEmail" required>
-                        <small class="form-help">El email se usa para iniciar sesión y no puede cambiarse después</small>
-                    </div>
+            <div class="modal-body">
+                <form id="formUsuario">
+                    <input type="hidden" name="id" id="usuarioId">
+                    
                     <div class="form-row">
                         <div class="form-group">
-                            <label id="lblPassword">Contraseña *</label>
-                            <input type="password" id="usrPassword">
+                            <label>Nombre Completo <span class="required">*</span></label>
+                            <input type="text" name="nombre" id="usuarioNombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email <span class="required">*</span></label>
+                            <input type="email" name="email" id="usuarioEmail" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Contraseña <span class="required" id="passRequired">*</span></label>
+                            <input type="password" name="contrasena" id="usuarioContrasena" minlength="6">
+                            <small style="color:#64748b;font-size:11px;" id="passHint">Mínimo 6 caracteres</small>
                         </div>
                         <div class="form-group">
                             <label>Confirmar Contraseña</label>
-                            <input type="password" id="usrPassword2">
+                            <input type="password" name="confirmar_contrasena" id="usuarioConfirmarContrasena">
                         </div>
                     </div>
+                    
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Rol *</label>
-                            <select id="usrRol" required>
+                            <label>Rol <span class="required">*</span></label>
+                            <select name="rol" id="usuarioRol" required>
                                 <option value="">Seleccionar...</option>
-                                <option value="SuperAdmin">Super Admin</option>
-                                <option value="Admin">Administrador</option>
-                                <option value="Gerente">Gerente</option>
-                                <option value="Supervisor">Supervisor</option>
-                                <option value="Cajero">Cajero</option>
-                                <option value="Almacenista">Almacenista</option>
-                                <option value="Vendedor">Vendedor</option>
-                                <option value="Contador">Contador</option>
-                                <option value="Solo_Lectura">Solo Lectura</option>
+                                <option value="SUPER_ADMIN">Super Admin</option>
+                                <option value="ADMIN">Administrador</option>
+                                <option value="GERENTE">Gerente</option>
+                                <option value="SUPERVISOR">Supervisor</option>
+                                <option value="CAJERO">Cajero</option>
+                                <option value="VENDEDOR">Vendedor</option>
+                                <option value="ALMACENISTA">Almacenista</option>
+                                <option value="CONTADOR">Contador</option>
+                                <option value="CONSULTA">Solo Consulta</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Sucursal *</label>
-                            <select id="usrSucursal" required></select>
+                            <label>Sucursal</label>
+                            <select name="sucursal_id" id="usuarioSucursal">
+                                <option value="">Todas las sucursales</option>
+                            </select>
                         </div>
                     </div>
+                    
                     <div class="form-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="usrActivo" checked>
-                            <span>Usuario Activo</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="activo" id="usuarioActivo" checked>
+                            <span class="toggle-slider"></span>
+                            Usuario Activo
                         </label>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="cerrarModal('modalUsuario')">Cancelar</button>
-                    <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Guardar</button>
-                </div>
-            </form>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="cerrarModal('modalUsuario')">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarUsuario()"><i class="fas fa-save"></i> Guardar</button>
+            </div>
         </div>
     </div>
 
@@ -443,198 +519,200 @@
     <div class="modal-overlay" id="modalImpuesto">
         <div class="modal">
             <div class="modal-header">
-                <h3><i class="fas fa-percent"></i> <span id="modalImpuestoTitulo">Nuevo Impuesto</span></h3>
+                <h3><i class="fas fa-percentage"></i> <span id="modalImpuestoTitulo">Nuevo Impuesto</span></h3>
                 <button class="modal-close" onclick="cerrarModal('modalImpuesto')"><i class="fas fa-times"></i></button>
             </div>
-            <form id="formImpuesto">
-                <div class="modal-body">
-                    <input type="hidden" id="impuestoId">
+            <div class="modal-body">
+                <form id="formImpuesto">
+                    <input type="hidden" name="id" id="impuestoId">
+                    
+                    <div class="form-group">
+                        <label>Nombre <span class="required">*</span></label>
+                        <input type="text" name="nombre" id="impuestoNombre" required placeholder="ej: IVA 16%">
+                    </div>
+                    
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Nombre *</label>
-                            <input type="text" id="impNombre" required placeholder="Ej: IVA, ISR">
-                        </div>
-                        <div class="form-group">
-                            <label>Tipo *</label>
-                            <select id="impTipo" required>
-                                <option value="PORCENTAJE">Porcentaje (%)</option>
-                                <option value="FIJO">Monto Fijo ($)</option>
+                            <label>Tipo <span class="required">*</span></label>
+                            <select name="tipo" id="impuestoTipo" required>
+                                <option value="">Seleccionar...</option>
+                                <option value="IVA">IVA</option>
+                                <option value="IEPS">IEPS</option>
+                                <option value="ISR">ISR</option>
+                                <option value="RETENCION_IVA">Retención IVA</option>
+                                <option value="RETENCION_ISR">Retención ISR</option>
+                                <option value="OTRO">Otro</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="form-row">
                         <div class="form-group">
-                            <label>Valor *</label>
-                            <input type="number" id="impValor" step="0.01" min="0" required placeholder="Ej: 16">
-                        </div>
-                        <div class="form-group">
-                            <label>Cuenta Contable</label>
-                            <input type="text" id="impCuenta" placeholder="Opcional">
+                            <label>Tasa % <span class="required">*</span></label>
+                            <input type="number" name="tasa" id="impuestoTasa" step="0.01" min="0" max="100" required placeholder="16.00">
                         </div>
                     </div>
-                    <div class="form-section">
-                        <h4>Opciones</h4>
-                        <div class="permisos-grid">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="impIncluidoPrecio" checked>
-                                <span>Incluido en Precio</span>
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="impAplicaVentas" checked>
-                                <span>Aplica en Ventas</span>
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="impAplicaCompras" checked>
-                                <span>Aplica en Compras</span>
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="impActivo" checked>
-                                <span>Activo</span>
-                            </label>
-                        </div>
+                    
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <textarea name="descripcion" id="impuestoDescripcion" rows="2"></textarea>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="cerrarModal('modalImpuesto')">Cancelar</button>
-                    <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Guardar</button>
-                </div>
-            </form>
+                    
+                    <div class="checkbox-group">
+                        <label class="checkbox-item"><input type="checkbox" name="incluido_precio" id="impuestoIncluidoPrecio"> Incluido en precio</label>
+                        <label class="checkbox-item"><input type="checkbox" name="aplica_todos" id="impuestoAplicaTodos"> Aplica a todos</label>
+                        <label class="checkbox-item"><input type="checkbox" name="es_retencion" id="impuestoEsRetencion"> Es retención</label>
+                        <label class="checkbox-item"><input type="checkbox" name="activo" id="impuestoActivo" checked> Activo</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="cerrarModal('modalImpuesto')">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarImpuesto()"><i class="fas fa-save"></i> Guardar</button>
+            </div>
         </div>
     </div>
 
     <!-- ==================== MODAL MÉTODO DE PAGO ==================== -->
-    <div class="modal-overlay" id="modalMetodo">
+    <div class="modal-overlay" id="modalMetodoPago">
         <div class="modal">
             <div class="modal-header">
-                <h3><i class="fas fa-credit-card"></i> <span id="modalMetodoTitulo">Nuevo Método de Pago</span></h3>
-                <button class="modal-close" onclick="cerrarModal('modalMetodo')"><i class="fas fa-times"></i></button>
+                <h3><i class="fas fa-credit-card"></i> <span id="modalMetodoPagoTitulo">Nuevo Método de Pago</span></h3>
+                <button class="modal-close" onclick="cerrarModal('modalMetodoPago')"><i class="fas fa-times"></i></button>
             </div>
-            <form id="formMetodo">
-                <div class="modal-body">
-                    <input type="hidden" id="metodoId">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Nombre *</label>
-                            <input type="text" id="metNombre" required placeholder="Ej: Efectivo, Visa">
-                        </div>
-                        <div class="form-group">
-                            <label>Tipo *</label>
-                            <select id="metTipo" required>
-                                <option value="EFECTIVO">Efectivo</option>
-                                <option value="TARJETA_DEBITO">Tarjeta Débito</option>
-                                <option value="TARJETA_CREDITO">Tarjeta Crédito</option>
-                                <option value="TRANSFERENCIA">Transferencia</option>
-                                <option value="CHEQUE">Cheque</option>
-                                <option value="VALES">Vales</option>
-                                <option value="PUNTOS">Puntos</option>
-                                <option value="CREDITO_TIENDA">Crédito Tienda</option>
-                                <option value="OTRO">Otro</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Comisión %</label>
-                            <input type="number" id="metComisionPct" step="0.01" min="0" value="0" placeholder="0.00">
-                        </div>
-                        <div class="form-group">
-                            <label>Comisión Fija $</label>
-                            <input type="number" id="metComisionFija" step="0.01" min="0" value="0" placeholder="0.00">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Cuenta Contable</label>
-                            <input type="text" id="metCuenta" placeholder="Opcional">
-                        </div>
-                        <div class="form-group">
-                            <label>Orden</label>
-                            <input type="number" id="metOrden" min="0" value="0">
-                        </div>
-                    </div>
-                    <div class="form-section">
-                        <h4>Opciones</h4>
-                        <div class="permisos-grid">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="metRequiereRef">
-                                <span>Requiere Referencia</span>
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="metPermiteCambio">
-                                <span>Permite Cambio</span>
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="metActivo" checked>
-                                <span>Activo</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="cerrarModal('modalMetodo')">Cancelar</button>
-                    <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Guardar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- ==================== MODAL UNIDAD ==================== -->
-    <div class="modal-overlay" id="modalUnidad">
-        <div class="modal">
-            <div class="modal-header">
-                <h3><i class="fas fa-balance-scale"></i> <span id="modalUnidadTitulo">Nueva Unidad de Medida</span></h3>
-                <button class="modal-close" onclick="cerrarModal('modalUnidad')"><i class="fas fa-times"></i></button>
-            </div>
-            <form id="formUnidad">
-                <div class="modal-body">
-                    <input type="hidden" id="unidadId">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Nombre *</label>
-                            <input type="text" id="uniNombre" required placeholder="Ej: Kilogramo, Litro">
-                        </div>
-                        <div class="form-group">
-                            <label>Abreviatura *</label>
-                            <input type="text" id="uniAbreviatura" required maxlength="10" placeholder="Ej: KG, LT">
-                        </div>
-                    </div>
+            <div class="modal-body">
+                <form id="formMetodoPago">
+                    <input type="hidden" name="id" id="metodoPagoId">
+                    
                     <div class="form-group">
-                        <label>Tipo *</label>
-                        <select id="uniTipo" required>
-                            <option value="UNIDAD">Unidad</option>
-                            <option value="PESO">Peso</option>
-                            <option value="VOLUMEN">Volumen</option>
-                            <option value="LONGITUD">Longitud</option>
-                            <option value="TIEMPO">Tiempo</option>
-                            <option value="AREA">Área</option>
+                        <label>Nombre <span class="required">*</span></label>
+                        <input type="text" name="nombre" id="metodoPagoNombre" required placeholder="ej: Efectivo">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Tipo <span class="required">*</span></label>
+                        <select name="tipo" id="metodoPagoTipo" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="EFECTIVO">Efectivo</option>
+                            <option value="TARJETA_DEBITO">Tarjeta Débito</option>
+                            <option value="TARJETA_CREDITO">Tarjeta Crédito</option>
+                            <option value="TRANSFERENCIA">Transferencia</option>
+                            <option value="CHEQUE">Cheque</option>
+                            <option value="MONEDERO">Monedero Electrónico</option>
+                            <option value="VALES">Vales</option>
+                            <option value="CREDITO">Crédito Cliente</option>
                             <option value="OTRO">Otro</option>
                         </select>
                     </div>
-                    <div class="form-section">
-                        <h4>Opciones</h4>
-                        <div class="permisos-grid">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="uniSistema">
-                                <span>Es del Sistema (no editable)</span>
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="uniActivo" checked>
-                                <span>Activa</span>
-                            </label>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Comisión %</label>
+                            <input type="number" name="comision_porcentaje" id="metodoPagoComisionPct" step="0.01" min="0" max="100" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Comisión Fija $</label>
+                            <input type="number" name="comision_fija" id="metodoPagoComisionFija" step="0.01" min="0" value="0">
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="cerrarModal('modalUnidad')">Cancelar</button>
-                    <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Guardar</button>
-                </div>
-            </form>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Cuenta Contable</label>
+                            <input type="text" name="cuenta_contable" id="metodoPagoCuentaContable" placeholder="ej: 1101">
+                        </div>
+                        <div class="form-group">
+                            <label>Orden</label>
+                            <input type="number" name="orden" id="metodoPagoOrden" min="0" value="0">
+                        </div>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <label class="checkbox-item"><input type="checkbox" name="requiere_referencia" id="metodoPagoRequiereRef"> Requiere Referencia</label>
+                        <label class="checkbox-item"><input type="checkbox" name="permite_cambio" id="metodoPagoPermiteCambio"> Permite Cambio</label>
+                        <label class="checkbox-item"><input type="checkbox" name="activo" id="metodoPagoActivo" checked> Activo</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="cerrarModal('modalMetodoPago')">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarMetodoPago()"><i class="fas fa-save"></i> Guardar</button>
+            </div>
         </div>
     </div>
 
-    <!-- TOAST -->
+    <!-- ==================== MODAL UNIDAD DE MEDIDA ==================== -->
+    <div class="modal-overlay" id="modalUnidad">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-balance-scale"></i> <span id="modalUnidadTitulo">Nueva Unidad</span></h3>
+                <button class="modal-close" onclick="cerrarModal('modalUnidad')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="formUnidad">
+                    <input type="hidden" name="id" id="unidadId">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nombre <span class="required">*</span></label>
+                            <input type="text" name="nombre" id="unidadNombre" required placeholder="ej: Kilogramo">
+                        </div>
+                        <div class="form-group">
+                            <label>Abreviatura <span class="required">*</span></label>
+                            <input type="text" name="abreviatura" id="unidadAbreviatura" required maxlength="10" placeholder="ej: kg">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Tipo</label>
+                        <select name="tipo" id="unidadTipo">
+                            <option value="">Sin tipo</option>
+                            <option value="PESO">Peso</option>
+                            <option value="VOLUMEN">Volumen</option>
+                            <option value="LONGITUD">Longitud</option>
+                            <option value="AREA">Área</option>
+                            <option value="UNIDAD">Unidad/Pieza</option>
+                            <option value="TIEMPO">Tiempo</option>
+                            <option value="OTRO">Otro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <textarea name="descripcion" id="unidadDescripcion" rows="2"></textarea>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <label class="checkbox-item"><input type="checkbox" name="es_sistema" id="unidadEsSistema"> Unidad del Sistema</label>
+                        <label class="checkbox-item"><input type="checkbox" name="activo" id="unidadActivo" checked> Activa</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="cerrarModal('modalUnidad')">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarUnidad()"><i class="fas fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL CONFIRMAR ELIMINAR ==================== -->
+    <div class="modal-overlay" id="modalConfirmar">
+        <div class="modal">
+            <div class="modal-header danger">
+                <h3><i class="fas fa-exclamation-triangle"></i> Confirmar Eliminación</h3>
+                <button class="modal-close" onclick="cerrarModal('modalConfirmar')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmarMensaje">¿Está seguro de que desea eliminar este registro?</p>
+                <p style="color:#64748b;font-size:13px;">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="cerrarModal('modalConfirmar')">Cancelar</button>
+                <button class="btn btn-danger" id="btnConfirmarEliminar"><i class="fas fa-trash"></i> Eliminar</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast" class="toast"></div>
 
+    <script src="../js/config.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/configuracion.js"></script>
 </body>
