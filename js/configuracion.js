@@ -101,7 +101,8 @@ async function cargarSucursales() {
                     <td><strong>${s.nombre}</strong></td>
                     <td>${s.direccion || '-'}</td>
                     <td>${s.telefono || '-'}</td>
-                    <td class="text-center"><span class="badge badge-${s.activo === 'Y' ? 'success' : 'danger'}">${s.activo === 'Y' ? 'Activa' : 'Inactiva'}</span></td>
+                    <td>${s.responsable || '-'}</td>
+                    <td class="text-center"><span class="badge badge-${s.activo === 'Y' || s.activa === 'Y' ? 'success' : 'danger'}">${s.activo === 'Y' || s.activa === 'Y' ? 'Activa' : 'Inactiva'}</span></td>
                     <td class="text-center">
                         <div class="btn-actions">
                             <button class="btn-edit" onclick="editarSucursal('${s.sucursal_id}')"><i class="fas fa-edit"></i></button>
@@ -121,7 +122,9 @@ function cargarSelectSucursales() {
     const sel = document.getElementById('usrSucursal');
     sel.innerHTML = '<option value="">Seleccionar...</option>';
     sucursalesData.forEach(s => {
-        if (s.activo === 'Y') sel.innerHTML += `<option value="${s.sucursal_id}">${s.nombre}</option>`;
+        if (s.activo === 'Y' || s.activa === 'Y') {
+            sel.innerHTML += `<option value="${s.sucursal_id}">${s.nombre}</option>`;
+        }
     });
 }
 
@@ -140,7 +143,9 @@ function editarSucursal(id) {
     document.getElementById('sucNombre').value = s.nombre || '';
     document.getElementById('sucDireccion').value = s.direccion || '';
     document.getElementById('sucTelefono').value = s.telefono || '';
-    document.getElementById('sucActivo').checked = s.activo === 'Y';
+    document.getElementById('sucEmail').value = s.email || '';
+    document.getElementById('sucResponsable').value = s.responsable || '';
+    document.getElementById('sucActivo').checked = s.activo === 'Y' || s.activa === 'Y';
     document.getElementById('modalSucursalTitulo').textContent = 'Editar Sucursal';
     abrirModal('modalSucursal');
 }
@@ -153,6 +158,8 @@ async function guardarSucursal(ev) {
         nombre: document.getElementById('sucNombre').value,
         direccion: document.getElementById('sucDireccion').value,
         telefono: document.getElementById('sucTelefono').value,
+        email: document.getElementById('sucEmail').value,
+        responsable: document.getElementById('sucResponsable').value,
         activo: document.getElementById('sucActivo').checked ? 'Y' : 'N'
     };
     
@@ -193,8 +200,7 @@ async function cargarUsuarios() {
             tabla.innerHTML = r.usuarios.map(u => `
                 <tr>
                     <td><strong>${u.nombre}</strong></td>
-                    <td>${u.usuario}</td>
-                    <td>${u.email || '-'}</td>
+                    <td>${u.email}</td>
                     <td><span class="badge badge-${getRolColor(u.rol)}">${u.rol}</span></td>
                     <td>${u.sucursal_nombre || '-'}</td>
                     <td class="text-center"><span class="badge badge-${u.activo === 'Y' ? 'success' : 'danger'}">${u.activo === 'Y' ? 'Activo' : 'Inactivo'}</span></td>
@@ -213,7 +219,17 @@ async function cargarUsuarios() {
 }
 
 function getRolColor(rol) {
-    const colors = { ADMIN: 'purple', GERENTE: 'info', CAJERO: 'success', ALMACEN: 'warning' };
+    const colors = { 
+        SuperAdmin: 'danger', 
+        Admin: 'purple', 
+        Gerente: 'info', 
+        Supervisor: 'info',
+        Cajero: 'success', 
+        Almacenista: 'warning',
+        Vendedor: 'success',
+        Contador: 'warning',
+        Solo_Lectura: 'secondary'
+    };
     return colors[rol] || 'info';
 }
 
@@ -233,10 +249,8 @@ function editarUsuario(id) {
     if (!u) return;
     document.getElementById('usuarioId').value = u.usuario_id;
     document.getElementById('usrNombre').value = u.nombre || '';
-    document.getElementById('usrUsuario').value = u.usuario || '';
     document.getElementById('usrEmail').value = u.email || '';
     document.getElementById('usrEmail').disabled = true; // No editable - es el login
-    document.getElementById('usrTelefono').value = u.telefono || '';
     document.getElementById('usrPassword').value = '';
     document.getElementById('usrPassword2').value = '';
     document.getElementById('usrRol').value = u.rol || '';
@@ -267,8 +281,6 @@ async function guardarUsuario(ev) {
     const data = {
         empresa_id: empresaId,
         nombre: document.getElementById('usrNombre').value,
-        usuario: document.getElementById('usrUsuario').value,
-        telefono: document.getElementById('usrTelefono').value,
         rol: document.getElementById('usrRol').value,
         sucursal_id: document.getElementById('usrSucursal').value,
         activo: document.getElementById('usrActivo').checked ? 'Y' : 'N'
@@ -279,7 +291,7 @@ async function guardarUsuario(ev) {
         data.email = document.getElementById('usrEmail').value;
     }
     
-    if (pass) data.password = pass;
+    if (pass) data.contrasena = pass;
     
     try {
         const r = await API.request(id ? `/usuarios/${id}` : '/usuarios', id ? 'PUT' : 'POST', data);
