@@ -128,7 +128,6 @@
                                         <th>Nombre</th>
                                         <th>Dirección</th>
                                         <th>Teléfono</th>
-                                        <th>Encargado</th>
                                         <th class="center">Estado</th>
                                         <th class="center">Acciones</th>
                                     </tr>
@@ -251,19 +250,9 @@
                         <label>Dirección</label>
                         <textarea id="sucDireccion" rows="2"></textarea>
                     </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Teléfono</label>
-                            <input type="tel" id="sucTelefono">
-                        </div>
-                        <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" id="sucEmail">
-                        </div>
-                    </div>
                     <div class="form-group">
-                        <label>Encargado</label>
-                        <input type="text" id="sucEncargado">
+                        <label>Teléfono</label>
+                        <input type="tel" id="sucTelefono">
                     </div>
                     <div class="form-group">
                         <label class="checkbox-label">
@@ -302,8 +291,9 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" id="usrEmail">
+                            <label>Email (Login) *</label>
+                            <input type="email" id="usrEmail" required>
+                            <small style="color:#64748b;font-size:11px;">El email se usa para iniciar sesión y no puede cambiarse después</small>
                         </div>
                         <div class="form-group">
                             <label>Teléfono</label>
