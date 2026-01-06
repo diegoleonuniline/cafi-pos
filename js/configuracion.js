@@ -1,668 +1,675 @@
-// ==================== VARIABLES GLOBALES ====================
-const empresaId = localStorage.getItem('empresa_id') || 'DEMO';
-let sucursalesData = [];
-let usuariosData = [];
-let impuestosData = [];
-let metodosData = [];
-let unidadesData = [];
+// ==================== DATA ====================
+let categoriasData = [];
+let subcategoriasData = [];
+let marcasData = [];
+let gruposData = [];
+let proveedoresData = [];
+let cuentasData = [];
+let categoriasGastoData = [];
+let conceptosGastoData = [];
 
-// ==================== INICIALIZACIÓN ====================
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('empresaNombre').textContent = localStorage.getItem('empresa_nombre') || 'Mi Empresa';
-    initTabs();
-    initForms();
-    cargarTab('empresa');
-});
-
-function initTabs() {
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.config-panel').forEach(p => p.classList.remove('active'));
-            btn.classList.add('active');
-            const tab = btn.dataset.tab;
-            document.getElementById(`panel-${tab}`).classList.add('active');
-            cargarTab(tab);
-        });
-    });
-}
-
-function initForms() {
-    document.getElementById('formEmpresa').addEventListener('submit', guardarEmpresa);
-    document.getElementById('formSucursal').addEventListener('submit', guardarSucursal);
-    document.getElementById('formUsuario').addEventListener('submit', guardarUsuario);
-    document.getElementById('formImpuesto').addEventListener('submit', guardarImpuesto);
-    document.getElementById('formMetodo').addEventListener('submit', guardarMetodo);
-    document.getElementById('formUnidad').addEventListener('submit', guardarUnidad);
-}
-
-// ==================== CARGAR TABS ====================
-async function cargarTab(tab) {
-    switch(tab) {
-        case 'empresa': await cargarEmpresa(); break;
-        case 'sucursales': await cargarSucursales(); break;
-        case 'usuarios': await cargarUsuarios(); break;
-        case 'impuestos': await cargarImpuestos(); break;
-        case 'metodos': await cargarMetodos(); break;
-        case 'unidades': await cargarUnidades(); break;
-    }
-}
-
-// ==================== EMPRESA ====================
-async function cargarEmpresa() {
+// ==================== CATEGORÍAS ====================
+async function cargarCategorias() {
     try {
-        const r = await API.request(`/empresas/${empresaId}`);
-        if (r.success && r.empresa) {
-            const e = r.empresa;
-            document.getElementById('empNombre').value = e.nombre || '';
-            document.getElementById('empRFC').value = e.rfc || '';
-            document.getElementById('empTelefono').value = e.telefono || '';
-            document.getElementById('empEmail').value = e.email || '';
-            document.getElementById('empDireccion').value = e.direccion || '';
-            document.getElementById('empRegimen').value = e.regimen_fiscal || '';
-            document.getElementById('empCP').value = e.codigo_postal || '';
-        }
-    } catch (e) {
-        console.error('Error cargando empresa:', e);
-    }
-}
-
-async function guardarEmpresa(ev) {
-    ev.preventDefault();
-    try {
-        const data = {
-            nombre: document.getElementById('empNombre').value,
-            rfc: document.getElementById('empRFC').value,
-            telefono: document.getElementById('empTelefono').value,
-            email: document.getElementById('empEmail').value,
-            direccion: document.getElementById('empDireccion').value,
-            regimen_fiscal: document.getElementById('empRegimen').value,
-            codigo_postal: document.getElementById('empCP').value
-        };
-        const r = await API.request(`/empresas/${empresaId}`, 'PUT', data);
+        const r = await API.request(`/categorias/${empresaId}`);
         if (r.success) {
-            toast('Empresa actualizada', 'success');
-            localStorage.setItem('empresa_nombre', data.nombre);
-            document.getElementById('empresaNombre').textContent = data.nombre;
-        } else {
-            toast(r.error || 'Error al guardar', 'error');
-        }
-    } catch (e) {
-        toast('Error: ' + e.message, 'error');
-    }
-}
-
-// ==================== SUCURSALES ====================
-async function cargarSucursales() {
-    try {
-        const r = await API.request(`/sucursales/${empresaId}`);
-        if (r.success) {
-            sucursalesData = r.sucursales || [];
-            const tabla = document.getElementById('tablaSucursales');
-            if (sucursalesData.length === 0) {
-                tabla.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-store"></i><p>No hay sucursales</p></td></tr>';
+            categoriasData = r.categorias || [];
+            const tabla = document.getElementById('tablaCategorias');
+            if (categoriasData.length === 0) {
+                tabla.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="fas fa-folder"></i><p>No hay categorías</p></td></tr>';
                 return;
             }
-            tabla.innerHTML = sucursalesData.map(s => {
-                const activa = s.activo === 'Y' || s.activa === 'Y';
-                const horario = (s.horario_apertura && s.horario_cierre) 
-                    ? `${s.horario_apertura.substring(0,5)} - ${s.horario_cierre.substring(0,5)}` 
-                    : '-';
-                return `
+            tabla.innerHTML = categoriasData.map(c => `
+                <tr>
+                    <td>${c.codigo || '-'}</td>
+                    <td><strong>${c.nombre}</strong></td>
+                    <td><span style="display:inline-block;width:20px;height:20px;background:${c.color || '#3498db'};border-radius:4px"></span> ${c.color || '#3498db'}</td>
+                    <td class="center">${c.mostrar_pos === 'Y' ? '<i class="fas fa-check text-success"></i>' : '<i class="fas fa-times text-danger"></i>'}</td>
+                    <td class="center"><span class="badge badge-${c.activo === 'Y' ? 'success' : 'danger'}">${c.activo === 'Y' ? 'Activo' : 'Inactivo'}</span></td>
+                    <td class="center">
+                        <div class="btn-actions">
+                            <button class="btn-edit" onclick="editarCategoria('${c.categoria_id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete" onclick="eliminarCategoria('${c.categoria_id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+    } catch (e) { console.error('Error:', e); }
+}
+
+function abrirModalCategoria() {
+    document.getElementById('formCategoria').reset();
+    document.getElementById('categoriaId').value = '';
+    document.getElementById('modalCategoriaTitulo').textContent = 'Nueva Categoría';
+    document.getElementById('catColor').value = '#3498db';
+    document.getElementById('catMostrarPOS').checked = true;
+    document.getElementById('catActivo').checked = true;
+    abrirModal('modalCategoria');
+}
+
+function editarCategoria(id) {
+    const c = categoriasData.find(x => x.categoria_id === id);
+    if (!c) return;
+    document.getElementById('categoriaId').value = c.categoria_id;
+    document.getElementById('catCodigo').value = c.codigo || '';
+    document.getElementById('catNombre').value = c.nombre || '';
+    document.getElementById('catDescripcion').value = c.descripcion || '';
+    document.getElementById('catColor').value = c.color || '#3498db';
+    document.getElementById('catIcono').value = c.icono || '';
+    document.getElementById('catOrden').value = c.orden || 0;
+    document.getElementById('catMostrarPOS').checked = c.mostrar_pos === 'Y';
+    document.getElementById('catActivo').checked = c.activo === 'Y';
+    document.getElementById('modalCategoriaTitulo').textContent = 'Editar Categoría';
+    abrirModal('modalCategoria');
+}
+
+async function guardarCategoria(ev) {
+    ev.preventDefault();
+    const id = document.getElementById('categoriaId').value;
+    const data = {
+        empresa_id: empresaId,
+        codigo: document.getElementById('catCodigo').value,
+        nombre: document.getElementById('catNombre').value,
+        descripcion: document.getElementById('catDescripcion').value,
+        color: document.getElementById('catColor').value,
+        icono: document.getElementById('catIcono').value,
+        orden: parseInt(document.getElementById('catOrden').value) || 0,
+        mostrar_pos: document.getElementById('catMostrarPOS').checked ? 'Y' : 'N',
+        activo: document.getElementById('catActivo').checked ? 'Y' : 'N'
+    };
+    try {
+        const r = await API.request(id ? `/categorias/${id}` : '/categorias', id ? 'PUT' : 'POST', data);
+        if (r.success) { toast(id ? 'Actualizado' : 'Creado', 'success'); cerrarModal('modalCategoria'); cargarCategorias(); }
+        else toast(r.error || 'Error', 'error');
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+}
+
+async function eliminarCategoria(id) {
+    if (!confirm('¿Desactivar categoría?')) return;
+    try {
+        const r = await API.request(`/categorias/${id}`, 'DELETE');
+        if (r.success) { toast('Desactivada', 'success'); cargarCategorias(); }
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+}
+
+// ==================== SUBCATEGORÍAS ====================
+async function cargarSubcategorias() {
+    try {
+        const r = await API.request(`/subcategorias/${empresaId}`);
+        if (r.success) {
+            subcategoriasData = r.subcategorias || [];
+            const tabla = document.getElementById('tablaSubcategorias');
+            if (subcategoriasData.length === 0) {
+                tabla.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="fas fa-folder-tree"></i><p>No hay subcategorías</p></td></tr>';
+                return;
+            }
+            tabla.innerHTML = subcategoriasData.map(s => `
                 <tr>
                     <td>${s.codigo || '-'}</td>
                     <td><strong>${s.nombre}</strong></td>
-                    <td><span class="badge badge-info">${s.tipo || 'TIENDA'}</span></td>
-                    <td>${s.ciudad || '-'}</td>
-                    <td>${s.responsable || '-'}</td>
-                    <td>${horario}</td>
-                    <td class="text-center"><span class="badge badge-${activa ? 'success' : 'danger'}">${activa ? 'Activa' : 'Inactiva'}</span></td>
-                    <td class="text-center">
+                    <td>${s.categoria_nombre || '-'}</td>
+                    <td class="center">${s.orden || 0}</td>
+                    <td class="center"><span class="badge badge-${s.activo === 'Y' ? 'success' : 'danger'}">${s.activo === 'Y' ? 'Activo' : 'Inactivo'}</span></td>
+                    <td class="center">
                         <div class="btn-actions">
-                            <button class="btn-edit" onclick="editarSucursal('${s.sucursal_id}')"><i class="fas fa-edit"></i></button>
-                            <button class="btn-delete" onclick="eliminarSucursal('${s.sucursal_id}')"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </td>
-                </tr>
-            `}).join('');
-        }
-    } catch (e) {
-        console.error('Error cargando sucursales:', e);
-    }
-}
-
-function abrirModalSucursal() {
-    document.getElementById('formSucursal').reset();
-    document.getElementById('sucursalId').value = '';
-    document.getElementById('modalSucursalTitulo').textContent = 'Nueva Sucursal';
-    document.getElementById('sucActivo').checked = true;
-    document.getElementById('sucPermiteVenta').checked = true;
-    document.getElementById('sucPermiteCompra').checked = true;
-    document.getElementById('sucPermiteTraspaso').checked = true;
-    document.getElementById('sucHoraApertura').value = '09:00';
-    document.getElementById('sucHoraCierre').value = '20:00';
-    // Días por defecto
-    ['L','M','X','J','V','S'].forEach(d => document.getElementById('dia'+d).checked = true);
-    document.getElementById('diaD').checked = false;
-    abrirModal('modalSucursal');
-}
-
-function editarSucursal(id) {
-    const s = sucursalesData.find(x => x.sucursal_id === id);
-    if (!s) return;
-    document.getElementById('sucursalId').value = s.sucursal_id;
-    document.getElementById('sucCodigo').value = s.codigo || '';
-    document.getElementById('sucNombre').value = s.nombre || '';
-    document.getElementById('sucTipo').value = s.tipo || 'TIENDA';
-    document.getElementById('sucResponsable').value = s.responsable || '';
-    document.getElementById('sucDireccion').value = s.direccion || '';
-    document.getElementById('sucColonia').value = s.colonia || '';
-    document.getElementById('sucCiudad').value = s.ciudad || '';
-    document.getElementById('sucEstado').value = s.estado || '';
-    document.getElementById('sucCP').value = s.codigo_postal || '';
-    document.getElementById('sucTelefono').value = s.telefono || '';
-    document.getElementById('sucEmail').value = s.email || '';
-    document.getElementById('sucHoraApertura').value = s.horario_apertura ? s.horario_apertura.substring(0,5) : '09:00';
-    document.getElementById('sucHoraCierre').value = s.horario_cierre ? s.horario_cierre.substring(0,5) : '20:00';
-    
-    // Días de operación
-    const dias = s.dias_operacion || 'L,M,X,J,V,S';
-    ['L','M','X','J','V','S','D'].forEach(d => {
-        document.getElementById('dia'+d).checked = dias.includes(d);
-    });
-    
-    document.getElementById('sucPermiteVenta').checked = s.permite_venta === 'Y';
-    document.getElementById('sucPermiteCompra').checked = s.permite_compra === 'Y';
-    document.getElementById('sucPermiteTraspaso').checked = s.permite_traspaso === 'Y';
-    document.getElementById('sucActivo').checked = s.activo === 'Y' || s.activa === 'Y';
-    
-    document.getElementById('modalSucursalTitulo').textContent = 'Editar Sucursal';
-    abrirModal('modalSucursal');
-}
-
-async function guardarSucursal(ev) {
-    ev.preventDefault();
-    const id = document.getElementById('sucursalId').value;
-    
-    // Construir días de operación
-    const dias = [];
-    ['L','M','X','J','V','S','D'].forEach(d => {
-        if (document.getElementById('dia'+d).checked) dias.push(d);
-    });
-    
-    const data = {
-        empresa_id: empresaId,
-        codigo: document.getElementById('sucCodigo').value,
-        nombre: document.getElementById('sucNombre').value,
-        tipo: document.getElementById('sucTipo').value,
-        responsable: document.getElementById('sucResponsable').value,
-        direccion: document.getElementById('sucDireccion').value,
-        colonia: document.getElementById('sucColonia').value,
-        ciudad: document.getElementById('sucCiudad').value,
-        estado: document.getElementById('sucEstado').value,
-        codigo_postal: document.getElementById('sucCP').value,
-        telefono: document.getElementById('sucTelefono').value,
-        email: document.getElementById('sucEmail').value,
-        horario_apertura: document.getElementById('sucHoraApertura').value,
-        horario_cierre: document.getElementById('sucHoraCierre').value,
-        dias_operacion: dias.join(','),
-        permite_venta: document.getElementById('sucPermiteVenta').checked ? 'Y' : 'N',
-        permite_compra: document.getElementById('sucPermiteCompra').checked ? 'Y' : 'N',
-        permite_traspaso: document.getElementById('sucPermiteTraspaso').checked ? 'Y' : 'N',
-        activo: document.getElementById('sucActivo').checked ? 'Y' : 'N'
-    };
-    
-    try {
-        const url = id ? `/sucursales/${id}` : '/sucursales';
-        const method = id ? 'PUT' : 'POST';
-        const r = await API.request(url, method, data);
-        if (r.success) {
-            toast(id ? 'Sucursal actualizada' : 'Sucursal creada', 'success');
-            cerrarModal('modalSucursal');
-            await cargarSucursales();
-        } else {
-            toast(r.error || 'Error al guardar', 'error');
-        }
-    } catch (e) {
-        toast('Error: ' + e.message, 'error');
-    }
-}
-
-async function eliminarSucursal(id) {
-    if (!confirm('¿Desactivar esta sucursal?')) return;
-    try {
-        const r = await API.request(`/sucursales/${id}`, 'DELETE');
-        if (r.success) {
-            toast('Sucursal desactivada', 'success');
-            await cargarSucursales();
-        }
-    } catch (e) {
-        toast('Error: ' + e.message, 'error');
-    }
-}
-
-// ==================== USUARIOS ====================
-async function cargarUsuarios() {
-    // Cargar sucursales primero para el select
-    if (sucursalesData.length === 0) {
-        const r = await API.request(`/sucursales/${empresaId}`);
-        if (r.success) sucursalesData = r.sucursales || [];
-    }
-    cargarSelectSucursales();
-    
-    try {
-        const r = await API.request(`/usuarios/${empresaId}`);
-        if (r.success) {
-            usuariosData = r.usuarios || [];
-            const tabla = document.getElementById('tablaUsuarios');
-            if (usuariosData.length === 0) {
-                tabla.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="fas fa-users"></i><p>No hay usuarios</p></td></tr>';
-                return;
-            }
-            tabla.innerHTML = usuariosData.map(u => `
-                <tr>
-                    <td><strong>${u.nombre}</strong></td>
-                    <td>${u.email}</td>
-                    <td><span class="badge badge-${getRolColor(u.rol)}">${u.rol}</span></td>
-                    <td>${u.sucursal_nombre || '-'}</td>
-                    <td class="text-center"><span class="badge badge-${u.activo === 'Y' ? 'success' : 'danger'}">${u.activo === 'Y' ? 'Activo' : 'Inactivo'}</span></td>
-                    <td class="text-center">
-                        <div class="btn-actions">
-                            <button class="btn-edit" onclick="editarUsuario('${u.usuario_id}')"><i class="fas fa-edit"></i></button>
-                            <button class="btn-delete" onclick="eliminarUsuario('${u.usuario_id}')"><i class="fas fa-trash"></i></button>
+                            <button class="btn-edit" onclick="editarSubcategoria('${s.subcategoria_id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete" onclick="eliminarSubcategoria('${s.subcategoria_id}')"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>
             `).join('');
         }
-    } catch (e) {
-        console.error('Error cargando usuarios:', e);
-    }
+    } catch (e) { console.error('Error:', e); }
 }
 
-function getRolColor(rol) {
-    const colors = { 
-        SuperAdmin: 'danger', 
-        Admin: 'purple', 
-        Gerente: 'info', 
-        Supervisor: 'info',
-        Cajero: 'success', 
-        Almacenista: 'warning',
-        Vendedor: 'success',
-        Contador: 'warning',
-        Solo_Lectura: 'secondary'
-    };
-    return colors[rol] || 'info';
+function abrirModalSubcategoria() {
+    document.getElementById('formSubcategoria').reset();
+    document.getElementById('subcategoriaId').value = '';
+    document.getElementById('modalSubcategoriaTitulo').textContent = 'Nueva Subcategoría';
+    document.getElementById('scatActivo').checked = true;
+    cargarSelectCategorias('scatCategoria');
+    abrirModal('modalSubcategoria');
 }
 
-function cargarSelectSucursales() {
-    const sel = document.getElementById('usrSucursal');
-    sel.innerHTML = '<option value="">Seleccionar...</option>';
-    sucursalesData.forEach(s => {
-        if (s.activo === 'Y' || s.activa === 'Y') {
-            sel.innerHTML += `<option value="${s.sucursal_id}">${s.nombre}</option>`;
-        }
-    });
+function editarSubcategoria(id) {
+    const s = subcategoriasData.find(x => x.subcategoria_id === id);
+    if (!s) return;
+    cargarSelectCategorias('scatCategoria', s.categoria_id);
+    document.getElementById('subcategoriaId').value = s.subcategoria_id;
+    document.getElementById('scatCodigo').value = s.codigo || '';
+    document.getElementById('scatNombre').value = s.nombre || '';
+    document.getElementById('scatOrden').value = s.orden || 0;
+    document.getElementById('scatActivo').checked = s.activo === 'Y';
+    document.getElementById('modalSubcategoriaTitulo').textContent = 'Editar Subcategoría';
+    abrirModal('modalSubcategoria');
 }
 
-function abrirModalUsuario() {
-    document.getElementById('formUsuario').reset();
-    document.getElementById('usuarioId').value = '';
-    document.getElementById('modalUsuarioTitulo').textContent = 'Nuevo Usuario';
-    document.getElementById('lblPassword').textContent = 'Contraseña *';
-    document.getElementById('usrPassword').required = true;
-    document.getElementById('usrEmail').disabled = false;
-    document.getElementById('usrActivo').checked = true;
-    abrirModal('modalUsuario');
-}
-
-function editarUsuario(id) {
-    const u = usuariosData.find(x => x.usuario_id === id);
-    if (!u) return;
-    document.getElementById('usuarioId').value = u.usuario_id;
-    document.getElementById('usrNombre').value = u.nombre || '';
-    document.getElementById('usrEmail').value = u.email || '';
-    document.getElementById('usrEmail').disabled = true;
-    document.getElementById('usrPassword').value = '';
-    document.getElementById('usrPassword2').value = '';
-    document.getElementById('usrRol').value = u.rol || '';
-    document.getElementById('usrSucursal').value = u.sucursal_id || '';
-    document.getElementById('usrActivo').checked = u.activo === 'Y';
-    document.getElementById('modalUsuarioTitulo').textContent = 'Editar Usuario';
-    document.getElementById('lblPassword').textContent = 'Nueva Contraseña (dejar vacío para no cambiar)';
-    document.getElementById('usrPassword').required = false;
-    abrirModal('modalUsuario');
-}
-
-async function guardarUsuario(ev) {
+async function guardarSubcategoria(ev) {
     ev.preventDefault();
-    const id = document.getElementById('usuarioId').value;
-    const pass = document.getElementById('usrPassword').value;
-    const pass2 = document.getElementById('usrPassword2').value;
-    
-    if (pass && pass !== pass2) {
-        toast('Las contraseñas no coinciden', 'error');
-        return;
-    }
-    
-    if (!id && !pass) {
-        toast('La contraseña es requerida', 'error');
-        return;
-    }
-    
+    const id = document.getElementById('subcategoriaId').value;
     const data = {
         empresa_id: empresaId,
-        nombre: document.getElementById('usrNombre').value,
-        rol: document.getElementById('usrRol').value,
-        sucursal_id: document.getElementById('usrSucursal').value,
-        activo: document.getElementById('usrActivo').checked ? 'Y' : 'N'
+        categoria_id: document.getElementById('scatCategoria').value,
+        codigo: document.getElementById('scatCodigo').value,
+        nombre: document.getElementById('scatNombre').value,
+        orden: parseInt(document.getElementById('scatOrden').value) || 0,
+        activo: document.getElementById('scatActivo').checked ? 'Y' : 'N'
     };
-    
-    if (!id) {
-        data.email = document.getElementById('usrEmail').value;
-    }
-    
-    if (pass) data.contrasena = pass;
-    
     try {
-        const url = id ? `/usuarios/${id}` : '/usuarios';
-        const method = id ? 'PUT' : 'POST';
-        const r = await API.request(url, method, data);
-        if (r.success) {
-            toast(id ? 'Usuario actualizado' : 'Usuario creado', 'success');
-            cerrarModal('modalUsuario');
-            await cargarUsuarios();
-        } else {
-            toast(r.error || 'Error al guardar', 'error');
-        }
-    } catch (e) {
-        toast('Error: ' + e.message, 'error');
-    }
+        const r = await API.request(id ? `/subcategorias/${id}` : '/subcategorias', id ? 'PUT' : 'POST', data);
+        if (r.success) { toast(id ? 'Actualizado' : 'Creado', 'success'); cerrarModal('modalSubcategoria'); cargarSubcategorias(); }
+        else toast(r.error || 'Error', 'error');
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
 }
 
-async function eliminarUsuario(id) {
-    if (!confirm('¿Desactivar este usuario?')) return;
+async function eliminarSubcategoria(id) {
+    if (!confirm('¿Desactivar subcategoría?')) return;
     try {
-        const r = await API.request(`/usuarios/${id}`, 'DELETE');
-        if (r.success) {
-            toast('Usuario desactivado', 'success');
-            await cargarUsuarios();
-        }
-    } catch (e) {
-        toast('Error: ' + e.message, 'error');
-    }
+        const r = await API.request(`/subcategorias/${id}`, 'DELETE');
+        if (r.success) { toast('Desactivada', 'success'); cargarSubcategorias(); }
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
 }
 
-// ==================== IMPUESTOS ====================
-async function cargarImpuestos() {
+function cargarSelectCategorias(selectId, selected = '') {
+    const sel = document.getElementById(selectId);
+    sel.innerHTML = '<option value="">Seleccionar...</option>' + categoriasData.filter(c => c.activo === 'Y').map(c => `<option value="${c.categoria_id}" ${c.categoria_id === selected ? 'selected' : ''}>${c.nombre}</option>`).join('');
+}
+
+// ==================== MARCAS ====================
+async function cargarMarcas() {
     try {
-        const r = await API.request(`/impuestos/${empresaId}/todos`);
+        const r = await API.request(`/marcas/${empresaId}`);
         if (r.success) {
-            impuestosData = r.impuestos || [];
-            const tabla = document.getElementById('tablaImpuestos');
-            if (impuestosData.length === 0) {
-                tabla.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-percent"></i><p>No hay impuestos</p></td></tr>';
+            marcasData = r.marcas || [];
+            const tabla = document.getElementById('tablaMarcas');
+            if (marcasData.length === 0) {
+                tabla.innerHTML = '<tr><td colspan="4" class="empty-state"><i class="fas fa-tag"></i><p>No hay marcas</p></td></tr>';
                 return;
             }
-            tabla.innerHTML = impuestosData.map(i => {
-                const valor = i.tipo === 'PORCENTAJE' ? `${i.valor}%` : `$${parseFloat(i.valor).toFixed(2)}`;
-                return `
-                <tr>
-                    <td><strong>${i.nombre}</strong></td>
-                    <td><span class="badge badge-info">${i.tipo}</span></td>
-                    <td class="text-center">${valor}</td>
-                    <td class="text-center">${i.incluido_en_precio === 'Y' ? '<i class="fas fa-check text-success"></i>' : '-'}</td>
-                    <td class="text-center">${i.aplica_ventas === 'Y' ? '<i class="fas fa-check text-success"></i>' : '-'}</td>
-                    <td class="text-center">${i.aplica_compras === 'Y' ? '<i class="fas fa-check text-success"></i>' : '-'}</td>
-                    <td class="text-center"><span class="badge badge-${i.activo === 'Y' ? 'success' : 'danger'}">${i.activo === 'Y' ? 'Activo' : 'Inactivo'}</span></td>
-                    <td class="text-center">
-                        <div class="btn-actions">
-                            <button class="btn-edit" onclick="editarImpuesto('${i.impuesto_id}')"><i class="fas fa-edit"></i></button>
-                            <button class="btn-delete" onclick="eliminarImpuesto('${i.impuesto_id}')"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </td>
-                </tr>
-            `}).join('');
-        }
-    } catch (e) {
-        console.error('Error cargando impuestos:', e);
-    }
-}
-
-function abrirModalImpuesto() {
-    document.getElementById('formImpuesto').reset();
-    document.getElementById('impuestoId').value = '';
-    document.getElementById('modalImpuestoTitulo').textContent = 'Nuevo Impuesto';
-    document.getElementById('impActivo').checked = true;
-    document.getElementById('impIncluidoPrecio').checked = true;
-    document.getElementById('impAplicaVentas').checked = true;
-    document.getElementById('impAplicaCompras').checked = true;
-    abrirModal('modalImpuesto');
-}
-
-function editarImpuesto(id) {
-    const i = impuestosData.find(x => x.impuesto_id === id);
-    if (!i) return;
-    document.getElementById('impuestoId').value = i.impuesto_id;
-    document.getElementById('impNombre').value = i.nombre || '';
-    document.getElementById('impTipo').value = i.tipo || 'PORCENTAJE';
-    document.getElementById('impValor').value = i.valor || 0;
-    document.getElementById('impCuenta').value = i.cuenta_contable || '';
-    document.getElementById('impIncluidoPrecio').checked = i.incluido_en_precio === 'Y';
-    document.getElementById('impAplicaVentas').checked = i.aplica_ventas === 'Y';
-    document.getElementById('impAplicaCompras').checked = i.aplica_compras === 'Y';
-    document.getElementById('impActivo').checked = i.activo === 'Y';
-    document.getElementById('modalImpuestoTitulo').textContent = 'Editar Impuesto';
-    abrirModal('modalImpuesto');
-}
-
-async function guardarImpuesto(ev) {
-    ev.preventDefault();
-    const id = document.getElementById('impuestoId').value;
-    
-    const data = {
-        empresa_id: empresaId,
-        nombre: document.getElementById('impNombre').value,
-        tipo: document.getElementById('impTipo').value,
-        valor: document.getElementById('impValor').value,
-        cuenta_contable: document.getElementById('impCuenta').value,
-        incluido_en_precio: document.getElementById('impIncluidoPrecio').checked ? 'Y' : 'N',
-        aplica_ventas: document.getElementById('impAplicaVentas').checked ? 'Y' : 'N',
-        aplica_compras: document.getElementById('impAplicaCompras').checked ? 'Y' : 'N',
-        activo: document.getElementById('impActivo').checked ? 'Y' : 'N'
-    };
-    
-    try {
-        const url = id ? `/impuestos/${id}` : '/impuestos';
-        const method = id ? 'PUT' : 'POST';
-        const r = await API.request(url, method, data);
-        if (r.success) {
-            toast(id ? 'Impuesto actualizado' : 'Impuesto creado', 'success');
-            cerrarModal('modalImpuesto');
-            await cargarImpuestos();
-        } else {
-            toast(r.error || 'Error al guardar', 'error');
-        }
-    } catch (e) {
-        toast('Error: ' + e.message, 'error');
-    }
-}
-
-async function eliminarImpuesto(id) {
-    if (!confirm('¿Desactivar este impuesto?')) return;
-    try {
-        const r = await API.request(`/impuestos/${id}`, 'DELETE');
-        if (r.success) {
-            toast('Impuesto desactivado', 'success');
-            await cargarImpuestos();
-        }
-    } catch (e) {
-        toast('Error: ' + e.message, 'error');
-    }
-}
-
-// ==================== MÉTODOS DE PAGO ====================
-async function cargarMetodos() {
-    try {
-        const r = await API.request(`/metodos-pago/${empresaId}/todos`);
-        if (r.success) {
-            metodosData = r.metodos || [];
-            const tabla = document.getElementById('tablaMetodos');
-            if (metodosData.length === 0) {
-                tabla.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-credit-card"></i><p>No hay métodos de pago</p></td></tr>';
-                return;
-            }
-            tabla.innerHTML = metodosData.map(m => `
+            tabla.innerHTML = marcasData.map(m => `
                 <tr>
                     <td><strong>${m.nombre}</strong></td>
-                    <td><span class="badge badge-info">${m.tipo || 'EFECTIVO'}</span></td>
-                    <td class="text-center">${m.requiere_referencia === 'Y' ? '<i class="fas fa-check text-success"></i>' : '-'}</td>
-                    <td class="text-center">${m.permite_cambio === 'Y' ? '<i class="fas fa-check text-success"></i>' : '-'}</td>
-                    <td class="text-center">${parseFloat(m.comision_porcentaje || 0).toFixed(2)}%</td>
-                    <td class="text-center">$${parseFloat(m.comision_fija || 0).toFixed(2)}</td>
-                    <td class="text-center"><span class="badge badge-${m.activo === 'Y' ? 'success' : 'danger'}">${m.activo === 'Y' ? 'Activo' : 'Inactivo'}</span></td>
-                    <td class="text-center">
+                    <td>${m.logo_url ? `<img src="${m.logo_url}" style="height:30px">` : '-'}</td>
+                    <td class="center"><span class="badge badge-${m.activo === 'Y' ? 'success' : 'danger'}">${m.activo === 'Y' ? 'Activo' : 'Inactivo'}</span></td>
+                    <td class="center">
                         <div class="btn-actions">
-                            <button class="btn-edit" onclick="editarMetodo('${m.metodo_pago_id}')"><i class="fas fa-edit"></i></button>
-                            <button class="btn-delete" onclick="eliminarMetodo('${m.metodo_pago_id}')"><i class="fas fa-trash"></i></button>
+                            <button class="btn-edit" onclick="editarMarca('${m.marca_id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete" onclick="eliminarMarca('${m.marca_id}')"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>
             `).join('');
         }
-    } catch (e) {
-        console.error('Error cargando métodos:', e);
-    }
+    } catch (e) { console.error('Error:', e); }
 }
 
-function abrirModalMetodo() {
-    document.getElementById('formMetodo').reset();
-    document.getElementById('metodoId').value = '';
-    document.getElementById('modalMetodoTitulo').textContent = 'Nuevo Método de Pago';
-    document.getElementById('metActivo').checked = true;
-    abrirModal('modalMetodo');
+function abrirModalMarca() {
+    document.getElementById('formMarca').reset();
+    document.getElementById('marcaId').value = '';
+    document.getElementById('modalMarcaTitulo').textContent = 'Nueva Marca';
+    document.getElementById('mrcActivo').checked = true;
+    abrirModal('modalMarca');
 }
 
-function editarMetodo(id) {
-    const m = metodosData.find(x => x.metodo_pago_id === id);
+function editarMarca(id) {
+    const m = marcasData.find(x => x.marca_id === id);
     if (!m) return;
-    document.getElementById('metodoId').value = m.metodo_pago_id;
-    document.getElementById('metNombre').value = m.nombre || '';
-    document.getElementById('metTipo').value = m.tipo || 'EFECTIVO';
-    document.getElementById('metComisionPct').value = m.comision_porcentaje || 0;
-    document.getElementById('metComisionFija').value = m.comision_fija || 0;
-    document.getElementById('metCuenta').value = m.cuenta_contable || '';
-    document.getElementById('metOrden').value = m.orden || 0;
-    document.getElementById('metRequiereRef').checked = m.requiere_referencia === 'Y';
-    document.getElementById('metPermiteCambio').checked = m.permite_cambio === 'Y';
-    document.getElementById('metActivo').checked = m.activo === 'Y';
-    document.getElementById('modalMetodoTitulo').textContent = 'Editar Método de Pago';
-    abrirModal('modalMetodo');
+    document.getElementById('marcaId').value = m.marca_id;
+    document.getElementById('mrcNombre').value = m.nombre || '';
+    document.getElementById('mrcLogo').value = m.logo_url || '';
+    document.getElementById('mrcActivo').checked = m.activo === 'Y';
+    document.getElementById('modalMarcaTitulo').textContent = 'Editar Marca';
+    abrirModal('modalMarca');
 }
 
-async function guardarMetodo(ev) {
+async function guardarMarca(ev) {
     ev.preventDefault();
-    const id = document.getElementById('metodoId').value;
-    
+    const id = document.getElementById('marcaId').value;
     const data = {
         empresa_id: empresaId,
-        nombre: document.getElementById('metNombre').value,
-        tipo: document.getElementById('metTipo').value,
-        comision_porcentaje: document.getElementById('metComisionPct').value || 0,
-        comision_fija: document.getElementById('metComisionFija').value || 0,
-        cuenta_contable: document.getElementById('metCuenta').value,
-        orden: document.getElementById('metOrden').value || 0,
-        requiere_referencia: document.getElementById('metRequiereRef').checked ? 'Y' : 'N',
-        permite_cambio: document.getElementById('metPermiteCambio').checked ? 'Y' : 'N',
-        activo: document.getElementById('metActivo').checked ? 'Y' : 'N'
+        nombre: document.getElementById('mrcNombre').value,
+        logo_url: document.getElementById('mrcLogo').value,
+        activo: document.getElementById('mrcActivo').checked ? 'Y' : 'N'
     };
-    
     try {
-        const url = id ? `/metodos-pago/${id}` : '/metodos-pago';
-        const method = id ? 'PUT' : 'POST';
-        const r = await API.request(url, method, data);
-        if (r.success) {
-            toast(id ? 'Método actualizado' : 'Método creado', 'success');
-            cerrarModal('modalMetodo');
-            await cargarMetodos();
-        } else {
-            toast(r.error || 'Error al guardar', 'error');
-        }
-    } catch (e) {
-        toast('Error: ' + e.message, 'error');
-    }
+        const r = await API.request(id ? `/marcas/${id}` : '/marcas', id ? 'PUT' : 'POST', data);
+        if (r.success) { toast(id ? 'Actualizado' : 'Creado', 'success'); cerrarModal('modalMarca'); cargarMarcas(); }
+        else toast(r.error || 'Error', 'error');
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
 }
 
-async function eliminarMetodo(id) {
-    if (!confirm('¿Desactivar este método de pago?')) return;
+async function eliminarMarca(id) {
+    if (!confirm('¿Desactivar marca?')) return;
     try {
-        const r = await API.request(`/metodos-pago/${id}`, 'DELETE');
-        if (r.success) {
-            toast('Método desactivado', 'success');
-            await cargarMetodos();
-        }
-    } catch (e) {
-        toast('Error: ' + e.message, 'error');
-    }
+        const r = await API.request(`/marcas/${id}`, 'DELETE');
+        if (r.success) { toast('Desactivada', 'success'); cargarMarcas(); }
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
 }
 
-// ==================== UNIDADES DE MEDIDA ====================
-async function cargarUnidades() {
+// ==================== GRUPOS CLIENTE ====================
+async function cargarGrupos() {
     try {
-        const r = await API.request(`/unidades/${empresaId}/todos`);
+        const r = await API.request(`/grupos-cliente/${empresaId}`);
         if (r.success) {
-            unidadesData = r.unidades || [];
-            const tabla = document.getElementById('tablaUnidades');
-            if (unidadesData.length === 0) {
-                tabla.innerHTML = '<tr><td colspan="4" class="empty-state"><i class="fas fa-balance-scale"></i><p>No hay unidades</p></td></tr>';
+            gruposData = r.grupos || [];
+            const tabla = document.getElementById('tablaGrupos');
+            if (gruposData.length === 0) {
+                tabla.innerHTML = '<tr><td colspan="5" class="empty-state"><i class="fas fa-users-cog"></i><p>No hay grupos</p></td></tr>';
                 return;
             }
-            tabla.innerHTML = unidadesData.map(u => `
+            tabla.innerHTML = gruposData.map(g => `
                 <tr>
-                    <td><strong>${u.nombre}</strong></td>
-                    <td>${u.abreviatura}</td>
-                    <td><span class="badge badge-info">${u.tipo || 'UNIDAD'}</span></td>
-                    <td class="text-center"><span class="badge badge-${u.activo === 'Y' ? 'success' : 'danger'}">${u.activo === 'Y' ? 'Activa' : 'Inactiva'}</span></td>
+                    <td><strong>${g.nombre}</strong></td>
+                    <td class="center">Precio ${g.tipo_precio || 1}</td>
+                    <td class="center">${parseFloat(g.descuento_general || 0).toFixed(2)}%</td>
+                    <td class="center"><span class="badge badge-${g.activo === 'Y' ? 'success' : 'danger'}">${g.activo === 'Y' ? 'Activo' : 'Inactivo'}</span></td>
+                    <td class="center">
+                        <div class="btn-actions">
+                            <button class="btn-edit" onclick="editarGrupo('${g.grupo_id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete" onclick="eliminarGrupo('${g.grupo_id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
                 </tr>
             `).join('');
         }
-    } catch (e) {
-        console.error('Error cargando unidades:', e);
-    }
+    } catch (e) { console.error('Error:', e); }
 }
 
-// ==================== UTILIDADES ====================
-function abrirModal(id) {
-    document.getElementById(id).classList.add('active');
-    document.body.style.overflow = 'hidden';
+function abrirModalGrupo() {
+    document.getElementById('formGrupo').reset();
+    document.getElementById('grupoId').value = '';
+    document.getElementById('modalGrupoTitulo').textContent = 'Nuevo Grupo';
+    document.getElementById('grpActivo').checked = true;
+    abrirModal('modalGrupo');
 }
 
-function cerrarModal(id) {
-    document.getElementById(id).classList.remove('active');
-    document.body.style.overflow = '';
+function editarGrupo(id) {
+    const g = gruposData.find(x => x.grupo_id === id);
+    if (!g) return;
+    document.getElementById('grupoId').value = g.grupo_id;
+    document.getElementById('grpNombre').value = g.nombre || '';
+    document.getElementById('grpTipoPrecio').value = g.tipo_precio || 1;
+    document.getElementById('grpDescuento').value = g.descuento_general || 0;
+    document.getElementById('grpActivo').checked = g.activo === 'Y';
+    document.getElementById('modalGrupoTitulo').textContent = 'Editar Grupo';
+    abrirModal('modalGrupo');
 }
 
-function toast(mensaje, tipo = 'info') {
-    const t = document.getElementById('toast');
-    t.textContent = mensaje;
-    t.className = `toast toast-${tipo} show`;
-    setTimeout(() => t.classList.remove('show'), 3000);
+async function guardarGrupo(ev) {
+    ev.preventDefault();
+    const id = document.getElementById('grupoId').value;
+    const data = {
+        empresa_id: empresaId,
+        nombre: document.getElementById('grpNombre').value,
+        tipo_precio: parseInt(document.getElementById('grpTipoPrecio').value) || 1,
+        descuento_general: parseFloat(document.getElementById('grpDescuento').value) || 0,
+        activo: document.getElementById('grpActivo').checked ? 'Y' : 'N'
+    };
+    try {
+        const r = await API.request(id ? `/grupos-cliente/${id}` : '/grupos-cliente', id ? 'PUT' : 'POST', data);
+        if (r.success) { toast(id ? 'Actualizado' : 'Creado', 'success'); cerrarModal('modalGrupo'); cargarGrupos(); }
+        else toast(r.error || 'Error', 'error');
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
 }
 
-// Cerrar modales con ESC
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        document.querySelectorAll('.modal-overlay.active').forEach(m => {
-            cerrarModal(m.id);
-        });
-    }
-});
+async function eliminarGrupo(id) {
+    if (!confirm('¿Desactivar grupo?')) return;
+    try {
+        const r = await API.request(`/grupos-cliente/${id}`, 'DELETE');
+        if (r.success) { toast('Desactivado', 'success'); cargarGrupos(); }
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+}
 
-// Cerrar modal al hacer clic fuera
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-    overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) {
-            cerrarModal(overlay.id);
+// ==================== PROVEEDORES ====================
+async function cargarProveedores() {
+    try {
+        const r = await API.request(`/proveedores/${empresaId}`);
+        if (r.success) {
+            proveedoresData = r.proveedores || [];
+            const tabla = document.getElementById('tablaProveedores');
+            if (proveedoresData.length === 0) {
+                tabla.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fas fa-truck"></i><p>No hay proveedores</p></td></tr>';
+                return;
+            }
+            tabla.innerHTML = proveedoresData.map(p => `
+                <tr>
+                    <td>${p.codigo || '-'}</td>
+                    <td><strong>${p.nombre_comercial}</strong></td>
+                    <td>${p.rfc || '-'}</td>
+                    <td>${p.telefono || '-'}</td>
+                    <td>${p.email || '-'}</td>
+                    <td class="center"><span class="badge badge-${p.activo === 'Y' ? 'success' : 'danger'}">${p.activo === 'Y' ? 'Activo' : 'Inactivo'}</span></td>
+                    <td class="center">
+                        <div class="btn-actions">
+                            <button class="btn-edit" onclick="editarProveedor('${p.proveedor_id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete" onclick="eliminarProveedor('${p.proveedor_id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
         }
-    });
-});
+    } catch (e) { console.error('Error:', e); }
+}
+
+function abrirModalProveedor() {
+    document.getElementById('formProveedor').reset();
+    document.getElementById('proveedorId').value = '';
+    document.getElementById('modalProveedorTitulo').textContent = 'Nuevo Proveedor';
+    document.getElementById('provActivo').checked = true;
+    abrirModal('modalProveedor');
+}
+
+function editarProveedor(id) {
+    const p = proveedoresData.find(x => x.proveedor_id === id);
+    if (!p) return;
+    document.getElementById('proveedorId').value = p.proveedor_id;
+    document.getElementById('provCodigo').value = p.codigo || '';
+    document.getElementById('provTipo').value = p.tipo_persona || 'MORAL';
+    document.getElementById('provRFC').value = p.rfc || '';
+    document.getElementById('provRazonSocial').value = p.razon_social || '';
+    document.getElementById('provNombre').value = p.nombre_comercial || '';
+    document.getElementById('provEstado').value = p.estado || '';
+    document.getElementById('provCiudad').value = p.ciudad || '';
+    document.getElementById('provCP').value = p.codigo_postal || '';
+    document.getElementById('provDireccion').value = p.direccion || '';
+    document.getElementById('provTelefono').value = p.telefono || '';
+    document.getElementById('provCelular').value = p.celular || '';
+    document.getElementById('provEmail').value = p.email || '';
+    document.getElementById('provContacto').value = p.contacto_nombre || '';
+    document.getElementById('provContactoTel').value = p.contacto_telefono || '';
+    document.getElementById('provContactoEmail').value = p.contacto_email || '';
+    document.getElementById('provBanco').value = p.banco || '';
+    document.getElementById('provCuentaBanco').value = p.cuenta_banco || '';
+    document.getElementById('provClabe').value = p.clabe || '';
+    document.getElementById('provDiasCredito').value = p.dias_credito || 0;
+    document.getElementById('provLimiteCredito').value = p.limite_credito || 0;
+    document.getElementById('provNotas').value = p.notas || '';
+    document.getElementById('provActivo').checked = p.activo === 'Y';
+    document.getElementById('modalProveedorTitulo').textContent = 'Editar Proveedor';
+    abrirModal('modalProveedor');
+}
+
+async function guardarProveedor(ev) {
+    ev.preventDefault();
+    const id = document.getElementById('proveedorId').value;
+    const data = {
+        empresa_id: empresaId,
+        codigo: document.getElementById('provCodigo').value,
+        tipo_persona: document.getElementById('provTipo').value,
+        rfc: document.getElementById('provRFC').value,
+        razon_social: document.getElementById('provRazonSocial').value,
+        nombre_comercial: document.getElementById('provNombre').value,
+        estado: document.getElementById('provEstado').value,
+        ciudad: document.getElementById('provCiudad').value,
+        codigo_postal: document.getElementById('provCP').value,
+        direccion: document.getElementById('provDireccion').value,
+        telefono: document.getElementById('provTelefono').value,
+        celular: document.getElementById('provCelular').value,
+        email: document.getElementById('provEmail').value,
+        contacto_nombre: document.getElementById('provContacto').value,
+        contacto_telefono: document.getElementById('provContactoTel').value,
+        contacto_email: document.getElementById('provContactoEmail').value,
+        banco: document.getElementById('provBanco').value,
+        cuenta_banco: document.getElementById('provCuentaBanco').value,
+        clabe: document.getElementById('provClabe').value,
+        dias_credito: parseInt(document.getElementById('provDiasCredito').value) || 0,
+        limite_credito: parseFloat(document.getElementById('provLimiteCredito').value) || 0,
+        notas: document.getElementById('provNotas').value,
+        activo: document.getElementById('provActivo').checked ? 'Y' : 'N'
+    };
+    try {
+        const r = await API.request(id ? `/proveedores/${id}` : '/proveedores', id ? 'PUT' : 'POST', data);
+        if (r.success) { toast(id ? 'Actualizado' : 'Creado', 'success'); cerrarModal('modalProveedor'); cargarProveedores(); }
+        else toast(r.error || 'Error', 'error');
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+}
+
+async function eliminarProveedor(id) {
+    if (!confirm('¿Desactivar proveedor?')) return;
+    try {
+        const r = await API.request(`/proveedores/${id}`, 'DELETE');
+        if (r.success) { toast('Desactivado', 'success'); cargarProveedores(); }
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+}
+
+// ==================== CUENTAS BANCARIAS ====================
+async function cargarCuentas() {
+    try {
+        const r = await API.request(`/cuentas-bancarias/${empresaId}`);
+        if (r.success) {
+            cuentasData = r.cuentas || [];
+            const tabla = document.getElementById('tablaCuentas');
+            if (cuentasData.length === 0) {
+                tabla.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fas fa-university"></i><p>No hay cuentas</p></td></tr>';
+                return;
+            }
+            tabla.innerHTML = cuentasData.map(c => `
+                <tr>
+                    <td><strong>${c.banco}</strong></td>
+                    <td>${c.numero_cuenta || '-'}</td>
+                    <td>${c.clabe || '-'}</td>
+                    <td>${c.moneda_id || 'MXN'}</td>
+                    <td class="right">$${parseFloat(c.saldo || 0).toLocaleString('es-MX', {minimumFractionDigits: 2})}</td>
+                    <td class="center"><span class="badge badge-${c.activa === 'Y' ? 'success' : 'danger'}">${c.activa === 'Y' ? 'Activa' : 'Inactiva'}</span></td>
+                    <td class="center">
+                        <div class="btn-actions">
+                            <button class="btn-edit" onclick="editarCuenta('${c.cuenta_id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete" onclick="eliminarCuenta('${c.cuenta_id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+    } catch (e) { console.error('Error:', e); }
+}
+
+function abrirModalCuenta() {
+    document.getElementById('formCuenta').reset();
+    document.getElementById('cuentaId').value = '';
+    document.getElementById('modalCuentaTitulo').textContent = 'Nueva Cuenta';
+    document.getElementById('ctaActiva').checked = true;
+    abrirModal('modalCuenta');
+}
+
+function editarCuenta(id) {
+    const c = cuentasData.find(x => x.cuenta_id === id);
+    if (!c) return;
+    document.getElementById('cuentaId').value = c.cuenta_id;
+    document.getElementById('ctaBanco').value = c.banco || '';
+    document.getElementById('ctaNumero').value = c.numero_cuenta || '';
+    document.getElementById('ctaClabe').value = c.clabe || '';
+    document.getElementById('ctaMoneda').value = c.moneda_id || 'MXN';
+    document.getElementById('ctaSaldo').value = c.saldo || 0;
+    document.getElementById('ctaActiva').checked = c.activa === 'Y';
+    document.getElementById('modalCuentaTitulo').textContent = 'Editar Cuenta';
+    abrirModal('modalCuenta');
+}
+
+async function guardarCuenta(ev) {
+    ev.preventDefault();
+    const id = document.getElementById('cuentaId').value;
+    const data = {
+        empresa_id: empresaId,
+        banco: document.getElementById('ctaBanco').value,
+        numero_cuenta: document.getElementById('ctaNumero').value,
+        clabe: document.getElementById('ctaClabe').value,
+        moneda_id: document.getElementById('ctaMoneda').value,
+        saldo: parseFloat(document.getElementById('ctaSaldo').value) || 0,
+        activa: document.getElementById('ctaActiva').checked ? 'Y' : 'N'
+    };
+    try {
+        const r = await API.request(id ? `/cuentas-bancarias/${id}` : '/cuentas-bancarias', id ? 'PUT' : 'POST', data);
+        if (r.success) { toast(id ? 'Actualizado' : 'Creado', 'success'); cerrarModal('modalCuenta'); cargarCuentas(); }
+        else toast(r.error || 'Error', 'error');
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+}
+
+async function eliminarCuenta(id) {
+    if (!confirm('¿Desactivar cuenta?')) return;
+    try {
+        const r = await API.request(`/cuentas-bancarias/${id}`, 'DELETE');
+        if (r.success) { toast('Desactivada', 'success'); cargarCuentas(); }
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+}
+
+// ==================== CATEGORÍAS GASTO ====================
+async function cargarCategoriasGasto() {
+    try {
+        const r = await API.request(`/categorias-gasto/${empresaId}`);
+        if (r.success) {
+            categoriasGastoData = r.categorias || [];
+            const tabla = document.getElementById('tablaCategoriasGasto');
+            if (categoriasGastoData.length === 0) {
+                tabla.innerHTML = '<tr><td colspan="5" class="empty-state"><i class="fas fa-receipt"></i><p>No hay categorías</p></td></tr>';
+                return;
+            }
+            tabla.innerHTML = categoriasGastoData.map(c => `
+                <tr>
+                    <td>${c.codigo || '-'}</td>
+                    <td><strong>${c.nombre}</strong></td>
+                    <td><span class="badge badge-info">${c.tipo || 'OPERATIVO'}</span></td>
+                    <td class="center"><span class="badge badge-${c.activo === 'Y' ? 'success' : 'danger'}">${c.activo === 'Y' ? 'Activo' : 'Inactivo'}</span></td>
+                    <td class="center">
+                        <div class="btn-actions">
+                            <button class="btn-edit" onclick="editarCategoriaGasto('${c.categoria_gasto_id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete" onclick="eliminarCategoriaGasto('${c.categoria_gasto_id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+    } catch (e) { console.error('Error:', e); }
+}
+
+function abrirModalCategoriaGasto() {
+    document.getElementById('formCategoriaGasto').reset();
+    document.getElementById('categoriaGastoId').value = '';
+    document.getElementById('modalCategoriaGastoTitulo').textContent = 'Nueva Categoría de Gasto';
+    document.getElementById('catgActivo').checked = true;
+    abrirModal('modalCategoriaGasto');
+}
+
+function editarCategoriaGasto(id) {
+    const c = categoriasGastoData.find(x => x.categoria_gasto_id === id);
+    if (!c) return;
+    document.getElementById('categoriaGastoId').value = c.categoria_gasto_id;
+    document.getElementById('catgCodigo').value = c.codigo || '';
+    document.getElementById('catgNombre').value = c.nombre || '';
+    document.getElementById('catgTipo').value = c.tipo || 'OPERATIVO';
+    document.getElementById('catgCuenta').value = c.cuenta_contable || '';
+    document.getElementById('catgActivo').checked = c.activo === 'Y';
+    document.getElementById('modalCategoriaGastoTitulo').textContent = 'Editar Categoría de Gasto';
+    abrirModal('modalCategoriaGasto');
+}
+
+async function guardarCategoriaGasto(ev) {
+    ev.preventDefault();
+    const id = document.getElementById('categoriaGastoId').value;
+    const data = {
+        empresa_id: empresaId,
+        codigo: document.getElementById('catgCodigo').value,
+        nombre: document.getElementById('catgNombre').value,
+        tipo: document.getElementById('catgTipo').value,
+        cuenta_contable: document.getElementById('catgCuenta').value,
+        activo: document.getElementById('catgActivo').checked ? 'Y' : 'N'
+    };
+    try {
+        const r = await API.request(id ? `/categorias-gasto/${id}` : '/categorias-gasto', id ? 'PUT' : 'POST', data);
+        if (r.success) { toast(id ? 'Actualizado' : 'Creado', 'success'); cerrarModal('modalCategoriaGasto'); cargarCategoriasGasto(); }
+        else toast(r.error || 'Error', 'error');
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+}
+
+async function eliminarCategoriaGasto(id) {
+    if (!confirm('¿Desactivar categoría?')) return;
+    try {
+        const r = await API.request(`/categorias-gasto/${id}`, 'DELETE');
+        if (r.success) { toast('Desactivada', 'success'); cargarCategoriasGasto(); }
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+}
+
+// ==================== CONCEPTOS GASTO ====================
+async function cargarConceptosGasto() {
+    try {
+        const r = await API.request(`/conceptos-gasto/${empresaId}`);
+        if (r.success) {
+            conceptosGastoData = r.conceptos || [];
+            const tabla = document.getElementById('tablaConceptosGasto');
+            if (conceptosGastoData.length === 0) {
+                tabla.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="fas fa-file-invoice-dollar"></i><p>No hay conceptos</p></td></tr>';
+                return;
+            }
+            tabla.innerHTML = conceptosGastoData.map(c => `
+                <tr>
+                    <td>${c.codigo || '-'}</td>
+                    <td><strong>${c.nombre}</strong></td>
+                    <td>${c.categoria_nombre || '-'}</td>
+                    <td class="center">${c.requiere_factura === 'Y' ? '<i class="fas fa-check text-success"></i>' : '<i class="fas fa-times text-danger"></i>'}</td>
+                    <td class="center"><span class="badge badge-${c.activo === 'Y' ? 'success' : 'danger'}">${c.activo === 'Y' ? 'Activo' : 'Inactivo'}</span></td>
+                    <td class="center">
+                        <div class="btn-actions">
+                            <button class="btn-edit" onclick="editarConceptoGasto('${c.concepto_gasto_id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete" onclick="eliminarConceptoGasto('${c.concepto_gasto_id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+    } catch (e) { console.error('Error:', e); }
+}
+
+function abrirModalConceptoGasto() {
+    document.getElementById('formConceptoGasto').reset();
+    document.getElementById('conceptoGastoId').value = '';
+    document.getElementById('modalConceptoGastoTitulo').textContent = 'Nuevo Concepto de Gasto';
+    document.getElementById('congActivo').checked = true;
+    cargarSelectCategoriasGasto('congCategoria');
+    abrirModal('modalConceptoGasto');
+}
+
+function editarConceptoGasto(id) {
+    const c = conceptosGastoData.find(x => x.concepto_gasto_id === id);
+    if (!c) return;
+    cargarSelectCategoriasGasto('congCategoria', c.categoria_gasto_id);
+    document.getElementById('conceptoGastoId').value = c.concepto_gasto_id;
+    document.getElementById('congCodigo').value = c.codigo || '';
+    document.getElementById('congNombre').value = c.nombre || '';
+    document.getElementById('congDescripcion').value = c.descripcion || '';
+    document.getElementById('congReqFactura').checked = c.requiere_factura === 'Y';
+    document.getElementById('congActivo').checked = c.activo === 'Y';
+    document.getElementById('modalConceptoGastoTitulo').textContent = 'Editar Concepto de Gasto';
+    abrirModal('modalConceptoGasto');
+}
+
+async function guardarConceptoGasto(ev) {
+    ev.preventDefault();
+    const id = document.getElementById('conceptoGastoId').value;
+    const data = {
+        empresa_id: empresaId,
+        categoria_gasto_id: document.getElementById('congCategoria').value,
+        codigo: document.getElementById('congCodigo').value,
+        nombre: document.getElementById('congNombre').value,
+        descripcion: document.getElementById('congDescripcion').value,
+        requiere_factura: document.getElementById('congReqFactura').checked ? 'Y' : 'N',
+        activo: document.getElementById('congActivo').checked ? 'Y' : 'N'
+    };
+    try {
+        const r = await API.request(id ? `/conceptos-gasto/${id}` : '/conceptos-gasto', id ? 'PUT' : 'POST', data);
+        if (r.success) { toast(id ? 'Actualizado' : 'Creado', 'success'); cerrarModal('modalConceptoGasto'); cargarConceptosGasto(); }
+        else toast(r.error || 'Error', 'error');
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+}
+
+async function eliminarConceptoGasto(id) {
+    if (!confirm('¿Desactivar concepto?')) return;
+    try {
+        const r = await API.request(`/conceptos-gasto/${id}`, 'DELETE');
+        if (r.success) { toast('Desactivado', 'success'); cargarConceptosGasto(); }
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+}
+
+function cargarSelectCategoriasGasto(selectId, selected = '') {
+    const sel = document.getElementById(selectId);
+    sel.innerHTML = '<option value="">Seleccionar...</option>' + categoriasGastoData.filter(c => c.activo === 'Y').map(c => `<option value="${c.categoria_gasto_id}" ${c.categoria_gasto_id === selected ? 'selected' : ''}>${c.nombre}</option>`).join('');
+}
