@@ -614,7 +614,7 @@ async function cargarUnidades() {
             unidadesData = r.unidades || [];
             const tabla = document.getElementById('tablaUnidades');
             if (unidadesData.length === 0) {
-                tabla.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="fas fa-balance-scale"></i><p>No hay unidades</p></td></tr>';
+                tabla.innerHTML = '<tr><td colspan="4" class="empty-state"><i class="fas fa-balance-scale"></i><p>No hay unidades</p></td></tr>';
                 return;
             }
             tabla.innerHTML = unidadesData.map(u => `
@@ -622,83 +622,12 @@ async function cargarUnidades() {
                     <td><strong>${u.nombre}</strong></td>
                     <td>${u.abreviatura}</td>
                     <td><span class="badge badge-info">${u.tipo || 'UNIDAD'}</span></td>
-                    <td class="text-center">${u.es_sistema === 'Y' ? '<i class="fas fa-lock text-warning"></i>' : '-'}</td>
                     <td class="text-center"><span class="badge badge-${u.activo === 'Y' ? 'success' : 'danger'}">${u.activo === 'Y' ? 'Activa' : 'Inactiva'}</span></td>
-                    <td class="text-center">
-                        <div class="btn-actions">
-                            <button class="btn-edit" onclick="editarUnidad('${u.unidad_id}')" ${u.es_sistema === 'Y' ? 'disabled' : ''}><i class="fas fa-edit"></i></button>
-                            <button class="btn-delete" onclick="eliminarUnidad('${u.unidad_id}')" ${u.es_sistema === 'Y' ? 'disabled' : ''}><i class="fas fa-trash"></i></button>
-                        </div>
-                    </td>
                 </tr>
             `).join('');
         }
     } catch (e) {
         console.error('Error cargando unidades:', e);
-    }
-}
-
-function abrirModalUnidad() {
-    document.getElementById('formUnidad').reset();
-    document.getElementById('unidadId').value = '';
-    document.getElementById('modalUnidadTitulo').textContent = 'Nueva Unidad de Medida';
-    document.getElementById('uniActivo').checked = true;
-    document.getElementById('uniSistema').checked = false;
-    abrirModal('modalUnidad');
-}
-
-function editarUnidad(id) {
-    const u = unidadesData.find(x => x.unidad_id === id);
-    if (!u) return;
-    document.getElementById('unidadId').value = u.unidad_id;
-    document.getElementById('uniNombre').value = u.nombre || '';
-    document.getElementById('uniAbreviatura').value = u.abreviatura || '';
-    document.getElementById('uniTipo').value = u.tipo || 'UNIDAD';
-    document.getElementById('uniSistema').checked = u.es_sistema === 'Y';
-    document.getElementById('uniActivo').checked = u.activo === 'Y';
-    document.getElementById('modalUnidadTitulo').textContent = 'Editar Unidad de Medida';
-    abrirModal('modalUnidad');
-}
-
-async function guardarUnidad(ev) {
-    ev.preventDefault();
-    const id = document.getElementById('unidadId').value;
-    
-    const data = {
-        empresa_id: empresaId,
-        nombre: document.getElementById('uniNombre').value,
-        abreviatura: document.getElementById('uniAbreviatura').value,
-        tipo: document.getElementById('uniTipo').value,
-        es_sistema: document.getElementById('uniSistema').checked ? 'Y' : 'N',
-        activo: document.getElementById('uniActivo').checked ? 'Y' : 'N'
-    };
-    
-    try {
-        const url = id ? `/unidades/${id}` : '/unidades';
-        const method = id ? 'PUT' : 'POST';
-        const r = await API.request(url, method, data);
-        if (r.success) {
-            toast(id ? 'Unidad actualizada' : 'Unidad creada', 'success');
-            cerrarModal('modalUnidad');
-            await cargarUnidades();
-        } else {
-            toast(r.error || 'Error al guardar', 'error');
-        }
-    } catch (e) {
-        toast('Error: ' + e.message, 'error');
-    }
-}
-
-async function eliminarUnidad(id) {
-    if (!confirm('¿Desactivar esta unidad?')) return;
-    try {
-        const r = await API.request(`/unidades/${id}`, 'DELETE');
-        if (r.success) {
-            toast('Unidad desactivada', 'success');
-            await cargarUnidades();
-        }
-    } catch (e) {
-        toast('Error: ' + e.message, 'error');
     }
 }
 
