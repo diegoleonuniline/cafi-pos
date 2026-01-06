@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAFI - Configuración</title>
     <link rel="stylesheet" href="../css/styles.css">
-    <link rel="stylesheet" href="../css/catalogos.css">
+    <link rel="stylesheet" href="../css/configuracion.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -50,66 +50,182 @@
             </header>
 
             <div class="admin-content">
-                <div class="section-card">
+                <!-- TABS -->
+                <div class="config-tabs-container">
                     <div class="config-tabs">
-                        <button class="config-tab active" data-tab="impuestos"><i class="fas fa-percentage"></i> Impuestos</button>
-                        <button class="config-tab" data-tab="metodos"><i class="fas fa-credit-card"></i> Métodos de Pago</button>
-                        <button class="config-tab" data-tab="empresa"><i class="fas fa-building"></i> Empresa</button>
+                        <button class="tab-btn active" data-tab="empresa"><i class="fas fa-building"></i><span>Empresa</span></button>
+                        <button class="tab-btn" data-tab="sucursales"><i class="fas fa-store"></i><span>Sucursales</span></button>
+                        <button class="tab-btn" data-tab="usuarios"><i class="fas fa-users-cog"></i><span>Usuarios</span></button>
+                        <button class="tab-btn" data-tab="impuestos"><i class="fas fa-percent"></i><span>Impuestos</span></button>
+                        <button class="tab-btn" data-tab="metodos-pago"><i class="fas fa-credit-card"></i><span>Métodos Pago</span></button>
+                        <button class="tab-btn" data-tab="unidades"><i class="fas fa-balance-scale"></i><span>Unidades</span></button>
+                    </div>
+                </div>
+
+                <div class="config-wrapper">
+                    <!-- EMPRESA -->
+                    <div class="config-panel active" id="panel-empresa">
+                        <div class="panel-header">
+                            <h2><i class="fas fa-building"></i> Datos de la Empresa</h2>
+                        </div>
+                        <form id="formEmpresa" class="config-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Nombre / Razón Social *</label>
+                                    <input type="text" id="empNombre" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>RFC</label>
+                                    <input type="text" id="empRfc" maxlength="13">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Teléfono</label>
+                                    <input type="tel" id="empTelefono">
+                                </div>
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" id="empEmail">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Dirección</label>
+                                <textarea id="empDireccion" rows="2"></textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Régimen Fiscal</label>
+                                    <select id="empRegimen">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="601">601 - General de Ley PM</option>
+                                        <option value="603">603 - Personas Morales sin Fines de Lucro</option>
+                                        <option value="612">612 - Personas Físicas con Actividad Empresarial</option>
+                                        <option value="626">626 - Régimen Simplificado de Confianza</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Código Postal</label>
+                                    <input type="text" id="empCP" maxlength="5">
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Guardar Cambios</button>
+                            </div>
+                        </form>
                     </div>
 
-                    <!-- TAB IMPUESTOS -->
-                    <div class="config-content active" id="tab-impuestos">
-                        <div class="config-header">
-                            <h3>Impuestos</h3>
-                            <button class="btn btn-primary" onclick="abrirModalImpuesto()"><i class="fas fa-plus"></i> Nuevo Impuesto</button>
+                    <!-- SUCURSALES -->
+                    <div class="config-panel" id="panel-sucursales">
+                        <div class="panel-header">
+                            <h2><i class="fas fa-store"></i> Sucursales</h2>
+                            <button class="btn-add" onclick="abrirModalSucursal()"><i class="fas fa-plus"></i> Nueva Sucursal</button>
                         </div>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Tipo</th>
-                                    <th>Valor</th>
-                                    <th>Aplica Ventas</th>
-                                    <th>Aplica Compras</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaImpuestos"></tbody>
-                        </table>
+                        <div class="panel-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Dirección</th>
+                                        <th>Teléfono</th>
+                                        <th>Encargado</th>
+                                        <th class="center">Estado</th>
+                                        <th class="center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaSucursales"></tbody>
+                            </table>
+                        </div>
                     </div>
 
-                    <!-- TAB MÉTODOS DE PAGO -->
-                    <div class="config-content" id="tab-metodos">
-                        <div class="config-header">
-                            <h3>Métodos de Pago</h3>
-                            <button class="btn btn-primary" onclick="abrirModalMetodo()"><i class="fas fa-plus"></i> Nuevo Método</button>
+                    <!-- USUARIOS -->
+                    <div class="config-panel" id="panel-usuarios">
+                        <div class="panel-header">
+                            <h2><i class="fas fa-users-cog"></i> Usuarios</h2>
+                            <button class="btn-add" onclick="abrirModalUsuario()"><i class="fas fa-plus"></i> Nuevo Usuario</button>
                         </div>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Icono</th>
-                                    <th>Nombre</th>
-                                    <th>Clave SAT</th>
-                                    <th>Requiere Referencia</th>
-                                    <th>Orden</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaMetodos"></tbody>
-                        </table>
+                        <div class="panel-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Usuario</th>
+                                        <th>Email</th>
+                                        <th>Rol</th>
+                                        <th>Sucursal</th>
+                                        <th class="center">Estado</th>
+                                        <th class="center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaUsuarios"></tbody>
+                            </table>
+                        </div>
                     </div>
 
-                    <!-- TAB EMPRESA -->
-                    <div class="config-content" id="tab-empresa">
-                        <div class="config-header">
-                            <h3>Datos de la Empresa</h3>
+                    <!-- IMPUESTOS -->
+                    <div class="config-panel" id="panel-impuestos">
+                        <div class="panel-header">
+                            <h2><i class="fas fa-percent"></i> Impuestos</h2>
+                            <button class="btn-add" onclick="abrirModalImpuesto()"><i class="fas fa-plus"></i> Nuevo Impuesto</button>
                         </div>
-                        <div class="empresa-info">
-                            <div class="info-row"><span>Empresa:</span><strong id="empresaNombre">-</strong></div>
-                            <div class="info-row"><span>RFC:</span><strong id="empresaRFC">-</strong></div>
-                            <div class="info-row"><span>Sucursal:</span><strong id="empresaSucursal">-</strong></div>
+                        <div class="panel-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Clave SAT</th>
+                                        <th class="center">Tasa %</th>
+                                        <th class="center">Por Defecto</th>
+                                        <th class="center">Estado</th>
+                                        <th class="center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaImpuestos"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- MÉTODOS DE PAGO -->
+                    <div class="config-panel" id="panel-metodos-pago">
+                        <div class="panel-header">
+                            <h2><i class="fas fa-credit-card"></i> Métodos de Pago</h2>
+                            <button class="btn-add" onclick="abrirModalMetodo()"><i class="fas fa-plus"></i> Nuevo Método</button>
+                        </div>
+                        <div class="panel-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Clave SAT</th>
+                                        <th class="center">Requiere Referencia</th>
+                                        <th class="center">Estado</th>
+                                        <th class="center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaMetodos"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- UNIDADES DE MEDIDA -->
+                    <div class="config-panel" id="panel-unidades">
+                        <div class="panel-header">
+                            <h2><i class="fas fa-balance-scale"></i> Unidades de Medida</h2>
+                            <button class="btn-add" onclick="abrirModalUnidad()"><i class="fas fa-plus"></i> Nueva Unidad</button>
+                        </div>
+                        <div class="panel-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Abreviatura</th>
+                                        <th>Clave SAT</th>
+                                        <th class="center">Estado</th>
+                                        <th class="center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaUnidades"></tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -117,106 +233,237 @@
         </main>
     </div>
 
-    <!-- MODAL IMPUESTO -->
-    <div class="modal-overlay" id="modalImpuesto">
-        <div class="modal modal-sm">
-            <div class="modal-header gradient">
-                <h3><i class="fas fa-percentage"></i> <span id="modalImpuestoTitulo">Nuevo Impuesto</span></h3>
-                <button class="btn-close light" onclick="cerrarModalImpuesto()"><i class="fas fa-times"></i></button>
+    <!-- MODAL SUCURSAL -->
+    <div class="modal-overlay" id="modalSucursal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-store"></i> <span id="modalSucursalTitulo">Nueva Sucursal</span></h3>
+                <button class="modal-close" onclick="cerrarModal('modalSucursal')"><i class="fas fa-times"></i></button>
             </div>
-            <form id="formImpuesto" onsubmit="guardarImpuesto(event)">
-                <input type="hidden" id="impuestoId">
+            <form id="formSucursal">
                 <div class="modal-body">
+                    <input type="hidden" id="sucursalId">
                     <div class="form-group">
-                        <label>Nombre <span class="required">*</span></label>
-                        <input type="text" id="impuestoNombre" required placeholder="Ej: IVA 16%">
+                        <label>Nombre *</label>
+                        <input type="text" id="sucNombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Dirección</label>
+                        <textarea id="sucDireccion" rows="2"></textarea>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Tipo</label>
-                            <select id="impuestoTipo">
-                                <option value="PORCENTAJE">Porcentaje</option>
-                                <option value="FIJO">Monto Fijo</option>
-                            </select>
+                            <label>Teléfono</label>
+                            <input type="tel" id="sucTelefono">
                         </div>
                         <div class="form-group">
-                            <label>Valor <span class="required">*</span></label>
-                            <input type="number" id="impuestoValor" step="0.0001" required placeholder="16">
+                            <label>Email</label>
+                            <input type="email" id="sucEmail">
                         </div>
                     </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="toggle-switch small">
-                                <input type="checkbox" id="impuestoVentas" checked>
-                                <span class="slider"></span>
-                                <span class="toggle-label">Aplica en Ventas</span>
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label class="toggle-switch small">
-                                <input type="checkbox" id="impuestoCompras" checked>
-                                <span class="slider"></span>
-                                <span class="toggle-label">Aplica en Compras</span>
-                            </label>
-                        </div>
+                    <div class="form-group">
+                        <label>Encargado</label>
+                        <input type="text" id="sucEncargado">
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="sucActivo" checked>
+                            <span>Sucursal Activa</span>
+                        </label>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" onclick="cerrarModalImpuesto()">Cancelar</button>
-                    <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Guardar</button>
+                    <button type="button" class="btn-secondary" onclick="cerrarModal('modalSucursal')">Cancelar</button>
+                    <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Guardar</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL MÉTODO DE PAGO -->
-    <div class="modal-overlay" id="modalMetodo">
-        <div class="modal modal-sm">
-            <div class="modal-header gradient">
-                <h3><i class="fas fa-credit-card"></i> <span id="modalMetodoTitulo">Nuevo Método</span></h3>
-                <button class="btn-close light" onclick="cerrarModalMetodo()"><i class="fas fa-times"></i></button>
+    <!-- MODAL USUARIO -->
+    <div class="modal-overlay" id="modalUsuario">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> <span id="modalUsuarioTitulo">Nuevo Usuario</span></h3>
+                <button class="modal-close" onclick="cerrarModal('modalUsuario')"><i class="fas fa-times"></i></button>
             </div>
-            <form id="formMetodo" onsubmit="guardarMetodo(event)">
-                <input type="hidden" id="metodoId">
+            <form id="formUsuario">
                 <div class="modal-body">
-                    <div class="form-group">
-                        <label>Nombre <span class="required">*</span></label>
-                        <input type="text" id="metodoNombre" required placeholder="Ej: Efectivo">
+                    <input type="hidden" id="usuarioId">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nombre Completo *</label>
+                            <input type="text" id="usrNombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Usuario *</label>
+                            <input type="text" id="usrUsuario" required>
+                        </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Icono</label>
-                            <select id="metodoIcono">
-                                <option value="fa-money-bill-wave">💵 Efectivo</option>
-                                <option value="fa-credit-card">💳 Tarjeta</option>
-                                <option value="fa-exchange-alt">🔄 Transferencia</option>
-                                <option value="fa-mobile-alt">📱 Móvil</option>
-                                <option value="fa-qrcode">📷 QR</option>
-                                <option value="fa-hand-holding-usd">🤝 Crédito</option>
+                            <label>Email</label>
+                            <input type="email" id="usrEmail">
+                        </div>
+                        <div class="form-group">
+                            <label>Teléfono</label>
+                            <input type="tel" id="usrTelefono">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label id="lblPassword">Contraseña *</label>
+                            <input type="password" id="usrPassword">
+                        </div>
+                        <div class="form-group">
+                            <label>Confirmar Contraseña</label>
+                            <input type="password" id="usrPassword2">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Rol *</label>
+                            <select id="usrRol" required>
+                                <option value="">Seleccionar...</option>
+                                <option value="ADMIN">Administrador</option>
+                                <option value="GERENTE">Gerente</option>
+                                <option value="CAJERO">Cajero</option>
+                                <option value="ALMACEN">Almacén</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Clave SAT</label>
-                            <input type="text" id="metodoClaveSAT" placeholder="01, 02, 03...">
+                            <label>Sucursal *</label>
+                            <select id="usrSucursal" required></select>
                         </div>
                     </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Orden</label>
-                            <input type="number" id="metodoOrden" value="0" min="0">
-                        </div>
-                        <div class="form-group">
-                            <label class="toggle-switch small">
-                                <input type="checkbox" id="metodoReferencia">
-                                <span class="slider"></span>
-                                <span class="toggle-label">Requiere Referencia</span>
-                            </label>
-                        </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="usrActivo" checked>
+                            <span>Usuario Activo</span>
+                        </label>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" onclick="cerrarModalMetodo()">Cancelar</button>
-                    <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Guardar</button>
+                    <button type="button" class="btn-secondary" onclick="cerrarModal('modalUsuario')">Cancelar</button>
+                    <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL IMPUESTO -->
+    <div class="modal-overlay" id="modalImpuesto">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-percent"></i> <span id="modalImpuestoTitulo">Nuevo Impuesto</span></h3>
+                <button class="modal-close" onclick="cerrarModal('modalImpuesto')"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="formImpuesto">
+                <div class="modal-body">
+                    <input type="hidden" id="impuestoId">
+                    <div class="form-group">
+                        <label>Nombre *</label>
+                        <input type="text" id="impNombre" required placeholder="Ej: IVA 16%">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Tasa (%) *</label>
+                            <input type="number" id="impTasa" required step="0.01" min="0" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label>Clave SAT</label>
+                            <select id="impClave">
+                                <option value="002">002 - IVA</option>
+                                <option value="003">003 - IEPS</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label"><input type="checkbox" id="impDefecto"><span>Impuesto por defecto</span></label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label"><input type="checkbox" id="impActivo" checked><span>Activo</span></label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="cerrarModal('modalImpuesto')">Cancelar</button>
+                    <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL MÉTODO PAGO -->
+    <div class="modal-overlay" id="modalMetodo">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-credit-card"></i> <span id="modalMetodoTitulo">Nuevo Método</span></h3>
+                <button class="modal-close" onclick="cerrarModal('modalMetodo')"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="formMetodo">
+                <div class="modal-body">
+                    <input type="hidden" id="metodoId">
+                    <div class="form-group">
+                        <label>Nombre *</label>
+                        <input type="text" id="metNombre" required placeholder="Ej: Efectivo">
+                    </div>
+                    <div class="form-group">
+                        <label>Clave SAT</label>
+                        <select id="metClave">
+                            <option value="01">01 - Efectivo</option>
+                            <option value="02">02 - Cheque nominativo</option>
+                            <option value="03">03 - Transferencia electrónica</option>
+                            <option value="04">04 - Tarjeta de crédito</option>
+                            <option value="28">28 - Tarjeta de débito</option>
+                            <option value="99">99 - Por definir</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label"><input type="checkbox" id="metReferencia"><span>Requiere referencia</span></label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label"><input type="checkbox" id="metActivo" checked><span>Activo</span></label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="cerrarModal('modalMetodo')">Cancelar</button>
+                    <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL UNIDAD -->
+    <div class="modal-overlay" id="modalUnidad">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-balance-scale"></i> <span id="modalUnidadTitulo">Nueva Unidad</span></h3>
+                <button class="modal-close" onclick="cerrarModal('modalUnidad')"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="formUnidad">
+                <div class="modal-body">
+                    <input type="hidden" id="unidadId">
+                    <div class="form-group">
+                        <label>Nombre *</label>
+                        <input type="text" id="uniNombre" required placeholder="Ej: Pieza">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Abreviatura *</label>
+                            <input type="text" id="uniAbrev" required maxlength="10" placeholder="Ej: PZA">
+                        </div>
+                        <div class="form-group">
+                            <label>Clave SAT</label>
+                            <input type="text" id="uniClave" maxlength="10" placeholder="Ej: H87">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label"><input type="checkbox" id="uniActivo" checked><span>Activa</span></label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="cerrarModal('modalUnidad')">Cancelar</button>
+                    <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Guardar</button>
                 </div>
             </form>
         </div>
