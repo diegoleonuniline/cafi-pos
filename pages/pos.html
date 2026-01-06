@@ -2645,7 +2645,7 @@
 <!-- MODAL: Detalle de Venta -->
 <div class="modal-overlay" id="modalDetalleVenta">
     <div class="modal modal-lg">
-        <!-- Header fijo -->
+        <!-- Header -->
         <div class="detalle-header-venta">
             <div>
                 <div class="folio-grande" id="detalleVentaFolio">#0001</div>
@@ -2657,93 +2657,99 @@
             </div>
         </div>
         
-        <!-- Info Grid fijo -->
-        <div class="detalle-info-grid">
-            <div class="detalle-info-item">
-                <label>Cliente</label>
-                <span id="detalleVentaCliente">Público General</span>
-            </div>
-            <div class="detalle-info-item">
-                <label>Vendedor</label>
-                <span id="detalleVentaVendedor">Usuario</span>
-            </div>
-            <div class="detalle-info-item">
-                <label>Tipo Venta</label>
-                <span id="detalleVentaTipo">Contado</span>
-            </div>
-            <div class="detalle-info-item">
-                <label>Método de Pago</label>
-                <span id="detalleVentaMetodo">Efectivo</span>
-            </div>
+        <!-- Tabs -->
+        <div class="detalle-tabs">
+            <button class="tab-btn active" onclick="cambiarTabDetalle('info')">
+                <i class="fas fa-info-circle"></i> Info
+            </button>
+            <button class="tab-btn" onclick="cambiarTabDetalle('productos')">
+                <i class="fas fa-boxes"></i> Productos
+            </button>
+            <button class="tab-btn" onclick="cambiarTabDetalle('pagos')">
+                <i class="fas fa-credit-card"></i> Pagos
+            </button>
+            <button class="tab-btn" onclick="cambiarTabDetalle('historial')" id="tabHistorial">
+                <i class="fas fa-history"></i> Historial
+            </button>
         </div>
         
-        <!-- CONTENIDO CON SCROLL -->
-        <div class="modal-detalle-scroll">
-            <!-- Productos -->
-            <div class="detalle-productos">
-                <h4><i class="fas fa-boxes"></i> Productos</h4>
+        <!-- Tab Content -->
+        <div class="detalle-tab-content">
+            <!-- TAB: Info -->
+            <div class="tab-panel active" id="panelInfo">
+                <div class="info-cards">
+                    <div class="info-card">
+                        <i class="fas fa-user"></i>
+                        <div>
+                            <label>Cliente</label>
+                            <span id="detalleVentaCliente">Público General</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-user-tag"></i>
+                        <div>
+                            <label>Vendedor</label>
+                            <span id="detalleVentaVendedor">Usuario</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-tag"></i>
+                        <div>
+                            <label>Tipo Venta</label>
+                            <span id="detalleVentaTipo">Contado</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-wallet"></i>
+                        <div>
+                            <label>Método de Pago</label>
+                            <span id="detalleVentaMetodo">Efectivo</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Totales en Info -->
+                <div class="info-totales">
+                    <div class="total-line"><span>Subtotal</span><span id="detalleVentaSubtotal">$0.00</span></div>
+                    <div class="total-line" id="rowDescuentos" style="display:none"><span>Descuentos</span><span id="detalleVentaDescuentos" class="text-danger">-$0.00</span></div>
+                    <div class="total-line grande"><span>Total</span><span id="detalleVentaTotal">$0.00</span></div>
+                    <div class="total-line"><span>Pagado</span><span id="detalleVentaPagado">$0.00</span></div>
+                    <div class="total-line pendiente" id="rowPendiente" style="display:none"><span>Pendiente</span><span id="detalleVentaPendiente">$0.00</span></div>
+                </div>
+            </div>
+            
+            <!-- TAB: Productos -->
+            <div class="tab-panel" id="panelProductos">
                 <table class="detalle-productos-table">
                     <thead>
                         <tr>
                             <th>Producto</th>
-                            <th class="text-center">Cantidad</th>
-                            <th class="text-right">P. Unit.</th>
+                            <th class="text-center">Cant.</th>
+                            <th class="text-right">P.Unit</th>
                             <th class="text-right">Subtotal</th>
                             <th></th>
                         </tr>
                     </thead>
-                    <tbody id="detalleVentaProductos">
-                        <!-- Contenido dinámico -->
-                    </tbody>
+                    <tbody id="detalleVentaProductos"></tbody>
                 </table>
             </div>
             
-            <!-- Pagos -->
-            <div class="detalle-pagos">
-                <h4><i class="fas fa-credit-card"></i> Pagos</h4>
-                <div class="pagos-lista" id="detalleVentaPagos">
-                    <!-- Contenido dinámico -->
-                </div>
+            <!-- TAB: Pagos -->
+            <div class="tab-panel" id="panelPagos">
+                <div class="pagos-lista" id="detalleVentaPagos"></div>
             </div>
             
-            <!-- Historial -->
-            <div class="detalle-historial" id="detalleHistorialContainer" style="display:none">
-                <h4><i class="fas fa-history"></i> Historial de Cambios</h4>
-                <div class="historial-lista" id="detalleVentaHistorial">
-                    <!-- Contenido dinámico -->
-                </div>
+            <!-- TAB: Historial -->
+            <div class="tab-panel" id="panelHistorial">
+                <div class="historial-lista" id="detalleVentaHistorial"></div>
             </div>
         </div>
         
-        <!-- Totales fijo -->
-        <div class="detalle-totales">
-            <div class="total-row">
-                <span>Subtotal</span>
-                <span id="detalleVentaSubtotal">$0.00</span>
-            </div>
-            <div class="total-row" id="rowDescuentos" style="display:none">
-                <span>Descuentos</span>
-                <span id="detalleVentaDescuentos" class="text-danger">-$0.00</span>
-            </div>
-            <div class="total-row grande">
-                <span>Total</span>
-                <span id="detalleVentaTotal">$0.00</span>
-            </div>
-            <div class="total-row">
-                <span>Pagado</span>
-                <span id="detalleVentaPagado">$0.00</span>
-            </div>
-            <div class="total-row pendiente" id="rowPendiente" style="display:none">
-                <span>Pendiente</span>
-                <span id="detalleVentaPendiente">$0.00</span>
-            </div>
-        </div>
-        
-        <!-- Acciones SIEMPRE visibles -->
+        <!-- Acciones fijas -->
         <div class="detalle-acciones">
             <div class="acciones-grupo" id="accionesVentaActiva">
                 <button class="btn btn-outline" onclick="abrirModalCancelarVenta()">
-                    <i class="fas fa-ban"></i> Cancelar Venta
+                    <i class="fas fa-ban"></i> Cancelar
                 </button>
                 <button class="btn btn-outline" onclick="abrirModalCambiarPago()">
                     <i class="fas fa-exchange-alt"></i> Cambiar Pago
@@ -2754,7 +2760,7 @@
             </div>
             <div class="acciones-grupo">
                 <button class="btn btn-outline" onclick="imprimirVentaDetalle()">
-                    <i class="fas fa-print"></i> Imprimir
+                    <i class="fas fa-print"></i>
                 </button>
                 <button class="btn btn-primary" onclick="cerrarModal('modalDetalleVenta')">
                     <i class="fas fa-check"></i> Cerrar
@@ -2763,7 +2769,6 @@
         </div>
     </div>
 </div>
-
 
 <!-- MODAL: Cancelar Venta Completa -->
 <div class="modal-overlay" id="modalCancelarVenta">
