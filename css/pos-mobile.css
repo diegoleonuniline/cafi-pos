@@ -1,6 +1,5 @@
 /* ============================================
    POS MOBILE - CAFI POS
-   Responsive para dispositivos móviles/tablets
    ============================================ */
 
 @media (max-width: 768px) {
@@ -16,8 +15,7 @@
     .cart-table thead,
     .col-unidad,
     .col-desc,
-    .cart-item-unit,
-    .cart-item-desc,
+    .col-acciones,
     .precio-selector,
     .btn-add-prod-mobile,
     .desktop-only {
@@ -96,7 +94,7 @@
         border-radius: 10px;
     }
     
-    .header-left .logo span.desktop-only {
+    .header-left .logo span {
         display: none !important;
     }
     
@@ -109,7 +107,7 @@
         border: none;
         font-size: 11px;
         font-weight: 600;
-        cursor: default;
+        cursor: pointer;
     }
     
     .turno-badge.abierto {
@@ -413,60 +411,85 @@
         align-items: center;
     }
     
+    /* Reset todas las celdas */
     .cart-table tbody td {
         padding: 0 !important;
         border: none !important;
         background: transparent !important;
     }
     
-    /* TD1: Producto - Imagen placeholder */
-    .cart-table tbody td:nth-child(1) {
+    /* COLUMNA PRODUCTO - Imagen + Nombre */
+    .cart-table tbody td.col-producto {
         grid-area: img;
+        display: flex !important;
+        flex-direction: column;
+        gap: 0;
+        position: relative;
+        width: 52px;
+        min-width: 52px;
+    }
+    
+    /* Imagen placeholder */
+    .cart-table tbody td.col-producto::before {
+        content: '';
+        display: block;
         width: 52px;
         height: 52px;
-        min-width: 52px;
         background: linear-gradient(145deg, #f3f4f6 0%, #e5e7eb 100%);
         border-radius: 12px;
         border: 1px solid #e5e7eb;
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
+        flex-shrink: 0;
     }
     
-    /* Ocultar contenido interno de TD1 */
-    .cart-table tbody td:nth-child(1) .cart-item-name,
-    .cart-table tbody td:nth-child(1) .cart-item-code {
+    /* Nombre del producto - MOVER AL ÁREA DE NOMBRE */
+    .cart-table tbody td.col-producto .cart-item-name {
+        position: absolute;
+        left: 64px;
+        top: 0;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        color: #111827 !important;
+        line-height: 1.3;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: calc(100vw - 180px);
+    }
+    
+    /* Ocultar código */
+    .cart-table tbody td.col-producto .cart-item-code {
         display: none !important;
     }
     
-    /* TD2: Precio unitario - AHORA MUESTRA NOMBRE + PRECIO */
-    .cart-table tbody td:nth-child(2) {
+    /* COLUMNA PRECIO - Debajo del nombre */
+    .cart-table tbody td.col-precio {
         grid-area: nombre;
         display: flex !important;
         flex-direction: column;
-        gap: 2px;
+        justify-content: flex-end;
+        padding-top: 18px !important;
         min-width: 0;
-        align-self: center;
     }
     
-    /* El span del precio muestra precio unitario */
-    .cart-table tbody td:nth-child(2) span {
+    .cart-table tbody td.col-precio span,
+    .cart-table tbody td.col-precio {
         font-size: 12px !important;
         color: #6b7280 !important;
         font-weight: 500 !important;
     }
     
-    .cart-table tbody td:nth-child(2)::after {
+    /* Agregar "/ pza" */
+    .cart-table tbody td.col-precio::after {
         content: ' / pza';
         font-size: 11px;
         color: #9ca3af;
     }
     
-    /* TD3: Cantidad */
-    .cart-table tbody td:nth-child(3) {
+    /* COLUMNA CANTIDAD */
+    .cart-table tbody td.col-cantidad {
         grid-area: qty;
-        align-self: center;
+        display: flex !important;
+        align-items: center;
     }
     
     .qty-control {
@@ -529,29 +552,30 @@
         cursor: pointer;
     }
     
-    /* TD4: Unidad - OCULTAR */
-    .cart-table tbody td:nth-child(4) {
+    /* COLUMNA UNIDAD - Ocultar */
+    .cart-table tbody td.col-unidad {
         display: none !important;
     }
     
-    /* TD5: Descuento - OCULTAR */
-    .cart-table tbody td:nth-child(5) {
+    /* COLUMNA DESCUENTO - Ocultar */
+    .cart-table tbody td.col-desc {
         display: none !important;
     }
     
-    /* TD6: Total */
-    .cart-table tbody td:nth-child(6) {
+    /* COLUMNA IMPORTE/TOTAL */
+    .cart-table tbody td.col-importe {
         grid-area: total;
+        display: flex !important;
+        align-items: center;
+        justify-content: flex-end;
         font-size: 16px !important;
         font-weight: 700 !important;
         color: #111827 !important;
         text-align: right;
-        align-self: center;
-        justify-self: end;
     }
     
-    /* TD7: Eliminar - OCULTAR */
-    .cart-table tbody td:nth-child(7) {
+    /* COLUMNA ACCIONES - Ocultar */
+    .cart-table tbody td.col-acciones {
         display: none !important;
     }
     
