@@ -209,38 +209,46 @@
     }
     
     function renderCarritoMobile(tbody) {
-        var html = '';
+    var html = '';
+    
+    carrito.forEach(function(item, index) {
+        var tieneDescuento = item.descuento > 0;
+        var precioConDesc = item.precio * (1 - (item.descuento || 0) / 100);
+        var importe = precioConDesc * item.cantidad;
+        var esGranel = item.esGranel || ['KG', 'GR', 'LT', 'ML', 'MT'].indexOf((item.unidad || 'PZ').toUpperCase()) >= 0;
+        var cantidadDisplay = esGranel ? item.cantidad.toFixed(3) : Math.round(item.cantidad);
         
-        carrito.forEach(function(item, index) {
-            var tieneDescuento = item.descuento > 0;
-            var precioConDesc = item.precio * (1 - (item.descuento || 0) / 100);
-            var importe = precioConDesc * item.cantidad;
-            var esGranel = item.esGranel || ['KG', 'GR', 'LT', 'ML', 'MT'].indexOf((item.unidad || 'PZ').toUpperCase()) >= 0;
-            var cantidadDisplay = esGranel ? item.cantidad.toFixed(3) : Math.round(item.cantidad);
-            
-         html += '<tr data-index="' + index + '">' +
-    '<td class="mobile-card" colspan="7">' +
-        '<div class="card-content">' +
-            '<div class="card-name">' + escapeHtml(item.nombre) + '</div>' +
-            '<div class="card-price">$' + item.precio.toFixed(2) + ' / ' + (item.unidad || 'PZ') + 
-                (tieneDescuento ? ' <span style="color:#ef4444">-' + item.descuento + '%</span>' : '') + '</div>' +
-        '</div>' +
-        (esGranel ? 
-            '<button class="qty-granel" onclick="editarCantidadLinea(\'' + item.producto_id + '\')">' + cantidadDisplay + ' ' + (item.unidad || 'KG') + '</button>' :
-            '<div class="qty-control">' +
-                '<button type="button" onclick="cambiarCantidadMobile(\'' + item.producto_id + '\', -1)">−</button>' +
-                '<span>' + cantidadDisplay + '</span>' +
-                '<button type="button" onclick="cambiarCantidadMobile(\'' + item.producto_id + '\', 1)">+</button>' +
-            '</div>'
-        ) +
-        '<div class="card-total">$' + importe.toFixed(2) + '</div>' +
-        '<button class="card-delete" onclick="eliminarDelCarritoMobile(\'' + item.producto_id + '\')"><i class="fas fa-trash"></i></button>' +
-    '</td>' +
-'</tr>';
-        });
+        // Formatear con separador de miles
+        var importeFormateado = importe.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         
-        tbody.innerHTML = html;
-    }
+        html += '<tr data-index="' + index + '">' +
+            '<td class="mobile-card" colspan="7">' +
+                '<div class="card-img"><i class="fas fa-box"></i></div>' +
+                '<div class="card-content">' +
+                    '<div class="card-header-row">' +
+                        '<div class="card-name">' + escapeHtml(item.nombre) + '</div>' +
+                        '<div class="card-total">$' + importeFormateado + '</div>' +
+                    '</div>' +
+                    '<div class="card-price">$' + item.precio.toFixed(2) + ' / ' + (item.unidad || 'PZ') + 
+                        (tieneDescuento ? ' <span style="color:#ef4444">-' + item.descuento + '%</span>' : '') + '</div>' +
+                    '<div class="card-qty-row">' +
+                        (esGranel ? 
+                            '<button class="qty-granel" onclick="editarCantidadLinea(\'' + item.producto_id + '\')">' + cantidadDisplay + ' ' + (item.unidad || 'KG') + '</button>' :
+                            '<div class="qty-control">' +
+                                '<button type="button" onclick="cambiarCantidadMobile(\'' + item.producto_id + '\', -1)">−</button>' +
+                                '<span>' + cantidadDisplay + '</span>' +
+                                '<button type="button" onclick="cambiarCantidadMobile(\'' + item.producto_id + '\', 1)">+</button>' +
+                            '</div>'
+                        ) +
+                    '</div>' +
+                '</div>' +
+                '<button class="card-delete" onclick="eliminarDelCarritoMobile(\'' + item.producto_id + '\')"><i class="fas fa-trash"></i></button>' +
+            '</td>' +
+        '</tr>';
+    });
+    
+    tbody.innerHTML = html;
+}
     
     function renderCarritoDesktop(tbody) {
         var html = '';
