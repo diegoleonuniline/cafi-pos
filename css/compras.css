@@ -986,7 +986,8 @@ body {
     padding: 20px;
 }
 
-.modal-overlay.active { display: flex; }
+.modal-overlay.active,
+.modal-overlay.show { display: flex; }
 
 .modal {
     background: var(--white);
@@ -1329,4 +1330,394 @@ body {
     .modal-form-grid { grid-template-columns: 1fr; }
     
     .action-buttons { flex-wrap: wrap; }
+}
+
+/* ========== PAGO MODAL STYLES ========== */
+.pago-saldo {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 2px solid #fbbf24;
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 14px;
+    color: #92400e;
+}
+
+.pago-saldo strong {
+    display: block;
+    font-size: 28px;
+    font-weight: 800;
+    color: #d97706;
+    margin-top: 4px;
+}
+
+/* ========== PANEL STATS ROW ========== */
+.panel-stats-row {
+    display: flex;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-200);
+    flex-wrap: wrap;
+}
+
+.mini-stat {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+    background: var(--gray-50);
+    border-radius: var(--radius);
+    border-left: 4px solid var(--primary);
+    min-width: 140px;
+}
+
+.mini-stat.green { border-left-color: var(--success); }
+.mini-stat.blue { border-left-color: var(--info); }
+.mini-stat.purple { border-left-color: var(--secondary); }
+.mini-stat.orange { border-left-color: var(--warning); }
+.mini-stat.red { border-left-color: var(--danger); }
+
+.mini-stat i {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--white);
+    border-radius: var(--radius);
+    font-size: 18px;
+}
+
+.mini-stat.green i { color: var(--success); }
+.mini-stat.blue i { color: var(--info); }
+.mini-stat.purple i { color: var(--secondary); }
+.mini-stat.orange i { color: var(--warning); }
+.mini-stat.red i { color: var(--danger); }
+
+.mini-stat div {
+    display: flex;
+    flex-direction: column;
+}
+
+.mini-stat span {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--dark);
+}
+
+.mini-stat small {
+    font-size: 11px;
+    color: var(--gray-500);
+    text-transform: uppercase;
+}
+
+/* ========== HISTORIAL/PAGOS SECTION ========== */
+.historial-section {
+    margin-top: 20px;
+    border-top: 1px solid var(--gray-200);
+    padding-top: 20px;
+}
+
+.historial-section h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--gray-600);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.historial-section h4 i {
+    color: var(--primary);
+}
+
+.pagos-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pago-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    transition: all 0.2s;
+}
+
+.pago-card:hover {
+    border-color: var(--primary);
+    background: var(--white);
+}
+
+.pago-card-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.pago-card-icon {
+    width: 42px;
+    height: 42px;
+    background: var(--gradient);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 16px;
+}
+
+.pago-card-icon.efectivo { background: linear-gradient(135deg, #10b981, #059669); }
+.pago-card-icon.tarjeta { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+.pago-card-icon.transferencia { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+
+.pago-card-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.pago-card-details .metodo {
+    font-weight: 600;
+    color: var(--dark);
+    font-size: 14px;
+}
+
+.pago-card-details .fecha {
+    font-size: 12px;
+    color: var(--gray-500);
+}
+
+.pago-card-details .referencia {
+    font-size: 11px;
+    color: var(--gray-400);
+    font-family: monospace;
+}
+
+.pago-card-monto {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--success);
+}
+
+/* ========== PANEL TOOLBAR ========== */
+.panel-toolbar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+    flex-wrap: wrap;
+}
+
+.toolbar-filters {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.panel-table {
+    overflow-x: auto;
+}
+
+/* ========== AUTOCOMPLETE OPTIONS ========== */
+.producto-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.producto-option:last-child {
+    border-bottom: none;
+}
+
+.producto-option:hover,
+.producto-option.selected {
+    background: rgba(45, 61, 191, 0.08);
+}
+
+.producto-option .info {
+    display: flex;
+    flex-direction: column;
+}
+
+.producto-option .info .name {
+    font-weight: 600;
+    color: var(--dark);
+    font-size: 14px;
+}
+
+.producto-option .info .code {
+    font-size: 11px;
+    color: var(--gray-400);
+    font-family: monospace;
+}
+
+.producto-option .price {
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 14px;
+}
+
+/* ========== INPUT NUMBER ========== */
+.input-number {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    font-size: 13px;
+    text-align: right;
+    background: transparent;
+    transition: all 0.2s;
+}
+
+.input-number:focus {
+    border-color: var(--primary);
+    background: var(--white);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(45, 61, 191, 0.1);
+}
+
+/* ========== IMPORTE COLUMN ========== */
+.importe {
+    font-weight: 700;
+    color: var(--primary);
+    text-align: right;
+}
+
+/* ========== BTN REMOVE ========== */
+.btn-remove {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: var(--gray-400);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-remove:hover {
+    background: #fee2e2;
+    color: var(--danger);
+}
+
+/* ========== SALDO BADGE ========== */
+.saldo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border: 1px solid #fbbf24;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #92400e;
+}
+
+.saldo-badge.pagado {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    border-color: #86efac;
+    color: #166534;
+}
+
+/* ========== COMPRA SUMMARY CARDS ========== */
+.compra-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.summary-card {
+    background: var(--gray-50);
+    border-radius: var(--radius);
+    padding: 14px;
+    text-align: center;
+}
+
+.summary-card label {
+    display: block;
+    font-size: 11px;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.summary-card span {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--dark);
+}
+
+.summary-card.highlight {
+    background: var(--gradient);
+}
+
+.summary-card.highlight label {
+    color: rgba(255,255,255,0.8);
+}
+
+.summary-card.highlight span {
+    color: var(--white);
+    font-size: 20px;
+}
+
+/* ========== BTN EDIT/REOPEN ========== */
+.btn-edit {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: var(--gray-100);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    color: var(--gray-600);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-edit:hover {
+    background: var(--info);
+    border-color: var(--info);
+    color: var(--white);
+}
+
+.btn-reopen {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border: none;
+    border-radius: var(--radius);
+    color: var(--white);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-reopen:hover {
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+    transform: translateY(-1px);
 }
