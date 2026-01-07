@@ -685,14 +685,10 @@ async function cancelarCompraActual() {
 }
 
 async function reabrirCompra() {
-    if (!compraActual || !confirm('¿Reabrir esta compra para agregar más pagos o modificaciones?')) return;
+    if (!compraActual || !confirm('¿Reabrir esta compra para modificarla?')) return;
     try {
         const r = await API.request(`/compras/${compraActual.compra_id}`, 'PUT', {
-            empresa_id: empresaId,
-            sucursal_id: sucursalId,
-            almacen_id: compraActual.almacen_id,
-            proveedor_id: compraActual.proveedor_id,
-            estatus: 'PENDIENTE'
+            estatus: 'BORRADOR'
         });
         if (r.success) { 
             toast('Compra reabierta', 'success'); 
