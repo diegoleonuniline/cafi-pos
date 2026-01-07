@@ -20,6 +20,7 @@ let lineasAjuste = [];
 let lineasTraspaso = [];
 let traspasoEstatus = 'BORRADOR';
 let autocompleteIdx = -1;
+let confirmCallback = null;
 
 // ==================== INIT ====================
 document.addEventListener('DOMContentLoaded', () => {
@@ -46,7 +47,6 @@ function initTabs() {
             const tab = btn.dataset.tab;
             document.getElementById(`panel-${tab}`).classList.add('active');
             
-            // Cargar datos según tab
             if (tab === 'existencias') cargarExistencias();
             else if (tab === 'movimientos') cargarMovimientos();
             else if (tab === 'traspasos') cargarTraspasos();
@@ -84,23 +84,18 @@ async function cargarSucursales() {
             sucursalesData = r.sucursales || [];
             const opts = sucursalesData.map(s => `<option value="${s.sucursal_id}">${s.nombre}</option>`).join('');
             
-            // Tab Existencias
             const filtroExist = document.getElementById('filtroSucursalExist');
             if (filtroExist) filtroExist.innerHTML = '<option value="">Todas</option>' + opts;
             
-            // Tab Movimientos
             const filtroMov = document.getElementById('filtroSucursalMov');
             if (filtroMov) filtroMov.innerHTML = '<option value="">Todas</option>' + opts;
             
-            // Tab Traspasos
             const filtroTras = document.getElementById('filtroSucursalTras');
             if (filtroTras) filtroTras.innerHTML = '<option value="">Todas</option>' + opts;
             
-            // Tab Ajuste
             const ajusteSuc = document.getElementById('ajusteSucursal');
             if (ajusteSuc) ajusteSuc.innerHTML = '<option value="">Seleccionar...</option>' + opts;
             
-            // Modal Traspaso
             const trasOrigen = document.getElementById('traspasoSucursalOrigen');
             if (trasOrigen) trasOrigen.innerHTML = '<option value="">Seleccionar...</option>' + opts;
             
@@ -124,7 +119,6 @@ async function cargarAlmacenes() {
     }
 }
 
-// Filtrar almacenes por sucursal - Tab Existencias
 function filtrarAlmacenesExistencias() {
     const sucursalId = document.getElementById('filtroSucursalExist').value;
     const select = document.getElementById('filtroAlmacenExist');
@@ -140,7 +134,6 @@ function filtrarAlmacenesExistencias() {
     cargarExistencias();
 }
 
-// Filtrar almacenes por sucursal - Tab Movimientos
 function filtrarAlmacenesMov() {
     const sucursalId = document.getElementById('filtroSucursalMov').value;
     const select = document.getElementById('filtroAlmacenMov');
@@ -156,7 +149,6 @@ function filtrarAlmacenesMov() {
     cargarMovimientos();
 }
 
-// Filtrar almacenes por sucursal - Tab Traspasos
 function filtrarAlmacenesTras() {
     const sucursalId = document.getElementById('filtroSucursalTras').value;
     const select = document.getElementById('filtroOrigenTras');
@@ -172,7 +164,6 @@ function filtrarAlmacenesTras() {
     cargarTraspasos();
 }
 
-// Filtrar almacenes por sucursal - Tab Ajuste
 function filtrarAlmacenesAjuste() {
     const sucursalId = document.getElementById('ajusteSucursal').value;
     const select = document.getElementById('ajusteAlmacen');
@@ -192,7 +183,6 @@ function filtrarAlmacenesAjuste() {
     }
 }
 
-// Filtrar almacenes origen - Modal Traspaso
 function filtrarAlmacenesOrigenModal() {
     const sucursalId = document.getElementById('traspasoSucursalOrigen').value;
     const select = document.getElementById('traspasoOrigen');
@@ -207,7 +197,6 @@ function filtrarAlmacenesOrigenModal() {
         filtrados.map(a => `<option value="${a.almacen_id}">${a.nombre}</option>`).join('');
 }
 
-// Filtrar almacenes destino - Modal Traspaso
 function filtrarAlmacenesDestinoModal() {
     const sucursalId = document.getElementById('traspasoSucursalDestino').value;
     const select = document.getElementById('traspasoDestino');
@@ -241,11 +230,9 @@ async function cargarConceptos() {
         if (r.success) {
             conceptosData = r.conceptos || [];
             
-            // Filtro movimientos
             const optsMov = conceptosData.map(c => `<option value="${c.concepto_id}">${c.nombre}</option>`).join('');
             document.getElementById('filtroConceptoMov').innerHTML = '<option value="">Todos</option>' + optsMov;
             
-            // Select ajuste
             const optsAj = conceptosData.map(c => `<option value="${c.concepto_id}" data-tipo="${c.tipo}">${c.nombre}</option>`).join('');
             document.getElementById('ajusteConcepto').innerHTML = '<option value="">Seleccionar...</option>' + optsAj;
         }
@@ -526,7 +513,6 @@ async function verTraspaso(id) {
             document.getElementById('traspasoId').value = t.traspaso_id;
             document.getElementById('modalTraspasoTitulo').textContent = `Traspaso ${t.folio || t.traspaso_id}`;
             
-            // Cargar sucursales y almacenes
             if (t.sucursal_origen_id) {
                 document.getElementById('traspasoSucursalOrigen').value = t.sucursal_origen_id;
                 filtrarAlmacenesOrigenModal();
@@ -551,17 +537,16 @@ async function verTraspaso(id) {
                 producto_id: p.producto_id,
                 nombre: p.producto_nombre,
                 codigo: p.codigo_barras,
-                disponible: p.stock_disponible || 0,
-                cantidad_solicitada: p.cantidad_solicitada || 0,
-                cantidad_enviada: p.cantidad_enviada || 0,
-                cantidad_recibida: p.cantidad_recibida || 0
+                disponible: parseFloat(p.stock_disponible) || 0,
+                cantidad_solicitada: parseFloat(p.cantidad_solicitada) || 0,
+                cantidad_enviada: parseFloat(p.cantidad_enviada) || 0,
+                cantidad_recibida: parseFloat(p.cantidad_recibida) || 0
             }));
             
             actualizarStatusBarTraspaso();
             actualizarBotonesTraspaso();
             renderLineasTraspaso();
             
-            // Ocultar agregar línea si no es borrador
             document.getElementById('traspasoLineasActions').style.display = 
                 traspasoEstatus === 'BORRADOR' ? 'flex' : 'none';
             
@@ -626,12 +611,17 @@ function renderLineasTraspaso() {
     const esEnTransito = traspasoEstatus === 'EN_TRANSITO';
     
     tbody.innerHTML = lineasTraspaso.map((l, i) => {
+        const disp = parseFloat(l.disponible) || 0;
+        const sol = parseFloat(l.cantidad_solicitada) || 0;
+        const env = parseFloat(l.cantidad_enviada) || 0;
+        const rec = parseFloat(l.cantidad_recibida) || 0;
+        
         return `<tr>
             <td>
                 <div class="producto-input-wrap">
                     <input type="text" 
                         class="input-producto" 
-                        value="${l.nombre}" 
+                        value="${l.nombre || ''}" 
                         placeholder="Buscar producto..." 
                         ${!esBorrador ? 'disabled' : ''}
                         oninput="buscarProductoTraspaso(${i}, this.value)"
@@ -641,19 +631,19 @@ function renderLineasTraspaso() {
                     <div class="producto-autocomplete" id="autocomplete-tras-${i}"></div>
                 </div>
             </td>
-            <td class="text-right">${parseFloat(l.disponible || 0).toFixed(2)}</td>
+            <td class="text-right">${disp.toFixed(2)}</td>
             <td class="text-right">
-                <input type="number" class="input-number" value="${l.cantidad_solicitada}" 
+                <input type="number" class="input-number" value="${sol}" 
                     ${!esBorrador ? 'disabled' : ''}
                     onchange="actualizarLineaTraspaso(${i}, 'cantidad_solicitada', this.value)" min="0" step="1">
             </td>
             <td class="text-right">
-                <input type="number" class="input-number" value="${l.cantidad_enviada}" 
+                <input type="number" class="input-number" value="${env}" 
                     ${!esSolicitado ? 'disabled' : ''}
                     onchange="actualizarLineaTraspaso(${i}, 'cantidad_enviada', this.value)" min="0" step="1">
             </td>
             <td class="text-right">
-                <input type="number" class="input-number" value="${l.cantidad_recibida}" 
+                <input type="number" class="input-number" value="${rec}" 
                     ${!esEnTransito ? 'disabled' : ''}
                     onchange="actualizarLineaTraspaso(${i}, 'cantidad_recibida', this.value)" min="0" step="1">
             </td>
@@ -703,13 +693,12 @@ async function seleccionarProductoTraspaso(idx, productoId) {
     lineasTraspaso[idx].nombre = producto.nombre;
     lineasTraspaso[idx].codigo = producto.codigo_barras;
     
-    // Obtener stock del almacén origen
     const almacenOrigen = document.getElementById('traspasoOrigen').value;
     if (almacenOrigen) {
         try {
             const r = await API.request(`/inventario/${empresaId}?almacen_id=${almacenOrigen}&producto_id=${productoId}`);
             if (r.success && r.inventario && r.inventario.length > 0) {
-                lineasTraspaso[idx].disponible = r.inventario[0].stock_actual - (r.inventario[0].stock_reservado || 0);
+                lineasTraspaso[idx].disponible = parseFloat(r.inventario[0].stock_actual) - parseFloat(r.inventario[0].stock_reservado || 0);
             }
         } catch (e) {
             console.error('Error obteniendo stock:', e);
@@ -721,7 +710,8 @@ async function seleccionarProductoTraspaso(idx, productoId) {
 }
 
 function actualizarLineaTraspaso(idx, campo, valor) {
-    lineasTraspaso[idx][campo] = parseFloat(valor) || 0;
+    const num = parseFloat(valor);
+    lineasTraspaso[idx][campo] = isNaN(num) ? 0 : num;
 }
 
 function eliminarLineaTraspaso(idx) {
@@ -733,13 +723,12 @@ async function cambiarAlmacenOrigen() {
     const almacenId = document.getElementById('traspasoOrigen').value;
     if (!almacenId) return;
     
-    // Actualizar stock disponible de todas las líneas
     for (let i = 0; i < lineasTraspaso.length; i++) {
         if (lineasTraspaso[i].producto_id) {
             try {
                 const r = await API.request(`/inventario/${empresaId}?almacen_id=${almacenId}&producto_id=${lineasTraspaso[i].producto_id}`);
                 if (r.success && r.inventario && r.inventario.length > 0) {
-                    lineasTraspaso[i].disponible = r.inventario[0].stock_actual - (r.inventario[0].stock_reservado || 0);
+                    lineasTraspaso[i].disponible = parseFloat(r.inventario[0].stock_actual) - parseFloat(r.inventario[0].stock_reservado || 0);
                 } else {
                     lineasTraspaso[i].disponible = 0;
                 }
@@ -760,7 +749,13 @@ async function guardarTraspaso(estatus) {
         return;
     }
     
-    const productos = lineasTraspaso.filter(l => l.producto_id && l.cantidad_solicitada > 0);
+    const productos = lineasTraspaso
+        .filter(l => l.producto_id && (parseFloat(l.cantidad_solicitada) || 0) > 0)
+        .map(p => ({
+            producto_id: p.producto_id,
+            cantidad_solicitada: parseFloat(p.cantidad_solicitada) || 0
+        }));
+    
     if (productos.length === 0) {
         toast('Agrega al menos un producto', 'error');
         return;
@@ -774,10 +769,7 @@ async function guardarTraspaso(estatus) {
         notas: document.getElementById('traspasoNotas').value,
         estatus: estatus,
         usuario_id: usuarioId,
-        productos: productos.map(p => ({
-            producto_id: p.producto_id,
-            cantidad_solicitada: p.cantidad_solicitada
-        }))
+        productos: productos
     };
     
     try {
@@ -807,10 +799,12 @@ async function enviarTraspaso() {
     const traspasoId = document.getElementById('traspasoId').value;
     if (!traspasoId) return;
     
-    const productos = lineasTraspaso.filter(l => l.producto_id).map(p => ({
-        producto_id: p.producto_id,
-        cantidad_enviada: p.cantidad_enviada
-    }));
+    const productos = lineasTraspaso
+        .filter(l => l.producto_id)
+        .map(p => ({
+            producto_id: p.producto_id,
+            cantidad_enviada: parseFloat(p.cantidad_enviada) || 0
+        }));
     
     try {
         const r = await API.request(`/traspasos/${traspasoId}/enviar`, 'POST', {
@@ -835,10 +829,12 @@ async function recibirTraspaso() {
     const traspasoId = document.getElementById('traspasoId').value;
     if (!traspasoId) return;
     
-    const productos = lineasTraspaso.filter(l => l.producto_id).map(p => ({
-        producto_id: p.producto_id,
-        cantidad_recibida: p.cantidad_recibida
-    }));
+    const productos = lineasTraspaso
+        .filter(l => l.producto_id)
+        .map(p => ({
+            producto_id: p.producto_id,
+            cantidad_recibida: parseFloat(p.cantidad_recibida) || 0
+        }));
     
     try {
         const r = await API.request(`/traspasos/${traspasoId}/recibir`, 'POST', {
@@ -872,18 +868,31 @@ function limpiarAjuste() {
     document.getElementById('ajusteBadge').className = 'badge badge-gray';
     document.getElementById('btnAplicarAjuste').disabled = false;
     
+    document.querySelectorAll('#panel-ajuste .step').forEach(step => {
+        step.classList.remove('active', 'done');
+        if (step.dataset.status === 'BORRADOR') {
+            step.classList.add('active');
+        }
+    });
+    
     lineasAjuste = [];
     agregarLineaAjuste();
     calcularTotalesAjuste();
 }
 
 function cambiarAlmacenAjuste() {
-    // Actualizar stock de todas las líneas
     lineasAjuste.forEach((l, i) => {
         if (l.producto_id) {
             obtenerStockAjuste(i);
         }
     });
+}
+
+function cambiarConceptoAjuste() {
+    const select = document.getElementById('ajusteConcepto');
+    const selectedOption = select.options[select.selectedIndex];
+    const tipo = selectedOption ? selectedOption.dataset.tipo : '';
+    console.log('Concepto tipo:', tipo);
 }
 
 async function obtenerStockAjuste(idx) {
@@ -900,12 +909,12 @@ async function obtenerStockAjuste(idx) {
     try {
         const r = await API.request(`/inventario/${empresaId}?almacen_id=${almacenId}&producto_id=${productoId}`);
         if (r.success && r.inventario && r.inventario.length > 0) {
-            lineasAjuste[idx].stock_actual = r.inventario[0].stock_actual || 0;
-            lineasAjuste[idx].costo = r.inventario[0].costo_promedio || 0;
+            lineasAjuste[idx].stock_actual = parseFloat(r.inventario[0].stock_actual) || 0;
+            lineasAjuste[idx].costo = parseFloat(r.inventario[0].costo_promedio) || 0;
         } else {
             lineasAjuste[idx].stock_actual = 0;
             const prod = productosData.find(p => p.producto_id === productoId);
-            lineasAjuste[idx].costo = prod ? (prod.costo || 0) : 0;
+            lineasAjuste[idx].costo = prod ? (parseFloat(prod.costo) || 0) : 0;
         }
         renderLineasAjuste();
     } catch (e) {
@@ -929,13 +938,17 @@ function renderLineasAjuste() {
     const tbody = document.getElementById('tablaLineasAjuste');
     
     tbody.innerHTML = lineasAjuste.map((l, i) => {
-        const total = l.cantidad * l.costo;
+        const stock = parseFloat(l.stock_actual) || 0;
+        const cant = parseFloat(l.cantidad) || 0;
+        const cost = parseFloat(l.costo) || 0;
+        const total = cant * cost;
+        
         return `<tr>
             <td>
                 <div class="producto-input-wrap">
                     <input type="text" 
                         class="input-producto" 
-                        value="${l.nombre}" 
+                        value="${l.nombre || ''}" 
                         placeholder="Buscar producto..." 
                         oninput="buscarProductoAjuste(${i}, this.value)"
                         onkeydown="navegarAutocomplete(event, ${i}, 'ajuste')"
@@ -944,13 +957,13 @@ function renderLineasAjuste() {
                     <div class="producto-autocomplete" id="autocomplete-aj-${i}"></div>
                 </div>
             </td>
-            <td class="text-right">${parseFloat(l.stock_actual || 0).toFixed(2)}</td>
+            <td class="text-right">${stock.toFixed(2)}</td>
             <td class="text-right">
-                <input type="number" class="input-number" value="${l.cantidad}" 
+                <input type="number" class="input-number" value="${cant}" 
                     onchange="actualizarLineaAjuste(${i}, 'cantidad', this.value)" min="0" step="1">
             </td>
             <td class="text-right">
-                <input type="number" class="input-number" value="${l.costo}" step="0.01"
+                <input type="number" class="input-number" value="${cost.toFixed(2)}" step="0.01"
                     onchange="actualizarLineaAjuste(${i}, 'costo', this.value)">
             </td>
             <td class="text-right"><strong>${formatMoney(total)}</strong></td>
@@ -1001,7 +1014,7 @@ async function seleccionarProductoAjuste(idx, productoId) {
     lineasAjuste[idx].producto_id = producto.producto_id;
     lineasAjuste[idx].nombre = producto.nombre;
     lineasAjuste[idx].codigo = producto.codigo_barras;
-    lineasAjuste[idx].costo = producto.costo || 0;
+    lineasAjuste[idx].costo = parseFloat(producto.costo) || 0;
     
     document.getElementById(`autocomplete-aj-${idx}`).classList.remove('show');
     
@@ -1009,7 +1022,8 @@ async function seleccionarProductoAjuste(idx, productoId) {
 }
 
 function actualizarLineaAjuste(idx, campo, valor) {
-    lineasAjuste[idx][campo] = parseFloat(valor) || 0;
+    const num = parseFloat(valor);
+    lineasAjuste[idx][campo] = isNaN(num) ? 0 : num;
     renderLineasAjuste();
 }
 
@@ -1022,8 +1036,8 @@ function eliminarLineaAjuste(idx) {
 function calcularTotalesAjuste() {
     const prods = lineasAjuste.filter(l => l.producto_id);
     const totalProductos = prods.length;
-    const totalUnidades = prods.reduce((sum, l) => sum + l.cantidad, 0);
-    const costoTotal = prods.reduce((sum, l) => sum + (l.cantidad * l.costo), 0);
+    const totalUnidades = prods.reduce((sum, l) => sum + (parseFloat(l.cantidad) || 0), 0);
+    const costoTotal = prods.reduce((sum, l) => sum + ((parseFloat(l.cantidad) || 0) * (parseFloat(l.costo) || 0)), 0);
     
     document.getElementById('ajusteTotalProductos').textContent = totalProductos;
     document.getElementById('ajusteTotalUnidades').textContent = totalUnidades;
@@ -1043,35 +1057,45 @@ async function aplicarAjuste() {
         return;
     }
     
-    const productos = lineasAjuste.filter(l => l.producto_id && l.cantidad > 0).map(p => ({
-        producto_id: p.producto_id,
-        cantidad: parseFloat(p.cantidad) || 0,
-        costo: parseFloat(p.costo) || 0
-    }));
+    const productos = lineasAjuste
+        .filter(l => l.producto_id && (parseFloat(l.cantidad) || 0) > 0)
+        .map(p => ({
+            producto_id: p.producto_id,
+            cantidad: parseFloat(p.cantidad) || 0,
+            costo: parseFloat(p.costo) || 0
+        }));
     
     if (productos.length === 0) {
         toast('Agrega al menos un producto con cantidad', 'error');
         return;
     }
     
-    // Obtener tipo del concepto
+    for (let p of productos) {
+        if (isNaN(p.cantidad) || isNaN(p.costo)) {
+            toast('Error: valores inválidos en productos', 'error');
+            console.error('Producto con NaN:', p);
+            return;
+        }
+    }
+    
     const conceptoSelect = document.getElementById('ajusteConcepto');
     const selectedOption = conceptoSelect.options[conceptoSelect.selectedIndex];
     const tipo = selectedOption.dataset.tipo;
     
-    // Mostrar modal de confirmación
-    mostrarConfirm(`¿Aplicar ajuste de ${productos.length} producto(s)?<br>Esta acción no se puede deshacer.`, async () => {
+    mostrarConfirm('¿Aplicar ajuste de ' + productos.length + ' producto(s)?<br>Esta acción no se puede deshacer.', async () => {
         const data = {
             empresa_id: empresaId,
             almacen_id: almacenId,
             concepto_id: conceptoId,
             tipo: tipo,
             fecha: document.getElementById('ajusteFecha').value,
-            referencia: document.getElementById('ajusteReferencia').value,
-            notas: document.getElementById('ajusteNotas').value,
-            usuario_id: usuarioId,
+            referencia: document.getElementById('ajusteReferencia').value || '',
+            notas: document.getElementById('ajusteNotas').value || '',
+            usuario_id: usuarioId || '',
             productos: productos
         };
+        
+        console.log('Enviando ajuste:', JSON.stringify(data, null, 2));
         
         try {
             const r = await API.request('/movimientos-inventario/ajuste', 'POST', data);
@@ -1101,7 +1125,7 @@ async function aplicarAjuste() {
 
 // ==================== NAVEGACIÓN TECLADO AUTOCOMPLETE ====================
 function navegarAutocomplete(event, idx, tipo) {
-    const dropdownId = tipo === 'ajuste' ? `autocomplete-aj-${idx}` : `autocomplete-tras-${idx}`;
+    const dropdownId = tipo === 'ajuste' ? 'autocomplete-aj-' + idx : 'autocomplete-tras-' + idx;
     const dropdown = document.getElementById(dropdownId);
     const opciones = dropdown.querySelectorAll('.producto-option');
     
@@ -1138,49 +1162,7 @@ function navegarAutocomplete(event, idx, tipo) {
     }
 }
 
-// ==================== UTILITIES ====================
-function formatMoney(value) {
-    return '$' + parseFloat(value || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-}
-
-function formatFecha(fecha) {
-    if (!fecha) return '-';
-    const d = new Date(fecha);
-    return d.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' });
-}
-
-function toast(msg, tipo = 'success') {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = 'toast ' + tipo;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
-}
-
-function abrirModal(id) {
-    document.getElementById(id).classList.add('show');
-}
-
-function cerrarModal(id) {
-    document.getElementById(id).classList.remove('show');
-}
-
-// Cerrar dropdowns al hacer clic fuera
-document.addEventListener('click', (e) => {
-    if (!e.target.closest('.producto-input-wrap')) {
-        document.querySelectorAll('.producto-autocomplete').forEach(d => d.classList.remove('show'));
-        autocompleteIdx = -1;
-    }
-});
-function cambiarConceptoAjuste() {
-    // Obtener el tipo del concepto seleccionado (ENTRADA o SALIDA)
-    const select = document.getElementById('ajusteConcepto');
-    const selectedOption = select.options[select.selectedIndex];
-    const tipo = selectedOption ? selectedOption.dataset.tipo : '';
-    console.log('Concepto tipo:', tipo);
-}
-let confirmCallback = null;
-
+// ==================== MODAL CONFIRM ====================
 function mostrarConfirm(mensaje, callback) {
     document.getElementById('confirmMessage').innerHTML = mensaje;
     confirmCallback = callback;
@@ -1194,3 +1176,40 @@ function cerrarConfirm(aceptar) {
     }
     confirmCallback = null;
 }
+
+// ==================== UTILITIES ====================
+function formatMoney(value) {
+    const num = parseFloat(value) || 0;
+    return '$' + num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function formatFecha(fecha) {
+    if (!fecha) return '-';
+    const d = new Date(fecha);
+    return d.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+function toast(msg, tipo) {
+    tipo = tipo || 'success';
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + tipo;
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 3000);
+}
+
+function abrirModal(id) {
+    document.getElementById(id).classList.add('show');
+}
+
+function cerrarModal(id) {
+    document.getElementById(id).classList.remove('show');
+}
+
+// Cerrar dropdowns al hacer clic fuera
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.producto-input-wrap')) {
+        document.querySelectorAll('.producto-autocomplete').forEach(function(d) { d.classList.remove('show'); });
+        autocompleteIdx = -1;
+    }
+});
