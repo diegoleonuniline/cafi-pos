@@ -9,9 +9,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="odoo-layout">
+    <div class="cafi-layout">
         <!-- Sidebar -->
-        <aside class="odoo-sidebar">
+        <aside class="cafi-sidebar">
             <div class="sidebar-brand">
                 <svg viewBox="0 0 500 500" width="32" height="32">
                     <g transform="translate(0,500) scale(0.1,-0.1)">
@@ -42,313 +42,304 @@
             </div>
         </aside>
 
-        <!-- Main Content -->
-        <main class="odoo-main">
-            <!-- Control Panel -->
-            <div class="o-control-panel">
-                <div class="o-cp-top">
-                    <div class="o-cp-breadcrumb">
-                        <span class="breadcrumb-item active">Compras</span>
-                    </div>
-                    <div class="o-cp-actions">
-                        <button class="o-btn o-btn-primary" onclick="nuevaCompra()"><i class="fas fa-plus"></i> Nuevo</button>
-                    </div>
+        <!-- Main -->
+        <main class="cafi-main">
+            <!-- Header con Tabs principales -->
+            <div class="cafi-header">
+                <div class="cafi-tabs-main">
+                    <button class="tab-main active" data-tab="crear"><i class="fas fa-plus-circle"></i> Crear Compra</button>
+                    <button class="tab-main" data-tab="compras"><i class="fas fa-list"></i> Compras</button>
+                    <button class="tab-main" data-tab="cuentas"><i class="fas fa-hand-holding-usd"></i> Cuentas por Pagar</button>
+                    <button class="tab-main" data-tab="pagos"><i class="fas fa-money-check-alt"></i> Pagos Realizados</button>
                 </div>
-                <div class="o-cp-bottom">
-                    <div class="o-cp-searchview">
-                        <div class="o-searchview">
-                            <i class="fas fa-search"></i>
-                            <input type="text" id="searchInput" placeholder="Buscar..." onkeyup="filtrarCompras()">
+            </div>
+
+            <!-- ==================== TAB: CREAR COMPRA ==================== -->
+            <div class="tab-content active" id="tab-crear">
+                <div class="form-container">
+                    <input type="hidden" id="compraId">
+                    
+                    <!-- Status Bar -->
+                    <div class="form-statusbar">
+                        <div class="statusbar-buttons">
+                            <button class="btn btn-primary" id="btnGuardarBorrador" onclick="guardarCompra('BORRADOR')"><i class="fas fa-save"></i> Guardar Borrador</button>
+                            <button class="btn btn-success" id="btnConfirmar" onclick="guardarCompra('PENDIENTE')"><i class="fas fa-check"></i> Confirmar Compra</button>
+                            <button class="btn" id="btnRecibir" onclick="abrirModalRecibir()" style="display:none"><i class="fas fa-box-open"></i> Recibir</button>
+                            <button class="btn" id="btnPagoForm" onclick="abrirModalPago()" style="display:none"><i class="fas fa-dollar-sign"></i> Pagar</button>
+                            <button class="btn btn-danger" id="btnCancelarCompra" onclick="cancelarCompraActual()" style="display:none"><i class="fas fa-ban"></i> Cancelar</button>
                         </div>
-                        <div class="o-filters">
-                            <div class="o-filter-group">
-                                <input type="date" id="filtroDesde" onchange="cargarCompras()">
-                                <span>→</span>
-                                <input type="date" id="filtroHasta" onchange="cargarCompras()">
-                            </div>
-                            <select id="filtroProveedor" onchange="cargarCompras()"><option value="">Proveedor</option></select>
-                            <select id="filtroEstatus" onchange="cargarCompras()">
-                                <option value="">Estado</option>
-                                <option value="BORRADOR">Borrador</option>
-                                <option value="PENDIENTE">Pendiente</option>
-                                <option value="PARCIAL">Parcial</option>
-                                <option value="RECIBIDA">Recibida</option>
-                                <option value="CANCELADA">Cancelada</option>
-                            </select>
+                        <div class="statusbar-status">
+                            <span class="status-step" data-status="BORRADOR">Borrador</span>
+                            <span class="status-arrow">→</span>
+                            <span class="status-step" data-status="PENDIENTE">Pendiente</span>
+                            <span class="status-arrow">→</span>
+                            <span class="status-step" data-status="PARCIAL">Parcial</span>
+                            <span class="status-arrow">→</span>
+                            <span class="status-step" data-status="RECIBIDA">Recibida</span>
                         </div>
                     </div>
-                    <div class="o-cp-switch">
-                        <button class="o-switch-btn active" data-view="list" onclick="cambiarVista('list')"><i class="fas fa-list"></i></button>
-                        <button class="o-switch-btn" data-view="kanban" onclick="cambiarVista('kanban')"><i class="fas fa-th-large"></i></button>
+
+                    <!-- Título -->
+                    <div class="form-title">
+                        <h1 id="formTitulo">Nueva Compra</h1>
+                        <button class="btn btn-link" onclick="limpiarFormulario()"><i class="fas fa-plus"></i> Nuevo</button>
+                    </div>
+
+                    <!-- Campos principales -->
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Proveedor *</label>
+                            <select id="compProveedor" required><option value="">Seleccionar proveedor...</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Almacén Destino *</label>
+                            <select id="compAlmacen" required><option value="">Seleccionar almacén...</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha Entrega</label>
+                            <input type="date" id="compFechaEntrega">
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha Vencimiento Pago</label>
+                            <input type="date" id="compFechaVencimiento">
+                        </div>
+                    </div>
+
+                    <!-- Productos -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-boxes"></i> Productos</h3>
+                        <div class="productos-search">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="buscarProducto" placeholder="Buscar producto por nombre o código..." autocomplete="off">
+                            <div class="autocomplete-dropdown" id="autocompleteProductos"></div>
+                        </div>
+                        <div class="productos-table-wrapper">
+                            <table class="productos-table">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th style="width:100px">Cantidad</th>
+                                        <th style="width:120px">Costo Unit.</th>
+                                        <th style="width:80px">IVA %</th>
+                                        <th style="width:120px" class="text-right">Subtotal</th>
+                                        <th style="width:40px"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaProductosCompra"></tbody>
+                            </table>
+                            <div class="productos-empty" id="emptyProducts">
+                                <i class="fas fa-cart-plus"></i>
+                                <p>Busca y agrega productos a la compra</p>
+                            </div>
+                        </div>
+                        <div class="form-totals">
+                            <div class="total-row"><span>Subtotal:</span><span id="compSubtotal">$0.00</span></div>
+                            <div class="total-row"><span>IVA:</span><span id="compIVA">$0.00</span></div>
+                            <div class="total-row total"><span>TOTAL:</span><span id="compTotal">$0.00</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Notas -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-sticky-note"></i> Notas</h3>
+                        <textarea id="compNotas" rows="3" placeholder="Observaciones o términos..."></textarea>
                     </div>
                 </div>
             </div>
 
-            <!-- Content Area -->
-            <div class="o-content">
-                <!-- List View -->
-                <div class="o-view o-list-view active" id="view-list">
-                    <table class="o-list-table">
+            <!-- ==================== TAB: COMPRAS ==================== -->
+            <div class="tab-content" id="tab-compras">
+                <div class="panel-toolbar">
+                    <div class="toolbar-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchCompras" placeholder="Buscar compra..." onkeyup="filtrarCompras()">
+                    </div>
+                    <div class="toolbar-filters">
+                        <input type="date" id="filtroDesde" onchange="cargarCompras()">
+                        <span>a</span>
+                        <input type="date" id="filtroHasta" onchange="cargarCompras()">
+                        <select id="filtroProveedor" onchange="cargarCompras()"><option value="">Proveedor</option></select>
+                        <select id="filtroEstatus" onchange="cargarCompras()">
+                            <option value="">Estado</option>
+                            <option value="BORRADOR">Borrador</option>
+                            <option value="PENDIENTE">Pendiente</option>
+                            <option value="PARCIAL">Parcial</option>
+                            <option value="RECIBIDA">Recibida</option>
+                            <option value="CANCELADA">Cancelada</option>
+                        </select>
+                    </div>
+                    <div class="toolbar-views">
+                        <button class="view-btn active" data-view="list" onclick="cambiarVistaCompras('list')"><i class="fas fa-list"></i></button>
+                        <button class="view-btn" data-view="kanban" onclick="cambiarVistaCompras('kanban')"><i class="fas fa-th-large"></i></button>
+                    </div>
+                </div>
+
+                <!-- Vista Lista -->
+                <div class="view-content active" id="view-list">
+                    <table class="data-table">
                         <thead>
                             <tr>
-                                <th class="o-list-checkbox"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
                                 <th>Referencia</th>
                                 <th>Proveedor</th>
                                 <th>Fecha</th>
-                                <th>Fecha Entrega</th>
                                 <th class="text-right">Total</th>
                                 <th class="text-right">Saldo</th>
                                 <th class="text-center">Estado</th>
+                                <th class="text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="tablaCompras"></tbody>
                     </table>
-                    <div class="o-list-empty" id="emptyState">
+                    <div class="empty-state" id="emptyCompras">
                         <i class="fas fa-inbox"></i>
-                        <p>No hay registros que mostrar</p>
-                        <button class="o-btn o-btn-primary" onclick="nuevaCompra()">Crear primera compra</button>
+                        <p>No hay compras</p>
                     </div>
                 </div>
 
-                <!-- Kanban View -->
-                <div class="o-view o-kanban-view" id="view-kanban">
-                    <div class="o-kanban-group" data-status="BORRADOR">
-                        <div class="o-kanban-header"><span class="status-dot gray"></span>Borrador <span class="count" id="countBorrador">0</span></div>
-                        <div class="o-kanban-cards" id="kanbanBorrador"></div>
-                    </div>
-                    <div class="o-kanban-group" data-status="PENDIENTE">
-                        <div class="o-kanban-header"><span class="status-dot orange"></span>Pendiente <span class="count" id="countPendiente">0</span></div>
-                        <div class="o-kanban-cards" id="kanbanPendiente"></div>
-                    </div>
-                    <div class="o-kanban-group" data-status="PARCIAL">
-                        <div class="o-kanban-header"><span class="status-dot blue"></span>Parcial <span class="count" id="countParcial">0</span></div>
-                        <div class="o-kanban-cards" id="kanbanParcial"></div>
-                    </div>
-                    <div class="o-kanban-group" data-status="RECIBIDA">
-                        <div class="o-kanban-header"><span class="status-dot green"></span>Recibida <span class="count" id="countRecibida">0</span></div>
-                        <div class="o-kanban-cards" id="kanbanRecibida"></div>
+                <!-- Vista Kanban -->
+                <div class="view-content" id="view-kanban">
+                    <div class="kanban-board">
+                        <div class="kanban-column" data-status="BORRADOR">
+                            <div class="kanban-header"><span class="dot gray"></span>Borrador <span class="count" id="countBorrador">0</span></div>
+                            <div class="kanban-cards" id="kanbanBorrador"></div>
+                        </div>
+                        <div class="kanban-column" data-status="PENDIENTE">
+                            <div class="kanban-header"><span class="dot orange"></span>Pendiente <span class="count" id="countPendiente">0</span></div>
+                            <div class="kanban-cards" id="kanbanPendiente"></div>
+                        </div>
+                        <div class="kanban-column" data-status="PARCIAL">
+                            <div class="kanban-header"><span class="dot blue"></span>Parcial <span class="count" id="countParcial">0</span></div>
+                            <div class="kanban-cards" id="kanbanParcial"></div>
+                        </div>
+                        <div class="kanban-column" data-status="RECIBIDA">
+                            <div class="kanban-header"><span class="dot green"></span>Recibida <span class="count" id="countRecibida">0</span></div>
+                            <div class="kanban-cards" id="kanbanRecibida"></div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Form View -->
-                <div class="o-view o-form-view" id="view-form">
-                    <input type="hidden" id="compraId">
-                    
-                    <!-- Status Bar -->
-                    <div class="o-form-statusbar">
-                        <div class="o-statusbar-buttons">
-                            <button class="o-btn o-btn-primary" id="btnConfirmar" onclick="confirmarCompra()"><i class="fas fa-check"></i> Confirmar</button>
-                            <button class="o-btn" id="btnRecibir" onclick="abrirModalRecibir()"><i class="fas fa-box-open"></i> Recibir</button>
-                            <button class="o-btn" id="btnPago" onclick="abrirModalPago()"><i class="fas fa-dollar-sign"></i> Registrar Pago</button>
-                            <button class="o-btn o-btn-danger" id="btnCancelar" onclick="cancelarCompra()"><i class="fas fa-ban"></i> Cancelar</button>
-                        </div>
-                        <div class="o-statusbar-status">
-                            <button class="o-status-btn" data-status="BORRADOR">Borrador</button>
-                            <button class="o-status-btn" data-status="PENDIENTE">Pendiente</button>
-                            <button class="o-status-btn" data-status="PARCIAL">Parcial</button>
-                            <button class="o-status-btn" data-status="RECIBIDA">Recibida</button>
-                        </div>
-                    </div>
-
-                    <!-- Smart Buttons -->
-                    <div class="o-form-smartbuttons">
-                        <button class="o-smart-btn" onclick="mostrarPagos()">
-                            <span class="o-smart-value" id="smartPagos">0</span>
-                            <span class="o-smart-label">Pagos</span>
-                        </button>
-                        <button class="o-smart-btn" onclick="mostrarProductosRecibidos()">
-                            <span class="o-smart-value" id="smartRecibido">0%</span>
-                            <span class="o-smart-label">Recibido</span>
-                        </button>
-                    </div>
-
-                    <!-- Form Sheet -->
-                    <div class="o-form-sheet">
-                        <div class="o-form-title">
-                            <h1 id="formTitulo">Nuevo</h1>
-                        </div>
-
-                        <div class="o-group">
-                            <div class="o-inner-group">
-                                <div class="o-field">
-                                    <label>Proveedor</label>
-                                    <select id="compProveedor" required><option value="">Seleccionar...</option></select>
-                                </div>
-                                <div class="o-field">
-                                    <label>Almacén Destino</label>
-                                    <select id="compAlmacen" required><option value="">Seleccionar...</option></select>
-                                </div>
-                            </div>
-                            <div class="o-inner-group">
-                                <div class="o-field">
-                                    <label>Fecha Entrega</label>
-                                    <input type="date" id="compFechaEntrega">
-                                </div>
-                                <div class="o-field">
-                                    <label>Fecha Vencimiento Pago</label>
-                                    <input type="date" id="compFechaVencimiento">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Notebook (Tabs) -->
-                        <div class="o-notebook">
-                            <div class="o-notebook-headers">
-                                <button class="o-notebook-tab active" data-tab="productos">Productos</button>
-                                <button class="o-notebook-tab" data-tab="info">Otra Información</button>
-                            </div>
-                            <div class="o-notebook-content">
-                                <div class="o-notebook-page active" id="tab-productos">
-                                    <div class="o-field-widget">
-                                        <div class="o-list-editable">
-                                            <div class="o-list-add">
-                                                <i class="fas fa-search"></i>
-                                                <input type="text" id="buscarProducto" placeholder="Buscar producto..." autocomplete="off">
-                                                <div class="o-autocomplete" id="autocompleteProductos"></div>
-                                            </div>
-                                            <table class="o-list-table o-list-editable-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Producto</th>
-                                                        <th style="width:100px">Cantidad</th>
-                                                        <th style="width:120px">Costo Unit.</th>
-                                                        <th style="width:80px">IVA %</th>
-                                                        <th style="width:120px" class="text-right">Subtotal</th>
-                                                        <th style="width:40px"></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="tablaProductosCompra"></tbody>
-                                            </table>
-                                            <div class="o-list-empty-products" id="emptyProducts">
-                                                <p>Agrega productos a la compra</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="o-form-totals">
-                                        <table>
-                                            <tr><td>Subtotal:</td><td id="compSubtotal">$0.00</td></tr>
-                                            <tr><td>IVA:</td><td id="compIVA">$0.00</td></tr>
-                                            <tr class="total"><td>Total:</td><td id="compTotal">$0.00</td></tr>
-                                        </table>
-                                    </div>
-                                </div>
-                                <div class="o-notebook-page" id="tab-info">
-                                    <div class="o-group">
-                                        <div class="o-inner-group">
-                                            <div class="o-field">
-                                                <label>Notas / Términos</label>
-                                                <textarea id="compNotas" rows="4" placeholder="Notas internas..."></textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Chatter -->
-                    <div class="o-chatter">
-                        <div class="o-chatter-header">
-                            <span><i class="fas fa-history"></i> Historial</span>
-                        </div>
-                        <div class="o-chatter-content" id="chatterContent">
-                            <div class="o-message">
-                                <div class="o-message-icon"><i class="fas fa-file-alt"></i></div>
-                                <div class="o-message-body">
-                                    <span class="o-message-title">Documento creado</span>
-                                    <span class="o-message-date" id="chatterCreado">-</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="panel-footer">
+                    <span id="totalCompras">0 compras</span>
                 </div>
             </div>
 
-            <!-- Footer Info -->
-            <div class="o-footer" id="footerInfo">
-                <span id="totalRegistros">0 registros</span>
+            <!-- ==================== TAB: CUENTAS POR PAGAR ==================== -->
+            <div class="tab-content" id="tab-cuentas">
+                <div class="panel-toolbar">
+                    <div class="toolbar-title">
+                        <i class="fas fa-hand-holding-usd"></i>
+                        <h2>Cuentas por Pagar a Proveedores</h2>
+                    </div>
+                    <button class="btn" onclick="cargarCuentasPagar()"><i class="fas fa-sync"></i> Actualizar</button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Proveedor</th>
+                            <th class="text-center">Compras Pendientes</th>
+                            <th class="text-right">Saldo Total</th>
+                            <th class="text-center">Próx. Vencimiento</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaCuentas"></tbody>
+                </table>
+                <div class="empty-state" id="emptyCuentas">
+                    <i class="fas fa-check-circle"></i>
+                    <p>No hay cuentas pendientes</p>
+                </div>
+            </div>
+
+            <!-- ==================== TAB: PAGOS REALIZADOS ==================== -->
+            <div class="tab-content" id="tab-pagos">
+                <div class="panel-toolbar">
+                    <div class="toolbar-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchPagos" placeholder="Buscar pago..." onkeyup="filtrarPagos()">
+                    </div>
+                    <div class="toolbar-filters">
+                        <input type="date" id="filtroPagosDesde" onchange="cargarPagosRealizados()">
+                        <span>a</span>
+                        <input type="date" id="filtroPagosHasta" onchange="cargarPagosRealizados()">
+                        <select id="filtroPagosProveedor" onchange="cargarPagosRealizados()"><option value="">Proveedor</option></select>
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Proveedor</th>
+                            <th>Compra</th>
+                            <th>Método</th>
+                            <th>Referencia</th>
+                            <th class="text-right">Monto</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaPagos"></tbody>
+                </table>
+                <div class="empty-state" id="emptyPagos">
+                    <i class="fas fa-money-check-alt"></i>
+                    <p>No hay pagos registrados</p>
+                </div>
+                <div class="panel-footer">
+                    <span id="totalPagos">0 pagos</span>
+                    <span id="sumaPagos">Total: $0.00</span>
+                </div>
             </div>
         </main>
     </div>
 
     <!-- Modal Recibir -->
-    <div class="o-modal" id="modalRecibir">
-        <div class="o-modal-dialog">
-            <div class="o-modal-header">
-                <h4><i class="fas fa-box-open"></i> Recibir Mercancía</h4>
-                <button class="o-modal-close" onclick="cerrarModal('modalRecibir')"><i class="fas fa-times"></i></button>
+    <div class="modal-overlay" id="modalRecibir">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-box-open"></i> Recibir Mercancía</h3>
+                <button class="modal-close" onclick="cerrarModal('modalRecibir')"><i class="fas fa-times"></i></button>
             </div>
-            <div class="o-modal-body">
-                <table class="o-list-table">
+            <div class="modal-body">
+                <table class="data-table">
                     <thead>
                         <tr>
                             <th>Producto</th>
                             <th class="text-center">Pedido</th>
                             <th class="text-center">Recibido</th>
-                            <th class="text-center">Recibir</th>
+                            <th class="text-center">Recibir Ahora</th>
                         </tr>
                     </thead>
                     <tbody id="tablaRecibir"></tbody>
                 </table>
             </div>
-            <div class="o-modal-footer">
-                <button class="o-btn" onclick="cerrarModal('modalRecibir')">Cancelar</button>
-                <button class="o-btn o-btn-primary" onclick="confirmarRecepcion()">Validar</button>
+            <div class="modal-footer">
+                <button class="btn" onclick="cerrarModal('modalRecibir')">Cancelar</button>
+                <button class="btn btn-success" onclick="confirmarRecepcion()"><i class="fas fa-check"></i> Validar</button>
             </div>
         </div>
     </div>
 
     <!-- Modal Pago -->
-    <div class="o-modal" id="modalPago">
-        <div class="o-modal-dialog o-modal-sm">
-            <div class="o-modal-header">
-                <h4><i class="fas fa-dollar-sign"></i> Registrar Pago</h4>
-                <button class="o-modal-close" onclick="cerrarModal('modalPago')"><i class="fas fa-times"></i></button>
+    <div class="modal-overlay" id="modalPago">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3><i class="fas fa-dollar-sign"></i> Registrar Pago</h3>
+                <button class="modal-close" onclick="cerrarModal('modalPago')"><i class="fas fa-times"></i></button>
             </div>
-            <div class="o-modal-body">
-                <div class="o-pago-saldo">Saldo: <strong id="pagoSaldo">$0.00</strong></div>
-                <div class="o-field"><label>Monto</label><input type="number" id="pagoMonto" step="0.01"></div>
-                <div class="o-field"><label>Método de Pago</label><select id="pagoMetodo"><option value="">Seleccionar...</option></select></div>
-                <div class="o-field"><label>Cuenta Bancaria</label><select id="pagoCuenta"><option value="">Sin cuenta</option></select></div>
-                <div class="o-field"><label>Referencia</label><input type="text" id="pagoReferencia" placeholder="No. cheque, transferencia..."></div>
+            <div class="modal-body">
+                <div class="pago-saldo">Saldo pendiente: <strong id="pagoSaldo">$0.00</strong></div>
+                <div class="form-group"><label>Monto *</label><input type="number" id="pagoMonto" step="0.01"></div>
+                <div class="form-group"><label>Método de Pago *</label><select id="pagoMetodo"><option value="">Seleccionar...</option></select></div>
+                <div class="form-group"><label>Cuenta Bancaria</label><select id="pagoCuenta"><option value="">Sin cuenta</option></select></div>
+                <div class="form-group"><label>Referencia</label><input type="text" id="pagoReferencia" placeholder="No. cheque, transferencia..."></div>
             </div>
-            <div class="o-modal-footer">
-                <button class="o-btn" onclick="cerrarModal('modalPago')">Cancelar</button>
-                <button class="o-btn o-btn-primary" onclick="guardarPago()">Registrar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Pagos Lista -->
-    <div class="o-modal" id="modalPagosLista">
-        <div class="o-modal-dialog">
-            <div class="o-modal-header">
-                <h4><i class="fas fa-list"></i> Pagos Registrados</h4>
-                <button class="o-modal-close" onclick="cerrarModal('modalPagosLista')"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="o-modal-body">
-                <table class="o-list-table">
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Método</th>
-                            <th>Referencia</th>
-                            <th class="text-right">Monto</th>
-                            <th class="text-center">Estado</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="tablaPagosLista"></tbody>
-                </table>
-            </div>
-            <div class="o-modal-footer">
-                <button class="o-btn" onclick="cerrarModal('modalPagosLista')">Cerrar</button>
+            <div class="modal-footer">
+                <button class="btn" onclick="cerrarModal('modalPago')">Cancelar</button>
+                <button class="btn btn-success" onclick="guardarPago()"><i class="fas fa-check"></i> Registrar</button>
             </div>
         </div>
     </div>
 
-    <div class="o-toast" id="toast"></div>
+    <div class="toast" id="toast"></div>
 
     <script src="../js/config.js"></script>
     <script src="../js/api.js"></script>
