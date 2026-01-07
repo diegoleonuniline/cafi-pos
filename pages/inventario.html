@@ -72,6 +72,12 @@
                         <div class="panel-toolbar">
                             <div class="toolbar-filters">
                                 <div class="filter-item">
+                                    <label>Sucursal</label>
+                                    <select id="filtroSucursalExist" onchange="filtrarAlmacenesExistencias()">
+                                        <option value="">Todas</option>
+                                    </select>
+                                </div>
+                                <div class="filter-item">
                                     <label>Almacén</label>
                                     <select id="filtroAlmacenExist" onchange="cargarExistencias()">
                                         <option value="">Todos</option>
@@ -120,6 +126,12 @@
                     <div class="tab-panel" id="panel-movimientos">
                         <div class="panel-toolbar">
                             <div class="toolbar-filters">
+                                <div class="filter-item">
+                                    <label>Sucursal</label>
+                                    <select id="filtroSucursalMov" onchange="filtrarAlmacenesMov()">
+                                        <option value="">Todas</option>
+                                    </select>
+                                </div>
                                 <div class="filter-item">
                                     <label>Almacén</label>
                                     <select id="filtroAlmacenMov" onchange="cargarMovimientos()">
@@ -190,14 +202,14 @@
                                     </select>
                                 </div>
                                 <div class="filter-item">
-                                    <label>Origen</label>
-                                    <select id="filtroOrigenTras" onchange="cargarTraspasos()">
-                                        <option value="">Todos</option>
+                                    <label>Sucursal Origen</label>
+                                    <select id="filtroSucursalOrigenTras" onchange="filtrarAlmacenesOrigenTras()">
+                                        <option value="">Todas</option>
                                     </select>
                                 </div>
                                 <div class="filter-item">
-                                    <label>Destino</label>
-                                    <select id="filtroDestinoTras" onchange="cargarTraspasos()">
+                                    <label>Almacén Origen</label>
+                                    <select id="filtroOrigenTras" onchange="cargarTraspasos()">
                                         <option value="">Todos</option>
                                     </select>
                                 </div>
@@ -255,9 +267,15 @@
                             <!-- Campos principales -->
                             <div class="fields-grid">
                                 <div class="field">
+                                    <label>Sucursal <span class="required">*</span></label>
+                                    <select id="ajusteSucursal" required onchange="filtrarAlmacenesAjuste()">
+                                        <option value="">Seleccionar...</option>
+                                    </select>
+                                </div>
+                                <div class="field">
                                     <label>Almacén <span class="required">*</span></label>
                                     <select id="ajusteAlmacen" required onchange="cambiarAlmacenAjuste()">
-                                        <option value="">Seleccionar...</option>
+                                        <option value="">Seleccionar sucursal primero...</option>
                                     </select>
                                 </div>
                                 <div class="field">
@@ -270,13 +288,13 @@
                                     <label>Fecha</label>
                                     <input type="date" id="ajusteFecha">
                                 </div>
+                            </div>
+
+                            <div class="fields-grid" style="padding-top:0;">
                                 <div class="field">
                                     <label>Referencia</label>
                                     <input type="text" id="ajusteReferencia" placeholder="Opcional">
                                 </div>
-                            </div>
-
-                            <div class="fields-grid" style="padding-top:0;">
                                 <div class="field half">
                                     <label>Notas</label>
                                     <textarea id="ajusteNotas" rows="2" placeholder="Observaciones..."></textarea>
@@ -288,12 +306,12 @@
                                 <table class="lines-table">
                                     <thead>
                                         <tr>
-                                            <th class="col-producto">Producto</th>
-                                            <th class="col-stock">Stock Actual</th>
-                                            <th class="col-cantidad">Cantidad</th>
-                                            <th class="col-costo">Costo Unit.</th>
-                                            <th class="col-total">Total</th>
-                                            <th class="col-actions"></th>
+                                            <th style="width:40%">Producto</th>
+                                            <th class="text-right" style="width:12%">Stock Actual</th>
+                                            <th class="text-right" style="width:12%">Cantidad</th>
+                                            <th class="text-right" style="width:15%">Costo Unit.</th>
+                                            <th class="text-right" style="width:15%">Total</th>
+                                            <th style="width:6%"></th>
                                         </tr>
                                     </thead>
                                     <tbody id="tablaLineasAjuste"></tbody>
@@ -339,15 +357,27 @@
                 
                 <div class="modal-form-grid">
                     <div class="modal-field">
+                        <label>Sucursal Origen *</label>
+                        <select id="traspasoSucursalOrigen" required onchange="filtrarAlmacenesOrigenModal()">
+                            <option value="">Seleccionar...</option>
+                        </select>
+                    </div>
+                    <div class="modal-field">
                         <label>Almacén Origen *</label>
                         <select id="traspasoOrigen" required onchange="cambiarAlmacenOrigen()">
+                            <option value="">Seleccionar sucursal...</option>
+                        </select>
+                    </div>
+                    <div class="modal-field">
+                        <label>Sucursal Destino *</label>
+                        <select id="traspasoSucursalDestino" required onchange="filtrarAlmacenesDestinoModal()">
                             <option value="">Seleccionar...</option>
                         </select>
                     </div>
                     <div class="modal-field">
                         <label>Almacén Destino *</label>
                         <select id="traspasoDestino" required>
-                            <option value="">Seleccionar...</option>
+                            <option value="">Seleccionar sucursal...</option>
                         </select>
                     </div>
                     <div class="modal-field">
@@ -366,11 +396,11 @@
                         <thead>
                             <tr>
                                 <th style="width:40%">Producto</th>
-                                <th class="text-right" style="width:15%">Disponible</th>
-                                <th class="text-right" style="width:15%">Solicitado</th>
-                                <th class="text-right" style="width:15%">Enviado</th>
-                                <th class="text-right" style="width:10%">Recibido</th>
-                                <th style="width:5%"></th>
+                                <th class="text-right" style="width:12%">Disponible</th>
+                                <th class="text-right" style="width:12%">Solicitado</th>
+                                <th class="text-right" style="width:12%">Enviado</th>
+                                <th class="text-right" style="width:12%">Recibido</th>
+                                <th style="width:6%"></th>
                             </tr>
                         </thead>
                         <tbody id="tablaLineasTraspaso"></tbody>
