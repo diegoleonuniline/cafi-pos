@@ -1,5 +1,5 @@
 /* ============================================
-   COMPRAS.JS - CAFI POS
+   COMPRAS.JS - CAFI POS (Completo)
    ============================================ */
 
 const empresaId = localStorage.getItem('empresa_id') || (JSON.parse(localStorage.getItem('usuario') || '{}')).empresa_id;
@@ -8,18 +8,20 @@ const usuarioId = (JSON.parse(localStorage.getItem('usuario') || '{}')).id;
 
 let comprasData = [], comprasFiltradas = [], pagosData = [], pagosFiltrados = [];
 let proveedoresData = [], almacenesData = [], productosData = [], metodosData = [], cuentasData = [];
+let sucursalesData = [], categoriasData = [];
 let lineasCompra = [];
 let compraActual = null;
+let autocompleteIdx = -1;
 
 // ==================== INIT ====================
 
 document.addEventListener('DOMContentLoaded', () => {
     initUsuario();
     initTabs();
-    initNotebook();
     initFiltros();
     cargarDatosIniciales();
     agregarLineaVacia();
+    document.getElementById('compFecha').value = new Date().toISOString().split('T')[0];
 });
 
 function initUsuario() {
@@ -45,18 +47,6 @@ function initTabs() {
     });
 }
 
-function initNotebook() {
-    document.querySelectorAll('.nb-tab').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const tab = btn.dataset.nbtab;
-            document.querySelectorAll('.nb-tab').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.nb-panel').forEach(p => p.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById(`nb-${tab}`)?.classList.add('active');
-        });
-    });
-}
-
 function initFiltros() {
     const hoy = new Date();
     const inicio = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
@@ -67,7 +57,15 @@ function initFiltros() {
 }
 
 async function cargarDatosIniciales() {
-    await Promise.all([cargarProveedores(), cargarAlmacenes(), cargarProductos(), cargarMetodosPago(), cargarCuentasBancarias()]);
+    await Promise.all([
+        cargarProveedores(), 
+        cargarAlmacenes(), 
+        cargarProductos(), 
+        cargarMetodosPago(), 
+        cargarCuentasBancarias(),
+        cargarSucursales(),
+        cargarCategorias()
+    ]);
 }
 
 // ==================== CATALOGOS ====================
@@ -78,9 +76,9 @@ async function cargarProveedores() {
         if (r.success) {
             proveedoresData = r.proveedores.filter(p => p.activo === 'Y');
             const opts = proveedoresData.map(p => `<option value="${p.proveedor_id}">${p.nombre_comercial}</option>`).join('');
-            document.getElementById('filtroProveedor').innerHTML = '<option value="">Proveedor</option>' + opts;
-            document.getElementById('filtroPagosProveedor').innerHTML = '<option value="">Proveedor</option>' + opts;
-            document.getElementById('compProveedor').innerHTML = '<option value="">Seleccionar proveedor...</option>' + opts;
+            document.getElementById('filtroProveedor').innerHTML = '<option value="">Todos</option>' + opts;
+            document.getElementById('filtroPagosProveedor').innerHTML = '<option value="">Todos</option>' + opts;
+            document.getElementById('compProveedor').innerHTML = '<option value="">Seleccionar...</option>' + opts;
         }
     } catch (e) { console.error(e); }
 }
@@ -91,7 +89,7 @@ async function cargarAlmacenes() {
         if (r.success) {
             almacenesData = r.almacenes;
             const opts = almacenesData.map(a => `<option value="${a.almacen_id}">${a.sucursal_nombre ? a.sucursal_nombre + ' - ' : ''}${a.nombre}</option>`).join('');
-            document.getElementById('compAlmacen').innerHTML = '<option value="">Seleccionar almacén...</option>' + opts;
+            document.getElementById('compAlmacen').innerHTML = '<option value="">Seleccionar...</option>' + opts;
             if (almacenesData.length === 1) document.getElementById('compAlmacen').value = almacenesData[0].almacen_id;
         }
     } catch (e) { console.error(e); }
@@ -124,11 +122,46 @@ async function cargarCuentasBancarias() {
     } catch (e) { console.error(e); }
 }
 
+async function cargarSucursales() {
+    try {
+        const r = await API.request(`/sucursales/${empresaId}`);
+        if (r.success) {
+            sucursalesData = r.sucursales || [];
+            document.getElementById('almSucursal').innerHTML = '<option value="">Seleccionar...</option>' + sucursalesData.map(s => `<option value="${s.sucursal_id}">${s.nombre}</option>`).join('');
+        }
+    } catch (e) { console.error(e); }
+}
+
+async function cargarCategorias() {
+    try {
+        const r = await API.request(`/categorias/${empresaId}`);
+        if (r.success) {
+            categoriasData = r.categorias || [];
+            document.getElementById('prodCategoria').innerHTML = '<option value="">Seleccionar...</option>' + categoriasData.map(c => `<option value="${c.categoria_id}">${c.nombre}</option>`).join('');
+        }
+    } catch (e) { console.error(e); }
+}
+
 // ==================== LINEAS (PRODUCTOS) ====================
 
 function agregarLineaVacia() {
-    lineasCompra.push({ producto_id: '', nombre: '', codigo: '', cantidad: 1, unidad: 'Unidades', costo: 0, iva: 16, importe: 0 });
+    lineasCompra.push({ 
+        producto_id: '', 
+        nombre: '', 
+        codigo: '', 
+        cantidad: 1, 
+        unidad: 'PZA', 
+        costo: 0, 
+        iva: 16, 
+        ieps: 0,
+        importe: 0 
+    });
     renderLineas();
+    // Focus en el input del producto de la nueva línea
+    setTimeout(() => {
+        const inputs = document.querySelectorAll('.input-producto');
+        if (inputs.length > 0) inputs[inputs.length - 1].focus();
+    }, 50);
 }
 
 function renderLineas() {
@@ -136,21 +169,66 @@ function renderLineas() {
     const editable = !compraActual || compraActual.estatus === 'BORRADOR';
     
     tbody.innerHTML = lineasCompra.map((l, i) => `
-        <tr>
+        <tr data-idx="${i}">
             <td class="producto-cell">
                 <div class="producto-input-wrap">
-                    <input type="text" class="input-producto" value="${l.nombre}" placeholder="Buscar producto..." 
+                    <input type="text" 
+                        class="input-producto" 
+                        id="prod-input-${i}"
+                        value="${l.nombre}" 
+                        placeholder="Buscar producto..." 
                         oninput="buscarProductoEnLinea(${i}, this.value)" 
+                        onkeydown="navegarAutocomplete(event, ${i})"
                         onfocus="mostrarAutocompletado(${i})"
+                        autocomplete="off"
                         ${editable ? '' : 'disabled'}>
-                    ${l.codigo ? `<div style="font-size:11px;color:#999;margin-top:2px">${l.codigo}</div>` : ''}
+                    ${l.codigo ? `<span class="producto-codigo">${l.codigo}</span>` : ''}
                     <div class="producto-autocomplete" id="autocomplete-${i}"></div>
                 </div>
             </td>
-            <td><input type="number" class="input-number" value="${l.cantidad}" min="1" onchange="actualizarLinea(${i}, 'cantidad', this.value)" ${editable ? '' : 'disabled'}></td>
-            <td><span style="color:#666">${l.unidad}</span></td>
-            <td><input type="number" class="input-number" value="${l.costo.toFixed(2)}" min="0" step="0.01" onchange="actualizarLinea(${i}, 'costo', this.value)" ${editable ? '' : 'disabled'}></td>
-            <td><span class="badge-iva">${l.iva}%</span></td>
+            <td>
+                <input type="number" 
+                    class="input-number" 
+                    id="cant-input-${i}"
+                    value="${l.cantidad}" 
+                    min="0.01" 
+                    step="0.01"
+                    onchange="actualizarLinea(${i}, 'cantidad', this.value)" 
+                    onkeydown="if(event.key==='Enter'){event.preventDefault(); agregarLineaVacia();}"
+                    ${editable ? '' : 'disabled'}>
+            </td>
+            <td><span style="color:var(--gray-500); font-size:12px">${l.unidad}</span></td>
+            <td>
+                <input type="number" 
+                    class="input-number" 
+                    value="${l.costo.toFixed(2)}" 
+                    min="0" 
+                    step="0.01" 
+                    onchange="actualizarLinea(${i}, 'costo', this.value)" 
+                    ${editable ? '' : 'disabled'}>
+            </td>
+            <td>
+                <input type="number" 
+                    class="input-number" 
+                    value="${l.iva}" 
+                    min="0" 
+                    max="100"
+                    step="1" 
+                    style="width:60px"
+                    onchange="actualizarLinea(${i}, 'iva', this.value)" 
+                    ${editable ? '' : 'disabled'}>
+            </td>
+            <td>
+                <input type="number" 
+                    class="input-number" 
+                    value="${l.ieps}" 
+                    min="0" 
+                    max="100"
+                    step="0.01" 
+                    style="width:60px"
+                    onchange="actualizarLinea(${i}, 'ieps', this.value)" 
+                    ${editable ? '' : 'disabled'}>
+            </td>
             <td class="importe">${formatMoney(l.importe)}</td>
             <td>${editable ? `<button class="btn-remove" onclick="quitarLinea(${i})"><i class="fas fa-trash"></i></button>` : ''}</td>
         </tr>
@@ -161,20 +239,31 @@ function renderLineas() {
 
 function buscarProductoEnLinea(idx, texto) {
     const dropdown = document.getElementById(`autocomplete-${idx}`);
-    if (texto.length < 2) { dropdown.classList.remove('show'); return; }
+    autocompleteIdx = -1;
     
+    if (texto.length < 1) { 
+        dropdown.classList.remove('show'); 
+        return; 
+    }
+    
+    const textoLower = texto.toLowerCase();
     const resultados = productosData.filter(p => 
-        (p.nombre?.toLowerCase().includes(texto.toLowerCase())) ||
-        (p.codigo_barras?.toLowerCase().includes(texto.toLowerCase())) ||
-        (p.codigo_interno?.toLowerCase().includes(texto.toLowerCase()))
-    ).slice(0, 6);
+        (p.nombre?.toLowerCase().includes(textoLower)) ||
+        (p.codigo_barras?.toLowerCase().includes(textoLower)) ||
+        (p.codigo_interno?.toLowerCase().includes(textoLower))
+    ).slice(0, 8);
     
     if (resultados.length === 0) {
-        dropdown.innerHTML = '<div style="padding:12px;text-align:center;color:#999">No encontrado</div>';
+        dropdown.innerHTML = `<div style="padding:12px;text-align:center;color:var(--gray-400)">
+            No encontrado - <a href="#" onclick="abrirModal('modalProducto'); cerrarAutocomplete(${idx}); return false;" style="color:var(--primary)">Crear nuevo</a>
+        </div>`;
     } else {
-        dropdown.innerHTML = resultados.map(p => `
-            <div class="producto-option" onclick="seleccionarProductoEnLinea(${idx}, '${p.producto_id}')">
-                <div><div class="name">${p.nombre}</div><div class="code">${p.codigo_barras || p.codigo_interno || '-'}</div></div>
+        dropdown.innerHTML = resultados.map((p, i) => `
+            <div class="producto-option" data-option="${i}" onclick="seleccionarProductoEnLinea(${idx}, '${p.producto_id}')">
+                <div class="info">
+                    <div class="name">${p.nombre}</div>
+                    <div class="code">${p.codigo_barras || p.codigo_interno || '-'}</div>
+                </div>
                 <div class="price">${formatMoney(p.costo || p.precio1 || 0)}</div>
             </div>
         `).join('');
@@ -182,44 +271,113 @@ function buscarProductoEnLinea(idx, texto) {
     dropdown.classList.add('show');
 }
 
+function navegarAutocomplete(event, idx) {
+    const dropdown = document.getElementById(`autocomplete-${idx}`);
+    const opciones = dropdown.querySelectorAll('.producto-option');
+    
+    if (!dropdown.classList.contains('show') || opciones.length === 0) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+        }
+        return;
+    }
+    
+    if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        autocompleteIdx = Math.min(autocompleteIdx + 1, opciones.length - 1);
+        actualizarSeleccionAutocomplete(opciones);
+    } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        autocompleteIdx = Math.max(autocompleteIdx - 1, 0);
+        actualizarSeleccionAutocomplete(opciones);
+    } else if (event.key === 'Enter') {
+        event.preventDefault();
+        if (autocompleteIdx >= 0 && opciones[autocompleteIdx]) {
+            opciones[autocompleteIdx].click();
+        }
+    } else if (event.key === 'Escape') {
+        dropdown.classList.remove('show');
+        autocompleteIdx = -1;
+    } else if (event.key === 'Tab') {
+        dropdown.classList.remove('show');
+    }
+}
+
+function actualizarSeleccionAutocomplete(opciones) {
+    opciones.forEach((op, i) => {
+        op.classList.toggle('selected', i === autocompleteIdx);
+    });
+    if (autocompleteIdx >= 0 && opciones[autocompleteIdx]) {
+        opciones[autocompleteIdx].scrollIntoView({ block: 'nearest' });
+    }
+}
+
 function mostrarAutocompletado(idx) {
     const texto = lineasCompra[idx].nombre;
-    if (texto.length >= 2) buscarProductoEnLinea(idx, texto);
+    if (texto.length >= 1) buscarProductoEnLinea(idx, texto);
+}
+
+function cerrarAutocomplete(idx) {
+    document.getElementById(`autocomplete-${idx}`)?.classList.remove('show');
 }
 
 function seleccionarProductoEnLinea(idx, productoId) {
     const p = productosData.find(x => x.producto_id === productoId);
     if (!p) return;
     
+    const cantidad = lineasCompra[idx].cantidad || 1;
+    const costo = parseFloat(p.costo || p.precio1 || 0);
+    const iva = parseFloat(p.iva || 16);
+    const ieps = parseFloat(p.ieps || 0);
+    
     lineasCompra[idx] = {
         producto_id: p.producto_id,
         nombre: p.nombre,
-        codigo: p.codigo_barras || p.codigo_interno,
-        cantidad: lineasCompra[idx].cantidad || 1,
-        unidad: 'Unidades',
-        costo: parseFloat(p.costo || p.precio1 || 0),
-        iva: 16,
+        codigo: p.codigo_barras || p.codigo_interno || '',
+        cantidad: cantidad,
+        unidad: p.unidad_medida || 'PZA',
+        costo: costo,
+        iva: iva,
+        ieps: ieps,
         importe: 0
     };
-    lineasCompra[idx].importe = lineasCompra[idx].cantidad * lineasCompra[idx].costo * (1 + lineasCompra[idx].iva / 100);
     
+    calcularImporteLinea(idx);
     document.getElementById(`autocomplete-${idx}`).classList.remove('show');
+    autocompleteIdx = -1;
     renderLineas();
     
-    // Auto agregar nueva línea si es la última
-    if (idx === lineasCompra.length - 1) agregarLineaVacia();
+    // Focus en cantidad
+    setTimeout(() => {
+        const cantInput = document.getElementById(`cant-input-${idx}`);
+        if (cantInput) {
+            cantInput.focus();
+            cantInput.select();
+        }
+    }, 50);
 }
 
 function actualizarLinea(idx, campo, valor) {
-    if (campo === 'cantidad') lineasCompra[idx].cantidad = parseFloat(valor) || 1;
-    if (campo === 'costo') lineasCompra[idx].costo = parseFloat(valor) || 0;
-    lineasCompra[idx].importe = lineasCompra[idx].cantidad * lineasCompra[idx].costo * (1 + lineasCompra[idx].iva / 100);
-    renderLineas();
+    const val = parseFloat(valor) || 0;
+    if (campo === 'cantidad') lineasCompra[idx].cantidad = val;
+    if (campo === 'costo') lineasCompra[idx].costo = val;
+    if (campo === 'iva') lineasCompra[idx].iva = val;
+    if (campo === 'ieps') lineasCompra[idx].ieps = val;
+    calcularImporteLinea(idx);
+    calcularTotales();
+}
+
+function calcularImporteLinea(idx) {
+    const l = lineasCompra[idx];
+    const subtotal = l.cantidad * l.costo;
+    const ivaAmount = subtotal * (l.iva / 100);
+    const iepsAmount = subtotal * (l.ieps / 100);
+    l.importe = subtotal + ivaAmount + iepsAmount;
 }
 
 function quitarLinea(idx) {
     if (lineasCompra.length === 1) {
-        lineasCompra[0] = { producto_id: '', nombre: '', codigo: '', cantidad: 1, unidad: 'Unidades', costo: 0, iva: 16, importe: 0 };
+        lineasCompra[0] = { producto_id: '', nombre: '', codigo: '', cantidad: 1, unidad: 'PZA', costo: 0, iva: 16, ieps: 0, importe: 0 };
     } else {
         lineasCompra.splice(idx, 1);
     }
@@ -230,10 +388,12 @@ function calcularTotales() {
     const lineasValidas = lineasCompra.filter(l => l.producto_id);
     const subtotal = lineasValidas.reduce((s, l) => s + (l.cantidad * l.costo), 0);
     const iva = lineasValidas.reduce((s, l) => s + (l.cantidad * l.costo * l.iva / 100), 0);
-    const total = subtotal + iva;
+    const ieps = lineasValidas.reduce((s, l) => s + (l.cantidad * l.costo * l.ieps / 100), 0);
+    const total = subtotal + iva + ieps;
     
     document.getElementById('compSubtotal').textContent = formatMoney(subtotal);
     document.getElementById('compIVA').textContent = formatMoney(iva);
+    document.getElementById('compIEPS').textContent = formatMoney(ieps);
     document.getElementById('compTotal').textContent = formatMoney(total);
 }
 
@@ -241,6 +401,7 @@ function calcularTotales() {
 document.addEventListener('click', e => {
     if (!e.target.closest('.producto-cell')) {
         document.querySelectorAll('.producto-autocomplete').forEach(d => d.classList.remove('show'));
+        autocompleteIdx = -1;
     }
 });
 
@@ -249,16 +410,19 @@ document.addEventListener('click', e => {
 function abrirCatalogo() {
     renderCatalogo(productosData.slice(0, 30));
     abrirModal('modalCatalogo');
+    setTimeout(() => document.getElementById('catalogoBuscar').focus(), 100);
 }
 
 function renderCatalogo(productos) {
-    document.getElementById('catalogoGrid').innerHTML = productos.map(p => `
-        <div class="catalog-item" onclick="agregarDesdeCatalogo('${p.producto_id}')">
-            <div class="name">${p.nombre}</div>
-            <div class="code">${p.codigo_barras || p.codigo_interno || '-'}</div>
-            <div class="price">${formatMoney(p.costo || p.precio1 || 0)}</div>
-        </div>
-    `).join('');
+    document.getElementById('catalogoGrid').innerHTML = productos.length === 0 
+        ? '<div style="grid-column:span 3;text-align:center;padding:40px;color:var(--gray-400)">No hay productos</div>'
+        : productos.map(p => `
+            <div class="catalog-item" onclick="agregarDesdeCatalogo('${p.producto_id}')">
+                <div class="name">${p.nombre}</div>
+                <div class="code">${p.codigo_barras || p.codigo_interno || '-'}</div>
+                <div class="price">${formatMoney(p.costo || p.precio1 || 0)}</div>
+            </div>
+        `).join('');
 }
 
 function filtrarCatalogo() {
@@ -274,10 +438,9 @@ function agregarDesdeCatalogo(productoId) {
     const p = productosData.find(x => x.producto_id === productoId);
     if (!p) return;
     
-    // Buscar línea vacía o agregar nueva
     let idx = lineasCompra.findIndex(l => !l.producto_id);
     if (idx === -1) {
-        lineasCompra.push({ producto_id: '', nombre: '', codigo: '', cantidad: 1, unidad: 'Unidades', costo: 0, iva: 16, importe: 0 });
+        lineasCompra.push({ producto_id: '', nombre: '', codigo: '', cantidad: 1, unidad: 'PZA', costo: 0, iva: 16, ieps: 0, importe: 0 });
         idx = lineasCompra.length - 1;
     }
     
@@ -294,10 +457,11 @@ function limpiarFormulario() {
     document.getElementById('compraId').value = '';
     document.getElementById('compProveedor').value = '';
     document.getElementById('compAlmacen').value = almacenesData.length === 1 ? almacenesData[0].almacen_id : '';
-    document.getElementById('compFechaEntrega').value = '';
+    document.getElementById('compFecha').value = new Date().toISOString().split('T')[0];
     document.getElementById('compFechaVencimiento').value = '';
+    document.getElementById('compFactura').value = '';
     document.getElementById('compNotas').value = '';
-    document.getElementById('formTitulo').textContent = 'Nuevo';
+    document.getElementById('compraFolio').textContent = '';
     
     document.getElementById('compProveedor').disabled = false;
     document.getElementById('compAlmacen').disabled = false;
@@ -310,7 +474,7 @@ function limpiarFormulario() {
 function actualizarStatusBar(estatus) {
     document.querySelectorAll('.statusbar .step').forEach(step => {
         step.classList.remove('active', 'done');
-        const estados = ['BORRADOR', 'PENDIENTE', 'PARCIAL', 'RECIBIDA'];
+        const estados = ['BORRADOR', 'CONFIRMADA', 'PAGADA'];
         const idx = estados.indexOf(estatus);
         const stepIdx = estados.indexOf(step.dataset.status);
         if (stepIdx < idx) step.classList.add('done');
@@ -324,9 +488,9 @@ function actualizarBotones() {
     
     document.getElementById('btnGuardar').style.display = estatus === 'BORRADOR' ? '' : 'none';
     document.getElementById('btnConfirmar').style.display = estatus === 'BORRADOR' ? '' : 'none';
-    document.getElementById('btnRecibir').style.display = ['PENDIENTE', 'PARCIAL'].includes(estatus) ? '' : 'none';
-    document.getElementById('btnPago').style.display = saldo > 0 && estatus !== 'CANCELADA' ? '' : 'none';
-    document.getElementById('btnCancelar').style.display = !['CANCELADA', 'RECIBIDA'].includes(estatus) && compraActual ? '' : 'none';
+    document.getElementById('btnPago').style.display = saldo > 0 && !['CANCELADA', 'PAGADA'].includes(estatus) ? '' : 'none';
+    document.getElementById('btnPDF').style.display = compraActual && estatus !== 'BORRADOR' ? '' : 'none';
+    document.getElementById('btnCancelar').style.display = !['CANCELADA', 'PAGADA'].includes(estatus) && compraActual ? '' : 'none';
 }
 
 async function cargarCompraEnFormulario(id) {
@@ -341,10 +505,11 @@ async function cargarCompraEnFormulario(id) {
             document.getElementById('compraId').value = c.compra_id;
             document.getElementById('compProveedor').value = c.proveedor_id || '';
             document.getElementById('compAlmacen').value = c.almacen_id || '';
-            document.getElementById('compFechaEntrega').value = c.fecha_entrega ? c.fecha_entrega.split('T')[0] : '';
+            document.getElementById('compFecha').value = c.fecha ? c.fecha.split('T')[0] : '';
             document.getElementById('compFechaVencimiento').value = c.fecha_vencimiento ? c.fecha_vencimiento.split('T')[0] : '';
+            document.getElementById('compFactura').value = c.factura_proveedor || '';
             document.getElementById('compNotas').value = c.notas || '';
-            document.getElementById('formTitulo').textContent = `${c.serie || 'C'}-${c.folio}`;
+            document.getElementById('compraFolio').textContent = `${c.serie || 'C'}-${c.folio}`;
             
             const editable = c.estatus === 'BORRADOR';
             document.getElementById('compProveedor').disabled = !editable;
@@ -353,15 +518,17 @@ async function cargarCompraEnFormulario(id) {
             lineasCompra = r.productos.map(p => ({
                 producto_id: p.producto_id,
                 nombre: p.producto_nombre || p.descripcion,
-                codigo: p.codigo_barras,
+                codigo: p.codigo_barras || '',
                 cantidad: parseFloat(p.cantidad),
-                cantidad_recibida: parseFloat(p.cantidad_recibida || 0),
-                unidad: 'Unidades',
+                unidad: p.unidad_medida || 'PZA',
                 costo: parseFloat(p.costo_unitario),
-                iva: parseFloat(p.impuesto_pct || 16),
-                importe: parseFloat(p.subtotal) * (1 + parseFloat(p.impuesto_pct || 16) / 100),
+                iva: parseFloat(p.iva_pct || p.impuesto_pct || 16),
+                ieps: parseFloat(p.ieps_pct || 0),
+                importe: 0,
                 detalle_id: p.detalle_id
             }));
+            
+            lineasCompra.forEach((l, i) => calcularImporteLinea(i));
             
             if (editable) agregarLineaVacia();
             
@@ -389,8 +556,9 @@ async function guardarCompra(estatus) {
     if (lineasValidas.length === 0) { toast('Agregue productos', 'error'); return; }
     
     const subtotal = lineasValidas.reduce((s, l) => s + (l.cantidad * l.costo), 0);
-    const impuestos = lineasValidas.reduce((s, l) => s + (l.cantidad * l.costo * l.iva / 100), 0);
-    const total = subtotal + impuestos;
+    const iva = lineasValidas.reduce((s, l) => s + (l.cantidad * l.costo * l.iva / 100), 0);
+    const ieps = lineasValidas.reduce((s, l) => s + (l.cantidad * l.costo * l.ieps / 100), 0);
+    const total = subtotal + iva + ieps;
     
     const id = document.getElementById('compraId').value;
     
@@ -401,36 +569,174 @@ async function guardarCompra(estatus) {
         proveedor_id: proveedor,
         usuario_id: usuarioId,
         tipo: 'COMPRA',
-        fecha_entrega: document.getElementById('compFechaEntrega').value || null,
+        fecha: document.getElementById('compFecha').value || null,
         fecha_vencimiento: document.getElementById('compFechaVencimiento').value || null,
+        factura_proveedor: document.getElementById('compFactura').value,
         notas: document.getElementById('compNotas').value,
-        subtotal, impuestos, total, estatus,
+        subtotal, 
+        impuestos: iva + ieps,
+        iva,
+        ieps,
+        total, 
+        estatus,
         productos: lineasValidas.map(l => ({
             producto_id: l.producto_id,
             descripcion: l.nombre,
             cantidad: l.cantidad,
             costo_unitario: l.costo,
             subtotal: l.cantidad * l.costo,
-            impuesto_pct: l.iva,
-            impuesto_monto: l.cantidad * l.costo * l.iva / 100
+            iva_pct: l.iva,
+            iva_monto: l.cantidad * l.costo * l.iva / 100,
+            ieps_pct: l.ieps,
+            ieps_monto: l.cantidad * l.costo * l.ieps / 100
         }))
     };
     
     try {
         const r = await API.request(id ? `/compras/${id}` : '/compras', id ? 'PUT' : 'POST', data);
         if (r.success) {
-            toast(estatus === 'BORRADOR' ? 'Guardado' : 'Confirmado', 'success');
+            toast(estatus === 'BORRADOR' ? 'Guardado como borrador' : 'Compra confirmada', 'success');
             cargarCompraEnFormulario(id || r.compra_id);
-        } else { toast(r.error || 'Error', 'error'); }
-    } catch (e) { toast('Error', 'error'); }
+        } else { toast(r.error || 'Error al guardar', 'error'); }
+    } catch (e) { toast('Error de conexión', 'error'); }
 }
 
 async function cancelarCompraActual() {
-    if (!compraActual || !confirm('¿Cancelar esta compra?')) return;
+    if (!compraActual || !confirm('¿Cancelar esta compra? Esta acción no se puede deshacer.')) return;
     try {
         const r = await API.request(`/compras/cancelar/${compraActual.compra_id}`, 'PUT');
-        if (r.success) { toast('Cancelada', 'success'); limpiarFormulario(); }
+        if (r.success) { 
+            toast('Compra cancelada', 'success'); 
+            limpiarFormulario(); 
+        }
     } catch (e) { toast('Error', 'error'); }
+}
+
+// ==================== GENERAR PDF ====================
+
+function generarPDF() {
+    if (!compraActual) return;
+    
+    const c = compraActual;
+    const proveedor = proveedoresData.find(p => p.proveedor_id === c.proveedor_id);
+    const lineasValidas = lineasCompra.filter(l => l.producto_id);
+    
+    // Crear contenido HTML para el PDF
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; font-size: 12px; color: #333; padding: 40px; }
+        .header { display: flex; justify-content: space-between; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #2D3DBF; }
+        .logo { font-size: 28px; font-weight: bold; color: #2D3DBF; }
+        .doc-info { text-align: right; }
+        .doc-title { font-size: 20px; font-weight: bold; color: #2D3DBF; }
+        .doc-folio { font-size: 16px; color: #666; margin-top: 4px; }
+        .doc-fecha { font-size: 12px; color: #888; margin-top: 4px; }
+        .section { margin-bottom: 25px; }
+        .section-title { font-size: 11px; font-weight: bold; color: #666; text-transform: uppercase; margin-bottom: 8px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .info-box { background: #f9f9f9; padding: 15px; border-radius: 6px; }
+        .info-label { font-size: 10px; color: #888; text-transform: uppercase; }
+        .info-value { font-size: 13px; font-weight: 500; margin-top: 2px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: #2D3DBF; color: #fff; padding: 10px 12px; text-align: left; font-size: 11px; text-transform: uppercase; }
+        td { padding: 10px 12px; border-bottom: 1px solid #eee; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .totals { margin-top: 20px; display: flex; justify-content: flex-end; }
+        .totals-box { width: 280px; }
+        .total-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+        .total-row.final { border-top: 2px solid #2D3DBF; border-bottom: none; margin-top: 8px; padding-top: 12px; font-size: 16px; font-weight: bold; color: #2D3DBF; }
+        .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #888; font-size: 10px; }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+        .badge-confirmada { background: #fef3c7; color: #d97706; }
+        .badge-pagada { background: #dcfce7; color: #16a34a; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">CAFI POS</div>
+        <div class="doc-info">
+            <div class="doc-title">ORDEN DE COMPRA</div>
+            <div class="doc-folio">${c.serie || 'C'}-${c.folio}</div>
+            <div class="doc-fecha">${formatFecha(c.fecha)}</div>
+            <div style="margin-top:8px"><span class="badge badge-${c.estatus.toLowerCase()}">${c.estatus}</span></div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="info-grid">
+            <div class="info-box">
+                <div class="info-label">Proveedor</div>
+                <div class="info-value">${proveedor?.nombre_comercial || '-'}</div>
+                <div style="font-size:11px;color:#666;margin-top:4px">${proveedor?.rfc || ''}</div>
+                <div style="font-size:11px;color:#666">${proveedor?.direccion || ''}</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">Información de la Compra</div>
+                <div style="margin-top:4px"><span style="color:#888">Factura:</span> ${c.factura_proveedor || '-'}</div>
+                <div><span style="color:#888">Vencimiento:</span> ${c.fecha_vencimiento ? formatFecha(c.fecha_vencimiento) : '-'}</div>
+                <div><span style="color:#888">Almacén:</span> ${almacenesData.find(a => a.almacen_id === c.almacen_id)?.nombre || '-'}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Detalle de Productos</div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:40%">Producto</th>
+                    <th class="text-center">Cantidad</th>
+                    <th class="text-right">Costo Unit.</th>
+                    <th class="text-center">IVA</th>
+                    <th class="text-center">IEPS</th>
+                    <th class="text-right">Importe</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${lineasValidas.map(l => `
+                    <tr>
+                        <td><strong>${l.nombre}</strong><br><span style="font-size:10px;color:#888">${l.codigo || ''}</span></td>
+                        <td class="text-center">${l.cantidad} ${l.unidad}</td>
+                        <td class="text-right">${formatMoney(l.costo)}</td>
+                        <td class="text-center">${l.iva}%</td>
+                        <td class="text-center">${l.ieps}%</td>
+                        <td class="text-right"><strong>${formatMoney(l.importe)}</strong></td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="totals">
+        <div class="totals-box">
+            <div class="total-row"><span>Subtotal:</span><span>${formatMoney(c.subtotal)}</span></div>
+            <div class="total-row"><span>IVA:</span><span>${formatMoney(c.iva || 0)}</span></div>
+            <div class="total-row"><span>IEPS:</span><span>${formatMoney(c.ieps || 0)}</span></div>
+            <div class="total-row final"><span>TOTAL:</span><span>${formatMoney(c.total)}</span></div>
+        </div>
+    </div>
+
+    ${c.notas ? `<div class="section"><div class="section-title">Observaciones</div><p style="background:#f9f9f9;padding:12px;border-radius:6px">${c.notas}</p></div>` : ''}
+
+    <div class="footer">
+        <p>Documento generado por CAFI POS - ${new Date().toLocaleString('es-MX')}</p>
+    </div>
+</body>
+</html>`;
+    
+    // Abrir en nueva ventana para imprimir/guardar como PDF
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    printWindow.onload = () => {
+        printWindow.print();
+    };
 }
 
 // ==================== COMPRAS LIST ====================
@@ -450,6 +756,17 @@ async function cargarCompras() {
         const r = await API.request(`/compras/${empresaId}?${params.toString()}`);
         comprasData = r.success ? r.compras : [];
         comprasFiltradas = [...comprasData];
+        
+        // Stats
+        const total = comprasData.reduce((s, c) => s + parseFloat(c.total || 0), 0);
+        const pendiente = comprasData.reduce((s, c) => s + parseFloat(c.saldo || 0), 0);
+        const pagado = total - pendiente;
+        
+        document.getElementById('statCompras').textContent = comprasData.length;
+        document.getElementById('statTotal').textContent = formatMoney(total);
+        document.getElementById('statPendiente').textContent = formatMoney(pendiente);
+        document.getElementById('statPagado').textContent = formatMoney(pagado);
+        
         renderComprasList();
         renderComprasKanban();
         document.getElementById('totalCompras').textContent = `${comprasData.length} compras`;
@@ -457,34 +774,28 @@ async function cargarCompras() {
     } catch (e) { comprasData = []; }
 }
 
-function filtrarCompras() {
-    const texto = document.getElementById('searchCompras').value.toLowerCase();
-    comprasFiltradas = texto ? comprasData.filter(c => 
-        `${c.serie || 'C'}-${c.folio}`.toLowerCase().includes(texto) ||
-        (c.proveedor_nombre || '').toLowerCase().includes(texto)
-    ) : [...comprasData];
-    renderComprasList();
-    renderComprasKanban();
-}
-
 function renderComprasList() {
     document.getElementById('tablaCompras').innerHTML = comprasFiltradas.map(c => `
-        <tr onclick="cargarCompraEnFormulario('${c.compra_id}')">
-            <td><strong>${c.serie || 'C'}-${c.folio}</strong></td>
+        <tr>
+            <td><strong style="color:var(--primary)">${c.serie || 'C'}-${c.folio}</strong></td>
             <td>${c.proveedor_nombre || '-'}</td>
             <td>${formatFecha(c.fecha)}</td>
+            <td>${c.factura_proveedor || '-'}</td>
             <td class="text-right"><strong>${formatMoney(c.total)}</strong></td>
             <td class="text-right">${parseFloat(c.saldo) > 0 ? `<span style="color:var(--danger)">${formatMoney(c.saldo)}</span>` : '<span style="color:var(--success)">$0.00</span>'}</td>
             <td class="text-center">${getBadge(c.estatus)}</td>
+            <td class="text-center">
+                <button class="btn btn-sm" onclick="cargarCompraEnFormulario('${c.compra_id}')" title="Ver/Editar"><i class="fas fa-eye"></i></button>
+            </td>
         </tr>
     `).join('');
 }
 
 function renderComprasKanban() {
-    const grupos = { BORRADOR: [], PENDIENTE: [], PARCIAL: [], RECIBIDA: [] };
+    const grupos = { BORRADOR: [], CONFIRMADA: [], PAGADA: [] };
     comprasFiltradas.forEach(c => { if (grupos[c.estatus]) grupos[c.estatus].push(c); });
     
-    ['Borrador', 'Pendiente', 'Parcial', 'Recibida'].forEach(s => {
+    ['Borrador', 'Confirmada', 'Pagada'].forEach(s => {
         const status = s.toUpperCase();
         document.getElementById(`k${s}`).innerHTML = grupos[status].map(c => `
             <div class="k-card" onclick="cargarCompraEnFormulario('${c.compra_id}')">
@@ -508,7 +819,7 @@ function cambiarVista(vista) {
 }
 
 function getBadge(estatus) {
-    const m = { BORRADOR: 'gray', PENDIENTE: 'orange', PARCIAL: 'blue', RECIBIDA: 'green', CANCELADA: 'red' };
+    const m = { BORRADOR: 'gray', CONFIRMADA: 'orange', PAGADA: 'green', CANCELADA: 'red' };
     return `<span class="badge badge-${m[estatus] || 'gray'}">${estatus}</span>`;
 }
 
@@ -528,7 +839,7 @@ async function cargarCuentasPagar() {
                     <td class="text-center">${c.num_compras}</td>
                     <td class="text-right"><strong style="color:var(--danger)">${formatMoney(c.saldo_total)}</strong></td>
                     <td class="text-center">${c.proxima_vencimiento ? formatFecha(c.proxima_vencimiento) : '-'}</td>
-                    <td class="text-center"><button class="btn btn-sm" onclick="verComprasProveedor('${c.proveedor_id}')"><i class="fas fa-eye"></i></button></td>
+                    <td class="text-center"><button class="btn btn-sm" onclick="verComprasProveedor('${c.proveedor_id}')"><i class="fas fa-eye"></i> Ver</button></td>
                 </tr>
             `).join('');
         } else {
@@ -562,17 +873,22 @@ async function cargarPagos() {
         const r = await API.request(`/pago-compras/${empresaId}?${params.toString()}`);
         pagosData = r.success ? r.pagos : [];
         pagosFiltrados = [...pagosData];
+        
+        // Stats por método
+        let efectivo = 0, tarjeta = 0, transferencia = 0;
+        pagosData.filter(p => p.estatus === 'APLICADO').forEach(p => {
+            const metodo = (p.metodo_nombre || '').toLowerCase();
+            if (metodo.includes('efectivo')) efectivo += parseFloat(p.monto);
+            else if (metodo.includes('tarjeta')) tarjeta += parseFloat(p.monto);
+            else if (metodo.includes('transferencia')) transferencia += parseFloat(p.monto);
+        });
+        
+        document.getElementById('pagosEfectivo').textContent = formatMoney(efectivo);
+        document.getElementById('pagosTarjeta').textContent = formatMoney(tarjeta);
+        document.getElementById('pagosTransferencia').textContent = formatMoney(transferencia);
+        
         renderPagos();
     } catch (e) { pagosData = []; }
-}
-
-function filtrarPagos() {
-    const texto = document.getElementById('searchPagos').value.toLowerCase();
-    pagosFiltrados = texto ? pagosData.filter(p => 
-        (p.proveedor_nombre || '').toLowerCase().includes(texto) ||
-        (p.referencia || '').toLowerCase().includes(texto)
-    ) : [...pagosData];
-    renderPagos();
 }
 
 function renderPagos() {
@@ -610,47 +926,11 @@ async function cancelarPagoLista(pagoId) {
     if (!confirm('¿Cancelar este pago?')) return;
     try {
         const r = await API.request(`/pago-compras/cancelar/${pagoId}`, 'PUT');
-        if (r.success) { toast('Cancelado', 'success'); cargarPagos(); }
+        if (r.success) { toast('Pago cancelado', 'success'); cargarPagos(); }
     } catch (e) { toast('Error', 'error'); }
 }
 
-// ==================== RECIBIR ====================
-
-function abrirModalRecibir() {
-    if (!compraActual) return;
-    const lineasValidas = lineasCompra.filter(l => l.producto_id);
-    document.getElementById('tablaRecibir').innerHTML = lineasValidas.map(l => {
-        const pendiente = l.cantidad - (l.cantidad_recibida || 0);
-        return `
-            <tr>
-                <td>${l.nombre}</td>
-                <td class="text-center">${l.cantidad}</td>
-                <td class="text-center">${l.cantidad_recibida || 0}</td>
-                <td class="text-center"><input type="number" id="rec_${l.detalle_id}" value="${Math.max(0, pendiente)}" min="0" max="${pendiente}" style="width:80px;text-align:center" ${pendiente <= 0 ? 'disabled' : ''}></td>
-            </tr>
-        `;
-    }).join('');
-    abrirModal('modalRecibir');
-}
-
-async function confirmarRecepcion() {
-    if (!compraActual) return;
-    const lineasValidas = lineasCompra.filter(l => l.producto_id);
-    const productos = lineasValidas.map(l => ({
-        detalle_id: l.detalle_id,
-        cantidad_recibir: parseFloat(document.getElementById(`rec_${l.detalle_id}`)?.value || 0)
-    })).filter(p => p.cantidad_recibir > 0);
-    
-    if (!productos.length) { toast('Ingrese cantidades', 'error'); return; }
-    
-    try {
-        const r = await API.request(`/compras/recibir/${compraActual.compra_id}`, 'POST', { productos, usuario_id: usuarioId });
-        if (r.success) { toast('Recibido', 'success'); cerrarModal('modalRecibir'); cargarCompraEnFormulario(compraActual.compra_id); }
-        else { toast(r.error || 'Error', 'error'); }
-    } catch (e) { toast('Error', 'error'); }
-}
-
-// ==================== PAGO ====================
+// ==================== PAGO MODAL ====================
 
 function abrirModalPago() {
     if (!compraActual) return;
@@ -682,8 +962,118 @@ async function guardarPago() {
             referencia: document.getElementById('pagoReferencia').value,
             usuario_id: usuarioId
         });
-        if (r.success) { toast('Registrado', 'success'); cerrarModal('modalPago'); cargarCompraEnFormulario(compraActual.compra_id); }
-        else { toast(r.error || 'Error', 'error'); }
+        if (r.success) { 
+            toast('Pago registrado', 'success'); 
+            cerrarModal('modalPago'); 
+            cargarCompraEnFormulario(compraActual.compra_id); 
+        } else { toast(r.error || 'Error', 'error'); }
+    } catch (e) { toast('Error', 'error'); }
+}
+
+// ==================== GUARDAR PROVEEDOR ====================
+
+async function guardarProveedor() {
+    const nombre = document.getElementById('provNombre').value.trim();
+    if (!nombre) { toast('Nombre requerido', 'error'); return; }
+    
+    try {
+        const r = await API.request('/proveedores', 'POST', {
+            empresa_id: empresaId,
+            nombre_comercial: nombre,
+            razon_social: document.getElementById('provRazon').value,
+            rfc: document.getElementById('provRFC').value,
+            telefono: document.getElementById('provTelefono').value,
+            email: document.getElementById('provEmail').value,
+            direccion: document.getElementById('provDireccion').value,
+            activo: 'Y'
+        });
+        if (r.success) {
+            toast('Proveedor creado', 'success');
+            cerrarModal('modalProveedor');
+            // Limpiar
+            ['provNombre', 'provRazon', 'provRFC', 'provTelefono', 'provEmail', 'provDireccion'].forEach(id => document.getElementById(id).value = '');
+            await cargarProveedores();
+            document.getElementById('compProveedor').value = r.proveedor_id;
+        } else { toast(r.error || 'Error', 'error'); }
+    } catch (e) { toast('Error', 'error'); }
+}
+
+// ==================== GUARDAR ALMACÉN ====================
+
+async function guardarAlmacen() {
+    const nombre = document.getElementById('almNombre').value.trim();
+    if (!nombre) { toast('Nombre requerido', 'error'); return; }
+    
+    try {
+        const r = await API.request('/almacenes', 'POST', {
+            empresa_id: empresaId,
+            sucursal_id: document.getElementById('almSucursal').value || sucursalId,
+            nombre: nombre,
+            descripcion: document.getElementById('almDescripcion').value
+        });
+        if (r.success) {
+            toast('Almacén creado', 'success');
+            cerrarModal('modalAlmacen');
+            ['almNombre', 'almDescripcion'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('almSucursal').value = '';
+            await cargarAlmacenes();
+            document.getElementById('compAlmacen').value = r.almacen_id;
+        } else { toast(r.error || 'Error', 'error'); }
+    } catch (e) { toast('Error', 'error'); }
+}
+
+// ==================== GUARDAR PRODUCTO ====================
+
+async function guardarProducto() {
+    const nombre = document.getElementById('prodNombre').value.trim();
+    if (!nombre) { toast('Nombre requerido', 'error'); return; }
+    
+    try {
+        const r = await API.request('/productos', 'POST', {
+            empresa_id: empresaId,
+            nombre: nombre,
+            codigo_barras: document.getElementById('prodCodigo').value,
+            codigo_interno: document.getElementById('prodInterno').value,
+            categoria_id: document.getElementById('prodCategoria').value || null,
+            costo: parseFloat(document.getElementById('prodCosto').value) || 0,
+            precio1: parseFloat(document.getElementById('prodPrecio').value) || 0,
+            iva: parseFloat(document.getElementById('prodIVA').value) || 16,
+            ieps: parseFloat(document.getElementById('prodIEPS').value) || 0,
+            activo: 'Y'
+        });
+        if (r.success) {
+            toast('Producto creado', 'success');
+            cerrarModal('modalProducto');
+            ['prodCodigo', 'prodInterno', 'prodNombre', 'prodCosto', 'prodPrecio'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('prodCategoria').value = '';
+            document.getElementById('prodIVA').value = '16';
+            document.getElementById('prodIEPS').value = '0';
+            await cargarProductos();
+        } else { toast(r.error || 'Error', 'error'); }
+    } catch (e) { toast('Error', 'error'); }
+}
+
+// ==================== GUARDAR SUCURSAL ====================
+
+async function guardarSucursal() {
+    const nombre = document.getElementById('sucNombre').value.trim();
+    if (!nombre) { toast('Nombre requerido', 'error'); return; }
+    
+    try {
+        const r = await API.request('/sucursales', 'POST', {
+            empresa_id: empresaId,
+            nombre: nombre,
+            direccion: document.getElementById('sucDireccion').value,
+            telefono: document.getElementById('sucTelefono').value,
+            codigo: document.getElementById('sucCodigo').value,
+            activa: 'Y'
+        });
+        if (r.success) {
+            toast('Sucursal creada', 'success');
+            cerrarModal('modalSucursal');
+            ['sucNombre', 'sucDireccion', 'sucTelefono', 'sucCodigo'].forEach(id => document.getElementById(id).value = '');
+            await cargarSucursales();
+        } else { toast(r.error || 'Error', 'error'); }
     } catch (e) { toast('Error', 'error'); }
 }
 
