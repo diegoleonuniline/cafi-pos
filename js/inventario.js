@@ -1173,3 +1173,10 @@ document.addEventListener('click', (e) => {
         autocompleteIdx = -1;
     }
 });
+function cambiarConceptoAjuste() {
+    // Obtener el tipo del concepto seleccionado (ENTRADA o SALIDA)
+    const select = document.getElementById('ajusteConcepto');
+    const selectedOption = select.options[select.selectedIndex];
+    const tipo = selectedOption ? selectedOption.dataset.tipo : '';
+    console.log('Concepto tipo:', tipo);
+}
