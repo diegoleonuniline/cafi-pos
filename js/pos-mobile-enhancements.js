@@ -208,7 +208,7 @@
         };
     }
     
-    function renderCarritoMobile(tbody) {
+   function renderCarritoMobile(tbody) {
     var html = '';
     
     carrito.forEach(function(item, index) {
@@ -217,19 +217,14 @@
         var importe = precioConDesc * item.cantidad;
         var esGranel = item.esGranel || ['KG', 'GR', 'LT', 'ML', 'MT'].indexOf((item.unidad || 'PZ').toUpperCase()) >= 0;
         var cantidadDisplay = esGranel ? item.cantidad.toFixed(3) : Math.round(item.cantidad);
-        
-        // Formatear con separador de miles
-        var importeFormateado = importe.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        var importeFormateado = '$' + importe.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         
         html += '<tr data-index="' + index + '">' +
             '<td class="mobile-card" colspan="7">' +
                 '<div class="card-img"><i class="fas fa-box"></i></div>' +
-                '<div class="card-content">' +
-                    '<div class="card-header-row">' +
-                        '<div class="card-name">' + escapeHtml(item.nombre) + '</div>' +
-                        '<div class="card-total">$' + importeFormateado + '</div>' +
-                    '</div>' +
-                    '<div class="card-price">$' + item.precio.toFixed(2) + ' / ' + (item.unidad || 'PZ') + 
+                '<div class="card-info">' +
+                    '<div class="card-name">' + escapeHtml(item.nombre) + '</div>' +
+                    '<div class="card-price">$' + item.precio.toFixed(2) + ' / ' + (item.unidad || 'pza').toLowerCase() + 
                         (tieneDescuento ? ' <span style="color:#ef4444">-' + item.descuento + '%</span>' : '') + '</div>' +
                     '<div class="card-qty-row">' +
                         (esGranel ? 
@@ -242,7 +237,7 @@
                         ) +
                     '</div>' +
                 '</div>' +
-                '<button class="card-delete" onclick="eliminarDelCarritoMobile(\'' + item.producto_id + '\')"><i class="fas fa-trash"></i></button>' +
+                '<div class="card-total">' + importeFormateado + '</div>' +
             '</td>' +
         '</tr>';
     });
