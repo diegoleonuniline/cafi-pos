@@ -9,9 +9,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="cafi-layout">
+    <div class="app-layout">
         <!-- Sidebar -->
-        <aside class="cafi-sidebar">
+        <aside class="sidebar">
             <div class="sidebar-brand">
                 <svg viewBox="0 0 500 500" width="32" height="32">
                     <g transform="translate(0,500) scale(0.1,-0.1)">
@@ -21,7 +21,7 @@
                 </svg>
                 <span>CAFI</span>
             </div>
-            <nav class="sidebar-menu">
+            <nav class="sidebar-nav">
                 <a href="pos.html"><i class="fas fa-cash-register"></i><span>Punto de Venta</span></a>
                 <a href="admin.html"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
                 <a href="productos.html"><i class="fas fa-box"></i><span>Productos</span></a>
@@ -32,131 +32,142 @@
                 <a href="gastos.html"><i class="fas fa-money-bill-wave"></i><span>Gastos</span></a>
                 <a href="configuracion.html"><i class="fas fa-cog"></i><span>Configuración</span></a>
             </nav>
-            <div class="sidebar-user">
+            <div class="sidebar-footer">
                 <div class="user-avatar" id="userAvatar">US</div>
                 <div class="user-info">
                     <span id="userName">Usuario</span>
                     <small id="userSucursal">Sucursal</small>
                 </div>
-                <button onclick="API.logout()" title="Cerrar sesión"><i class="fas fa-sign-out-alt"></i></button>
+                <button onclick="API.logout()"><i class="fas fa-sign-out-alt"></i></button>
             </div>
         </aside>
 
         <!-- Main -->
-        <main class="cafi-main">
-            <!-- Header con Tabs principales -->
-            <div class="cafi-header">
-                <div class="cafi-tabs-main">
-                    <button class="tab-main active" data-tab="crear"><i class="fas fa-plus-circle"></i> Crear Compra</button>
-                    <button class="tab-main" data-tab="compras"><i class="fas fa-list"></i> Compras</button>
-                    <button class="tab-main" data-tab="cuentas"><i class="fas fa-hand-holding-usd"></i> Cuentas por Pagar</button>
-                    <button class="tab-main" data-tab="pagos"><i class="fas fa-money-check-alt"></i> Pagos Realizados</button>
+        <main class="main-content">
+            <!-- Tabs Header -->
+            <div class="tabs-header">
+                <div class="tabs-nav">
+                    <button class="tab-btn active" data-tab="crear"><i class="fas fa-plus-circle"></i> Crear Compra</button>
+                    <button class="tab-btn" data-tab="compras"><i class="fas fa-list"></i> Compras</button>
+                    <button class="tab-btn" data-tab="cuentas"><i class="fas fa-hand-holding-usd"></i> Cuentas por Pagar</button>
+                    <button class="tab-btn" data-tab="pagos"><i class="fas fa-money-check-alt"></i> Pagos Realizados</button>
                 </div>
             </div>
 
             <!-- ==================== TAB: CREAR COMPRA ==================== -->
-            <div class="tab-content active" id="tab-crear">
-                <div class="form-container">
+            <div class="tab-panel active" id="panel-crear">
+                <div class="form-card">
                     <input type="hidden" id="compraId">
                     
                     <!-- Status Bar -->
-                    <div class="form-statusbar">
-                        <div class="statusbar-buttons">
-                            <button class="btn btn-primary" id="btnGuardarBorrador" onclick="guardarCompra('BORRADOR')"><i class="fas fa-save"></i> Guardar Borrador</button>
-                            <button class="btn btn-success" id="btnConfirmar" onclick="guardarCompra('PENDIENTE')"><i class="fas fa-check"></i> Confirmar Compra</button>
-                            <button class="btn" id="btnRecibir" onclick="abrirModalRecibir()" style="display:none"><i class="fas fa-box-open"></i> Recibir</button>
-                            <button class="btn" id="btnPagoForm" onclick="abrirModalPago()" style="display:none"><i class="fas fa-dollar-sign"></i> Pagar</button>
-                            <button class="btn btn-danger" id="btnCancelarCompra" onclick="cancelarCompraActual()" style="display:none"><i class="fas fa-ban"></i> Cancelar</button>
-                        </div>
-                        <div class="statusbar-status">
-                            <span class="status-step" data-status="BORRADOR">Borrador</span>
-                            <span class="status-arrow">→</span>
-                            <span class="status-step" data-status="PENDIENTE">Pendiente</span>
-                            <span class="status-arrow">→</span>
-                            <span class="status-step" data-status="PARCIAL">Parcial</span>
-                            <span class="status-arrow">→</span>
-                            <span class="status-step" data-status="RECIBIDA">Recibida</span>
+                    <div class="statusbar">
+                        <div class="statusbar-steps">
+                            <span class="step active" data-status="BORRADOR">Borrador</span>
+                            <span class="step-arrow">→</span>
+                            <span class="step" data-status="PENDIENTE">Pendiente</span>
+                            <span class="step-arrow">→</span>
+                            <span class="step" data-status="PARCIAL">Parcial</span>
+                            <span class="step-arrow">→</span>
+                            <span class="step" data-status="RECIBIDA">Recibida</span>
                         </div>
                     </div>
 
-                    <!-- Título -->
-                    <div class="form-title">
-                        <h1 id="formTitulo">Nueva Compra</h1>
-                        <button class="btn btn-link" onclick="limpiarFormulario()"><i class="fas fa-plus"></i> Nuevo</button>
+                    <!-- Title Row -->
+                    <div class="form-title-row">
+                        <h1 id="formTitulo">Nuevo</h1>
+                        <a href="#" class="link-nuevo" onclick="limpiarFormulario(); return false;"><i class="fas fa-plus"></i> Nuevo</a>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons" id="actionButtons">
+                        <button class="btn btn-primary" id="btnConfirmar" onclick="guardarCompra('PENDIENTE')"><i class="fas fa-check"></i> Confirmar</button>
+                        <button class="btn" id="btnGuardar" onclick="guardarCompra('BORRADOR')"><i class="fas fa-save"></i> Guardar</button>
+                        <button class="btn" id="btnRecibir" onclick="abrirModalRecibir()" style="display:none"><i class="fas fa-box-open"></i> Recibir</button>
+                        <button class="btn" id="btnPago" onclick="abrirModalPago()" style="display:none"><i class="fas fa-dollar-sign"></i> Pagar</button>
+                        <button class="btn btn-danger" id="btnCancelar" onclick="cancelarCompraActual()" style="display:none"><i class="fas fa-ban"></i> Cancelar</button>
                     </div>
 
                     <!-- Campos principales -->
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Proveedor *</label>
+                    <div class="fields-grid">
+                        <div class="field">
+                            <label>Proveedor <span class="required">*</span></label>
                             <select id="compProveedor" required><option value="">Seleccionar proveedor...</option></select>
                         </div>
-                        <div class="form-group">
-                            <label>Almacén Destino *</label>
+                        <div class="field">
+                            <label>Almacén Destino <span class="required">*</span></label>
                             <select id="compAlmacen" required><option value="">Seleccionar almacén...</option></select>
                         </div>
-                        <div class="form-group">
+                        <div class="field">
                             <label>Fecha Entrega</label>
                             <input type="date" id="compFechaEntrega">
                         </div>
-                        <div class="form-group">
+                        <div class="field">
                             <label>Fecha Vencimiento Pago</label>
                             <input type="date" id="compFechaVencimiento">
                         </div>
                     </div>
 
-                    <!-- Productos -->
-                    <div class="form-section">
-                        <h3><i class="fas fa-boxes"></i> Productos</h3>
-                        <div class="productos-search">
-                            <i class="fas fa-search"></i>
-                            <input type="text" id="buscarProducto" placeholder="Buscar producto por nombre o código..." autocomplete="off">
-                            <div class="autocomplete-dropdown" id="autocompleteProductos"></div>
+                    <!-- Notebook Tabs -->
+                    <div class="notebook">
+                        <div class="notebook-tabs">
+                            <button class="nb-tab active" data-nbtab="lineas">Líneas de la orden</button>
+                            <button class="nb-tab" data-nbtab="info">Otra información</button>
                         </div>
-                        <div class="productos-table-wrapper">
-                            <table class="productos-table">
+
+                        <!-- Tab Líneas -->
+                        <div class="nb-panel active" id="nb-lineas">
+                            <table class="lines-table">
                                 <thead>
                                     <tr>
-                                        <th>Producto</th>
-                                        <th style="width:100px">Cantidad</th>
-                                        <th style="width:120px">Costo Unit.</th>
-                                        <th style="width:80px">IVA %</th>
-                                        <th style="width:120px" class="text-right">Subtotal</th>
-                                        <th style="width:40px"></th>
+                                        <th class="col-producto">Producto</th>
+                                        <th class="col-cantidad">Cantidad</th>
+                                        <th class="col-unidad">Unidad</th>
+                                        <th class="col-precio">Precio unitario</th>
+                                        <th class="col-impuesto">Impuestos</th>
+                                        <th class="col-importe">Importe</th>
+                                        <th class="col-actions"></th>
                                     </tr>
                                 </thead>
-                                <tbody id="tablaProductosCompra"></tbody>
+                                <tbody id="tablaLineas"></tbody>
                             </table>
-                            <div class="productos-empty" id="emptyProducts">
-                                <i class="fas fa-cart-plus"></i>
-                                <p>Busca y agrega productos a la compra</p>
+
+                            <!-- Links estilo Odoo -->
+                            <div class="lines-actions">
+                                <a href="#" class="line-link" onclick="agregarLineaVacia(); return false;">Agregar un producto</a>
+                                <a href="#" class="line-link" onclick="abrirCatalogo(); return false;">Catálogo</a>
+                            </div>
+
+                            <!-- Totales -->
+                            <div class="totals-section">
+                                <div class="totals-box">
+                                    <div class="total-row"><span>Subtotal:</span><span id="compSubtotal">$0.00</span></div>
+                                    <div class="total-row"><span>IVA:</span><span id="compIVA">$0.00</span></div>
+                                    <div class="total-row total"><span>Total:</span><span id="compTotal">$0.00</span></div>
+                                </div>
                             </div>
                         </div>
-                        <div class="form-totals">
-                            <div class="total-row"><span>Subtotal:</span><span id="compSubtotal">$0.00</span></div>
-                            <div class="total-row"><span>IVA:</span><span id="compIVA">$0.00</span></div>
-                            <div class="total-row total"><span>TOTAL:</span><span id="compTotal">$0.00</span></div>
-                        </div>
-                    </div>
 
-                    <!-- Notas -->
-                    <div class="form-section">
-                        <h3><i class="fas fa-sticky-note"></i> Notas</h3>
-                        <textarea id="compNotas" rows="3" placeholder="Observaciones o términos..."></textarea>
+                        <!-- Tab Info -->
+                        <div class="nb-panel" id="nb-info">
+                            <div class="field full">
+                                <label>Notas / Términos</label>
+                                <textarea id="compNotas" rows="4" placeholder="Observaciones internas..."></textarea>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- ==================== TAB: COMPRAS ==================== -->
-            <div class="tab-content" id="tab-compras">
+            <div class="tab-panel" id="panel-compras">
                 <div class="panel-toolbar">
-                    <div class="toolbar-search">
+                    <div class="search-box">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="searchCompras" placeholder="Buscar compra..." onkeyup="filtrarCompras()">
+                        <input type="text" id="searchCompras" placeholder="Buscar..." onkeyup="filtrarCompras()">
                     </div>
-                    <div class="toolbar-filters">
+                    <div class="filters">
                         <input type="date" id="filtroDesde" onchange="cargarCompras()">
-                        <span>a</span>
+                        <span class="filter-sep">a</span>
                         <input type="date" id="filtroHasta" onchange="cargarCompras()">
                         <select id="filtroProveedor" onchange="cargarCompras()"><option value="">Proveedor</option></select>
                         <select id="filtroEstatus" onchange="cargarCompras()">
@@ -168,14 +179,14 @@
                             <option value="CANCELADA">Cancelada</option>
                         </select>
                     </div>
-                    <div class="toolbar-views">
-                        <button class="view-btn active" data-view="list" onclick="cambiarVistaCompras('list')"><i class="fas fa-list"></i></button>
-                        <button class="view-btn" data-view="kanban" onclick="cambiarVistaCompras('kanban')"><i class="fas fa-th-large"></i></button>
+                    <div class="view-switch">
+                        <button class="vs-btn active" data-view="list" onclick="cambiarVista('list')"><i class="fas fa-list"></i></button>
+                        <button class="vs-btn" data-view="kanban" onclick="cambiarVista('kanban')"><i class="fas fa-th-large"></i></button>
                     </div>
                 </div>
 
-                <!-- Vista Lista -->
-                <div class="view-content active" id="view-list">
+                <!-- Lista -->
+                <div class="view-panel active" id="view-list">
                     <table class="data-table">
                         <thead>
                             <tr>
@@ -185,58 +196,49 @@
                                 <th class="text-right">Total</th>
                                 <th class="text-right">Saldo</th>
                                 <th class="text-center">Estado</th>
-                                <th class="text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="tablaCompras"></tbody>
                     </table>
-                    <div class="empty-state" id="emptyCompras">
-                        <i class="fas fa-inbox"></i>
-                        <p>No hay compras</p>
-                    </div>
+                    <div class="empty-state" id="emptyCompras"><i class="fas fa-inbox"></i><p>No hay compras</p></div>
                 </div>
 
-                <!-- Vista Kanban -->
-                <div class="view-content" id="view-kanban">
+                <!-- Kanban -->
+                <div class="view-panel" id="view-kanban">
                     <div class="kanban-board">
-                        <div class="kanban-column" data-status="BORRADOR">
-                            <div class="kanban-header"><span class="dot gray"></span>Borrador <span class="count" id="countBorrador">0</span></div>
-                            <div class="kanban-cards" id="kanbanBorrador"></div>
+                        <div class="kanban-col">
+                            <div class="kanban-header"><span class="dot gray"></span>Borrador <span class="count" id="cntBorrador">0</span></div>
+                            <div class="kanban-body" id="kBorrador"></div>
                         </div>
-                        <div class="kanban-column" data-status="PENDIENTE">
-                            <div class="kanban-header"><span class="dot orange"></span>Pendiente <span class="count" id="countPendiente">0</span></div>
-                            <div class="kanban-cards" id="kanbanPendiente"></div>
+                        <div class="kanban-col">
+                            <div class="kanban-header"><span class="dot orange"></span>Pendiente <span class="count" id="cntPendiente">0</span></div>
+                            <div class="kanban-body" id="kPendiente"></div>
                         </div>
-                        <div class="kanban-column" data-status="PARCIAL">
-                            <div class="kanban-header"><span class="dot blue"></span>Parcial <span class="count" id="countParcial">0</span></div>
-                            <div class="kanban-cards" id="kanbanParcial"></div>
+                        <div class="kanban-col">
+                            <div class="kanban-header"><span class="dot blue"></span>Parcial <span class="count" id="cntParcial">0</span></div>
+                            <div class="kanban-body" id="kParcial"></div>
                         </div>
-                        <div class="kanban-column" data-status="RECIBIDA">
-                            <div class="kanban-header"><span class="dot green"></span>Recibida <span class="count" id="countRecibida">0</span></div>
-                            <div class="kanban-cards" id="kanbanRecibida"></div>
+                        <div class="kanban-col">
+                            <div class="kanban-header"><span class="dot green"></span>Recibida <span class="count" id="cntRecibida">0</span></div>
+                            <div class="kanban-body" id="kRecibida"></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="panel-footer">
-                    <span id="totalCompras">0 compras</span>
-                </div>
+                <div class="panel-footer"><span id="totalCompras">0 compras</span></div>
             </div>
 
             <!-- ==================== TAB: CUENTAS POR PAGAR ==================== -->
-            <div class="tab-content" id="tab-cuentas">
+            <div class="tab-panel" id="panel-cuentas">
                 <div class="panel-toolbar">
-                    <div class="toolbar-title">
-                        <i class="fas fa-hand-holding-usd"></i>
-                        <h2>Cuentas por Pagar a Proveedores</h2>
-                    </div>
-                    <button class="btn" onclick="cargarCuentasPagar()"><i class="fas fa-sync"></i> Actualizar</button>
+                    <div class="toolbar-title"><i class="fas fa-hand-holding-usd"></i><h3>Cuentas por Pagar</h3></div>
+                    <button class="btn" onclick="cargarCuentasPagar()"><i class="fas fa-sync"></i></button>
                 </div>
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th>Proveedor</th>
-                            <th class="text-center">Compras Pendientes</th>
+                            <th class="text-center">Compras</th>
                             <th class="text-right">Saldo Total</th>
                             <th class="text-center">Próx. Vencimiento</th>
                             <th class="text-center">Acciones</th>
@@ -244,24 +246,21 @@
                     </thead>
                     <tbody id="tablaCuentas"></tbody>
                 </table>
-                <div class="empty-state" id="emptyCuentas">
-                    <i class="fas fa-check-circle"></i>
-                    <p>No hay cuentas pendientes</p>
-                </div>
+                <div class="empty-state" id="emptyCuentas"><i class="fas fa-check-circle"></i><p>No hay cuentas pendientes</p></div>
             </div>
 
-            <!-- ==================== TAB: PAGOS REALIZADOS ==================== -->
-            <div class="tab-content" id="tab-pagos">
+            <!-- ==================== TAB: PAGOS ==================== -->
+            <div class="tab-panel" id="panel-pagos">
                 <div class="panel-toolbar">
-                    <div class="toolbar-search">
+                    <div class="search-box">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="searchPagos" placeholder="Buscar pago..." onkeyup="filtrarPagos()">
+                        <input type="text" id="searchPagos" placeholder="Buscar..." onkeyup="filtrarPagos()">
                     </div>
-                    <div class="toolbar-filters">
-                        <input type="date" id="filtroPagosDesde" onchange="cargarPagosRealizados()">
-                        <span>a</span>
-                        <input type="date" id="filtroPagosHasta" onchange="cargarPagosRealizados()">
-                        <select id="filtroPagosProveedor" onchange="cargarPagosRealizados()"><option value="">Proveedor</option></select>
+                    <div class="filters">
+                        <input type="date" id="filtroPagosDesde" onchange="cargarPagos()">
+                        <span class="filter-sep">a</span>
+                        <input type="date" id="filtroPagosHasta" onchange="cargarPagos()">
+                        <select id="filtroPagosProveedor" onchange="cargarPagos()"><option value="">Proveedor</option></select>
                     </div>
                 </div>
                 <table class="data-table">
@@ -274,21 +273,35 @@
                             <th>Referencia</th>
                             <th class="text-right">Monto</th>
                             <th class="text-center">Estado</th>
-                            <th class="text-center">Acciones</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody id="tablaPagos"></tbody>
                 </table>
-                <div class="empty-state" id="emptyPagos">
-                    <i class="fas fa-money-check-alt"></i>
-                    <p>No hay pagos registrados</p>
-                </div>
+                <div class="empty-state" id="emptyPagos"><i class="fas fa-money-check-alt"></i><p>No hay pagos</p></div>
                 <div class="panel-footer">
                     <span id="totalPagos">0 pagos</span>
-                    <span id="sumaPagos">Total: $0.00</span>
+                    <span id="sumaPagos" class="total-sum">Total: $0.00</span>
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Modal Catálogo -->
+    <div class="modal-overlay" id="modalCatalogo">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3><i class="fas fa-boxes"></i> Catálogo de Productos</h3>
+                <button class="modal-close" onclick="cerrarModal('modalCatalogo')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="catalog-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="catalogoBuscar" placeholder="Buscar producto..." oninput="filtrarCatalogo()">
+                </div>
+                <div class="catalog-grid" id="catalogoGrid"></div>
+            </div>
+        </div>
     </div>
 
     <!-- Modal Recibir -->
@@ -300,14 +313,7 @@
             </div>
             <div class="modal-body">
                 <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Producto</th>
-                            <th class="text-center">Pedido</th>
-                            <th class="text-center">Recibido</th>
-                            <th class="text-center">Recibir Ahora</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Producto</th><th class="text-center">Pedido</th><th class="text-center">Recibido</th><th class="text-center">Recibir</th></tr></thead>
                     <tbody id="tablaRecibir"></tbody>
                 </table>
             </div>
@@ -326,11 +332,11 @@
                 <button class="modal-close" onclick="cerrarModal('modalPago')"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
-                <div class="pago-saldo">Saldo pendiente: <strong id="pagoSaldo">$0.00</strong></div>
-                <div class="form-group"><label>Monto *</label><input type="number" id="pagoMonto" step="0.01"></div>
-                <div class="form-group"><label>Método de Pago *</label><select id="pagoMetodo"><option value="">Seleccionar...</option></select></div>
-                <div class="form-group"><label>Cuenta Bancaria</label><select id="pagoCuenta"><option value="">Sin cuenta</option></select></div>
-                <div class="form-group"><label>Referencia</label><input type="text" id="pagoReferencia" placeholder="No. cheque, transferencia..."></div>
+                <div class="pago-saldo">Saldo: <strong id="pagoSaldo">$0.00</strong></div>
+                <div class="field"><label>Monto *</label><input type="number" id="pagoMonto" step="0.01"></div>
+                <div class="field"><label>Método *</label><select id="pagoMetodo"><option value="">Seleccionar...</option></select></div>
+                <div class="field"><label>Cuenta</label><select id="pagoCuenta"><option value="">Sin cuenta</option></select></div>
+                <div class="field"><label>Referencia</label><input type="text" id="pagoReferencia" placeholder="No. cheque, transferencia..."></div>
             </div>
             <div class="modal-footer">
                 <button class="btn" onclick="cerrarModal('modalPago')">Cancelar</button>
