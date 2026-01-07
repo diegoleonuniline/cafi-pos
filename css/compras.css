@@ -166,9 +166,9 @@ body {
 .tab-btn:hover { background: var(--gray-100); color: var(--gray-700); }
 
 .tab-btn.active {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
     color: #fff;
-    box-shadow: 0 4px 12px rgba(45, 61, 191, 0.3);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
 /* ============================================
@@ -220,24 +220,25 @@ body {
 }
 
 .step {
-    font-size: 12px;
-    color: var(--gray-400);
+    font-size: 13px;
+    color: var(--gray-500);
     font-weight: 500;
-    padding: 6px 14px;
-    border-radius: 20px;
-    background: var(--gray-100);
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: transparent;
     transition: all 0.2s;
 }
 
 .step.active {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
     color: #fff;
-    box-shadow: 0 2px 8px rgba(45, 61, 191, 0.3);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
 .step.done { 
-    background: var(--success); 
-    color: #fff; 
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: #fff;
+    opacity: 0.7;
 }
 
 .step-arrow { 
@@ -293,15 +294,15 @@ body {
     background: var(--gray-100);
     border: 1px solid var(--gray-300);
     border-radius: var(--radius);
-    color: var(--primary);
+    color: #6366f1;
     cursor: pointer;
     transition: all 0.2s;
 }
 
 .field-with-btn .btn-add-inline:hover {
-    background: var(--primary);
+    background: #6366f1;
     color: #fff;
-    border-color: var(--primary);
+    border-color: #6366f1;
 }
 
 .field input,
@@ -319,8 +320,8 @@ body {
 .field select:focus,
 .field textarea:focus {
     outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(45, 61, 191, 0.1);
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 .field input:disabled,
@@ -389,10 +390,10 @@ body {
 
 .lines-table input:focus,
 .lines-table select:focus {
-    border-color: var(--primary);
+    border-color: #6366f1;
     background: #fff;
     outline: none;
-    box-shadow: 0 0 0 2px rgba(45, 61, 191, 0.1);
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
 }
 
 .lines-table .input-number { text-align: right; }
@@ -490,7 +491,7 @@ body {
 }
 
 .line-link {
-    color: var(--primary);
+    color: #6366f1;
     text-decoration: none;
     font-size: 13px;
     font-weight: 500;
@@ -589,8 +590,8 @@ body {
 .filter-item input:focus,
 .filter-item select:focus {
     outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(45, 61, 191, 0.1);
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 .btn-filtrar {
@@ -598,7 +599,7 @@ body {
     align-items: center;
     gap: 8px;
     padding: 8px 16px;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
     color: #fff;
     border: none;
     border-radius: var(--radius);
@@ -610,7 +611,7 @@ body {
 
 .btn-filtrar:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(45, 61, 191, 0.3);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
 .toolbar-actions {
@@ -802,7 +803,7 @@ body {
     box-shadow: var(--shadow-sm);
     cursor: pointer;
     transition: all 0.2s;
-    border-left: 3px solid var(--primary);
+    border-left: 3px solid #6366f1;
 }
 
 .k-card:hover { 
@@ -810,7 +811,7 @@ body {
     transform: translateY(-2px); 
 }
 
-.k-card-title { font-weight: 600; color: var(--primary); margin-bottom: 4px; }
+.k-card-title { font-weight: 600; color: #6366f1; margin-bottom: 4px; }
 .k-card-subtitle { font-size: 13px; color: var(--gray-600); margin-bottom: 10px; }
 .k-card-footer { 
     display: flex; 
@@ -848,14 +849,14 @@ body {
 .btn-sm { padding: 7px 12px; font-size: 12px; }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
     border: none;
     color: #fff;
 }
 
 .btn-primary:hover {
     transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
 .btn-success {
@@ -883,8 +884,8 @@ body {
 }
 
 .btn-outline:hover {
-    border-color: var(--primary);
-    color: var(--primary);
+    border-color: #6366f1;
+    color: #6366f1;
 }
 
 .btn-export,
@@ -909,7 +910,7 @@ body {
 }
 
 .btn-export i { color: var(--success); }
-.btn-print i { color: var(--primary); }
+.btn-print i { color: #6366f1; }
 
 /* View Switch */
 .view-switch {
@@ -930,7 +931,7 @@ body {
 
 .vs-btn:hover { background: var(--gray-100); }
 .vs-btn.active { 
-    background: var(--primary); 
+    background: #6366f1; 
     color: #fff; 
 }
 
@@ -978,7 +979,7 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 16px 20px;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
     color: #fff;
 }
 
@@ -1049,8 +1050,8 @@ body {
 .modal-field select:focus,
 .modal-field textarea:focus {
     outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(45, 61, 191, 0.1);
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 .modal-field-row {
@@ -1110,13 +1111,13 @@ body {
 }
 
 .catalog-item:hover { 
-    border-color: var(--primary); 
-    background: rgba(45, 61, 191, 0.05); 
+    border-color: #6366f1; 
+    background: rgba(99, 102, 241, 0.05); 
 }
 
 .catalog-item .name { font-weight: 500; margin-bottom: 4px; }
 .catalog-item .code { font-size: 11px; color: var(--gray-500); }
-.catalog-item .price { font-weight: 600; color: var(--primary); margin-top: 8px; }
+.catalog-item .price { font-weight: 600; color: #6366f1; margin-top: 8px; }
 
 /* ============================================
    PANEL FOOTER
@@ -1133,7 +1134,7 @@ body {
     color: var(--gray-600);
 }
 
-.total-sum { font-weight: 600; color: var(--primary); }
+.total-sum { font-weight: 600; color: #6366f1; }
 
 /* ============================================
    EMPTY STATE
