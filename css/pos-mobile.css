@@ -949,16 +949,110 @@
     
     .productos-table tbody tr {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
-        gap: 12px;
-        padding: 10px 12px;
+        gap: 6px 12px;
+        padding: 12px 14px;
         background: #fff;
         border: 1px solid #e5e7eb;
         border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        cursor: pointer;
+    }
+    
+    .productos-table tbody tr:active {
+        background: #f9fafb;
     }
     
     .productos-table .producto-img {
         display: none !important;
+    }
+    
+    /* Ocultar celdas individuales desktop */
+    .productos-table tbody td {
+        display: none !important;
+    }
+    
+    /* Celda móvil card */
+    .productos-table tbody td.mobile-producto-card {
+        display: flex !important;
+        width: 100%;
+        align-items: center;
+        gap: 10px;
+        padding: 0;
+        border: none;
+        background: transparent;
+    }
+    
+    .mobile-producto-card .producto-info {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .mobile-producto-card .producto-nombre {
+        font-size: 14px;
+        font-weight: 600;
+        color: #111827;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 2px;
+    }
+    
+    .mobile-producto-card .producto-meta {
+        font-size: 12px;
+        color: #6b7280;
+    }
+    
+    .mobile-producto-card .producto-meta .codigo {
+        color: #9ca3af;
+    }
+    
+    .mobile-producto-card .producto-precio {
+        font-size: 16px;
+        font-weight: 700;
+        color: #10b981;
+        white-space: nowrap;
+    }
+    
+    /* Fallback si no hay celda móvil - mostrar datos inline */
+    .productos-table tbody tr td:nth-child(2),
+    .productos-table tbody tr td:nth-child(3),
+    .productos-table tbody tr td:nth-child(4),
+    .productos-table tbody tr td:nth-child(5) {
+        display: block !important;
+    }
+    
+    .productos-table tbody tr td:nth-child(2) {
+        font-size: 11px;
+        color: #9ca3af;
+        order: 2;
+    }
+    
+    .productos-table tbody tr td:nth-child(3) {
+        flex: 1;
+        font-size: 14px;
+        font-weight: 600;
+        color: #111827;
+        order: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+    }
+    
+    .productos-table tbody tr td:nth-child(4) {
+        font-size: 11px;
+        color: #6b7280;
+        order: 3;
+    }
+    
+    .productos-table tbody tr td:nth-child(5) {
+        font-size: 15px;
+        font-weight: 700;
+        color: #10b981;
+        order: 4;
+        margin-left: auto;
     }
     
     /* Modal Cobro */
