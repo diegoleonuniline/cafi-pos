@@ -231,7 +231,7 @@ body {
     background: var(--white);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow);
-    overflow: hidden;
+    overflow: visible;
 }
 
 .tab-panel { display: none; }
