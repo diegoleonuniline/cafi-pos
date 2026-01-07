@@ -185,12 +185,6 @@
                             </div>
                             <button class="btn-filtrar" onclick="cargarCompras()"><i class="fas fa-search"></i> Buscar</button>
                         </div>
-                        <div class="toolbar-actions">
-                            <div class="view-switch">
-                                <button class="vs-btn active" data-view="list" onclick="cambiarVista('list')"><i class="fas fa-list"></i></button>
-                                <button class="vs-btn" data-view="kanban" onclick="cambiarVista('kanban')"><i class="fas fa-th-large"></i></button>
-                            </div>
-                        </div>
                     </div>
 
                     <div class="panel-stats-row">
@@ -200,45 +194,24 @@
                         <div class="mini-stat purple"><i class="fas fa-check-circle"></i><div><span id="statPagado">$0</span><small>Pagado</small></div></div>
                     </div>
 
-                    <!-- Vista Lista -->
-                    <div class="view-panel active" id="view-list">
-                        <div class="panel-table">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Folio</th>
-                                        <th>Proveedor</th>
-                                        <th>Fecha</th>
-                                        <th>Factura</th>
-                                        <th class="text-right">Total</th>
-                                        <th class="text-right">Saldo</th>
-                                        <th class="text-center">Estado</th>
-                                        <th class="text-center">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tablaCompras"></tbody>
-                            </table>
-                        </div>
-                        <div class="empty-state" id="emptyCompras"><i class="fas fa-inbox"></i><p>No hay compras registradas</p></div>
+                    <div class="panel-table">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Folio</th>
+                                    <th>Proveedor</th>
+                                    <th>Fecha</th>
+                                    <th>Factura</th>
+                                    <th class="text-right">Total</th>
+                                    <th class="text-right">Saldo</th>
+                                    <th class="text-center">Estado</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaCompras"></tbody>
+                        </table>
                     </div>
-
-                    <!-- Vista Kanban -->
-                    <div class="view-panel" id="view-kanban">
-                        <div class="kanban-board">
-                            <div class="kanban-col">
-                                <div class="kanban-header"><span class="dot gray"></span>Borrador <span class="count" id="cntBorrador">0</span></div>
-                                <div class="kanban-body" id="kBorrador"></div>
-                            </div>
-                            <div class="kanban-col">
-                                <div class="kanban-header"><span class="dot orange"></span>Confirmada <span class="count" id="cntConfirmada">0</span></div>
-                                <div class="kanban-body" id="kConfirmada"></div>
-                            </div>
-                            <div class="kanban-col">
-                                <div class="kanban-header"><span class="dot green"></span>Pagada <span class="count" id="cntPagada">0</span></div>
-                                <div class="kanban-body" id="kPagada"></div>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="empty-state" id="emptyCompras"><i class="fas fa-inbox"></i><p>No hay compras registradas</p></div>
 
                     <div class="panel-footer"><span id="totalCompras">0 compras</span></div>
                 </div>
