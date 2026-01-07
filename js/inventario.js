@@ -1179,3 +1179,18 @@ function cambiarConceptoAjuste() {
     const tipo = selectedOption ? selectedOption.dataset.tipo : '';
     console.log('Concepto tipo:', tipo);
 }
+let confirmCallback = null;
+
+function mostrarConfirm(mensaje, callback) {
+    document.getElementById('confirmMessage').innerHTML = mensaje;
+    confirmCallback = callback;
+    document.getElementById('modalConfirm').classList.add('show');
+}
+
+function cerrarConfirm(aceptar) {
+    document.getElementById('modalConfirm').classList.remove('show');
+    if (aceptar && confirmCallback) {
+        confirmCallback();
+    }
+    confirmCallback = null;
+}
