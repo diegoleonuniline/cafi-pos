@@ -281,14 +281,15 @@ function filtrarExistencias() {
     const estado = document.getElementById('filtroEstadoStock').value;
     
     existenciasFiltradas = existenciasData.filter(e => {
+        const stock = parseFloat(e.stock) || 0;
         const matchTexto = !buscar || 
             (e.producto_nombre || '').toLowerCase().includes(buscar) ||
             (e.codigo_barras || '').toLowerCase().includes(buscar);
         
         let matchEstado = true;
-        if (estado === 'constock') matchEstado = e.stock_actual > 0;
-        else if (estado === 'bajo') matchEstado = e.stock_actual > 0 && e.stock_actual <= (e.stock_minimo || 5);
-        else if (estado === 'sinstock') matchEstado = e.stock_actual <= 0;
+        if (estado === 'constock') matchEstado = stock > 0;
+        else if (estado === 'bajo') matchEstado = stock > 0 && stock <= (e.stock_minimo || 5);
+        else if (estado === 'sinstock') matchEstado = stock <= 0;
         
         return matchTexto && matchEstado;
     });
@@ -310,22 +311,24 @@ function renderExistencias() {
     empty.classList.remove('show');
     
     tbody.innerHTML = existenciasFiltradas.map(e => {
-       const stock = parseFloat(e.stock) || 0;
-const reservado = parseFloat(e.stock_reservado) || 0;
-const disponible = stock - reservado;
-const valor = stock * (parseFloat(e.costo_promedio) || 0);
-let badge = '<span class="badge badge-green">Normal</span>';
-if (stock <= 0) badge = '<span class="badge badge-red">Sin Stock</span>';
-else if (stock <= (e.stock_minimo || 5)) badge = '<span class="badge badge-orange">Bajo</span>';
+        const stock = parseFloat(e.stock) || 0;
+        const reservado = parseFloat(e.stock_reservado) || 0;
+        const disponible = stock - reservado;
+        const costo = parseFloat(e.costo_promedio) || 0;
+        const valor = stock * costo;
+        
+        let badge = '<span class="badge badge-green">Normal</span>';
+        if (stock <= 0) badge = '<span class="badge badge-red">Sin Stock</span>';
+        else if (stock <= (e.stock_minimo || 5)) badge = '<span class="badge badge-orange">Bajo</span>';
         
         return `<tr>
             <td><code>${e.codigo_barras || '-'}</code></td>
             <td><strong>${e.producto_nombre || ''}</strong></td>
             <td>${e.almacen_nombre || ''}</td>
-           <td class="text-right">${stock.toFixed(2)}</td>
-            <td class="text-right">${parseFloat(e.stock_reservado || 0).toFixed(2)}</td>
+            <td class="text-right">${stock.toFixed(2)}</td>
+            <td class="text-right">${reservado.toFixed(2)}</td>
             <td class="text-right" style="color:var(--primary);font-weight:600;">${disponible.toFixed(2)}</td>
-            <td class="text-right">${formatMoney(e.costo_promedio || 0)}</td>
+            <td class="text-right">${formatMoney(costo)}</td>
             <td class="text-right">${formatMoney(valor)}</td>
             <td class="text-center">${badge}</td>
         </tr>`;
@@ -911,7 +914,7 @@ async function obtenerStockAjuste(idx) {
     try {
         const r = await API.request(`/inventario/${empresaId}?almacen_id=${almacenId}&producto_id=${productoId}`);
         if (r.success && r.inventario && r.inventario.length > 0) {
-            lineasAjuste[idx].stock_actual = parseFloat(r.inventario[0].stock_actual) || 0;
+            lineasAjuste[idx].stock_actual = parseFloat(r.inventario[0].stock) || 0;
             lineasAjuste[idx].costo = parseFloat(r.inventario[0].costo_promedio) || 0;
         } else {
             lineasAjuste[idx].stock_actual = 0;
