@@ -1122,3 +1122,22 @@ body {
     
     .action-buttons { flex-wrap: wrap; }
 }
+/* Force modal to not clip children */
+.modal-overlay.show {
+    overflow: visible;
+}
+
+.modal {
+    overflow: visible !important;
+}
+
+.modal-body {
+    overflow: visible !important;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.modal-form-grid,
+.modal-field {
+    overflow: visible !important;
+}
