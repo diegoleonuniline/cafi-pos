@@ -358,6 +358,110 @@ function exportarExistencias() {
     toast('Archivo exportado', 'success');
 }
 
+let vistaAgrupada = false;
+
+function toggleVistaAgrupada() {
+    vistaAgrupada = !vistaAgrupada;
+    const btn = document.getElementById('btnVistaAgrupada');
+    if (btn) {
+        btn.classList.toggle('active', vistaAgrupada);
+        btn.innerHTML = vistaAgrupada ? 
+            '<i class="fas fa-layer-group"></i> Agrupado' : 
+            '<i class="fas fa-list"></i> Detalle';
+    }
+    
+    if (vistaAgrupada) {
+        renderExistenciasAgrupadas();
+    } else {
+        renderExistencias();
+    }
+}
+
+function renderExistenciasAgrupadas() {
+    const tbody = document.getElementById('tablaExistencias');
+    const empty = document.getElementById('emptyExistencias');
+    
+    // Agrupar por producto
+    const agrupado = {};
+    existenciasFiltradas.forEach(e => {
+        const key = e.producto_id || e.codigo_barras;
+        if (!agrupado[key]) {
+            agrupado[key] = {
+                codigo: e.codigo_barras,
+                nombre: e.producto_nombre,
+                almacenes: [],
+                totalStock: 0,
+                totalReservado: 0,
+                costoPromedio: 0,
+                sumaCostos: 0
+            };
+        }
+        const stock = parseFloat(e.stock) || 0;
+        const reservado = parseFloat(e.stock_reservado) || 0;
+        const costo = parseFloat(e.costo_promedio) || 0;
+        
+        agrupado[key].almacenes.push({
+            almacen: e.almacen_nombre,
+            stock: stock,
+            reservado: reservado,
+            costo: costo
+        });
+        agrupado[key].totalStock += stock;
+        agrupado[key].totalReservado += reservado;
+        agrupado[key].sumaCostos += stock * costo;
+    });
+    
+    // Calcular costo promedio ponderado
+    Object.values(agrupado).forEach(p => {
+        p.costoPromedio = p.totalStock > 0 ? p.sumaCostos / p.totalStock : 0;
+    });
+    
+    const productos = Object.values(agrupado);
+    
+    if (productos.length === 0) {
+        tbody.innerHTML = '';
+        empty.classList.add('show');
+        document.getElementById('totalExistencias').textContent = '0 productos';
+        return;
+    }
+    
+    empty.classList.remove('show');
+    
+    tbody.innerHTML = productos.map(p => {
+        const disponible = p.totalStock - p.totalReservado;
+        const valor = p.totalStock * p.costoPromedio;
+        
+        let badge = '<span class="badge badge-green">Normal</span>';
+        if (p.totalStock <= 0) badge = '<span class="badge badge-red">Sin Stock</span>';
+        else if (p.totalStock <= 5) badge = '<span class="badge badge-orange">Bajo</span>';
+        
+        // Detalle de almacenes
+        const detalleAlmacenes = p.almacenes.map(a => 
+            `<div style="font-size:11px;color:#666;padding:2px 0;">
+                📦 ${a.almacen}: <strong>${a.stock.toFixed(2)}</strong>
+            </div>`
+        ).join('');
+        
+        return `<tr>
+            <td><code>${p.codigo || '-'}</code></td>
+            <td>
+                <strong>${p.nombre || ''}</strong>
+                <div style="margin-top:4px;border-left:2px solid var(--primary);padding-left:8px;">
+                    ${detalleAlmacenes}
+                </div>
+            </td>
+            <td><span class="badge badge-blue">${p.almacenes.length} almacén(es)</span></td>
+            <td class="text-right"><strong>${p.totalStock.toFixed(2)}</strong></td>
+            <td class="text-right">${p.totalReservado.toFixed(2)}</td>
+            <td class="text-right" style="color:var(--primary);font-weight:600;">${disponible.toFixed(2)}</td>
+            <td class="text-right">${formatMoney(p.costoPromedio)}</td>
+            <td class="text-right">${formatMoney(valor)}</td>
+            <td class="text-center">${badge}</td>
+        </tr>`;
+    }).join('');
+    
+    document.getElementById('totalExistencias').textContent = `${productos.length} productos (agrupados)`;
+}
 // ==================== MOVIMIENTOS ====================
 async function cargarMovimientos() {
     const almacenId = document.getElementById('filtroAlmacenMov').value;
@@ -1024,6 +1128,18 @@ async function seleccionarProductoAjuste(idx, productoId) {
     document.getElementById(`autocomplete-aj-${idx}`).classList.remove('show');
     
     await obtenerStockAjuste(idx);
+    
+    // Focus en cantidad
+    setTimeout(() => {
+        const fila = document.querySelectorAll('#tablaLineasAjuste tr')[idx];
+        if (fila) {
+            const inputCant = fila.querySelector('input[type="number"]');
+            if (inputCant) {
+                inputCant.focus();
+                inputCant.select();
+            }
+        }
+    }, 50);
 }
 
 function actualizarLineaAjuste(idx, campo, valor) {
@@ -1106,18 +1222,8 @@ async function aplicarAjuste() {
             const r = await API.request('/movimientos-inventario/ajuste', 'POST', data);
             if (r.success) {
                 toast('Ajuste aplicado correctamente', 'success');
-                document.getElementById('ajusteBadge').textContent = 'Aplicado';
-                document.getElementById('ajusteBadge').className = 'badge badge-green';
-                document.getElementById('btnAplicarAjuste').disabled = true;
-                
-                document.querySelectorAll('#panel-ajuste .step').forEach(step => {
-                    if (step.dataset.status === 'BORRADOR') {
-                        step.classList.remove('active');
-                        step.classList.add('done');
-                    } else if (step.dataset.status === 'APLICADO') {
-                        step.classList.add('active');
-                    }
-                });
+                limpiarAjuste();
+                cargarExistencias();
             } else {
                 toast(r.error || 'Error al aplicar ajuste', 'error');
             }
