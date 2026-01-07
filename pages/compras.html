@@ -109,9 +109,7 @@
                             </div>
                             <div class="filter-item">
                                 <label>Proveedor</label>
-                                <select id="filtroProveedor">
-                                    <option value="">Todos</option>
-                                </select>
+                                <select id="filtroProveedor"><option value="">Todos</option></select>
                             </div>
                             <div class="filter-item">
                                 <label>Estatus</label>
@@ -124,7 +122,7 @@
                                     <option value="CANCELADA">Cancelada</option>
                                 </select>
                             </div>
-                            <button class="btn btn-primary btn-sm" onclick="cargarCompras()"><i class="fas fa-search"></i> Buscar</button>
+                            <button class="btn btn-primary btn-sm" onclick="cargarCompras()"><i class="fas fa-search"></i></button>
                         </div>
                     </div>
                     <div class="panel-table">
@@ -149,11 +147,8 @@
                 <!-- Panel Cuentas por Pagar -->
                 <div class="panel" id="panel-cuentas">
                     <div class="panel-toolbar">
-                        <div class="toolbar-title">
-                            <i class="fas fa-hand-holding-usd"></i>
-                            <h3>Cuentas por Pagar a Proveedores</h3>
-                        </div>
-                        <button class="btn btn-outline btn-sm" onclick="cargarCuentasPagar()"><i class="fas fa-sync"></i> Actualizar</button>
+                        <div class="toolbar-title"><i class="fas fa-hand-holding-usd"></i><h3>Cuentas por Pagar</h3></div>
+                        <button class="btn btn-outline btn-sm" onclick="cargarCuentasPagar()"><i class="fas fa-sync"></i></button>
                     </div>
                     <div class="panel-table">
                         <table>
@@ -174,93 +169,96 @@
         </main>
     </div>
 
-    <!-- MODAL NUEVA/EDITAR COMPRA -->
+    <!-- MODAL NUEVA COMPRA -->
     <div class="modal-overlay" id="modalCompra">
-        <div class="modal modal-xl">
+        <div class="modal modal-fullscreen">
             <div class="modal-header">
                 <h3><i class="fas fa-truck-loading"></i> <span id="modalCompraTitulo">Nueva Compra</span></h3>
                 <button class="modal-close" onclick="cerrarModal('modalCompra')"><i class="fas fa-times"></i></button>
             </div>
-            <div class="modal-body">
-                <form id="formCompra">
-                    <input type="hidden" id="compraId">
+            <div class="modal-body compra-layout">
+                <input type="hidden" id="compraId">
+                
+                <!-- Sidebar Izquierdo -->
+                <div class="compra-sidebar">
+                    <div class="compra-field">
+                        <label>Proveedor *</label>
+                        <select id="compProveedor" required><option value="">Seleccionar...</option></select>
+                    </div>
+                    <div class="compra-field">
+                        <label>Almacén destino *</label>
+                        <select id="compAlmacen" required><option value="">Seleccionar...</option></select>
+                    </div>
+                    <div class="compra-field">
+                        <label>Fecha entrega</label>
+                        <input type="date" id="compFechaEntrega">
+                    </div>
+                    <div class="compra-field">
+                        <label>Fecha vencimiento pago</label>
+                        <input type="date" id="compFechaVencimiento">
+                    </div>
+                    <div class="compra-field">
+                        <label>Notas</label>
+                        <textarea id="compNotas" rows="3" placeholder="Observaciones..."></textarea>
+                    </div>
                     
-                    <div class="form-section">
-                        <h4><i class="fas fa-info-circle"></i> Información General</h4>
-                        <div class="form-row-3">
-                            <div class="form-group">
-                                <label>Proveedor <span class="required">*</span></label>
-                                <select id="compProveedor" required>
-                                    <option value="">Seleccionar...</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Fecha Entrega</label>
-                                <input type="date" id="compFechaEntrega">
-                            </div>
-                            <div class="form-group">
-                                <label>Fecha Vencimiento</label>
-                                <input type="date" id="compFechaVencimiento">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Notas</label>
-                            <textarea id="compNotas" rows="2" placeholder="Observaciones..."></textarea>
+                    <div class="compra-opciones">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="compConIVA" checked>
+                            <span>Agregar IVA 16%</span>
+                        </label>
+                    </div>
+                    
+                    <div class="compra-resumen">
+                        <div class="resumen-row"><span>Subtotal:</span><span id="compSubtotal">$0.00</span></div>
+                        <div class="resumen-row"><span>IVA:</span><span id="compIVA">$0.00</span></div>
+                        <div class="resumen-row total"><span>TOTAL:</span><span id="compTotal">$0.00</span></div>
+                    </div>
+                </div>
+                
+                <!-- Área Principal de Productos -->
+                <div class="compra-productos">
+                    <div class="busqueda-container">
+                        <div class="busqueda-input-wrapper">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="buscarProducto" placeholder="Buscar producto por nombre o código..." autocomplete="off">
+                            <div class="sugerencias-dropdown" id="sugerenciasDropdown"></div>
                         </div>
                     </div>
-
-                    <div class="form-section">
-                        <h4><i class="fas fa-boxes"></i> Productos</h4>
-                        <div class="productos-toolbar">
-                            <div class="buscar-producto">
-                                <input type="text" id="buscarProducto" placeholder="Buscar por código o nombre...">
-                                <button type="button" class="btn btn-sm btn-primary" onclick="buscarProductos()"><i class="fas fa-search"></i></button>
-                            </div>
-                        </div>
-                        <div class="productos-lista" id="productosLista">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Producto</th>
-                                        <th class="center" style="width:100px">Cantidad</th>
-                                        <th class="right" style="width:120px">Costo Unit.</th>
-                                        <th class="right" style="width:120px">Subtotal</th>
-                                        <th class="center" style="width:60px"></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tablaProductosCompra"></tbody>
-                            </table>
-                        </div>
-                        <div class="compra-totales">
-                            <div class="total-row">
-                                <span>Subtotal:</span>
-                                <span id="compSubtotal">$0.00</span>
-                            </div>
-                            <div class="total-row">
-                                <span>Impuestos:</span>
-                                <span id="compImpuestos">$0.00</span>
-                            </div>
-                            <div class="total-row total-final">
-                                <span>TOTAL:</span>
-                                <span id="compTotal">$0.00</span>
-                            </div>
+                    
+                    <div class="productos-tabla-container">
+                        <table class="productos-tabla">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th style="width:100px">Cantidad</th>
+                                    <th style="width:120px">Costo Unit.</th>
+                                    <th style="width:120px">Subtotal</th>
+                                    <th style="width:50px"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaProductosCompra"></tbody>
+                        </table>
+                        <div class="productos-empty" id="productosEmpty">
+                            <i class="fas fa-boxes"></i>
+                            <p>Busca y agrega productos a la compra</p>
                         </div>
                     </div>
-                </form>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline" onclick="cerrarModal('modalCompra')">Cancelar</button>
                 <button type="button" class="btn btn-secondary" onclick="guardarCompra('BORRADOR')"><i class="fas fa-save"></i> Guardar Borrador</button>
-                <button type="button" class="btn btn-primary" onclick="guardarCompra('PENDIENTE')"><i class="fas fa-check"></i> Confirmar Compra</button>
+                <button type="button" class="btn btn-success" onclick="guardarCompra('PENDIENTE')"><i class="fas fa-check"></i> Confirmar Compra</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL DETALLE COMPRA -->
+    <!-- MODAL DETALLE -->
     <div class="modal-overlay" id="modalDetalle">
         <div class="modal modal-xl">
             <div class="modal-header">
-                <h3><i class="fas fa-file-invoice"></i> Detalle de Compra <span id="detalleFolio"></span></h3>
+                <h3><i class="fas fa-file-invoice"></i> Compra <span id="detalleFolio"></span></h3>
                 <button class="modal-close" onclick="cerrarModal('modalDetalle')"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
@@ -309,7 +307,7 @@
                                 <th>Referencia</th>
                                 <th class="right">Monto</th>
                                 <th class="center">Estatus</th>
-                                <th class="center">Acciones</th>
+                                <th class="center"></th>
                             </tr>
                         </thead>
                         <tbody id="detallePagos"></tbody>
@@ -317,14 +315,14 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline" onclick="cerrarModal('modalDetalle')">Cerrar</button>
-                <button type="button" class="btn btn-info" id="btnRecibir" onclick="abrirModalRecibir()"><i class="fas fa-box-open"></i> Recibir Mercancía</button>
-                <button type="button" class="btn btn-danger" id="btnCancelar" onclick="cancelarCompra()"><i class="fas fa-ban"></i> Cancelar</button>
+                <button class="btn btn-outline" onclick="cerrarModal('modalDetalle')">Cerrar</button>
+                <button class="btn btn-info" id="btnRecibir" onclick="abrirModalRecibir()"><i class="fas fa-box-open"></i> Recibir</button>
+                <button class="btn btn-danger" id="btnCancelar" onclick="cancelarCompra()"><i class="fas fa-ban"></i> Cancelar</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL RECIBIR MERCANCÍA -->
+    <!-- MODAL RECIBIR -->
     <div class="modal-overlay" id="modalRecibir">
         <div class="modal modal-lg">
             <div class="modal-header success">
@@ -345,8 +343,8 @@
                 </table>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline" onclick="cerrarModal('modalRecibir')">Cancelar</button>
-                <button type="button" class="btn btn-success" onclick="confirmarRecepcion()"><i class="fas fa-check"></i> Confirmar Recepción</button>
+                <button class="btn btn-outline" onclick="cerrarModal('modalRecibir')">Cancelar</button>
+                <button class="btn btn-success" onclick="confirmarRecepcion()"><i class="fas fa-check"></i> Confirmar</button>
             </div>
         </div>
     </div>
@@ -359,55 +357,31 @@
                 <button class="modal-close" onclick="cerrarModal('modalPago')"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
-                <form id="formPago">
-                    <div class="pago-info">
-                        <span>Saldo pendiente: <strong id="pagoSaldo">$0.00</strong></span>
-                    </div>
-                    <div class="form-group">
-                        <label>Monto a Pagar <span class="required">*</span></label>
-                        <input type="number" id="pagoMonto" step="0.01" min="0.01" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Método de Pago <span class="required">*</span></label>
-                        <select id="pagoMetodo" required>
-                            <option value="">Seleccionar...</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Cuenta Bancaria</label>
-                        <select id="pagoCuenta">
-                            <option value="">Sin cuenta</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Referencia</label>
-                        <input type="text" id="pagoReferencia" placeholder="Número de cheque, transferencia...">
-                    </div>
-                    <div class="form-group">
-                        <label>Notas</label>
-                        <textarea id="pagoNotas" rows="2"></textarea>
-                    </div>
-                </form>
+                <div class="pago-saldo">Saldo pendiente: <strong id="pagoSaldo">$0.00</strong></div>
+                <div class="form-group">
+                    <label>Monto *</label>
+                    <input type="number" id="pagoMonto" step="0.01" min="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Método de pago *</label>
+                    <select id="pagoMetodo" required><option value="">Seleccionar...</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Cuenta bancaria</label>
+                    <select id="pagoCuenta"><option value="">Sin cuenta</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Referencia</label>
+                    <input type="text" id="pagoReferencia" placeholder="Cheque, transferencia...">
+                </div>
+                <div class="form-group">
+                    <label>Notas</label>
+                    <textarea id="pagoNotas" rows="2"></textarea>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline" onclick="cerrarModal('modalPago')">Cancelar</button>
-                <button type="button" class="btn btn-success" onclick="guardarPago()"><i class="fas fa-check"></i> Registrar Pago</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL BUSCAR PRODUCTOS -->
-    <div class="modal-overlay" id="modalBuscarProductos">
-        <div class="modal modal-lg">
-            <div class="modal-header">
-                <h3><i class="fas fa-search"></i> Buscar Productos</h3>
-                <button class="modal-close" onclick="cerrarModal('modalBuscarProductos')"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="busqueda-input">
-                    <input type="text" id="inputBusqueda" placeholder="Escriba para buscar..." oninput="filtrarProductosBusqueda()">
-                </div>
-                <div class="productos-busqueda" id="resultadosBusqueda"></div>
+                <button class="btn btn-outline" onclick="cerrarModal('modalPago')">Cancelar</button>
+                <button class="btn btn-success" onclick="guardarPago()"><i class="fas fa-check"></i> Registrar</button>
             </div>
         </div>
     </div>
