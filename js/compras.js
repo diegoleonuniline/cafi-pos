@@ -688,6 +688,10 @@ async function reabrirCompra() {
     if (!compraActual || !confirm('¿Reabrir esta compra para agregar más pagos o modificaciones?')) return;
     try {
         const r = await API.request(`/compras/${compraActual.compra_id}`, 'PUT', {
+            empresa_id: empresaId,
+            sucursal_id: sucursalId,
+            almacen_id: compraActual.almacen_id,
+            proveedor_id: compraActual.proveedor_id,
             estatus: 'PENDIENTE'
         });
         if (r.success) { 
@@ -1002,8 +1006,17 @@ async function cancelarPagoLista(pagoId) {
 
 function abrirModalPago() {
     if (!compraActual) return;
-    document.getElementById('pagoSaldo').textContent = formatMoney(compraActual.saldo);
-    document.getElementById('pagoMonto').value = parseFloat(compraActual.saldo).toFixed(2);
+    
+    // El saldo viene de la BD, pero puede diferir del total actual si se editó
+    const saldoBD = parseFloat(compraActual.saldo || 0);
+    const totalActual = parseFloat(compraActual.total || 0);
+    
+    // Si hay diferencia significativa, usar el menor (más conservador)
+    const saldoMostrar = saldoBD > 0 ? saldoBD : totalActual;
+    
+    document.getElementById('pagoSaldo').textContent = formatMoney(saldoMostrar);
+    document.getElementById('pagoMonto').value = saldoMostrar.toFixed(2);
+    document.getElementById('pagoMonto').max = saldoMostrar;
     document.getElementById('pagoMetodo').value = '';
     document.getElementById('pagoCuenta').value = '';
     document.getElementById('pagoReferencia').value = '';
@@ -1018,7 +1031,7 @@ async function guardarPago() {
     if (!monto || monto <= 0) { toast('Monto inválido', 'error'); return; }
     if (!metodo) { toast('Seleccione método', 'error'); return; }
     
-    const saldoActual = parseFloat(compraActual.saldo || 0);
+    const saldoActual = parseFloat(compraActual.saldo || compraActual.total || 0);
     
     try {
         const r = await API.request('/pago-compras', 'POST', {
@@ -1037,8 +1050,12 @@ async function guardarPago() {
             // Verificar si el pago liquida la compra
             const nuevoSaldo = saldoActual - monto;
             if (nuevoSaldo <= 0.01) {
-                // Actualizar estatus a PAGADA/RECIBIDA
+                // Actualizar estatus a PAGADA/RECIBIDA - mandar datos completos
                 await API.request(`/compras/${compraActual.compra_id}`, 'PUT', {
+                    empresa_id: empresaId,
+                    sucursal_id: sucursalId,
+                    almacen_id: compraActual.almacen_id,
+                    proveedor_id: compraActual.proveedor_id,
                     estatus: 'RECIBIDA'
                 });
             }
