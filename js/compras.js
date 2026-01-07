@@ -193,7 +193,7 @@ function renderLineas() {
                     value="${l.cantidad}" 
                     min="0.01" 
                     step="0.01"
-                    onchange="actualizarLinea(${i}, 'cantidad', this.value)" 
+                    oninput="actualizarLinea(${i}, 'cantidad', this.value)" 
                     onkeydown="if(event.key==='Enter'){event.preventDefault(); agregarLineaVacia();}"
                     ${editable ? '' : 'disabled'}>
             </td>
@@ -204,7 +204,7 @@ function renderLineas() {
                     value="${l.costo.toFixed(2)}" 
                     min="0" 
                     step="0.01" 
-                    onchange="actualizarLinea(${i}, 'costo', this.value)" 
+                    oninput="actualizarLinea(${i}, 'costo', this.value)" 
                     ${editable ? '' : 'disabled'}>
             </td>
             <td>
@@ -215,7 +215,7 @@ function renderLineas() {
                     max="100"
                     step="1" 
                     style="width:60px"
-                    onchange="actualizarLinea(${i}, 'iva', this.value)" 
+                    oninput="actualizarLinea(${i}, 'iva', this.value)" 
                     ${editable ? '' : 'disabled'}>
             </td>
             <td>
@@ -226,7 +226,7 @@ function renderLineas() {
                     max="100"
                     step="0.01" 
                     style="width:60px"
-                    onchange="actualizarLinea(${i}, 'ieps', this.value)" 
+                    oninput="actualizarLinea(${i}, 'ieps', this.value)" 
                     ${editable ? '' : 'disabled'}>
             </td>
             <td class="importe">${formatMoney(l.importe)}</td>
@@ -364,6 +364,14 @@ function actualizarLinea(idx, campo, valor) {
     if (campo === 'iva') lineasCompra[idx].iva = val;
     if (campo === 'ieps') lineasCompra[idx].ieps = val;
     calcularImporteLinea(idx);
+    
+    // Actualizar importe en UI sin perder foco
+    const row = document.querySelector(`tr[data-idx="${idx}"]`);
+    if (row) {
+        const importeCell = row.querySelector('.importe');
+        if (importeCell) importeCell.textContent = formatMoney(lineasCompra[idx].importe);
+    }
+    
     calcularTotales();
 }
 
