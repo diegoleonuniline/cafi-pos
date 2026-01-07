@@ -165,36 +165,32 @@ function agregarLineaVacia() {
 }
 
 function renderLineas() {
-    const tbody = document.getElementById('tablaLineas');
-    const editable = !compraActual || compraActual.estatus === 'BORRADOR';
+    const tbody = document.getElementById('lineasBody');
+    // Usar el estado actual del formulario, no el de compraActual
+    const estatusActual = compraActual?.estatus || 'BORRADOR';
+    const editable = estatusActual === 'BORRADOR';
     
     tbody.innerHTML = lineasCompra.map((l, i) => `
-        <tr data-idx="${i}">
+        <tr>
             <td class="producto-cell">
-                <div class="producto-input-wrap">
-                    <input type="text" 
-                        class="input-producto" 
-                        id="prod-input-${i}"
-                        value="${l.nombre}" 
-                        placeholder="Buscar producto..." 
-                        oninput="buscarProductoEnLinea(${i}, this.value)" 
-                        onkeydown="navegarAutocomplete(event, ${i})"
-                        onfocus="mostrarAutocompletado(${i})"
-                        autocomplete="off"
-                        ${editable ? '' : 'disabled'}>
-                    ${l.codigo ? `<span class="producto-codigo">${l.codigo}</span>` : ''}
-                    <div class="producto-autocomplete" id="autocomplete-${i}"></div>
-                </div>
+                <input type="text" 
+                    class="producto-input" 
+                    value="${l.nombre}" 
+                    placeholder="Buscar producto..."
+                    oninput="lineasCompra[${i}].nombre = this.value; buscarProductoEnLinea(${i}, this.value)"
+                    onfocus="mostrarAutocompletado(${i})"
+                    onkeydown="navegarAutocomplete(event, ${i})"
+                    ${editable ? '' : 'disabled'}>
+                <div class="producto-autocomplete" id="autocomplete-${i}"></div>
+                <span class="producto-codigo">${l.codigo || ''}</span>
             </td>
             <td>
                 <input type="number" 
                     class="input-number" 
-                    id="cant-input-${i}"
                     value="${l.cantidad}" 
                     min="0.01" 
-                    step="0.01"
+                    step="0.01" 
                     onchange="actualizarLinea(${i}, 'cantidad', this.value)" 
-                    onkeydown="if(event.key==='Enter'){event.preventDefault(); agregarLineaVacia();}"
                     ${editable ? '' : 'disabled'}>
             </td>
             <td><span style="color:var(--gray-500); font-size:12px">${l.unidad}</span></td>
@@ -529,13 +525,18 @@ async function cargarCompraEnFormulario(id) {
             document.getElementById('compAlmacen').value = c.almacen_id || '';
             document.getElementById('compFecha').value = c.fecha ? c.fecha.split('T')[0] : '';
             document.getElementById('compFechaVencimiento').value = c.fecha_vencimiento ? c.fecha_vencimiento.split('T')[0] : '';
-            document.getElementById('compFactura').value = c.factura_proveedor || '';
+            document.getElementById('compFactura').value = c.factura_uuid || '';
             document.getElementById('compNotas').value = c.notas || '';
             document.getElementById('compraFolio').textContent = `${c.serie || 'C'}-${c.folio}`;
             
+            // Determinar si es editable basado en el estatus ACTUAL
             const editable = c.estatus === 'BORRADOR';
             document.getElementById('compProveedor').disabled = !editable;
             document.getElementById('compAlmacen').disabled = !editable;
+            document.getElementById('compFecha').disabled = !editable;
+            document.getElementById('compFechaVencimiento').disabled = !editable;
+            document.getElementById('compFactura').disabled = !editable;
+            document.getElementById('compNotas').disabled = !editable;
             
             lineasCompra = r.productos.map(p => ({
                 producto_id: p.producto_id,
