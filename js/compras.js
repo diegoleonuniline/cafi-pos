@@ -165,31 +165,36 @@ function agregarLineaVacia() {
 }
 
 function renderLineas() {
-    const tbody = document.getElementById('tablaLineas');  // <-- CORREGIDO
-    const estatusActual = compraActual?.estatus || 'BORRADOR';
-    const editable = estatusActual === 'BORRADOR';
+    const tbody = document.getElementById('tablaLineas');
+    const editable = !compraActual || compraActual.estatus === 'BORRADOR';
     
     tbody.innerHTML = lineasCompra.map((l, i) => `
-        <tr>
+        <tr data-idx="${i}">
             <td class="producto-cell">
-                <input type="text" 
-                    class="producto-input" 
-                    value="${l.nombre}" 
-                    placeholder="Buscar producto..."
-                    oninput="lineasCompra[${i}].nombre = this.value; buscarProductoEnLinea(${i}, this.value)"
-                    onfocus="mostrarAutocompletado(${i})"
-                    onkeydown="navegarAutocomplete(event, ${i})"
-                    ${editable ? '' : 'disabled'}>
-                <div class="producto-autocomplete" id="autocomplete-${i}"></div>
-                <span class="producto-codigo">${l.codigo || ''}</span>
+                <div class="producto-input-wrap">
+                    <input type="text" 
+                        class="input-producto" 
+                        id="prod-input-${i}"
+                        value="${l.nombre}" 
+                        placeholder="Buscar producto..." 
+                        oninput="lineasCompra[${i}].nombre = this.value; buscarProductoEnLinea(${i}, this.value)" 
+                        onkeydown="navegarAutocomplete(event, ${i})"
+                        onfocus="if(this.value.length > 0) buscarProductoEnLinea(${i}, this.value)"
+                        autocomplete="off"
+                        ${editable ? '' : 'disabled'}>
+                    ${l.codigo ? `<span class="producto-codigo">${l.codigo}</span>` : ''}
+                    <div class="producto-autocomplete" id="autocomplete-${i}"></div>
+                </div>
             </td>
             <td>
                 <input type="number" 
                     class="input-number" 
+                    id="cant-input-${i}"
                     value="${l.cantidad}" 
                     min="0.01" 
-                    step="0.01" 
+                    step="0.01"
                     onchange="actualizarLinea(${i}, 'cantidad', this.value)" 
+                    onkeydown="if(event.key==='Enter'){event.preventDefault(); agregarLineaVacia();}"
                     ${editable ? '' : 'disabled'}>
             </td>
             <td><span style="color:var(--gray-500); font-size:12px">${l.unidad}</span></td>
@@ -524,18 +529,13 @@ async function cargarCompraEnFormulario(id) {
             document.getElementById('compAlmacen').value = c.almacen_id || '';
             document.getElementById('compFecha').value = c.fecha ? c.fecha.split('T')[0] : '';
             document.getElementById('compFechaVencimiento').value = c.fecha_vencimiento ? c.fecha_vencimiento.split('T')[0] : '';
-            document.getElementById('compFactura').value = c.factura_uuid || '';
+            document.getElementById('compFactura').value = c.factura_proveedor || '';
             document.getElementById('compNotas').value = c.notas || '';
             document.getElementById('compraFolio').textContent = `${c.serie || 'C'}-${c.folio}`;
             
-            // Determinar si es editable basado en el estatus ACTUAL
             const editable = c.estatus === 'BORRADOR';
             document.getElementById('compProveedor').disabled = !editable;
             document.getElementById('compAlmacen').disabled = !editable;
-            document.getElementById('compFecha').disabled = !editable;
-            document.getElementById('compFechaVencimiento').disabled = !editable;
-            document.getElementById('compFactura').disabled = !editable;
-            document.getElementById('compNotas').disabled = !editable;
             
             lineasCompra = r.productos.map(p => ({
                 producto_id: p.producto_id,
@@ -631,19 +631,8 @@ async function guardarCompra(estatusVisual) {
     
     const id = document.getElementById('compraId').value;
     
-    // Calcular saldo considerando pagos previos
-    const pagadoPrevio = compraActual?.pagos?.reduce((s, p) => s + parseFloat(p.monto || 0), 0) || 0;
-    const saldoCalculado = Math.max(0, total - pagadoPrevio);
-    
-    // Determinar estatus correcto
-    let estatusBackend;
-    if (estatusVisual === 'BORRADOR') {
-        estatusBackend = 'BORRADOR';
-    } else if (saldoCalculado <= 0.01) {
-        estatusBackend = 'RECIBIDA';  // Ya está pagada
-    } else {
-        estatusBackend = 'PENDIENTE'; // Falta pagar
-    }
+    // Mapear estado visual a estado del backend
+    const estatusBackend = estatusVisual === 'CONFIRMADA' ? 'PENDIENTE' : estatusVisual;
     
     const data = {
         empresa_id: empresaId,
@@ -654,10 +643,12 @@ async function guardarCompra(estatusVisual) {
         tipo: 'COMPRA',
         fecha: document.getElementById('compFecha').value || null,
         fecha_vencimiento: document.getElementById('compFechaVencimiento').value || null,
-        factura_uuid: document.getElementById('compFactura').value,
+        factura_proveedor: document.getElementById('compFactura').value,
         notas: document.getElementById('compNotas').value,
         subtotal, 
         impuestos: iva + ieps,
+        iva,
+        ieps,
         total, 
         estatus: estatusBackend,
         productos: lineasValidas.map(l => ({
@@ -666,17 +657,17 @@ async function guardarCompra(estatusVisual) {
             cantidad: l.cantidad,
             costo_unitario: l.costo,
             subtotal: l.cantidad * l.costo,
-            impuesto_pct: l.iva + l.ieps,
-            impuesto_monto: l.cantidad * l.costo * (l.iva + l.ieps) / 100
+            iva_pct: l.iva,
+            iva_monto: l.cantidad * l.costo * l.iva / 100,
+            ieps_pct: l.ieps,
+            ieps_monto: l.cantidad * l.costo * l.ieps / 100
         }))
     };
     
     try {
         const r = await API.request(id ? `/compras/${id}` : '/compras', id ? 'PUT' : 'POST', data);
         if (r.success) {
-            const msg = estatusBackend === 'BORRADOR' ? 'Guardado como borrador' : 
-                        estatusBackend === 'RECIBIDA' ? 'Compra confirmada y pagada' : 'Compra confirmada';
-            toast(msg, 'success');
+            toast(estatusVisual === 'BORRADOR' ? 'Guardado como borrador' : 'Compra confirmada', 'success');
             cargarCompraEnFormulario(id || r.compra_id);
         } else { toast(r.error || 'Error al guardar', 'error'); }
     } catch (e) { toast('Error de conexión', 'error'); }
@@ -694,10 +685,14 @@ async function cancelarCompraActual() {
 }
 
 async function reabrirCompra() {
-    if (!compraActual || !confirm('¿Reabrir esta compra para modificarla?')) return;
+    if (!compraActual || !confirm('¿Reabrir esta compra para agregar más pagos o modificaciones?')) return;
     try {
         const r = await API.request(`/compras/${compraActual.compra_id}`, 'PUT', {
-            estatus: 'BORRADOR'  // <-- BORRADOR para poder editar
+            empresa_id: empresaId,
+            sucursal_id: sucursalId,
+            almacen_id: compraActual.almacen_id,
+            proveedor_id: compraActual.proveedor_id,
+            estatus: 'PENDIENTE'
         });
         if (r.success) { 
             toast('Compra reabierta', 'success'); 
