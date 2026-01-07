@@ -86,6 +86,7 @@
                             <button class="btn" id="btnGuardar" onclick="guardarCompra('BORRADOR')"><i class="fas fa-save"></i> Guardar Borrador</button>
                             <button class="btn" id="btnPago" onclick="abrirModalPago()" style="display:none"><i class="fas fa-dollar-sign"></i> Registrar Pago</button>
                             <button class="btn btn-outline" id="btnPDF" onclick="generarPDF()" style="display:none"><i class="fas fa-file-pdf"></i> PDF</button>
+                            <button class="btn btn-reopen" id="btnReabrir" onclick="reabrirCompra()" style="display:none"><i class="fas fa-undo"></i> Reabrir</button>
                             <button class="btn btn-danger" id="btnCancelar" onclick="cancelarCompraActual()" style="display:none"><i class="fas fa-ban"></i> Cancelar</button>
                         </div>
 
@@ -155,6 +156,13 @@
                                     <div class="total-row total"><span>Total:</span><span id="compTotal">$0.00</span></div>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Historial de Pagos (solo visible cuando hay compra cargada) -->
+                        <div class="historial-section" id="seccionPagos" style="display:none;">
+                            <h4><i class="fas fa-history"></i> Historial de Pagos</h4>
+                            <div class="pagos-list" id="listaPagos"></div>
+                            <div class="saldo-badge" id="saldoPendiente">Saldo: $0.00</div>
                         </div>
                     </div>
                 </div>
