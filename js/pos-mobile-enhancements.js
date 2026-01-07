@@ -211,7 +211,13 @@
    function renderCarritoMobile(tbody) {
     var html = '';
     
-    carrito.forEach(function(item, index) {
+    // Invertir para mostrar últimos primero
+    var carritoInvertido = carrito.slice().reverse();
+    
+    carritoInvertido.forEach(function(item, idx) {
+        // El índice real es inverso
+        var index = carrito.length - 1 - idx;
+        
         var tieneDescuento = item.descuento > 0;
         var precioConDesc = item.precio * (1 - (item.descuento || 0) / 100);
         var importe = precioConDesc * item.cantidad;
