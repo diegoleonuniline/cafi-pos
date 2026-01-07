@@ -466,6 +466,9 @@ function limpiarFormulario() {
     document.getElementById('compProveedor').disabled = false;
     document.getElementById('compAlmacen').disabled = false;
     
+    // Ocultar sección de pagos
+    document.getElementById('seccionPagos').style.display = 'none';
+    
     actualizarStatusBar('BORRADOR');
     actualizarBotones();
     agregarLineaVacia();
@@ -501,13 +504,14 @@ function actualizarBotones() {
     // Estados del backend: BORRADOR, PENDIENTE, PARCIAL, RECIBIDA, PAGADA, CANCELADA
     const esBorrador = estatus === 'BORRADOR';
     const estaConfirmada = ['PENDIENTE', 'PARCIAL', 'CONFIRMADA'].includes(estatus);
-    const estaPagada = ['RECIBIDA', 'PAGADA'].includes(estatus) || saldo <= 0;
+    const estaPagada = ['RECIBIDA', 'PAGADA'].includes(estatus) || (estaConfirmada && saldo <= 0);
     const estaCancelada = estatus === 'CANCELADA';
     
     document.getElementById('btnGuardar').style.display = esBorrador ? '' : 'none';
     document.getElementById('btnConfirmar').style.display = esBorrador ? '' : 'none';
     document.getElementById('btnPago').style.display = (estaConfirmada && saldo > 0 && !estaCancelada) ? '' : 'none';
     document.getElementById('btnPDF').style.display = (compraActual && !esBorrador) ? '' : 'none';
+    document.getElementById('btnReabrir').style.display = (estaPagada && !estaCancelada) ? '' : 'none';
     document.getElementById('btnCancelar').style.display = (!estaCancelada && !estaPagada && compraActual) ? '' : 'none';
 }
 
@@ -553,6 +557,7 @@ async function cargarCompraEnFormulario(id) {
             actualizarStatusBar(c.estatus);
             actualizarBotones();
             renderLineas();
+            renderHistorialPagos();
             
             // Ir a tab crear
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -561,6 +566,52 @@ async function cargarCompraEnFormulario(id) {
             document.getElementById('panel-crear').classList.add('active');
         }
     } catch (e) { toast('Error al cargar', 'error'); }
+}
+
+function renderHistorialPagos() {
+    const seccion = document.getElementById('seccionPagos');
+    const lista = document.getElementById('listaPagos');
+    const saldoBadge = document.getElementById('saldoPendiente');
+    
+    if (!compraActual || !compraActual.pagos || compraActual.pagos.length === 0) {
+        seccion.style.display = 'none';
+        return;
+    }
+    
+    seccion.style.display = 'block';
+    const pagos = compraActual.pagos;
+    const saldo = parseFloat(compraActual.saldo || 0);
+    
+    lista.innerHTML = pagos.map(p => {
+        const metodo = metodosData.find(m => m.metodo_pago_id === p.metodo_pago_id);
+        const metodoNombre = metodo?.nombre || p.metodo || 'Pago';
+        const icono = getIconoMetodo(metodoNombre);
+        
+        return `
+            <div class="pago-card">
+                <div class="pago-card-info">
+                    <div class="pago-card-icon ${icono.clase}"><i class="fas ${icono.icon}"></i></div>
+                    <div class="pago-card-details">
+                        <span class="metodo">${metodoNombre}</span>
+                        <span class="fecha">${formatFecha(p.fecha)}</span>
+                        ${p.referencia ? `<span class="referencia">${p.referencia}</span>` : ''}
+                    </div>
+                </div>
+                <div class="pago-card-monto">${formatMoney(p.monto)}</div>
+            </div>
+        `;
+    }).join('');
+    
+    saldoBadge.textContent = `Saldo: ${formatMoney(saldo)}`;
+    saldoBadge.className = saldo <= 0 ? 'saldo-badge pagado' : 'saldo-badge';
+}
+
+function getIconoMetodo(metodo) {
+    const lower = (metodo || '').toLowerCase();
+    if (lower.includes('efectivo') || lower.includes('cash')) return { icon: 'fa-money-bill-wave', clase: 'efectivo' };
+    if (lower.includes('tarjeta') || lower.includes('card')) return { icon: 'fa-credit-card', clase: 'tarjeta' };
+    if (lower.includes('transfer')) return { icon: 'fa-exchange-alt', clase: 'transferencia' };
+    return { icon: 'fa-dollar-sign', clase: '' };
 }
 
 async function guardarCompra(estatusVisual) {
@@ -629,6 +680,21 @@ async function cancelarCompraActual() {
         if (r.success) { 
             toast('Compra cancelada', 'success'); 
             limpiarFormulario(); 
+        }
+    } catch (e) { toast('Error', 'error'); }
+}
+
+async function reabrirCompra() {
+    if (!compraActual || !confirm('¿Reabrir esta compra para agregar más pagos o modificaciones?')) return;
+    try {
+        const r = await API.request(`/compras/${compraActual.compra_id}`, 'PUT', {
+            estatus: 'PENDIENTE'
+        });
+        if (r.success) { 
+            toast('Compra reabierta', 'success'); 
+            cargarCompraEnFormulario(compraActual.compra_id); 
+        } else {
+            toast(r.error || 'Error al reabrir', 'error');
         }
     } catch (e) { toast('Error', 'error'); }
 }
