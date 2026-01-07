@@ -1266,7 +1266,12 @@ function eliminarDelCarrito(id) {
     });
 }
 
-// ==================== RENDER CARRITO ====================
+// ==================== UTILIDADES DE FORMATO ====================
+function formatMoney(num) {
+    num = parseFloat(num) || 0;
+    return '$' + num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
 // ==================== RENDER CARRITO ====================
 function renderCarrito() {
     var tbody = document.getElementById('cartBody');
@@ -1285,10 +1290,21 @@ function renderCarrito() {
     
     var html = '';
     carrito.forEach(function(item, index) {
-        var tieneDescuento = item.descuento > 0;
-        var descuentoTexto = tieneDescuento ? '-' + item.descuento + '%' : '';
-        var precioConDesc = item.precio * (1 - (item.descuento || 0) / 100);
-        var importe = precioConDesc * item.cantidad;
+        var tieneDescuento = (item.descuento > 0) || (item.descuentoMonto > 0);
+        var subtotalBruto = item.precio * item.cantidad;
+        var montoDescuento = 0;
+        var descuentoTexto = '';
+        
+        // Calcular descuento (puede ser % o monto fijo)
+        if (item.descuentoMonto > 0) {
+            montoDescuento = item.descuentoMonto * item.cantidad;
+            descuentoTexto = '-' + formatMoney(item.descuentoMonto);
+        } else if (item.descuento > 0) {
+            montoDescuento = subtotalBruto * item.descuento / 100;
+            descuentoTexto = '-' + item.descuento + '%';
+        }
+        
+        var importe = subtotalBruto - montoDescuento;
         var esGranel = item.esGranel || UNIDADES_GRANEL.indexOf((item.unidad || 'PZ').toUpperCase()) >= 0;
         var pid = item.producto_id;
         var cantidadDisplay = esGranel ? item.cantidad.toFixed(3) : item.cantidad;
@@ -1298,14 +1314,14 @@ function renderCarrito() {
             '<td class="mobile-card" colspan="7">' +
                 '<div class="card-content">' +
                     '<div class="card-name">' + item.nombre + '</div>' +
-                    '<div class="card-price">$' + item.precio.toFixed(2) + ' / ' + item.unidad + (tieneDescuento ? ' <span style="color:#ef4444">-' + item.descuento + '%</span>' : '') + '</div>' +
+                    '<div class="card-price">' + formatMoney(item.precio) + ' / ' + item.unidad + (tieneDescuento ? ' <span style="color:#10b981">' + descuentoTexto + '</span>' : '') + '</div>' +
                 '</div>' +
                 '<div class="qty-control">' +
                     '<button type="button" onclick="cambiarCantidad(\'' + pid + '\', ' + (esGranel ? '-0.1' : '-1') + ')">−</button>' +
                     '<span class="qty-editable" onclick="' + (esGranel ? 'editarCantidadGranel' : 'editarCantidadLinea') + '(\'' + pid + '\')">' + cantidadDisplay + '</span>' +
                     '<button type="button" onclick="cambiarCantidad(\'' + pid + '\', ' + (esGranel ? '0.1' : '1') + ')">+</button>' +
                 '</div>' +
-                '<div class="card-total">$' + importe.toFixed(2) + '</div>' +
+                '<div class="card-total">' + formatMoney(importe) + '</div>' +
                 '<button class="card-delete" onclick="eliminarDelCarrito(\'' + pid + '\')"><i class="fas fa-trash"></i></button>' +
             '</td>' +
             // CELDAS DESKTOP
@@ -1313,10 +1329,7 @@ function renderCarrito() {
                 '<div class="cart-item-name">' + item.nombre + '</div>' +
                 '<div class="cart-item-code">' + (item.codigo || '') + '</div>' +
             '</td>' +
-            '<td class="col-precio desktop-cell">' +
-                '<span' + (tieneDescuento ? ' class="precio-tachado"' : '') + '>$' + item.precio.toFixed(2) + '</span>' +
-                (tieneDescuento ? '<span class="precio-final">$' + precioConDesc.toFixed(2) + '</span>' : '') +
-            '</td>' +
+            '<td class="col-precio desktop-cell">' + formatMoney(item.precio) + '</td>' +
             '<td class="col-cantidad desktop-cell">' +
                 '<div class="qty-control">' +
                     '<button type="button" onclick="cambiarCantidad(\'' + pid + '\', ' + (esGranel ? '-0.1' : '-1') + ')">−</button>' +
@@ -1328,7 +1341,7 @@ function renderCarrito() {
             '<td class="col-desc desktop-cell">' +
                 '<button class="btn-desc" onclick="editarDescuentoLinea(\'' + pid + '\')">' + (descuentoTexto || '0%') + '</button>' +
             '</td>' +
-            '<td class="col-importe desktop-cell">$' + importe.toFixed(2) + '</td>' +
+            '<td class="col-importe desktop-cell">' + formatMoney(importe) + '</td>' +
             '<td class="col-acciones desktop-cell">' +
                 '<button class="btn-delete" onclick="eliminarDelCarrito(\'' + pid + '\')"><i class="fas fa-trash"></i></button>' +
             '</td>' +
@@ -1346,18 +1359,24 @@ function actualizarTotales() {
     carrito.forEach(function(item) {
         articulos += item.cantidad;
         var sub = item.precio * item.cantidad;
-        var desc = sub * (item.descuento || 0) / 100;
+        
+        // Calcular descuento (% o monto)
+        if (item.descuentoMonto > 0) {
+            descuentos += item.descuentoMonto * item.cantidad;
+        } else if (item.descuento > 0) {
+            descuentos += sub * item.descuento / 100;
+        }
+        
         subtotal += sub;
-        descuentos += desc;
     });
     
     var descGlobal = (subtotal - descuentos) * descuentoGlobal / 100;
     var total = subtotal - descuentos - descGlobal;
     
     setElementText('totalArticulos', articulos.toFixed(2));
-    setElementText('subtotalVenta', '$' + subtotal.toFixed(2));
-    setElementText('descuentosVenta', '-$' + (descuentos + descGlobal).toFixed(2));
-    setElementText('totalAmount', '$' + total.toFixed(2));
+    setElementText('subtotalVenta', formatMoney(subtotal));
+    setElementText('descuentosVenta', '-' + formatMoney(descuentos + descGlobal));
+    setElementText('totalAmount', formatMoney(total));
 }
 
 function calcularTotalFinal() {
@@ -1365,7 +1384,13 @@ function calcularTotalFinal() {
     
     carrito.forEach(function(item) {
         var sub = item.precio * item.cantidad;
-        descuentos += sub * (item.descuento || 0) / 100;
+        
+        if (item.descuentoMonto > 0) {
+            descuentos += item.descuentoMonto * item.cantidad;
+        } else if (item.descuento > 0) {
+            descuentos += sub * item.descuento / 100;
+        }
+        
         subtotal += sub;
     });
     
@@ -1438,7 +1463,7 @@ function editarPrecioLinea(id) {
     var shortcuts = document.getElementById('editarShortcuts');
     if (shortcuts) {
         shortcuts.innerHTML = 
-            '<button type="button" onclick="setEditarValor(' + original.toFixed(2) + ')" class="primary">Original $' + original.toFixed(2) + '</button>' +
+            '<button type="button" onclick="setEditarValor(' + original.toFixed(2) + ')" class="primary">Original ' + formatMoney(original) + '</button>' +
             '<button type="button" onclick="ajustarEditarValor(-10)">−$10</button>' +
             '<button type="button" onclick="ajustarEditarValor(-5)">−$5</button>' +
             '<button type="button" onclick="ajustarEditarValor(5)">+$5</button>' +
@@ -1458,13 +1483,97 @@ function editarDescuentoLinea(id) {
     
     setElementText('editarLineaTitulo', 'Aplicar Descuento');
     setElementText('editarLineaProducto', item.nombre);
+    setElementText('editarLineaLabel', 'Valor del descuento');
+    setElementText('editarLineaPrefix', '');
+    
+    var inputEditar = document.getElementById('inputEditarLinea');
+    
+    // Determinar si tiene descuento en % o $
+    var tipoActual = (item.descuentoMonto > 0) ? 'monto' : 'porcentaje';
+    var valorActual = (tipoActual === 'monto') ? item.descuentoMonto : (item.descuento || 0);
+    
+    if (inputEditar) {
+        inputEditar.value = valorActual;
+        inputEditar.step = '0.01';
+    }
+    
+    // Shortcuts con selector de tipo
+    var shortcuts = document.getElementById('editarShortcuts');
+    if (shortcuts) {
+        var precioUnit = item.precio;
+        shortcuts.innerHTML = 
+            '<div class="desc-tipo-selector">' +
+                '<button type="button" class="desc-tipo-btn ' + (tipoActual === 'porcentaje' ? 'active' : '') + '" onclick="setTipoDescuento(\'porcentaje\')">%</button>' +
+                '<button type="button" class="desc-tipo-btn ' + (tipoActual === 'monto' ? 'active' : '') + '" onclick="setTipoDescuento(\'monto\')">$</button>' +
+            '</div>' +
+            '<div class="desc-shortcuts" id="shortcutsPorcentaje" style="' + (tipoActual === 'porcentaje' ? '' : 'display:none') + '">' +
+                '<button type="button" onclick="setEditarValor(0)">0%</button>' +
+                '<button type="button" onclick="setEditarValor(5)">5%</button>' +
+                '<button type="button" onclick="setEditarValor(10)">10%</button>' +
+                '<button type="button" onclick="setEditarValor(15)">15%</button>' +
+                '<button type="button" onclick="setEditarValor(20)">20%</button>' +
+                '<button type="button" onclick="setEditarValor(25)">25%</button>' +
+            '</div>' +
+            '<div class="desc-shortcuts" id="shortcutsMonto" style="' + (tipoActual === 'monto' ? '' : 'display:none') + '">' +
+                '<button type="button" onclick="setEditarValor(0)">$0</button>' +
+                '<button type="button" onclick="setEditarValor(1)">$1</button>' +
+                '<button type="button" onclick="setEditarValor(2)">$2</button>' +
+                '<button type="button" onclick="setEditarValor(5)">$5</button>' +
+                '<button type="button" onclick="setEditarValor(10)">$10</button>' +
+                '<button type="button" onclick="setEditarValor(' + precioUnit.toFixed(2) + ')">Max</button>' +
+            '</div>';
+    }
+    
+    // Guardar tipo actual
+    editarLineaData.tipoDescuento = tipoActual;
+    
+    // Actualizar sufijo
+    setElementText('editarLineaSuffix', tipoActual === 'porcentaje' ? '%' : '');
+    
+    var modal = document.getElementById('modalEditarLinea');
+    if (modal) modal.classList.add('active');
+    setTimeout(function() { if (inputEditar) inputEditar.select(); }, 100);
+}
+
+function setTipoDescuento(tipo) {
+    editarLineaData.tipoDescuento = tipo;
+    
+    // Toggle botones
+    document.querySelectorAll('.desc-tipo-btn').forEach(function(btn) {
+        btn.classList.remove('active');
+    });
+    var btnActivo = document.querySelector('.desc-tipo-btn[onclick*="' + tipo + '"]');
+    if (btnActivo) btnActivo.classList.add('active');
+    
+    // Toggle shortcuts
+    var shortcutsPct = document.getElementById('shortcutsPorcentaje');
+    var shortcutsMonto = document.getElementById('shortcutsMonto');
+    if (shortcutsPct) shortcutsPct.style.display = tipo === 'porcentaje' ? '' : 'none';
+    if (shortcutsMonto) shortcutsMonto.style.display = tipo === 'monto' ? '' : 'none';
+    
+    // Actualizar sufijo
+    setElementText('editarLineaSuffix', tipo === 'porcentaje' ? '%' : '');
+    
+    // Limpiar input
+    var inputEditar = document.getElementById('inputEditarLinea');
+    if (inputEditar) {
+        inputEditar.value = '0';
+        inputEditar.focus();
+    }
+}
+
+function aplicarDescuentoGlobal() {
+    editarLineaData = { id: null, tipo: 'descuento_global' };
+    
+    setElementText('editarLineaTitulo', 'Descuento Global');
+    setElementText('editarLineaProducto', 'Aplicar a toda la venta');
     setElementText('editarLineaLabel', 'Porcentaje de descuento');
     setElementText('editarLineaPrefix', '');
     setElementText('editarLineaSuffix', '%');
     
     var inputEditar = document.getElementById('inputEditarLinea');
     if (inputEditar) {
-        inputEditar.value = item.descuento || 0;
+        inputEditar.value = descuentoGlobal;
         inputEditar.step = '1';
     }
     
@@ -1530,7 +1639,21 @@ function confirmarEditarLinea() {
             item.precio = valor;
         }
     } else if (editarLineaData.tipo === 'descuento') {
-        item.descuento = Math.min(100, Math.max(0, valor || 0));
+        // Limpiar ambos tipos primero
+        item.descuento = 0;
+        item.descuentoMonto = 0;
+        
+        if (editarLineaData.tipoDescuento === 'monto') {
+            // Descuento en dinero (por unidad)
+            item.descuentoMonto = Math.max(0, valor || 0);
+            // No permitir descuento mayor al precio
+            if (item.descuentoMonto > item.precio) {
+                item.descuentoMonto = item.precio;
+            }
+        } else {
+            // Descuento en porcentaje
+            item.descuento = Math.min(100, Math.max(0, valor || 0));
+        }
     }
     
     renderCarrito();
