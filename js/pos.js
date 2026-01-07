@@ -1390,26 +1390,23 @@ function renderCarrito() {
         
         return `
         <tr data-index="${index}">
-            <td class="mobile-card" colspan="7">
-                <div class="card-img"></div>
-                <div class="card-content">
-                    <div class="card-name">${item.nombre}</div>
-                    <div class="card-price">$${item.precio.toFixed(2)} / ${item.unidad}</div>
-                    <div class="card-qty">
-                        ${esGranel ? `
-                            <button class="qty-granel" onclick="editarCantidadGranel(${index})">${item.cantidad} ${item.unidad}</button>
-                        ` : `
-                            <div class="qty-control">
-                                <button type="button" onclick="cambiarCantidad(${index}, -1)">−</button>
-                                <span>${item.cantidad}</span>
-                                <button type="button" onclick="cambiarCantidad(${index}, 1)">+</button>
-                            </div>
-                        `}
-                    </div>
-                </div>
-                <div class="card-total">$${importe.toFixed(2)}</div>
-                <button class="card-delete" onclick="eliminarDelCarrito(${index})"><i class="fas fa-trash"></i></button>
-            </td>
+          <td class="mobile-card" colspan="7">
+    <div class="card-content">
+        <div class="card-name">${item.nombre}</div>
+        <div class="card-price">$${item.precio.toFixed(2)} / ${item.unidad}${tieneDescuento ? ` <span style="color:#ef4444">-${item.descuento}%</span>` : ''}</div>
+    </div>
+    ${esGranel ? `
+        <button class="qty-granel" onclick="editarCantidadGranel(${index})">${item.cantidad} ${item.unidad}</button>
+    ` : `
+        <div class="qty-control">
+            <button type="button" onclick="cambiarCantidad(${index}, -1)">−</button>
+            <span>${item.cantidad}</span>
+            <button type="button" onclick="cambiarCantidad(${index}, 1)">+</button>
+        </div>
+    `}
+    <div class="card-total">$${importe.toFixed(2)}</div>
+    <button class="card-delete" onclick="eliminarDelCarrito(${index})"><i class="fas fa-trash"></i></button>
+</td>
             <td class="col-producto desktop-cell">
                 <div class="cart-item-name">${item.nombre}</div>
                 <div class="cart-item-code">${item.codigo || ''}</div>
