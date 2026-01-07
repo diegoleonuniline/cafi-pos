@@ -855,7 +855,6 @@ async function cargarCompras() {
         document.getElementById('statPagado').textContent = formatMoney(pagado);
         
         renderComprasList();
-        renderComprasKanban();
         document.getElementById('totalCompras').textContent = `${comprasData.length} compras`;
         document.getElementById('emptyCompras').classList.toggle('show', comprasData.length === 0);
     } catch (e) { comprasData = []; }
@@ -876,44 +875,6 @@ function renderComprasList() {
             </td>
         </tr>
     `).join('');
-}
-
-function renderComprasKanban() {
-    // Agrupar por estado visual
-    const grupos = { BORRADOR: [], CONFIRMADA: [], PAGADA: [] };
-    
-    comprasFiltradas.forEach(c => {
-        if (c.estatus === 'BORRADOR') {
-            grupos.BORRADOR.push(c);
-        } else if (['PENDIENTE', 'PARCIAL', 'CONFIRMADA'].includes(c.estatus)) {
-            grupos.CONFIRMADA.push(c);
-        } else if (['RECIBIDA', 'PAGADA'].includes(c.estatus)) {
-            grupos.PAGADA.push(c);
-        }
-    });
-    
-    ['Borrador', 'Confirmada', 'Pagada'].forEach(s => {
-        const status = s.toUpperCase();
-        const lista = grupos[status] || [];
-        document.getElementById(`k${s}`).innerHTML = lista.map(c => `
-            <div class="k-card" onclick="cargarCompraEnFormulario('${c.compra_id}')">
-                <div class="k-card-title">${c.serie || 'C'}-${c.folio}</div>
-                <div class="k-card-subtitle">${c.proveedor_nombre || '-'}</div>
-                <div class="k-card-footer">
-                    <span class="k-card-total">${formatMoney(c.total)}</span>
-                    ${parseFloat(c.saldo) > 0 ? `<span class="k-card-saldo">${formatMoney(c.saldo)}</span>` : ''}
-                </div>
-            </div>
-        `).join('');
-        document.getElementById(`cnt${s}`).textContent = lista.length;
-    });
-}
-
-function cambiarVista(vista) {
-    document.querySelectorAll('.vs-btn').forEach(b => b.classList.remove('active'));
-    document.querySelector(`.vs-btn[data-view="${vista}"]`)?.classList.add('active');
-    document.querySelectorAll('.view-panel').forEach(v => v.classList.remove('active'));
-    document.getElementById(`view-${vista}`)?.classList.add('active');
 }
 
 function getBadge(estatus) {
