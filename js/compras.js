@@ -1011,16 +1011,20 @@ async function cancelarPagoLista(pagoId) {
 function abrirModalPago() {
     if (!compraActual) return;
     
-    // El saldo viene de la BD, pero puede diferir del total actual si se editó
-    const saldoBD = parseFloat(compraActual.saldo || 0);
-    const totalActual = parseFloat(compraActual.total || 0);
+    // Calcular total actual desde lineasCompra (tiene los valores editados)
+    const lineasValidas = lineasCompra.filter(l => l.producto_id);
+    const subtotal = lineasValidas.reduce((s, l) => s + (l.cantidad * l.costo), 0);
+    const iva = lineasValidas.reduce((s, l) => s + (l.cantidad * l.costo * l.iva / 100), 0);
+    const ieps = lineasValidas.reduce((s, l) => s + (l.cantidad * l.costo * l.ieps / 100), 0);
+    const totalCalculado = subtotal + iva + ieps;
     
-    // Si hay diferencia significativa, usar el menor (más conservador)
-    const saldoMostrar = saldoBD > 0 ? saldoBD : totalActual;
+    // Restar pagos ya hechos
+    const pagado = compraActual.pagos?.reduce((s, p) => s + parseFloat(p.monto || 0), 0) || 0;
+    const saldoReal = Math.max(0, totalCalculado - pagado);
     
-    document.getElementById('pagoSaldo').textContent = formatMoney(saldoMostrar);
-    document.getElementById('pagoMonto').value = saldoMostrar.toFixed(2);
-    document.getElementById('pagoMonto').max = saldoMostrar;
+    document.getElementById('pagoSaldo').textContent = formatMoney(saldoReal);
+    document.getElementById('pagoMonto').value = saldoReal.toFixed(2);
+    document.getElementById('pagoMonto').max = saldoReal;
     document.getElementById('pagoMetodo').value = '';
     document.getElementById('pagoCuenta').value = '';
     document.getElementById('pagoReferencia').value = '';
@@ -1035,7 +1039,14 @@ async function guardarPago() {
     if (!monto || monto <= 0) { toast('Monto inválido', 'error'); return; }
     if (!metodo) { toast('Seleccione método', 'error'); return; }
     
-    const saldoActual = parseFloat(compraActual.saldo || compraActual.total || 0);
+    // Calcular saldo real desde lineasCompra
+    const lineasValidas = lineasCompra.filter(l => l.producto_id);
+    const subtotal = lineasValidas.reduce((s, l) => s + (l.cantidad * l.costo), 0);
+    const iva = lineasValidas.reduce((s, l) => s + (l.cantidad * l.costo * l.iva / 100), 0);
+    const ieps = lineasValidas.reduce((s, l) => s + (l.cantidad * l.costo * l.ieps / 100), 0);
+    const totalCalculado = subtotal + iva + ieps;
+    const pagado = compraActual.pagos?.reduce((s, p) => s + parseFloat(p.monto || 0), 0) || 0;
+    const saldoActual = Math.max(0, totalCalculado - pagado);
     
     try {
         const r = await API.request('/pago-compras', 'POST', {
