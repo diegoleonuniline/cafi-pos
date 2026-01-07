@@ -85,20 +85,27 @@ async function cargarSucursales() {
             const opts = sucursalesData.map(s => `<option value="${s.sucursal_id}">${s.nombre}</option>`).join('');
             
             // Tab Existencias
-            document.getElementById('filtroSucursalExist').innerHTML = '<option value="">Todas</option>' + opts;
+            const filtroExist = document.getElementById('filtroSucursalExist');
+            if (filtroExist) filtroExist.innerHTML = '<option value="">Todas</option>' + opts;
             
             // Tab Movimientos
-            document.getElementById('filtroSucursalMov').innerHTML = '<option value="">Todas</option>' + opts;
+            const filtroMov = document.getElementById('filtroSucursalMov');
+            if (filtroMov) filtroMov.innerHTML = '<option value="">Todas</option>' + opts;
             
             // Tab Traspasos
-            document.getElementById('filtroSucursalTras').innerHTML = '<option value="">Todas</option>' + opts;
+            const filtroTras = document.getElementById('filtroSucursalTras');
+            if (filtroTras) filtroTras.innerHTML = '<option value="">Todas</option>' + opts;
             
             // Tab Ajuste
-            document.getElementById('ajusteSucursal').innerHTML = '<option value="">Seleccionar...</option>' + opts;
+            const ajusteSuc = document.getElementById('ajusteSucursal');
+            if (ajusteSuc) ajusteSuc.innerHTML = '<option value="">Seleccionar...</option>' + opts;
             
             // Modal Traspaso
-            document.getElementById('traspasoSucursalOrigen').innerHTML = '<option value="">Seleccionar...</option>' + opts;
-            document.getElementById('traspasoSucursalDestino').innerHTML = '<option value="">Seleccionar...</option>' + opts;
+            const trasOrigen = document.getElementById('traspasoSucursalOrigen');
+            if (trasOrigen) trasOrigen.innerHTML = '<option value="">Seleccionar...</option>' + opts;
+            
+            const trasDestino = document.getElementById('traspasoSucursalDestino');
+            if (trasDestino) trasDestino.innerHTML = '<option value="">Seleccionar...</option>' + opts;
         }
     } catch (e) {
         console.error('Error cargando sucursales:', e);
