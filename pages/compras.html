@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAFI - Compras</title>
-    <link rel="stylesheet" href="../css/compras.css">
+    <title>CAFI - Inventario</title>
+    <link rel="stylesheet" href="../css/inventario.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -25,7 +25,8 @@
                 <a href="admin.html" class="nav-item"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
                 <a href="productos.html" class="nav-item"><i class="fas fa-box"></i><span>Productos</span></a>
                 <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i><span>Clientes</span></a>
-                <a href="compras.html" class="nav-item active"><i class="fas fa-truck-loading"></i><span>Compras</span></a>
+                <a href="compras.html" class="nav-item"><i class="fas fa-truck-loading"></i><span>Compras</span></a>
+                <a href="inventario.html" class="nav-item active"><i class="fas fa-boxes"></i><span>Inventario</span></a>
                 <a href="ventas.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Ventas</span></a>
                 <a href="reportes.html" class="nav-item"><i class="fas fa-file-alt"></i><span>Reportes</span></a>
                 <a href="gastos.html" class="nav-item"><i class="fas fa-money-bill-wave"></i><span>Gastos</span></a>
@@ -46,390 +47,388 @@
         <!-- Main -->
         <main class="admin-main">
             <div class="admin-content">
-            <!-- Tabs Horizontales -->
-            <div class="tabs-container">
-                <div class="tabs-nav">
-                    <button class="tab-btn active" data-tab="crear"><i class="fas fa-plus-circle"></i><span>Nueva Compra</span></button>
-                    <button class="tab-btn" data-tab="compras"><i class="fas fa-list"></i><span>Historial</span></button>
-                    <button class="tab-btn" data-tab="cuentas"><i class="fas fa-hand-holding-usd"></i><span>Cuentas por Pagar</span></button>
-                    <button class="tab-btn" data-tab="pagos"><i class="fas fa-money-check-alt"></i><span>Pagos Realizados</span></button>
+                <!-- Tabs Horizontales -->
+                <div class="tabs-container">
+                    <div class="tabs-nav">
+                        <button class="tab-btn active" data-tab="existencias"><i class="fas fa-warehouse"></i><span>Existencias</span></button>
+                        <button class="tab-btn" data-tab="movimientos"><i class="fas fa-exchange-alt"></i><span>Movimientos</span></button>
+                        <button class="tab-btn" data-tab="traspasos"><i class="fas fa-truck-loading"></i><span>Traspasos</span></button>
+                        <button class="tab-btn" data-tab="ajuste"><i class="fas fa-sliders-h"></i><span>Ajuste</span></button>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Content Wrapper -->
-            <div class="content-wrapper">
-                <!-- ==================== TAB: CREAR COMPRA ==================== -->
-                <div class="tab-panel active" id="panel-crear">
-                    <div class="form-card">
-                        <input type="hidden" id="compraId">
-                        
-                        <!-- Status Bar con Botón Nuevo -->
-                        <div class="statusbar">
-                            <div class="statusbar-left">
-                                <button class="btn btn-primary" id="btnNuevo" onclick="limpiarFormulario()">
-                                    <i class="fas fa-plus"></i> Nueva Compra
-                                </button>
-                                <div class="statusbar-steps">
-                                    <span class="step active" data-status="BORRADOR">Borrador</span>
-                                    <span class="step-arrow"><i class="fas fa-chevron-right"></i></span>
-                                    <span class="step" data-status="CONFIRMADA">Confirmada</span>
-                                    <span class="step-arrow"><i class="fas fa-chevron-right"></i></span>
-                                    <span class="step" data-status="PAGADA">Pagada</span>
-                                </div>
-                            </div>
-                            <div id="compraFolio" style="font-size: 18px; font-weight: 600; color: var(--primary);"></div>
+                <!-- Content Wrapper -->
+                <div class="content-wrapper">
+                    <!-- ==================== TAB: EXISTENCIAS ==================== -->
+                    <div class="tab-panel active" id="panel-existencias">
+                        <div class="panel-stats-row">
+                            <div class="mini-stat blue"><i class="fas fa-cubes"></i><div><span id="statTotalProductos">0</span><small>Total Productos</small></div></div>
+                            <div class="mini-stat green"><i class="fas fa-check-circle"></i><div><span id="statConStock">0</span><small>Con Stock</small></div></div>
+                            <div class="mini-stat orange"><i class="fas fa-exclamation-triangle"></i><div><span id="statStockBajo">0</span><small>Stock Bajo</small></div></div>
+                            <div class="mini-stat red"><i class="fas fa-times-circle"></i><div><span id="statSinStock">0</span><small>Sin Stock</small></div></div>
+                            <div class="mini-stat purple"><i class="fas fa-dollar-sign"></i><div><span id="statValorTotal">$0</span><small>Valor Total</small></div></div>
                         </div>
 
-                        <!-- Action Buttons -->
-                        <div class="action-buttons">
-                            <button class="btn btn-primary" id="btnConfirmar" onclick="guardarCompra('CONFIRMADA')"><i class="fas fa-check"></i> Confirmar</button>
-                            <button class="btn" id="btnGuardar" onclick="guardarCompra('BORRADOR')"><i class="fas fa-save"></i> Guardar Borrador</button>
-                            <button class="btn" id="btnPago" onclick="abrirModalPago()" style="display:none"><i class="fas fa-dollar-sign"></i> Registrar Pago</button>
-                            <button class="btn btn-outline" id="btnPDF" onclick="generarPDF()" style="display:none"><i class="fas fa-file-pdf"></i> PDF</button>
-                            <button class="btn btn-reopen" id="btnReabrir" onclick="reabrirCompra()" style="display:none"><i class="fas fa-undo"></i> Reabrir</button>
-                            <button class="btn btn-danger" id="btnCancelar" onclick="cancelarCompraActual()" style="display:none"><i class="fas fa-ban"></i> Cancelar</button>
-                        </div>
-
-                        <!-- Campos principales -->
-                        <div class="fields-grid">
-                            <div class="field">
-                                <label>Proveedor <span class="required">*</span></label>
-                                <div class="field-with-btn">
-                                    <select id="compProveedor" required><option value="">Seleccionar...</option></select>
-                                    <button class="btn-add-inline" onclick="abrirModal('modalProveedor')" title="Nuevo Proveedor"><i class="fas fa-plus"></i></button>
+                        <div class="panel-toolbar">
+                            <div class="toolbar-filters">
+                                <div class="filter-item">
+                                    <label>Almacén</label>
+                                    <select id="filtroAlmacenExist" onchange="cargarExistencias()">
+                                        <option value="">Todos</option>
+                                    </select>
                                 </div>
-                            </div>
-                            <div class="field">
-                                <label>Almacén Destino <span class="required">*</span></label>
-                                <div class="field-with-btn">
-                                    <select id="compAlmacen" required><option value="">Seleccionar...</option></select>
-                                    <button class="btn-add-inline" onclick="abrirModal('modalAlmacen')" title="Nuevo Almacén"><i class="fas fa-plus"></i></button>
+                                <div class="filter-item">
+                                    <label>Buscar</label>
+                                    <input type="text" id="filtroBuscarExist" placeholder="Nombre, código..." oninput="filtrarExistencias()">
                                 </div>
-                            </div>
-                            <div class="field">
-                                <label>Fecha Compra</label>
-                                <input type="date" id="compFecha">
-                            </div>
-                            <div class="field">
-                                <label>Fecha Vencimiento Pago</label>
-                                <input type="date" id="compFechaVencimiento">
-                            </div>
-                            <div class="field half">
-                                <label>Factura Proveedor</label>
-                                <input type="text" id="compFactura" placeholder="Núm. factura del proveedor">
-                            </div>
-                            <div class="field half">
-                                <label>Notas</label>
-                                <input type="text" id="compNotas" placeholder="Observaciones...">
+                                <div class="filter-item">
+                                    <label>Estado</label>
+                                    <select id="filtroEstadoStock" onchange="filtrarExistencias()">
+                                        <option value="">Todos</option>
+                                        <option value="constock">Con stock</option>
+                                        <option value="bajo">Stock bajo</option>
+                                        <option value="sinstock">Sin stock</option>
+                                    </select>
+                                </div>
+                                <button class="btn-filtrar" onclick="exportarExistencias()"><i class="fas fa-file-excel"></i> Exportar</button>
                             </div>
                         </div>
 
-                        <!-- Líneas de Productos -->
-                        <div class="lines-section">
-                            <table class="lines-table">
+                        <div class="panel-table">
+                            <table class="data-table">
                                 <thead>
                                     <tr>
-                                        <th class="col-producto">Producto</th>
-                                        <th class="col-cantidad">Cantidad</th>
-                                        <th class="col-unidad">Unidad</th>
-                                        <th class="col-precio">Costo Unit.</th>
-                                        <th class="col-iva">IVA %</th>
-                                        <th class="col-ieps">IEPS %</th>
-                                        <th class="col-importe">Importe</th>
-                                        <th class="col-actions"></th>
+                                        <th>Código</th>
+                                        <th>Producto</th>
+                                        <th>Almacén</th>
+                                        <th class="text-right">Stock</th>
+                                        <th class="text-right">Reservado</th>
+                                        <th class="text-right">Disponible</th>
+                                        <th class="text-right">Costo Prom.</th>
+                                        <th class="text-right">Valor</th>
+                                        <th class="text-center">Estado</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tablaLineas"></tbody>
+                                <tbody id="tablaExistencias"></tbody>
                             </table>
+                        </div>
+                        <div class="empty-state" id="emptyExistencias"><i class="fas fa-boxes"></i><p>No hay existencias registradas</p></div>
+                        <div class="panel-footer"><span id="totalExistencias">0 productos</span></div>
+                    </div>
 
-                            <div class="lines-actions">
-                                <a href="#" class="line-link" onclick="agregarLineaVacia(); return false;"><i class="fas fa-plus"></i> Agregar producto</a>
-                                <a href="#" class="line-link" onclick="abrirCatalogo(); return false;"><i class="fas fa-th"></i> Catálogo</a>
-                                <a href="#" class="line-link" onclick="abrirModal('modalProducto'); return false;"><i class="fas fa-box"></i> Nuevo Producto</a>
+                    <!-- ==================== TAB: MOVIMIENTOS ==================== -->
+                    <div class="tab-panel" id="panel-movimientos">
+                        <div class="panel-toolbar">
+                            <div class="toolbar-filters">
+                                <div class="filter-item">
+                                    <label>Almacén</label>
+                                    <select id="filtroAlmacenMov" onchange="cargarMovimientos()">
+                                        <option value="">Todos</option>
+                                    </select>
+                                </div>
+                                <div class="filter-item">
+                                    <label>Concepto</label>
+                                    <select id="filtroConceptoMov" onchange="cargarMovimientos()">
+                                        <option value="">Todos</option>
+                                    </select>
+                                </div>
+                                <div class="filter-item">
+                                    <label>Tipo</label>
+                                    <select id="filtroTipoMov" onchange="cargarMovimientos()">
+                                        <option value="">Todos</option>
+                                        <option value="ENTRADA">Entradas</option>
+                                        <option value="SALIDA">Salidas</option>
+                                    </select>
+                                </div>
+                                <div class="filter-item">
+                                    <label>Desde</label>
+                                    <input type="date" id="filtroMovDesde" onchange="cargarMovimientos()">
+                                </div>
+                                <div class="filter-item">
+                                    <label>Hasta</label>
+                                    <input type="date" id="filtroMovHasta" onchange="cargarMovimientos()">
+                                </div>
+                                <button class="btn-filtrar" onclick="cargarMovimientos()"><i class="fas fa-search"></i> Buscar</button>
+                            </div>
+                        </div>
+
+                        <div class="panel-table">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Concepto</th>
+                                        <th>Producto</th>
+                                        <th>Almacén</th>
+                                        <th class="text-right">Cantidad</th>
+                                        <th class="text-right">Anterior</th>
+                                        <th class="text-right">Nueva</th>
+                                        <th>Referencia</th>
+                                        <th>Usuario</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaMovimientos"></tbody>
+                            </table>
+                        </div>
+                        <div class="empty-state" id="emptyMovimientos"><i class="fas fa-exchange-alt"></i><p>No hay movimientos registrados</p></div>
+                        <div class="panel-footer"><span id="totalMovimientos">0 movimientos</span></div>
+                    </div>
+
+                    <!-- ==================== TAB: TRASPASOS ==================== -->
+                    <div class="tab-panel" id="panel-traspasos">
+                        <div class="panel-toolbar">
+                            <div class="toolbar-filters">
+                                <div class="filter-item">
+                                    <label>Estatus</label>
+                                    <select id="filtroEstatusTras" onchange="cargarTraspasos()">
+                                        <option value="">Todos</option>
+                                        <option value="BORRADOR">Borrador</option>
+                                        <option value="SOLICITADO">Solicitado</option>
+                                        <option value="EN_TRANSITO">En Tránsito</option>
+                                        <option value="RECIBIDO">Recibido</option>
+                                        <option value="CANCELADO">Cancelado</option>
+                                    </select>
+                                </div>
+                                <div class="filter-item">
+                                    <label>Origen</label>
+                                    <select id="filtroOrigenTras" onchange="cargarTraspasos()">
+                                        <option value="">Todos</option>
+                                    </select>
+                                </div>
+                                <div class="filter-item">
+                                    <label>Destino</label>
+                                    <select id="filtroDestinoTras" onchange="cargarTraspasos()">
+                                        <option value="">Todos</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-primary" onclick="nuevoTraspaso()"><i class="fas fa-plus"></i> Nuevo Traspaso</button>
+                            </div>
+                        </div>
+
+                        <div class="panel-table">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Folio</th>
+                                        <th>Fecha</th>
+                                        <th>Origen</th>
+                                        <th>Destino</th>
+                                        <th class="text-right">Productos</th>
+                                        <th>Referencia</th>
+                                        <th class="text-center">Estatus</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaTraspasos"></tbody>
+                            </table>
+                        </div>
+                        <div class="empty-state" id="emptyTraspasos"><i class="fas fa-truck-loading"></i><p>No hay traspasos registrados</p></div>
+                        <div class="panel-footer"><span id="totalTraspasos">0 traspasos</span></div>
+                    </div>
+
+                    <!-- ==================== TAB: AJUSTE ==================== -->
+                    <div class="tab-panel" id="panel-ajuste">
+                        <div class="form-card">
+                            <input type="hidden" id="ajusteId">
+                            
+                            <!-- Status Bar -->
+                            <div class="statusbar">
+                                <div class="statusbar-left">
+                                    <button class="btn btn-primary" id="btnNuevoAjuste" onclick="limpiarAjuste()">
+                                        <i class="fas fa-plus"></i> Nuevo Ajuste
+                                    </button>
+                                    <div class="statusbar-steps">
+                                        <span class="step active" data-status="BORRADOR"><i class="fas fa-edit"></i> Borrador</span>
+                                        <span class="step-arrow"><i class="fas fa-chevron-right"></i></span>
+                                        <span class="step" data-status="APLICADO"><i class="fas fa-check"></i> Aplicado</span>
+                                    </div>
+                                </div>
+                                <span class="badge badge-gray" id="ajusteBadge">Nuevo</span>
                             </div>
 
-                            <div class="totals-section">
-                                <div class="totals-box">
-                                    <div class="total-row"><span>Subtotal:</span><span id="compSubtotal">$0.00</span></div>
-                                    <div class="total-row"><span>IVA:</span><span id="compIVA">$0.00</span></div>
-                                    <div class="total-row"><span>IEPS:</span><span id="compIEPS">$0.00</span></div>
-                                    <div class="total-row total"><span>Total:</span><span id="compTotal">$0.00</span></div>
+                            <!-- Action Buttons -->
+                            <div class="action-buttons">
+                                <button class="btn btn-success" id="btnAplicarAjuste" onclick="aplicarAjuste()"><i class="fas fa-check"></i> Aplicar Ajuste</button>
+                                <button class="btn btn-outline" onclick="limpiarAjuste()"><i class="fas fa-eraser"></i> Limpiar</button>
+                            </div>
+
+                            <!-- Campos principales -->
+                            <div class="fields-grid">
+                                <div class="field">
+                                    <label>Almacén <span class="required">*</span></label>
+                                    <select id="ajusteAlmacen" required onchange="cambiarAlmacenAjuste()">
+                                        <option value="">Seleccionar...</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>Concepto <span class="required">*</span></label>
+                                    <select id="ajusteConcepto" required onchange="cambiarConceptoAjuste()">
+                                        <option value="">Seleccionar...</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>Fecha</label>
+                                    <input type="date" id="ajusteFecha">
+                                </div>
+                                <div class="field">
+                                    <label>Referencia</label>
+                                    <input type="text" id="ajusteReferencia" placeholder="Opcional">
+                                </div>
+                            </div>
+
+                            <div class="fields-grid" style="padding-top:0;">
+                                <div class="field half">
+                                    <label>Notas</label>
+                                    <textarea id="ajusteNotas" rows="2" placeholder="Observaciones..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Líneas de Productos -->
+                            <div class="lines-section">
+                                <table class="lines-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-producto">Producto</th>
+                                            <th class="col-stock">Stock Actual</th>
+                                            <th class="col-cantidad">Cantidad</th>
+                                            <th class="col-costo">Costo Unit.</th>
+                                            <th class="col-total">Total</th>
+                                            <th class="col-actions"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tablaLineasAjuste"></tbody>
+                                </table>
+                                <div class="lines-actions">
+                                    <a href="#" class="line-link" onclick="agregarLineaAjuste(); return false;"><i class="fas fa-plus"></i> Agregar producto</a>
+                                </div>
+                                <div class="totals-section">
+                                    <div class="totals-box">
+                                        <div class="total-row"><span>Productos:</span><span id="ajusteTotalProductos">0</span></div>
+                                        <div class="total-row"><span>Unidades:</span><span id="ajusteTotalUnidades">0</span></div>
+                                        <div class="total-row total"><span>Costo Total:</span><span id="ajusteCostoTotal">$0.00</span></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Historial de Pagos (solo visible cuando hay compra cargada) -->
-                        <div class="historial-section" id="seccionPagos" style="display:none;">
-                            <h4><i class="fas fa-history"></i> Historial de Pagos</h4>
-                            <div class="pagos-list" id="listaPagos"></div>
-                            <div class="saldo-badge" id="saldoPendiente">Saldo: $0.00</div>
-                        </div>
                     </div>
                 </div>
-
-                <!-- ==================== TAB: HISTORIAL COMPRAS ==================== -->
-                <div class="tab-panel" id="panel-compras">
-                    <div class="panel-toolbar">
-                        <div class="toolbar-filters">
-                            <div class="filter-item"><label>Desde</label><input type="date" id="filtroDesde"></div>
-                            <div class="filter-item"><label>Hasta</label><input type="date" id="filtroHasta"></div>
-                            <div class="filter-item"><label>Proveedor</label><select id="filtroProveedor"><option value="">Todos</option></select></div>
-                            <div class="filter-item"><label>Estado</label>
-                                <select id="filtroEstatus">
-                                    <option value="">Todos</option>
-                                    <option value="BORRADOR">Borrador</option>
-                                    <option value="CONFIRMADA">Confirmada</option>
-                                    <option value="PAGADA">Pagada</option>
-                                    <option value="CANCELADA">Cancelada</option>
-                                </select>
-                            </div>
-                            <button class="btn-filtrar" onclick="cargarCompras()"><i class="fas fa-search"></i> Buscar</button>
-                        </div>
-                    </div>
-
-                    <div class="panel-stats-row">
-                        <div class="mini-stat blue"><i class="fas fa-file-invoice"></i><div><span id="statCompras">0</span><small>Compras</small></div></div>
-                        <div class="mini-stat green"><i class="fas fa-dollar-sign"></i><div><span id="statTotal">$0</span><small>Total</small></div></div>
-                        <div class="mini-stat orange"><i class="fas fa-clock"></i><div><span id="statPendiente">$0</span><small>Pendiente</small></div></div>
-                        <div class="mini-stat purple"><i class="fas fa-check-circle"></i><div><span id="statPagado">$0</span><small>Pagado</small></div></div>
-                    </div>
-
-                    <div class="panel-table">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Folio</th>
-                                    <th>Proveedor</th>
-                                    <th>Fecha</th>
-                                    <th>Factura</th>
-                                    <th class="text-right">Total</th>
-                                    <th class="text-right">Saldo</th>
-                                    <th class="text-center">Estado</th>
-                                    <th class="text-center">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaCompras"></tbody>
-                        </table>
-                    </div>
-                    <div class="empty-state" id="emptyCompras"><i class="fas fa-inbox"></i><p>No hay compras registradas</p></div>
-
-                    <div class="panel-footer"><span id="totalCompras">0 compras</span></div>
-                </div>
-
-                <!-- ==================== TAB: CUENTAS POR PAGAR ==================== -->
-                <div class="tab-panel" id="panel-cuentas">
-                    <div class="panel-toolbar">
-                        <div class="toolbar-filters">
-                            <h3 style="margin:0; display:flex; align-items:center; gap:10px;"><i class="fas fa-hand-holding-usd" style="color:var(--primary)"></i> Cuentas por Pagar</h3>
-                        </div>
-                        <button class="btn-filtrar" onclick="cargarCuentasPagar()"><i class="fas fa-sync"></i> Actualizar</button>
-                    </div>
-                    
-                    <div class="panel-table">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Proveedor</th>
-                                    <th class="text-center">Compras</th>
-                                    <th class="text-right">Saldo Total</th>
-                                    <th class="text-center">Próx. Vencimiento</th>
-                                    <th class="text-center">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaCuentas"></tbody>
-                        </table>
-                    </div>
-                    <div class="empty-state" id="emptyCuentas"><i class="fas fa-check-circle"></i><p>No hay cuentas pendientes</p></div>
-                </div>
-
-                <!-- ==================== TAB: PAGOS REALIZADOS ==================== -->
-                <div class="tab-panel" id="panel-pagos">
-                    <div class="panel-toolbar">
-                        <div class="toolbar-filters">
-                            <div class="filter-item"><label>Desde</label><input type="date" id="filtroPagosDesde"></div>
-                            <div class="filter-item"><label>Hasta</label><input type="date" id="filtroPagosHasta"></div>
-                            <div class="filter-item"><label>Proveedor</label><select id="filtroPagosProveedor"><option value="">Todos</option></select></div>
-                            <button class="btn-filtrar" onclick="cargarPagos()"><i class="fas fa-search"></i> Buscar</button>
-                        </div>
-                    </div>
-
-                    <div class="panel-stats-row">
-                        <div class="mini-stat green"><i class="fas fa-money-bill-wave"></i><div><span id="pagosEfectivo">$0</span><small>Efectivo</small></div></div>
-                        <div class="mini-stat blue"><i class="fas fa-credit-card"></i><div><span id="pagosTarjeta">$0</span><small>Tarjeta</small></div></div>
-                        <div class="mini-stat purple"><i class="fas fa-exchange-alt"></i><div><span id="pagosTransferencia">$0</span><small>Transferencia</small></div></div>
-                    </div>
-
-                    <div class="panel-table">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Fecha</th>
-                                    <th>Proveedor</th>
-                                    <th>Compra</th>
-                                    <th>Método</th>
-                                    <th>Referencia</th>
-                                    <th class="text-right">Monto</th>
-                                    <th class="text-center">Estado</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaPagos"></tbody>
-                        </table>
-                    </div>
-                    <div class="empty-state" id="emptyPagos"><i class="fas fa-money-check-alt"></i><p>No hay pagos registrados</p></div>
-                    <div class="panel-footer">
-                        <span id="totalPagos">0 pagos</span>
-                        <span id="sumaPagos" class="total-sum">Total: $0.00</span>
-                    </div>
-                </div>
-            </div>
             </div>
         </main>
     </div>
 
-    <!-- ==================== MODALES ==================== -->
-
-    <!-- Modal Catálogo -->
-    <div class="modal-overlay" id="modalCatalogo">
+    <!-- ==================== MODAL TRASPASO ==================== -->
+    <div class="modal-overlay" id="modalTraspaso">
         <div class="modal modal-lg">
             <div class="modal-header">
-                <h3><i class="fas fa-boxes"></i> Catálogo de Productos</h3>
-                <button class="modal-close" onclick="cerrarModal('modalCatalogo')"><i class="fas fa-times"></i></button>
+                <h3><i class="fas fa-truck-loading"></i> <span id="modalTraspasoTitulo">Nuevo Traspaso</span></h3>
+                <button class="modal-close" onclick="cerrarModal('modalTraspaso')"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
-                <div class="catalog-search">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="catalogoBuscar" placeholder="Buscar producto..." oninput="filtrarCatalogo()">
+                <!-- Status Bar Traspaso -->
+                <div class="statusbar-steps" id="traspasoStatusBar" style="margin-bottom:20px; justify-content:center;">
+                    <span class="step active" data-status="BORRADOR"><i class="fas fa-edit"></i> Borrador</span>
+                    <span class="step-arrow"><i class="fas fa-chevron-right"></i></span>
+                    <span class="step" data-status="SOLICITADO"><i class="fas fa-paper-plane"></i> Solicitado</span>
+                    <span class="step-arrow"><i class="fas fa-chevron-right"></i></span>
+                    <span class="step" data-status="EN_TRANSITO"><i class="fas fa-truck"></i> En Tránsito</span>
+                    <span class="step-arrow"><i class="fas fa-chevron-right"></i></span>
+                    <span class="step" data-status="RECIBIDO"><i class="fas fa-check-double"></i> Recibido</span>
                 </div>
-                <div class="catalog-grid" id="catalogoGrid"></div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Modal Pago -->
-    <div class="modal-overlay" id="modalPago">
-        <div class="modal modal-sm">
-            <div class="modal-header">
-                <h3><i class="fas fa-dollar-sign"></i> Registrar Pago</h3>
-                <button class="modal-close" onclick="cerrarModal('modalPago')"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="pago-saldo">Saldo Pendiente: <strong id="pagoSaldo">$0.00</strong></div>
-                <div class="modal-field"><label>Monto a Pagar *</label><input type="number" id="pagoMonto" step="0.01" min="0"></div>
-                <div class="modal-field"><label>Método de Pago *</label><select id="pagoMetodo"><option value="">Seleccionar...</option></select></div>
-                <div class="modal-field"><label>Cuenta Bancaria</label><select id="pagoCuenta"><option value="">Sin cuenta</option></select></div>
-                <div class="modal-field"><label>Referencia</label><input type="text" id="pagoReferencia" placeholder="No. cheque, transferencia..."></div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn" onclick="cerrarModal('modalPago')">Cancelar</button>
-                <button class="btn btn-success" onclick="guardarPago()"><i class="fas fa-check"></i> Registrar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Nuevo Proveedor -->
-    <div class="modal-overlay" id="modalProveedor">
-        <div class="modal">
-            <div class="modal-header">
-                <h3><i class="fas fa-truck"></i> Nuevo Proveedor</h3>
-                <button class="modal-close" onclick="cerrarModal('modalProveedor')"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="modal-field"><label>Nombre Comercial *</label><input type="text" id="provNombre"></div>
-                <div class="modal-field"><label>Razón Social</label><input type="text" id="provRazon"></div>
-                <div class="modal-field-row">
-                    <div class="modal-field"><label>RFC</label><input type="text" id="provRFC"></div>
-                    <div class="modal-field"><label>Teléfono</label><input type="text" id="provTelefono"></div>
+                <input type="hidden" id="traspasoId">
+                
+                <div class="modal-form-grid">
+                    <div class="modal-field">
+                        <label>Almacén Origen *</label>
+                        <select id="traspasoOrigen" required onchange="cambiarAlmacenOrigen()">
+                            <option value="">Seleccionar...</option>
+                        </select>
+                    </div>
+                    <div class="modal-field">
+                        <label>Almacén Destino *</label>
+                        <select id="traspasoDestino" required>
+                            <option value="">Seleccionar...</option>
+                        </select>
+                    </div>
+                    <div class="modal-field">
+                        <label>Referencia</label>
+                        <input type="text" id="traspasoReferencia" placeholder="Opcional">
+                    </div>
+                    <div class="modal-field full">
+                        <label>Notas</label>
+                        <textarea id="traspasoNotas" rows="2" placeholder="Observaciones..."></textarea>
+                    </div>
                 </div>
-                <div class="modal-field"><label>Email</label><input type="email" id="provEmail"></div>
-                <div class="modal-field"><label>Dirección</label><input type="text" id="provDireccion"></div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn" onclick="cerrarModal('modalProveedor')">Cancelar</button>
-                <button class="btn btn-success" onclick="guardarProveedor()"><i class="fas fa-save"></i> Guardar</button>
-            </div>
-        </div>
-    </div>
 
-    <!-- Modal Nuevo Almacén -->
-    <div class="modal-overlay" id="modalAlmacen">
-        <div class="modal">
-            <div class="modal-header">
-                <h3><i class="fas fa-warehouse"></i> Nuevo Almacén</h3>
-                <button class="modal-close" onclick="cerrarModal('modalAlmacen')"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="modal-field"><label>Nombre del Almacén *</label><input type="text" id="almNombre"></div>
-                <div class="modal-field"><label>Sucursal</label>
-                    <select id="almSucursal"><option value="">Seleccionar...</option></select>
+                <!-- Tabla de productos -->
+                <div class="lines-section" style="margin-top:16px; border:1px solid var(--gray-200); border-radius:var(--radius);">
+                    <table class="lines-table">
+                        <thead>
+                            <tr>
+                                <th style="width:40%">Producto</th>
+                                <th class="text-right" style="width:15%">Disponible</th>
+                                <th class="text-right" style="width:15%">Solicitado</th>
+                                <th class="text-right" style="width:15%">Enviado</th>
+                                <th class="text-right" style="width:10%">Recibido</th>
+                                <th style="width:5%"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaLineasTraspaso"></tbody>
+                    </table>
+                    <div class="lines-actions" id="traspasoLineasActions">
+                        <a href="#" class="line-link" onclick="agregarLineaTraspaso(); return false;"><i class="fas fa-plus"></i> Agregar producto</a>
+                    </div>
                 </div>
-                <div class="modal-field"><label>Descripción</label><input type="text" id="almDescripcion"></div>
             </div>
-            <div class="modal-footer">
-                <button class="btn" onclick="cerrarModal('modalAlmacen')">Cancelar</button>
-                <button class="btn btn-success" onclick="guardarAlmacen()"><i class="fas fa-save"></i> Guardar</button>
+            <div class="modal-footer" id="traspasoFooter">
+                <button class="btn btn-outline" onclick="cerrarModal('modalTraspaso')">Cancelar</button>
+                <button class="btn btn-primary" id="btnGuardarTraspaso" onclick="guardarTraspaso('BORRADOR')"><i class="fas fa-save"></i> Guardar Borrador</button>
+                <button class="btn btn-success" id="btnSolicitarTraspaso" onclick="guardarTraspaso('SOLICITADO')"><i class="fas fa-paper-plane"></i> Solicitar</button>
+                <button class="btn btn-warning" id="btnEnviarTraspaso" onclick="enviarTraspaso()" style="display:none"><i class="fas fa-truck"></i> Enviar</button>
+                <button class="btn btn-success" id="btnRecibirTraspaso" onclick="recibirTraspaso()" style="display:none"><i class="fas fa-check-double"></i> Recibir</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Nuevo Producto -->
+    <!-- ==================== MODAL PRODUCTO ==================== -->
     <div class="modal-overlay" id="modalProducto">
-        <div class="modal modal-lg">
+        <div class="modal">
             <div class="modal-header">
                 <h3><i class="fas fa-box"></i> Nuevo Producto</h3>
                 <button class="modal-close" onclick="cerrarModal('modalProducto')"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
-                <div class="modal-field-row">
-                    <div class="modal-field"><label>Código de Barras</label><input type="text" id="prodCodigo"></div>
-                    <div class="modal-field"><label>Código Interno</label><input type="text" id="prodInterno"></div>
-                </div>
-                <div class="modal-field"><label>Nombre del Producto *</label><input type="text" id="prodNombre"></div>
-                <div class="modal-field"><label>Categoría</label>
-                    <select id="prodCategoria"><option value="">Seleccionar...</option></select>
-                </div>
-                <div class="modal-field-row">
-                    <div class="modal-field"><label>Costo</label><input type="number" id="prodCosto" step="0.01" min="0"></div>
-                    <div class="modal-field"><label>Precio Venta</label><input type="number" id="prodPrecio" step="0.01" min="0"></div>
-                </div>
-                <div class="modal-field-row">
-                    <div class="modal-field"><label>IVA %</label><input type="number" id="prodIVA" value="16" step="1" min="0"></div>
-                    <div class="modal-field"><label>IEPS %</label><input type="number" id="prodIEPS" value="0" step="0.01" min="0"></div>
+                <div class="modal-form-grid">
+                    <div class="modal-field">
+                        <label>Nombre *</label>
+                        <input type="text" id="prodNombre" required>
+                    </div>
+                    <div class="modal-field">
+                        <label>Código Barras</label>
+                        <input type="text" id="prodCodigo">
+                    </div>
+                    <div class="modal-field">
+                        <label>Costo</label>
+                        <input type="number" id="prodCosto" step="0.01" value="0">
+                    </div>
+                    <div class="modal-field">
+                        <label>Precio Venta</label>
+                        <input type="number" id="prodPrecio" step="0.01" value="0">
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn" onclick="cerrarModal('modalProducto')">Cancelar</button>
+                <button class="btn btn-outline" onclick="cerrarModal('modalProducto')">Cancelar</button>
                 <button class="btn btn-success" onclick="guardarProducto()"><i class="fas fa-save"></i> Guardar</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Nueva Sucursal -->
-    <div class="modal-overlay" id="modalSucursal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3><i class="fas fa-store"></i> Nueva Sucursal</h3>
-                <button class="modal-close" onclick="cerrarModal('modalSucursal')"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="modal-field"><label>Nombre de Sucursal *</label><input type="text" id="sucNombre"></div>
-                <div class="modal-field"><label>Dirección</label><input type="text" id="sucDireccion"></div>
-                <div class="modal-field-row">
-                    <div class="modal-field"><label>Teléfono</label><input type="text" id="sucTelefono"></div>
-                    <div class="modal-field"><label>Código</label><input type="text" id="sucCodigo"></div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn" onclick="cerrarModal('modalSucursal')">Cancelar</button>
-                <button class="btn btn-success" onclick="guardarSucursal()"><i class="fas fa-save"></i> Guardar</button>
-            </div>
-        </div>
-    </div>
-
+    <!-- Toast -->
     <div class="toast" id="toast"></div>
 
     <script src="../js/config.js"></script>
     <script src="../js/api.js"></script>
-    <script src="../js/compras.js"></script>
+    <script src="../js/inventario.js"></script>
 </body>
 </html>
