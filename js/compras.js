@@ -472,10 +472,22 @@ function limpiarFormulario() {
 }
 
 function actualizarStatusBar(estatus) {
+    // Mapeo de estados del backend a visuales
+    const estadoVisual = {
+        'BORRADOR': 'BORRADOR',
+        'PENDIENTE': 'CONFIRMADA',
+        'CONFIRMADA': 'CONFIRMADA',
+        'PARCIAL': 'CONFIRMADA',
+        'RECIBIDA': 'PAGADA',
+        'PAGADA': 'PAGADA'
+    };
+    
+    const estatusVisual = estadoVisual[estatus] || estatus;
+    
     document.querySelectorAll('.statusbar .step').forEach(step => {
         step.classList.remove('active', 'done');
         const estados = ['BORRADOR', 'CONFIRMADA', 'PAGADA'];
-        const idx = estados.indexOf(estatus);
+        const idx = estados.indexOf(estatusVisual);
         const stepIdx = estados.indexOf(step.dataset.status);
         if (stepIdx < idx) step.classList.add('done');
         if (stepIdx === idx) step.classList.add('active');
@@ -486,11 +498,17 @@ function actualizarBotones() {
     const estatus = compraActual?.estatus || 'BORRADOR';
     const saldo = parseFloat(compraActual?.saldo || 0);
     
-    document.getElementById('btnGuardar').style.display = estatus === 'BORRADOR' ? '' : 'none';
-    document.getElementById('btnConfirmar').style.display = estatus === 'BORRADOR' ? '' : 'none';
-    document.getElementById('btnPago').style.display = saldo > 0 && !['CANCELADA', 'PAGADA'].includes(estatus) ? '' : 'none';
-    document.getElementById('btnPDF').style.display = compraActual && estatus !== 'BORRADOR' ? '' : 'none';
-    document.getElementById('btnCancelar').style.display = !['CANCELADA', 'PAGADA'].includes(estatus) && compraActual ? '' : 'none';
+    // Estados del backend: BORRADOR, PENDIENTE, PARCIAL, RECIBIDA, PAGADA, CANCELADA
+    const esBorrador = estatus === 'BORRADOR';
+    const estaConfirmada = ['PENDIENTE', 'PARCIAL', 'CONFIRMADA'].includes(estatus);
+    const estaPagada = ['RECIBIDA', 'PAGADA'].includes(estatus) || saldo <= 0;
+    const estaCancelada = estatus === 'CANCELADA';
+    
+    document.getElementById('btnGuardar').style.display = esBorrador ? '' : 'none';
+    document.getElementById('btnConfirmar').style.display = esBorrador ? '' : 'none';
+    document.getElementById('btnPago').style.display = (estaConfirmada && saldo > 0 && !estaCancelada) ? '' : 'none';
+    document.getElementById('btnPDF').style.display = (compraActual && !esBorrador) ? '' : 'none';
+    document.getElementById('btnCancelar').style.display = (!estaCancelada && !estaPagada && compraActual) ? '' : 'none';
 }
 
 async function cargarCompraEnFormulario(id) {
@@ -545,7 +563,7 @@ async function cargarCompraEnFormulario(id) {
     } catch (e) { toast('Error al cargar', 'error'); }
 }
 
-async function guardarCompra(estatus) {
+async function guardarCompra(estatusVisual) {
     const proveedor = document.getElementById('compProveedor').value;
     const almacen = document.getElementById('compAlmacen').value;
     
@@ -561,6 +579,9 @@ async function guardarCompra(estatus) {
     const total = subtotal + iva + ieps;
     
     const id = document.getElementById('compraId').value;
+    
+    // Mapear estado visual a estado del backend
+    const estatusBackend = estatusVisual === 'CONFIRMADA' ? 'PENDIENTE' : estatusVisual;
     
     const data = {
         empresa_id: empresaId,
@@ -578,7 +599,7 @@ async function guardarCompra(estatus) {
         iva,
         ieps,
         total, 
-        estatus,
+        estatus: estatusBackend,
         productos: lineasValidas.map(l => ({
             producto_id: l.producto_id,
             descripcion: l.nombre,
@@ -595,7 +616,7 @@ async function guardarCompra(estatus) {
     try {
         const r = await API.request(id ? `/compras/${id}` : '/compras', id ? 'PUT' : 'POST', data);
         if (r.success) {
-            toast(estatus === 'BORRADOR' ? 'Guardado como borrador' : 'Compra confirmada', 'success');
+            toast(estatusVisual === 'BORRADOR' ? 'Guardado como borrador' : 'Compra confirmada', 'success');
             cargarCompraEnFormulario(id || r.compra_id);
         } else { toast(r.error || 'Error al guardar', 'error'); }
     } catch (e) { toast('Error de conexión', 'error'); }
@@ -630,10 +651,10 @@ function generarPDF() {
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; font-size: 12px; color: #333; padding: 40px; }
-        .header { display: flex; justify-content: space-between; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #2D3DBF; }
-        .logo { font-size: 28px; font-weight: bold; color: #2D3DBF; }
+        .header { display: flex; justify-content: space-between; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #6366f1; }
+        .logo { font-size: 28px; font-weight: bold; color: #6366f1; }
         .doc-info { text-align: right; }
-        .doc-title { font-size: 20px; font-weight: bold; color: #2D3DBF; }
+        .doc-title { font-size: 20px; font-weight: bold; color: #6366f1; }
         .doc-folio { font-size: 16px; color: #666; margin-top: 4px; }
         .doc-fecha { font-size: 12px; color: #888; margin-top: 4px; }
         .section { margin-bottom: 25px; }
@@ -643,14 +664,14 @@ function generarPDF() {
         .info-label { font-size: 10px; color: #888; text-transform: uppercase; }
         .info-value { font-size: 13px; font-weight: 500; margin-top: 2px; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background: #2D3DBF; color: #fff; padding: 10px 12px; text-align: left; font-size: 11px; text-transform: uppercase; }
+        th { background: #6366f1; color: #fff; padding: 10px 12px; text-align: left; font-size: 11px; text-transform: uppercase; }
         td { padding: 10px 12px; border-bottom: 1px solid #eee; }
         .text-right { text-align: right; }
         .text-center { text-align: center; }
         .totals { margin-top: 20px; display: flex; justify-content: flex-end; }
         .totals-box { width: 280px; }
         .total-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
-        .total-row.final { border-top: 2px solid #2D3DBF; border-bottom: none; margin-top: 8px; padding-top: 12px; font-size: 16px; font-weight: bold; color: #2D3DBF; }
+        .total-row.final { border-top: 2px solid #6366f1; border-bottom: none; margin-top: 8px; padding-top: 12px; font-size: 16px; font-weight: bold; color: #6366f1; }
         .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #888; font-size: 10px; }
         .badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: bold; }
         .badge-confirmada { background: #fef3c7; color: #d97706; }
@@ -792,12 +813,23 @@ function renderComprasList() {
 }
 
 function renderComprasKanban() {
+    // Agrupar por estado visual
     const grupos = { BORRADOR: [], CONFIRMADA: [], PAGADA: [] };
-    comprasFiltradas.forEach(c => { if (grupos[c.estatus]) grupos[c.estatus].push(c); });
+    
+    comprasFiltradas.forEach(c => {
+        if (c.estatus === 'BORRADOR') {
+            grupos.BORRADOR.push(c);
+        } else if (['PENDIENTE', 'PARCIAL', 'CONFIRMADA'].includes(c.estatus)) {
+            grupos.CONFIRMADA.push(c);
+        } else if (['RECIBIDA', 'PAGADA'].includes(c.estatus)) {
+            grupos.PAGADA.push(c);
+        }
+    });
     
     ['Borrador', 'Confirmada', 'Pagada'].forEach(s => {
         const status = s.toUpperCase();
-        document.getElementById(`k${s}`).innerHTML = grupos[status].map(c => `
+        const lista = grupos[status] || [];
+        document.getElementById(`k${s}`).innerHTML = lista.map(c => `
             <div class="k-card" onclick="cargarCompraEnFormulario('${c.compra_id}')">
                 <div class="k-card-title">${c.serie || 'C'}-${c.folio}</div>
                 <div class="k-card-subtitle">${c.proveedor_nombre || '-'}</div>
@@ -807,7 +839,7 @@ function renderComprasKanban() {
                 </div>
             </div>
         `).join('');
-        document.getElementById(`cnt${s}`).textContent = grupos[status].length;
+        document.getElementById(`cnt${s}`).textContent = lista.length;
     });
 }
 
@@ -819,8 +851,17 @@ function cambiarVista(vista) {
 }
 
 function getBadge(estatus) {
-    const m = { BORRADOR: 'gray', CONFIRMADA: 'orange', PAGADA: 'green', CANCELADA: 'red' };
-    return `<span class="badge badge-${m[estatus] || 'gray'}">${estatus}</span>`;
+    const mapeo = { 
+        BORRADOR: { color: 'gray', texto: 'Borrador' },
+        PENDIENTE: { color: 'orange', texto: 'Confirmada' },
+        CONFIRMADA: { color: 'orange', texto: 'Confirmada' },
+        PARCIAL: { color: 'blue', texto: 'Pago Parcial' },
+        RECIBIDA: { color: 'green', texto: 'Pagada' },
+        PAGADA: { color: 'green', texto: 'Pagada' },
+        CANCELADA: { color: 'red', texto: 'Cancelada' }
+    };
+    const e = mapeo[estatus] || { color: 'gray', texto: estatus };
+    return `<span class="badge badge-${e.color}">${e.texto}</span>`;
 }
 
 // ==================== CUENTAS POR PAGAR ====================
@@ -950,6 +991,8 @@ async function guardarPago() {
     if (!monto || monto <= 0) { toast('Monto inválido', 'error'); return; }
     if (!metodo) { toast('Seleccione método', 'error'); return; }
     
+    const saldoActual = parseFloat(compraActual.saldo || 0);
+    
     try {
         const r = await API.request('/pago-compras', 'POST', {
             empresa_id: empresaId,
@@ -962,7 +1005,17 @@ async function guardarPago() {
             referencia: document.getElementById('pagoReferencia').value,
             usuario_id: usuarioId
         });
+        
         if (r.success) { 
+            // Verificar si el pago liquida la compra
+            const nuevoSaldo = saldoActual - monto;
+            if (nuevoSaldo <= 0.01) {
+                // Actualizar estatus a PAGADA/RECIBIDA
+                await API.request(`/compras/${compraActual.compra_id}`, 'PUT', {
+                    estatus: 'RECIBIDA'
+                });
+            }
+            
             toast('Pago registrado', 'success'); 
             cerrarModal('modalPago'); 
             cargarCompraEnFormulario(compraActual.compra_id); 
