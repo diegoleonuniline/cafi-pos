@@ -3244,3 +3244,57 @@ function guardarCambiosVentaReabierta(devolucion, pagoNuevo) {
         }
     });
 }
+// ==================== EDITAR LÍNEA DEL CARRITO ====================
+function editarCantidad(index) {
+    const item = carrito[index];
+    if (!item) return;
+    
+    const nuevaCant = prompt('Nueva cantidad:', item.cantidad);
+    if (nuevaCant === null) return;
+    
+    const cant = parseFloat(nuevaCant);
+    if (isNaN(cant) || cant <= 0) {
+        toast('Cantidad inválida', 'error');
+        return;
+    }
+    
+    carrito[index].cantidad = cant;
+    carrito[index].subtotal = cant * item.precio_unitario * (1 - (item.descuento || 0) / 100);
+    renderCarrito();
+}
+
+function editarPrecio(index) {
+    const item = carrito[index];
+    if (!item) return;
+    
+    const nuevoPrecio = prompt('Nuevo precio:', item.precio_unitario);
+    if (nuevoPrecio === null) return;
+    
+    const precio = parseFloat(nuevoPrecio);
+    if (isNaN(precio) || precio < 0) {
+        toast('Precio inválido', 'error');
+        return;
+    }
+    
+    carrito[index].precio_unitario = precio;
+    carrito[index].subtotal = item.cantidad * precio * (1 - (item.descuento || 0) / 100);
+    renderCarrito();
+}
+
+function editarDescuento(index) {
+    const item = carrito[index];
+    if (!item) return;
+    
+    const nuevoDesc = prompt('Descuento (%):', item.descuento || 0);
+    if (nuevoDesc === null) return;
+    
+    const desc = parseFloat(nuevoDesc);
+    if (isNaN(desc) || desc < 0 || desc > 100) {
+        toast('Descuento inválido (0-100)', 'error');
+        return;
+    }
+    
+    carrito[index].descuento = desc;
+    carrito[index].subtotal = item.cantidad * item.precio_unitario * (1 - desc / 100);
+    renderCarrito();
+}
