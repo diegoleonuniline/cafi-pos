@@ -452,98 +452,118 @@
     }
     
     /* ===== TARJETA MÓVIL COMPACTA ===== */
-    .mobile-card {
-        display: flex !important;
-        align-items: center;
-        gap: 10px;
-        padding: 12px;
-    }
-    
-    .mobile-card .card-img {
-        display: none !important;
-    }
-    
-    .mobile-card .card-content {
-        flex: 1;
-        min-width: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-    }
-    
-    .mobile-card .card-name {
-        font-size: 14px;
-        font-weight: 600;
-        color: #111827;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        line-height: 1.3;
-    }
-    
-    .mobile-card .card-price {
-        font-size: 12px;
-        color: #6b7280;
-    }
-    
-    .mobile-card .card-qty {
-        display: none !important;
-    }
-    
-    .mobile-card .card-actions {
-        display: none !important;
-    }
-    
-    /* Controles cantidad inline */
-    .mobile-card .qty-control {
-        display: inline-flex !important;
-        align-items: center;
-        background: #f3f4f6;
-        border-radius: 8px;
-        height: 32px;
-        flex-shrink: 0;
-    }
-    
-    .mobile-card .qty-control button {
-        width: 32px;
-        height: 32px;
-        font-size: 16px;
-        font-weight: 600;
-        background: transparent;
-        border: none;
-        color: #374151;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-    }
-    
-    .mobile-card .qty-control button:active {
-        background: #e5e7eb;
-    }
-    
-    .mobile-card .qty-control span {
-        min-width: 28px;
-        font-size: 14px;
-        font-weight: 700;
-        color: #111827;
-        text-align: center;
-    }
-    
-    .mobile-card .qty-granel,
-    .mobile-card button.qty-granel {
-        display: inline-flex !important;
-        align-items: center;
-        height: 32px;
-        padding: 0 12px;
-        font-size: 13px;
-        font-weight: 600;
-        background: #ecfdf5;
-        border: 1px solid #10b981;
-        border-radius: 8px;
-        color: #059669;
-        flex-shrink: 0;
-    }
+/* ===== TARJETA MÓVIL TIPO MODAL ===== */
+.mobile-card {
+    display: flex !important;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+}
+
+.mobile-card .card-img {
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+    background: linear-gradient(145deg, #f3f4f6, #e5e7eb);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    font-size: 20px;
+}
+
+.mobile-card .card-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.mobile-card .card-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.mobile-card .card-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.3;
+    flex: 1;
+    min-width: 0;
+}
+
+.mobile-card .card-total {
+    font-size: 16px;
+    font-weight: 700;
+    color: #10b981;
+    white-space: nowrap;
+}
+
+.mobile-card .card-price {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.mobile-card .card-qty-row {
+    margin-top: 6px;
+}
+
+.mobile-card .qty-control {
+    display: inline-flex;
+    align-items: center;
+    background: #f3f4f6;
+    border-radius: 8px;
+    height: 34px;
+}
+
+.mobile-card .qty-control button {
+    width: 36px;
+    height: 34px;
+    font-size: 18px;
+    font-weight: 500;
+    background: transparent;
+    border: none;
+    color: #6366f1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.mobile-card .qty-control span {
+    min-width: 40px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+    text-align: center;
+}
+
+.mobile-card .qty-granel {
+    display: inline-flex;
+    align-items: center;
+    height: 34px;
+    padding: 0 14px;
+    font-size: 14px;
+    font-weight: 600;
+    background: #ecfdf5;
+    border: 1px solid #10b981;
+    border-radius: 8px;
+    color: #059669;
+}
+
+.mobile-card .card-delete {
+    display: none;
+}
+
+.mobile-card .card-qty,
+.mobile-card .card-actions {
+    display: none !important;
+}
     
     /* SUBTOTAL VERDE - IMPORTANTE */
     .mobile-card .card-total {
