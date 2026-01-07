@@ -651,10 +651,10 @@ function generarPDF() {
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; font-size: 12px; color: #333; padding: 40px; }
-        .header { display: flex; justify-content: space-between; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #6366f1; }
-        .logo { font-size: 28px; font-weight: bold; color: #6366f1; }
+        .header { display: flex; justify-content: space-between; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #2D3DBF; }
+        .logo { font-size: 28px; font-weight: bold; color: #2D3DBF; }
         .doc-info { text-align: right; }
-        .doc-title { font-size: 20px; font-weight: bold; color: #6366f1; }
+        .doc-title { font-size: 20px; font-weight: bold; color: #2D3DBF; }
         .doc-folio { font-size: 16px; color: #666; margin-top: 4px; }
         .doc-fecha { font-size: 12px; color: #888; margin-top: 4px; }
         .section { margin-bottom: 25px; }
@@ -664,14 +664,14 @@ function generarPDF() {
         .info-label { font-size: 10px; color: #888; text-transform: uppercase; }
         .info-value { font-size: 13px; font-weight: 500; margin-top: 2px; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background: #6366f1; color: #fff; padding: 10px 12px; text-align: left; font-size: 11px; text-transform: uppercase; }
+        th { background: #2D3DBF; color: #fff; padding: 10px 12px; text-align: left; font-size: 11px; text-transform: uppercase; }
         td { padding: 10px 12px; border-bottom: 1px solid #eee; }
         .text-right { text-align: right; }
         .text-center { text-align: center; }
         .totals { margin-top: 20px; display: flex; justify-content: flex-end; }
         .totals-box { width: 280px; }
         .total-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
-        .total-row.final { border-top: 2px solid #6366f1; border-bottom: none; margin-top: 8px; padding-top: 12px; font-size: 16px; font-weight: bold; color: #6366f1; }
+        .total-row.final { border-top: 2px solid #2D3DBF; border-bottom: none; margin-top: 8px; padding-top: 12px; font-size: 16px; font-weight: bold; color: #2D3DBF; }
         .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #888; font-size: 10px; }
         .badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: bold; }
         .badge-confirmada { background: #fef3c7; color: #d97706; }
