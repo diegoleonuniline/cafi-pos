@@ -4,15 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAFI - Compras</title>
-    <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/compras.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="app-layout">
+    <div class="admin-layout">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-brand">
+            <div class="sidebar-header">
                 <svg viewBox="0 0 500 500" width="32" height="32">
                     <g transform="translate(0,500) scale(0.1,-0.1)">
                         <path fill="#fff" d="M905 3775 c-5 -2 -22 -6 -37 -9 -62 -14 -127 -102 -128 -174 0 -43 24 -100 58 -135 39 -41 107 -57 246 -57 l121 0 136 -137 137 -138 59 -145 c33 -80 89 -219 124 -309 l64 -165 7 105 c9 150 39 265 103 394 74 150 174 267 305 357 24 16 16 17 -180 17 l-205 1 -175 176 c-96 96 -193 185 -215 197 -37 20 -56 22 -225 24 -102 1 -189 1 -195 -2z"/>
@@ -22,28 +21,31 @@
                 <span>CAFI</span>
             </div>
             <nav class="sidebar-nav">
-                <a href="pos.html"><i class="fas fa-cash-register"></i><span>Punto de Venta</span></a>
-                <a href="admin.html"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
-                <a href="productos.html"><i class="fas fa-box"></i><span>Productos</span></a>
-                <a href="clientes.html"><i class="fas fa-users"></i><span>Clientes</span></a>
-                <a href="compras.html" class="active"><i class="fas fa-truck-loading"></i><span>Compras</span></a>
-                <a href="ventas.html"><i class="fas fa-chart-line"></i><span>Ventas</span></a>
-                <a href="reportes.html"><i class="fas fa-file-alt"></i><span>Reportes</span></a>
-                <a href="gastos.html"><i class="fas fa-money-bill-wave"></i><span>Gastos</span></a>
-                <a href="configuracion.html"><i class="fas fa-cog"></i><span>Configuración</span></a>
+                <a href="pos.html" class="nav-item"><i class="fas fa-cash-register"></i><span>Punto de Venta</span></a>
+                <a href="admin.html" class="nav-item"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+                <a href="productos.html" class="nav-item"><i class="fas fa-box"></i><span>Productos</span></a>
+                <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i><span>Clientes</span></a>
+                <a href="compras.html" class="nav-item active"><i class="fas fa-truck-loading"></i><span>Compras</span></a>
+                <a href="ventas.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Ventas</span></a>
+                <a href="reportes.html" class="nav-item"><i class="fas fa-file-alt"></i><span>Reportes</span></a>
+                <a href="gastos.html" class="nav-item"><i class="fas fa-money-bill-wave"></i><span>Gastos</span></a>
+                <a href="configuracion.html" class="nav-item"><i class="fas fa-cog"></i><span>Configuración</span></a>
             </nav>
             <div class="sidebar-footer">
-                <div class="user-avatar" id="userAvatar">US</div>
-                <div class="user-info">
-                    <span id="userName">Usuario</span>
-                    <small id="userSucursal">Sucursal</small>
+                <div class="user-mini">
+                    <div class="user-avatar" id="userAvatar">US</div>
+                    <div class="user-info">
+                        <span id="userName">Usuario</span>
+                        <small id="userSucursal">Sucursal</small>
+                    </div>
                 </div>
-                <button onclick="API.logout()"><i class="fas fa-sign-out-alt"></i></button>
+                <button class="btn-logout" onclick="API.logout()"><i class="fas fa-sign-out-alt"></i></button>
             </div>
         </aside>
 
         <!-- Main -->
-        <main class="main-content">
+        <main class="admin-main">
+            <div class="admin-content">
             <!-- Tabs Horizontales -->
             <div class="tabs-container">
                 <div class="tabs-nav">
@@ -299,6 +301,7 @@
                         <span id="sumaPagos" class="total-sum">Total: $0.00</span>
                     </div>
                 </div>
+            </div>
             </div>
         </main>
     </div>
