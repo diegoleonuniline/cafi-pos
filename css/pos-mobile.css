@@ -1139,7 +1139,125 @@
         display: none !important;
     }
 }
+/* ==================== MODAL ACCIONES PRODUCTO ==================== */
+.acciones-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: flex;
+    align-items: flex-end;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
 
+.acciones-overlay.active {
+    opacity: 1;
+}
+
+.acciones-producto-modal {
+    width: 100%;
+    background: #fff;
+    border-radius: 20px 20px 0 0;
+    padding-bottom: env(safe-area-inset-bottom);
+    transform: translateY(100%);
+    transition: transform 0.3s;
+}
+
+.acciones-overlay.active .acciones-producto-modal {
+    transform: translateY(0);
+}
+
+.acciones-header {
+    padding: 20px;
+    border-bottom: 1px solid #f3f4f6;
+    text-align: center;
+}
+
+.acciones-producto-nombre {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+.acciones-producto-detalle {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.acciones-lista {
+    padding: 12px;
+}
+
+.accion-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    padding: 16px;
+    background: #f9fafb;
+    border: none;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #374151;
+    text-align: left;
+    cursor: pointer;
+}
+
+.accion-btn:last-child {
+    margin-bottom: 0;
+}
+
+.accion-btn:active {
+    background: #f3f4f6;
+}
+
+.accion-btn i {
+    width: 20px;
+    text-align: center;
+    font-size: 16px;
+    color: #6366f1;
+}
+
+.accion-btn span {
+    flex: 1;
+}
+
+.accion-btn .accion-badge {
+    background: #10b981;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.accion-btn.danger {
+    background: #fef2f2;
+}
+
+.accion-btn.danger i {
+    color: #ef4444;
+}
+
+.accion-btn.danger span {
+    color: #dc2626;
+}
+
+/* Descuento badge en card */
+.mobile-card .card-descuento {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+/* Hacer tap en cantidad para editar */
+.mobile-card .qty-control span {
+    cursor: pointer;
+}
 /* ==================== SAFE AREAS ==================== */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
     @media (max-width: 768px) {
