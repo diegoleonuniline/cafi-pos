@@ -1043,9 +1043,14 @@ async function aplicarAjuste() {
         return;
     }
     
-    const productos = lineasAjuste.filter(l => l.producto_id && l.cantidad > 0);
+    const productos = lineasAjuste.filter(l => l.producto_id && l.cantidad > 0).map(p => ({
+        producto_id: p.producto_id,
+        cantidad: parseFloat(p.cantidad) || 0,
+        costo: parseFloat(p.costo) || 0
+    }));
+    
     if (productos.length === 0) {
-        toast('Agrega al menos un producto', 'error');
+        toast('Agrega al menos un producto con cantidad', 'error');
         return;
     }
     
@@ -1054,50 +1059,44 @@ async function aplicarAjuste() {
     const selectedOption = conceptoSelect.options[conceptoSelect.selectedIndex];
     const tipo = selectedOption.dataset.tipo;
     
-    if (!confirm(`¿Aplicar ajuste de ${productos.length} producto(s)?\nEsta acción no se puede deshacer.`)) {
-        return;
-    }
-    
-    const data = {
-        empresa_id: empresaId,
-        almacen_id: almacenId,
-        concepto_id: conceptoId,
-        tipo: tipo,
-        fecha: document.getElementById('ajusteFecha').value,
-        referencia: document.getElementById('ajusteReferencia').value,
-        notas: document.getElementById('ajusteNotas').value,
-        usuario_id: usuarioId,
-        productos: productos.map(p => ({
-            producto_id: p.producto_id,
-            cantidad: p.cantidad,
-            costo: p.costo
-        }))
-    };
-    
-    try {
-        const r = await API.request('/movimientos-inventario/ajuste', 'POST', data);
-        if (r.success) {
-            toast('Ajuste aplicado correctamente', 'success');
-            document.getElementById('ajusteBadge').textContent = 'Aplicado';
-            document.getElementById('ajusteBadge').className = 'badge badge-green';
-            document.getElementById('btnAplicarAjuste').disabled = true;
-            
-            // Actualizar status bar
-            document.querySelectorAll('#panel-ajuste .step').forEach(step => {
-                if (step.dataset.status === 'BORRADOR') {
-                    step.classList.remove('active');
-                    step.classList.add('done');
-                } else if (step.dataset.status === 'APLICADO') {
-                    step.classList.add('active');
-                }
-            });
-        } else {
-            toast(r.error || 'Error al aplicar ajuste', 'error');
+    // Mostrar modal de confirmación
+    mostrarConfirm(`¿Aplicar ajuste de ${productos.length} producto(s)?<br>Esta acción no se puede deshacer.`, async () => {
+        const data = {
+            empresa_id: empresaId,
+            almacen_id: almacenId,
+            concepto_id: conceptoId,
+            tipo: tipo,
+            fecha: document.getElementById('ajusteFecha').value,
+            referencia: document.getElementById('ajusteReferencia').value,
+            notas: document.getElementById('ajusteNotas').value,
+            usuario_id: usuarioId,
+            productos: productos
+        };
+        
+        try {
+            const r = await API.request('/movimientos-inventario/ajuste', 'POST', data);
+            if (r.success) {
+                toast('Ajuste aplicado correctamente', 'success');
+                document.getElementById('ajusteBadge').textContent = 'Aplicado';
+                document.getElementById('ajusteBadge').className = 'badge badge-green';
+                document.getElementById('btnAplicarAjuste').disabled = true;
+                
+                document.querySelectorAll('#panel-ajuste .step').forEach(step => {
+                    if (step.dataset.status === 'BORRADOR') {
+                        step.classList.remove('active');
+                        step.classList.add('done');
+                    } else if (step.dataset.status === 'APLICADO') {
+                        step.classList.add('active');
+                    }
+                });
+            } else {
+                toast(r.error || 'Error al aplicar ajuste', 'error');
+            }
+        } catch (e) {
+            console.error('Error:', e);
+            toast('Error al aplicar ajuste', 'error');
         }
-    } catch (e) {
-        console.error('Error:', e);
-        toast('Error al aplicar ajuste', 'error');
-    }
+    });
 }
 
 // ==================== NAVEGACIÓN TECLADO AUTOCOMPLETE ====================
