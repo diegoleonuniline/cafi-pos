@@ -9,384 +9,346 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="admin-layout">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <svg viewBox="0 0 500 500" width="40" height="40">
+    <div class="odoo-layout">
+        <!-- Sidebar -->
+        <aside class="odoo-sidebar">
+            <div class="sidebar-brand">
+                <svg viewBox="0 0 500 500" width="32" height="32">
                     <g transform="translate(0,500) scale(0.1,-0.1)">
-                        <path fill="#2D3DBF" d="M905 3775 c-5 -2 -22 -6 -37 -9 -62 -14 -127 -102 -128 -174 0 -43 24 -100 58 -135 39 -41 107 -57 246 -57 l121 0 136 -137 137 -138 59 -145 c33 -80 89 -219 124 -309 l64 -165 7 105 c9 150 39 265 103 394 74 150 174 267 305 357 24 16 16 17 -180 17 l-205 1 -175 176 c-96 96 -193 185 -215 197 -37 20 -56 22 -225 24 -102 1 -189 1 -195 -2z"/>
-                        <path fill="#6C2BD9" d="M3270 3352 c143 -112 231 -234 285 -399 14 -43 28 -105 32 -138 9 -98 16 -96 -293 -93 l-259 3 -30 58 c-43 83 -88 133 -148 165 -48 25 -61 27 -172 27 -112 0 -124 -2 -178 -29 -60 -30 -126 -95 -157 -156 -39 -77 -52 -147 -48 -264 3 -104 6 -116 40 -188 78 -163 207 -239 382 -225 135 12 252 97 286 210 23 80 11 77 301 77 l258 0 18 -23 17 -24 40 101 c21 56 99 254 174 441 80 202 135 355 136 377 1 45 -32 84 -83 98 -20 6 -168 10 -336 10 l-300 0 35 -28z"/>
-                        <path fill="#fff" d="M2147 1706 c-175 -48 -237 -282 -109 -412 93 -94 263 -88 351 11 46 53 61 93 61 165 0 162 -149 278 -303 236z"/>
-                        <path fill="#fff" d="M3058 1706 c-150 -41 -228 -210 -159 -344 79 -154 289 -183 402 -55 43 50 59 92 59 160 -1 163 -150 281 -302 239z"/>
+                        <path fill="#fff" d="M905 3775 c-5 -2 -22 -6 -37 -9 -62 -14 -127 -102 -128 -174 0 -43 24 -100 58 -135 39 -41 107 -57 246 -57 l121 0 136 -137 137 -138 59 -145 c33 -80 89 -219 124 -309 l64 -165 7 105 c9 150 39 265 103 394 74 150 174 267 305 357 24 16 16 17 -180 17 l-205 1 -175 176 c-96 96 -193 185 -215 197 -37 20 -56 22 -225 24 -102 1 -189 1 -195 -2z"/>
+                        <path fill="rgba(255,255,255,0.7)" d="M3270 3352 c143 -112 231 -234 285 -399 14 -43 28 -105 32 -138 9 -98 16 -96 -293 -93 l-259 3 -30 58 c-43 83 -88 133 -148 165 -48 25 -61 27 -172 27 -112 0 -124 -2 -178 -29 -60 -30 -126 -95 -157 -156 -39 -77 -52 -147 -48 -264 3 -104 6 -116 40 -188 78 -163 207 -239 382 -225 135 12 252 97 286 210 23 80 11 77 301 77 l258 0 18 -23 17 -24 40 101 c21 56 99 254 174 441 80 202 135 355 136 377 1 45 -32 84 -83 98 -20 6 -168 10 -336 10 l-300 0 35 -28z"/>
                     </g>
                 </svg>
                 <span>CAFI</span>
             </div>
-            <nav class="sidebar-nav">
-                <a href="pos.html" class="nav-item"><i class="fas fa-cash-register"></i><span>Punto de Venta</span></a>
-                <a href="admin.html" class="nav-item"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
-                <a href="productos.html" class="nav-item"><i class="fas fa-box"></i><span>Productos</span></a>
-                <a href="categorias.html" class="nav-item"><i class="fas fa-tags"></i><span>Categorías</span></a>
-                <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i><span>Clientes</span></a>
-                <a href="compras.html" class="nav-item active"><i class="fas fa-truck-loading"></i><span>Compras</span></a>
-                <a href="ventas.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Ventas</span></a>
-                <a href="reportes.html" class="nav-item"><i class="fas fa-file-alt"></i><span>Reportes</span></a>
-                <a href="gastos.html" class="nav-item"><i class="fas fa-money-bill-wave"></i><span>Gastos</span></a>
-                <a href="configuracion.html" class="nav-item"><i class="fas fa-cog"></i><span>Configuración</span></a>
+            <nav class="sidebar-menu">
+                <a href="pos.html"><i class="fas fa-cash-register"></i><span>Punto de Venta</span></a>
+                <a href="admin.html"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+                <a href="productos.html"><i class="fas fa-box"></i><span>Productos</span></a>
+                <a href="clientes.html"><i class="fas fa-users"></i><span>Clientes</span></a>
+                <a href="compras.html" class="active"><i class="fas fa-truck-loading"></i><span>Compras</span></a>
+                <a href="ventas.html"><i class="fas fa-chart-line"></i><span>Ventas</span></a>
+                <a href="reportes.html"><i class="fas fa-file-alt"></i><span>Reportes</span></a>
+                <a href="gastos.html"><i class="fas fa-money-bill-wave"></i><span>Gastos</span></a>
+                <a href="configuracion.html"><i class="fas fa-cog"></i><span>Configuración</span></a>
             </nav>
-            <div class="sidebar-footer">
-                <div class="user-mini">
-                    <div class="user-avatar" id="userAvatar">US</div>
-                    <div class="user-info">
-                        <span id="userName">Usuario</span>
-                        <small id="userSucursal">Sucursal</small>
-                    </div>
+            <div class="sidebar-user">
+                <div class="user-avatar" id="userAvatar">US</div>
+                <div class="user-info">
+                    <span id="userName">Usuario</span>
+                    <small id="userSucursal">Sucursal</small>
                 </div>
-                <button class="btn-logout" onclick="API.logout()"><i class="fas fa-sign-out-alt"></i></button>
+                <button onclick="API.logout()" title="Cerrar sesión"><i class="fas fa-sign-out-alt"></i></button>
             </div>
         </aside>
 
-        <main class="admin-main">
-            <header class="admin-header">
-                <h1><i class="fas fa-truck-loading"></i> Compras</h1>
-                <div class="header-actions">
-                    <button class="btn btn-success" onclick="abrirModalCompra()"><i class="fas fa-plus"></i> Nueva Compra</button>
-                </div>
-            </header>
-
-            <div class="admin-content">
-                <!-- KPIs -->
-                <div class="kpis-row">
-                    <div class="kpi-card blue">
-                        <div class="kpi-icon"><i class="fas fa-shopping-cart"></i></div>
-                        <div class="kpi-info">
-                            <span class="kpi-value" id="kpiHoy">$0</span>
-                            <span class="kpi-label">Compras Hoy</span>
-                        </div>
+        <!-- Main Content -->
+        <main class="odoo-main">
+            <!-- Control Panel -->
+            <div class="o-control-panel">
+                <div class="o-cp-top">
+                    <div class="o-cp-breadcrumb">
+                        <span class="breadcrumb-item active">Compras</span>
                     </div>
-                    <div class="kpi-card purple">
-                        <div class="kpi-icon"><i class="fas fa-calendar-alt"></i></div>
-                        <div class="kpi-info">
-                            <span class="kpi-value" id="kpiMes">$0</span>
-                            <span class="kpi-label">Compras del Mes</span>
-                        </div>
-                    </div>
-                    <div class="kpi-card orange">
-                        <div class="kpi-icon"><i class="fas fa-clock"></i></div>
-                        <div class="kpi-info">
-                            <span class="kpi-value" id="kpiPendientes">$0</span>
-                            <span class="kpi-label">Por Pagar</span>
-                        </div>
-                    </div>
-                    <div class="kpi-card green">
-                        <div class="kpi-icon"><i class="fas fa-box-open"></i></div>
-                        <div class="kpi-info">
-                            <span class="kpi-value" id="kpiRecibir">0</span>
-                            <span class="kpi-label">Por Recibir</span>
-                        </div>
+                    <div class="o-cp-actions">
+                        <button class="o-btn o-btn-primary" onclick="nuevaCompra()"><i class="fas fa-plus"></i> Nuevo</button>
                     </div>
                 </div>
-
-                <!-- Tabs -->
-                <div class="tabs-container">
-                    <div class="tabs">
-                        <button class="tab active" data-tab="compras"><i class="fas fa-file-invoice"></i> Compras</button>
-                        <button class="tab" data-tab="cuentas"><i class="fas fa-hand-holding-usd"></i> Cuentas por Pagar</button>
-                    </div>
-                </div>
-
-                <!-- Panel Compras -->
-                <div class="panel active" id="panel-compras">
-                    <div class="panel-toolbar">
-                        <div class="toolbar-filters">
-                            <div class="filter-item">
-                                <label>Desde</label>
-                                <input type="date" id="filtroDesde">
+                <div class="o-cp-bottom">
+                    <div class="o-cp-searchview">
+                        <div class="o-searchview">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="Buscar..." onkeyup="filtrarCompras()">
+                        </div>
+                        <div class="o-filters">
+                            <div class="o-filter-group">
+                                <input type="date" id="filtroDesde" onchange="cargarCompras()">
+                                <span>→</span>
+                                <input type="date" id="filtroHasta" onchange="cargarCompras()">
                             </div>
-                            <div class="filter-item">
-                                <label>Hasta</label>
-                                <input type="date" id="filtroHasta">
-                            </div>
-                            <div class="filter-item">
-                                <label>Proveedor</label>
-                                <select id="filtroProveedor"><option value="">Todos</option></select>
-                            </div>
-                            <div class="filter-item">
-                                <label>Estatus</label>
-                                <select id="filtroEstatus">
-                                    <option value="">Todos</option>
-                                    <option value="BORRADOR">Borrador</option>
-                                    <option value="PENDIENTE">Pendiente</option>
-                                    <option value="PARCIAL">Parcial</option>
-                                    <option value="RECIBIDA">Recibida</option>
-                                    <option value="CANCELADA">Cancelada</option>
-                                </select>
-                            </div>
-                            <button class="btn btn-primary btn-sm" onclick="cargarCompras()"><i class="fas fa-search"></i></button>
+                            <select id="filtroProveedor" onchange="cargarCompras()"><option value="">Proveedor</option></select>
+                            <select id="filtroEstatus" onchange="cargarCompras()">
+                                <option value="">Estado</option>
+                                <option value="BORRADOR">Borrador</option>
+                                <option value="PENDIENTE">Pendiente</option>
+                                <option value="PARCIAL">Parcial</option>
+                                <option value="RECIBIDA">Recibida</option>
+                                <option value="CANCELADA">Cancelada</option>
+                            </select>
                         </div>
                     </div>
-                    <div class="panel-table">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Folio</th>
-                                    <th>Fecha</th>
-                                    <th>Proveedor</th>
-                                    <th class="center">Productos</th>
-                                    <th class="right">Total</th>
-                                    <th class="right">Saldo</th>
-                                    <th class="center">Estatus</th>
-                                    <th class="center">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaCompras"></tbody>
-                        </table>
+                    <div class="o-cp-switch">
+                        <button class="o-switch-btn active" data-view="list" onclick="cambiarVista('list')"><i class="fas fa-list"></i></button>
+                        <button class="o-switch-btn" data-view="kanban" onclick="cambiarVista('kanban')"><i class="fas fa-th-large"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="o-content">
+                <!-- List View -->
+                <div class="o-view o-list-view active" id="view-list">
+                    <table class="o-list-table">
+                        <thead>
+                            <tr>
+                                <th class="o-list-checkbox"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
+                                <th>Referencia</th>
+                                <th>Proveedor</th>
+                                <th>Fecha</th>
+                                <th>Fecha Entrega</th>
+                                <th class="text-right">Total</th>
+                                <th class="text-right">Saldo</th>
+                                <th class="text-center">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaCompras"></tbody>
+                    </table>
+                    <div class="o-list-empty" id="emptyState">
+                        <i class="fas fa-inbox"></i>
+                        <p>No hay registros que mostrar</p>
+                        <button class="o-btn o-btn-primary" onclick="nuevaCompra()">Crear primera compra</button>
                     </div>
                 </div>
 
-                <!-- Panel Cuentas por Pagar -->
-                <div class="panel" id="panel-cuentas">
-                    <div class="panel-toolbar">
-                        <div class="toolbar-title"><i class="fas fa-hand-holding-usd"></i><h3>Cuentas por Pagar</h3></div>
-                        <button class="btn btn-outline btn-sm" onclick="cargarCuentasPagar()"><i class="fas fa-sync"></i></button>
+                <!-- Kanban View -->
+                <div class="o-view o-kanban-view" id="view-kanban">
+                    <div class="o-kanban-group" data-status="BORRADOR">
+                        <div class="o-kanban-header"><span class="status-dot gray"></span>Borrador <span class="count" id="countBorrador">0</span></div>
+                        <div class="o-kanban-cards" id="kanbanBorrador"></div>
                     </div>
-                    <div class="panel-table">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Proveedor</th>
-                                    <th class="center">Compras</th>
-                                    <th class="right">Saldo Total</th>
-                                    <th class="center">Próx. Vencimiento</th>
-                                    <th class="center">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaCuentas"></tbody>
-                        </table>
+                    <div class="o-kanban-group" data-status="PENDIENTE">
+                        <div class="o-kanban-header"><span class="status-dot orange"></span>Pendiente <span class="count" id="countPendiente">0</span></div>
+                        <div class="o-kanban-cards" id="kanbanPendiente"></div>
+                    </div>
+                    <div class="o-kanban-group" data-status="PARCIAL">
+                        <div class="o-kanban-header"><span class="status-dot blue"></span>Parcial <span class="count" id="countParcial">0</span></div>
+                        <div class="o-kanban-cards" id="kanbanParcial"></div>
+                    </div>
+                    <div class="o-kanban-group" data-status="RECIBIDA">
+                        <div class="o-kanban-header"><span class="status-dot green"></span>Recibida <span class="count" id="countRecibida">0</span></div>
+                        <div class="o-kanban-cards" id="kanbanRecibida"></div>
                     </div>
                 </div>
+
+                <!-- Form View -->
+                <div class="o-view o-form-view" id="view-form">
+                    <input type="hidden" id="compraId">
+                    
+                    <!-- Status Bar -->
+                    <div class="o-form-statusbar">
+                        <div class="o-statusbar-buttons">
+                            <button class="o-btn o-btn-primary" id="btnConfirmar" onclick="confirmarCompra()"><i class="fas fa-check"></i> Confirmar</button>
+                            <button class="o-btn" id="btnRecibir" onclick="abrirModalRecibir()"><i class="fas fa-box-open"></i> Recibir</button>
+                            <button class="o-btn" id="btnPago" onclick="abrirModalPago()"><i class="fas fa-dollar-sign"></i> Registrar Pago</button>
+                            <button class="o-btn o-btn-danger" id="btnCancelar" onclick="cancelarCompra()"><i class="fas fa-ban"></i> Cancelar</button>
+                        </div>
+                        <div class="o-statusbar-status">
+                            <button class="o-status-btn" data-status="BORRADOR">Borrador</button>
+                            <button class="o-status-btn" data-status="PENDIENTE">Pendiente</button>
+                            <button class="o-status-btn" data-status="PARCIAL">Parcial</button>
+                            <button class="o-status-btn" data-status="RECIBIDA">Recibida</button>
+                        </div>
+                    </div>
+
+                    <!-- Smart Buttons -->
+                    <div class="o-form-smartbuttons">
+                        <button class="o-smart-btn" onclick="mostrarPagos()">
+                            <span class="o-smart-value" id="smartPagos">0</span>
+                            <span class="o-smart-label">Pagos</span>
+                        </button>
+                        <button class="o-smart-btn" onclick="mostrarProductosRecibidos()">
+                            <span class="o-smart-value" id="smartRecibido">0%</span>
+                            <span class="o-smart-label">Recibido</span>
+                        </button>
+                    </div>
+
+                    <!-- Form Sheet -->
+                    <div class="o-form-sheet">
+                        <div class="o-form-title">
+                            <h1 id="formTitulo">Nuevo</h1>
+                        </div>
+
+                        <div class="o-group">
+                            <div class="o-inner-group">
+                                <div class="o-field">
+                                    <label>Proveedor</label>
+                                    <select id="compProveedor" required><option value="">Seleccionar...</option></select>
+                                </div>
+                                <div class="o-field">
+                                    <label>Almacén Destino</label>
+                                    <select id="compAlmacen" required><option value="">Seleccionar...</option></select>
+                                </div>
+                            </div>
+                            <div class="o-inner-group">
+                                <div class="o-field">
+                                    <label>Fecha Entrega</label>
+                                    <input type="date" id="compFechaEntrega">
+                                </div>
+                                <div class="o-field">
+                                    <label>Fecha Vencimiento Pago</label>
+                                    <input type="date" id="compFechaVencimiento">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notebook (Tabs) -->
+                        <div class="o-notebook">
+                            <div class="o-notebook-headers">
+                                <button class="o-notebook-tab active" data-tab="productos">Productos</button>
+                                <button class="o-notebook-tab" data-tab="info">Otra Información</button>
+                            </div>
+                            <div class="o-notebook-content">
+                                <div class="o-notebook-page active" id="tab-productos">
+                                    <div class="o-field-widget">
+                                        <div class="o-list-editable">
+                                            <div class="o-list-add">
+                                                <i class="fas fa-search"></i>
+                                                <input type="text" id="buscarProducto" placeholder="Buscar producto..." autocomplete="off">
+                                                <div class="o-autocomplete" id="autocompleteProductos"></div>
+                                            </div>
+                                            <table class="o-list-table o-list-editable-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Producto</th>
+                                                        <th style="width:100px">Cantidad</th>
+                                                        <th style="width:120px">Costo Unit.</th>
+                                                        <th style="width:80px">IVA %</th>
+                                                        <th style="width:120px" class="text-right">Subtotal</th>
+                                                        <th style="width:40px"></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tablaProductosCompra"></tbody>
+                                            </table>
+                                            <div class="o-list-empty-products" id="emptyProducts">
+                                                <p>Agrega productos a la compra</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="o-form-totals">
+                                        <table>
+                                            <tr><td>Subtotal:</td><td id="compSubtotal">$0.00</td></tr>
+                                            <tr><td>IVA:</td><td id="compIVA">$0.00</td></tr>
+                                            <tr class="total"><td>Total:</td><td id="compTotal">$0.00</td></tr>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="o-notebook-page" id="tab-info">
+                                    <div class="o-group">
+                                        <div class="o-inner-group">
+                                            <div class="o-field">
+                                                <label>Notas / Términos</label>
+                                                <textarea id="compNotas" rows="4" placeholder="Notas internas..."></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chatter -->
+                    <div class="o-chatter">
+                        <div class="o-chatter-header">
+                            <span><i class="fas fa-history"></i> Historial</span>
+                        </div>
+                        <div class="o-chatter-content" id="chatterContent">
+                            <div class="o-message">
+                                <div class="o-message-icon"><i class="fas fa-file-alt"></i></div>
+                                <div class="o-message-body">
+                                    <span class="o-message-title">Documento creado</span>
+                                    <span class="o-message-date" id="chatterCreado">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Info -->
+            <div class="o-footer" id="footerInfo">
+                <span id="totalRegistros">0 registros</span>
             </div>
         </main>
     </div>
 
-    <!-- MODAL NUEVA COMPRA -->
-    <div class="modal-overlay" id="modalCompra">
-        <div class="modal modal-fullscreen">
-            <div class="modal-header">
-                <h3><i class="fas fa-truck-loading"></i> <span id="modalCompraTitulo">Nueva Compra</span></h3>
-                <button class="modal-close" onclick="cerrarModal('modalCompra')"><i class="fas fa-times"></i></button>
+    <!-- Modal Recibir -->
+    <div class="o-modal" id="modalRecibir">
+        <div class="o-modal-dialog">
+            <div class="o-modal-header">
+                <h4><i class="fas fa-box-open"></i> Recibir Mercancía</h4>
+                <button class="o-modal-close" onclick="cerrarModal('modalRecibir')"><i class="fas fa-times"></i></button>
             </div>
-            <div class="modal-body compra-layout">
-                <input type="hidden" id="compraId">
-                
-                <!-- Sidebar Izquierdo -->
-                <div class="compra-sidebar">
-                    <div class="compra-field">
-                        <label>Proveedor *</label>
-                        <select id="compProveedor" required><option value="">Seleccionar...</option></select>
-                    </div>
-                    <div class="compra-field">
-                        <label>Almacén destino *</label>
-                        <select id="compAlmacen" required><option value="">Seleccionar...</option></select>
-                    </div>
-                    <div class="compra-field">
-                        <label>Fecha entrega</label>
-                        <input type="date" id="compFechaEntrega">
-                    </div>
-                    <div class="compra-field">
-                        <label>Fecha vencimiento pago</label>
-                        <input type="date" id="compFechaVencimiento">
-                    </div>
-                    <div class="compra-field">
-                        <label>Notas</label>
-                        <textarea id="compNotas" rows="3" placeholder="Observaciones..."></textarea>
-                    </div>
-                    
-                    <div class="compra-opciones">
-                        <label class="checkbox-option">
-                            <input type="checkbox" id="compConIVA" checked>
-                            <span>Agregar IVA 16%</span>
-                        </label>
-                    </div>
-                    
-                    <div class="compra-resumen">
-                        <div class="resumen-row"><span>Subtotal:</span><span id="compSubtotal">$0.00</span></div>
-                        <div class="resumen-row"><span>IVA:</span><span id="compIVA">$0.00</span></div>
-                        <div class="resumen-row total"><span>TOTAL:</span><span id="compTotal">$0.00</span></div>
-                    </div>
-                </div>
-                
-                <!-- Área Principal de Productos -->
-                <div class="compra-productos">
-                    <div class="busqueda-container">
-                        <div class="busqueda-input-wrapper">
-                            <i class="fas fa-search"></i>
-                            <input type="text" id="buscarProducto" placeholder="Buscar producto por nombre o código..." autocomplete="off">
-                            <div class="sugerencias-dropdown" id="sugerenciasDropdown"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="productos-tabla-container">
-                        <table class="productos-tabla">
-                            <thead>
-                                <tr>
-                                    <th>Producto</th>
-                                    <th style="width:100px">Cantidad</th>
-                                    <th style="width:120px">Costo Unit.</th>
-                                    <th style="width:120px">Subtotal</th>
-                                    <th style="width:50px"></th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaProductosCompra"></tbody>
-                        </table>
-                        <div class="productos-empty" id="productosEmpty">
-                            <i class="fas fa-boxes"></i>
-                            <p>Busca y agrega productos a la compra</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline" onclick="cerrarModal('modalCompra')">Cancelar</button>
-                <button type="button" class="btn btn-secondary" onclick="guardarCompra('BORRADOR')"><i class="fas fa-save"></i> Guardar Borrador</button>
-                <button type="button" class="btn btn-success" onclick="guardarCompra('PENDIENTE')"><i class="fas fa-check"></i> Confirmar Compra</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL DETALLE -->
-    <div class="modal-overlay" id="modalDetalle">
-        <div class="modal modal-xl">
-            <div class="modal-header">
-                <h3><i class="fas fa-file-invoice"></i> Compra <span id="detalleFolio"></span></h3>
-                <button class="modal-close" onclick="cerrarModal('modalDetalle')"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="detalle-header">
-                    <div class="detalle-info">
-                        <div class="info-item"><label>Proveedor:</label><span id="detalleProveedor"></span></div>
-                        <div class="info-item"><label>Fecha:</label><span id="detalleFecha"></span></div>
-                        <div class="info-item"><label>Estatus:</label><span id="detalleEstatus"></span></div>
-                    </div>
-                    <div class="detalle-totales">
-                        <div class="total-item"><label>Total:</label><span id="detalleTotal"></span></div>
-                        <div class="total-item"><label>Pagado:</label><span id="detallePagado"></span></div>
-                        <div class="total-item saldo"><label>Saldo:</label><span id="detalleSaldo"></span></div>
-                    </div>
-                </div>
-
-                <div class="detalle-tabs">
-                    <button class="dtab active" data-dtab="productos"><i class="fas fa-boxes"></i> Productos</button>
-                    <button class="dtab" data-dtab="pagos"><i class="fas fa-money-bill"></i> Pagos</button>
-                </div>
-
-                <div class="dtab-panel active" id="dtab-productos">
-                    <table class="detalle-table">
-                        <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th class="center">Cantidad</th>
-                                <th class="center">Recibido</th>
-                                <th class="right">Costo</th>
-                                <th class="right">Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody id="detalleProductos"></tbody>
-                    </table>
-                </div>
-
-                <div class="dtab-panel" id="dtab-pagos">
-                    <div class="pagos-header">
-                        <button class="btn btn-success btn-sm" onclick="abrirModalPago()"><i class="fas fa-plus"></i> Registrar Pago</button>
-                    </div>
-                    <table class="detalle-table">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Método</th>
-                                <th>Referencia</th>
-                                <th class="right">Monto</th>
-                                <th class="center">Estatus</th>
-                                <th class="center"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="detallePagos"></tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="cerrarModal('modalDetalle')">Cerrar</button>
-                <button class="btn btn-info" id="btnRecibir" onclick="abrirModalRecibir()"><i class="fas fa-box-open"></i> Recibir</button>
-                <button class="btn btn-danger" id="btnCancelar" onclick="cancelarCompra()"><i class="fas fa-ban"></i> Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL RECIBIR -->
-    <div class="modal-overlay" id="modalRecibir">
-        <div class="modal modal-lg">
-            <div class="modal-header success">
-                <h3><i class="fas fa-box-open"></i> Recibir Mercancía</h3>
-                <button class="modal-close" onclick="cerrarModal('modalRecibir')"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <table class="detalle-table">
+            <div class="o-modal-body">
+                <table class="o-list-table">
                     <thead>
                         <tr>
                             <th>Producto</th>
-                            <th class="center">Pedido</th>
-                            <th class="center">Recibido</th>
-                            <th class="center">Recibir Ahora</th>
+                            <th class="text-center">Pedido</th>
+                            <th class="text-center">Recibido</th>
+                            <th class="text-center">Recibir</th>
                         </tr>
                     </thead>
                     <tbody id="tablaRecibir"></tbody>
                 </table>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="cerrarModal('modalRecibir')">Cancelar</button>
-                <button class="btn btn-success" onclick="confirmarRecepcion()"><i class="fas fa-check"></i> Confirmar</button>
+            <div class="o-modal-footer">
+                <button class="o-btn" onclick="cerrarModal('modalRecibir')">Cancelar</button>
+                <button class="o-btn o-btn-primary" onclick="confirmarRecepcion()">Validar</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL PAGO -->
-    <div class="modal-overlay" id="modalPago">
-        <div class="modal">
-            <div class="modal-header">
-                <h3><i class="fas fa-money-bill"></i> Registrar Pago</h3>
-                <button class="modal-close" onclick="cerrarModal('modalPago')"><i class="fas fa-times"></i></button>
+    <!-- Modal Pago -->
+    <div class="o-modal" id="modalPago">
+        <div class="o-modal-dialog o-modal-sm">
+            <div class="o-modal-header">
+                <h4><i class="fas fa-dollar-sign"></i> Registrar Pago</h4>
+                <button class="o-modal-close" onclick="cerrarModal('modalPago')"><i class="fas fa-times"></i></button>
             </div>
-            <div class="modal-body">
-                <div class="pago-saldo">Saldo pendiente: <strong id="pagoSaldo">$0.00</strong></div>
-                <div class="form-group">
-                    <label>Monto *</label>
-                    <input type="number" id="pagoMonto" step="0.01" min="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label>Método de pago *</label>
-                    <select id="pagoMetodo" required><option value="">Seleccionar...</option></select>
-                </div>
-                <div class="form-group">
-                    <label>Cuenta bancaria</label>
-                    <select id="pagoCuenta"><option value="">Sin cuenta</option></select>
-                </div>
-                <div class="form-group">
-                    <label>Referencia</label>
-                    <input type="text" id="pagoReferencia" placeholder="Cheque, transferencia...">
-                </div>
-                <div class="form-group">
-                    <label>Notas</label>
-                    <textarea id="pagoNotas" rows="2"></textarea>
-                </div>
+            <div class="o-modal-body">
+                <div class="o-pago-saldo">Saldo: <strong id="pagoSaldo">$0.00</strong></div>
+                <div class="o-field"><label>Monto</label><input type="number" id="pagoMonto" step="0.01"></div>
+                <div class="o-field"><label>Método de Pago</label><select id="pagoMetodo"><option value="">Seleccionar...</option></select></div>
+                <div class="o-field"><label>Cuenta Bancaria</label><select id="pagoCuenta"><option value="">Sin cuenta</option></select></div>
+                <div class="o-field"><label>Referencia</label><input type="text" id="pagoReferencia" placeholder="No. cheque, transferencia..."></div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="cerrarModal('modalPago')">Cancelar</button>
-                <button class="btn btn-success" onclick="guardarPago()"><i class="fas fa-check"></i> Registrar</button>
+            <div class="o-modal-footer">
+                <button class="o-btn" onclick="cerrarModal('modalPago')">Cancelar</button>
+                <button class="o-btn o-btn-primary" onclick="guardarPago()">Registrar</button>
             </div>
         </div>
     </div>
 
-    <div id="toast" class="toast"></div>
+    <!-- Modal Pagos Lista -->
+    <div class="o-modal" id="modalPagosLista">
+        <div class="o-modal-dialog">
+            <div class="o-modal-header">
+                <h4><i class="fas fa-list"></i> Pagos Registrados</h4>
+                <button class="o-modal-close" onclick="cerrarModal('modalPagosLista')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="o-modal-body">
+                <table class="o-list-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Método</th>
+                            <th>Referencia</th>
+                            <th class="text-right">Monto</th>
+                            <th class="text-center">Estado</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaPagosLista"></tbody>
+                </table>
+            </div>
+            <div class="o-modal-footer">
+                <button class="o-btn" onclick="cerrarModal('modalPagosLista')">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="o-toast" id="toast"></div>
 
     <script src="../js/config.js"></script>
     <script src="../js/api.js"></script>
