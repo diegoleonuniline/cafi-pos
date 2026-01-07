@@ -221,29 +221,96 @@
         
         html += '<tr data-index="' + index + '">' +
             '<td class="mobile-card" colspan="7">' +
-                '<div class="card-img"><i class="fas fa-box"></i></div>' +
-                '<div class="card-info">' +
+                '<div class="card-img" onclick="abrirAccionesProducto(\'' + item.producto_id + '\')"><i class="fas fa-box"></i></div>' +
+                '<div class="card-info" onclick="abrirAccionesProducto(\'' + item.producto_id + '\')">' +
                     '<div class="card-name">' + escapeHtml(item.nombre) + '</div>' +
-                    '<div class="card-price">$' + item.precio.toFixed(2) + ' / ' + (item.unidad || 'pza').toLowerCase() + 
-                        (tieneDescuento ? ' <span style="color:#ef4444">-' + item.descuento + '%</span>' : '') + '</div>' +
+                    '<div class="card-price">' +
+                        '$' + item.precio.toFixed(2) + ' / ' + (item.unidad || 'pza').toLowerCase() +
+                        (tieneDescuento ? ' <span class="card-descuento">-' + item.descuento + '%</span>' : '') +
+                    '</div>' +
                     '<div class="card-qty-row">' +
                         (esGranel ? 
-                            '<button class="qty-granel" onclick="editarCantidadLinea(\'' + item.producto_id + '\')">' + cantidadDisplay + ' ' + (item.unidad || 'KG') + '</button>' :
-                            '<div class="qty-control">' +
+                            '<button class="qty-granel" onclick="event.stopPropagation();editarCantidadLinea(\'' + item.producto_id + '\')">' + cantidadDisplay + ' ' + (item.unidad || 'KG') + '</button>' :
+                            '<div class="qty-control" onclick="event.stopPropagation()">' +
                                 '<button type="button" onclick="cambiarCantidadMobile(\'' + item.producto_id + '\', -1)">−</button>' +
-                                '<span>' + cantidadDisplay + '</span>' +
+                                '<span onclick="editarCantidadLinea(\'' + item.producto_id + '\')">' + cantidadDisplay + '</span>' +
                                 '<button type="button" onclick="cambiarCantidadMobile(\'' + item.producto_id + '\', 1)">+</button>' +
                             '</div>'
                         ) +
                     '</div>' +
                 '</div>' +
-                '<div class="card-total">' + importeFormateado + '</div>' +
+                '<div class="card-total" onclick="abrirAccionesProducto(\'' + item.producto_id + '\')">' + importeFormateado + '</div>' +
             '</td>' +
         '</tr>';
     });
     
     tbody.innerHTML = html;
 }
+// ==================== ACCIONES PRODUCTO MÓVIL ====================
+window.abrirAccionesProducto = function(productoId) {
+    var item = carrito.find(function(i) { return i.producto_id === productoId; });
+    if (!item) return;
+    
+    var precioConDesc = item.precio * (1 - (item.descuento || 0) / 100);
+    var importe = precioConDesc * item.cantidad;
+    
+    var html = '<div class="acciones-producto-modal">' +
+        '<div class="acciones-header">' +
+            '<div class="acciones-producto-nombre">' + escapeHtml(item.nombre) + '</div>' +
+            '<div class="acciones-producto-detalle">$' + item.precio.toFixed(2) + ' × ' + item.cantidad + ' = $' + importe.toFixed(2) + '</div>' +
+        '</div>' +
+        '<div class="acciones-lista">' +
+            '<button class="accion-btn" onclick="editarCantidadLinea(\'' + productoId + '\');cerrarAccionesProducto()">' +
+                '<i class="fas fa-hashtag"></i>' +
+                '<span>Cambiar cantidad</span>' +
+            '</button>' +
+            '<button class="accion-btn" onclick="editarPrecioLinea(\'' + productoId + '\');cerrarAccionesProducto()">' +
+                '<i class="fas fa-dollar-sign"></i>' +
+                '<span>Cambiar precio</span>' +
+            '</button>' +
+            '<button class="accion-btn" onclick="editarDescuentoLinea(\'' + productoId + '\');cerrarAccionesProducto()">' +
+                '<i class="fas fa-percent"></i>' +
+                '<span>Aplicar descuento</span>' +
+                (item.descuento > 0 ? '<span class="accion-badge">' + item.descuento + '%</span>' : '') +
+            '</button>' +
+            '<button class="accion-btn danger" onclick="confirmarEliminarProducto(\'' + productoId + '\')">' +
+                '<i class="fas fa-trash"></i>' +
+                '<span>Eliminar producto</span>' +
+            '</button>' +
+        '</div>' +
+    '</div>';
+    
+    var overlay = document.createElement('div');
+    overlay.id = 'accionesProductoOverlay';
+    overlay.className = 'acciones-overlay';
+    overlay.innerHTML = html;
+    overlay.onclick = function(e) {
+        if (e.target === overlay) cerrarAccionesProducto();
+    };
+    
+    document.body.appendChild(overlay);
+    setTimeout(function() { overlay.classList.add('active'); }, 10);
+};
+
+window.cerrarAccionesProducto = function() {
+    var overlay = document.getElementById('accionesProductoOverlay');
+    if (overlay) {
+        overlay.classList.remove('active');
+        setTimeout(function() { overlay.remove(); }, 300);
+    }
+};
+
+window.confirmarEliminarProducto = function(productoId) {
+    cerrarAccionesProducto();
+    var item = carrito.find(function(i) { return i.producto_id === productoId; });
+    if (!item) return;
+    
+    if (typeof eliminarDelCarrito === 'function') {
+        eliminarDelCarrito(productoId);
+    } else if (typeof eliminarDelCarritoMobile === 'function') {
+        eliminarDelCarritoMobile(productoId);
+    }
+};
     
     function renderCarritoDesktop(tbody) {
         var html = '';
