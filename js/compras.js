@@ -631,8 +631,19 @@ async function guardarCompra(estatusVisual) {
     
     const id = document.getElementById('compraId').value;
     
-    // Mapear estado visual a estado del backend
-    const estatusBackend = estatusVisual === 'CONFIRMADA' ? 'PENDIENTE' : estatusVisual;
+    // Calcular saldo considerando pagos previos
+    const pagadoPrevio = compraActual?.pagos?.reduce((s, p) => s + parseFloat(p.monto || 0), 0) || 0;
+    const saldoCalculado = Math.max(0, total - pagadoPrevio);
+    
+    // Determinar estatus correcto
+    let estatusBackend;
+    if (estatusVisual === 'BORRADOR') {
+        estatusBackend = 'BORRADOR';
+    } else if (saldoCalculado <= 0.01) {
+        estatusBackend = 'RECIBIDA';  // Ya está pagada
+    } else {
+        estatusBackend = 'PENDIENTE'; // Falta pagar
+    }
     
     const data = {
         empresa_id: empresaId,
@@ -643,12 +654,10 @@ async function guardarCompra(estatusVisual) {
         tipo: 'COMPRA',
         fecha: document.getElementById('compFecha').value || null,
         fecha_vencimiento: document.getElementById('compFechaVencimiento').value || null,
-        factura_proveedor: document.getElementById('compFactura').value,
+        factura_uuid: document.getElementById('compFactura').value,
         notas: document.getElementById('compNotas').value,
         subtotal, 
         impuestos: iva + ieps,
-        iva,
-        ieps,
         total, 
         estatus: estatusBackend,
         productos: lineasValidas.map(l => ({
@@ -657,17 +666,17 @@ async function guardarCompra(estatusVisual) {
             cantidad: l.cantidad,
             costo_unitario: l.costo,
             subtotal: l.cantidad * l.costo,
-            iva_pct: l.iva,
-            iva_monto: l.cantidad * l.costo * l.iva / 100,
-            ieps_pct: l.ieps,
-            ieps_monto: l.cantidad * l.costo * l.ieps / 100
+            impuesto_pct: l.iva + l.ieps,
+            impuesto_monto: l.cantidad * l.costo * (l.iva + l.ieps) / 100
         }))
     };
     
     try {
         const r = await API.request(id ? `/compras/${id}` : '/compras', id ? 'PUT' : 'POST', data);
         if (r.success) {
-            toast(estatusVisual === 'BORRADOR' ? 'Guardado como borrador' : 'Compra confirmada', 'success');
+            const msg = estatusBackend === 'BORRADOR' ? 'Guardado como borrador' : 
+                        estatusBackend === 'RECIBIDA' ? 'Compra confirmada y pagada' : 'Compra confirmada';
+            toast(msg, 'success');
             cargarCompraEnFormulario(id || r.compra_id);
         } else { toast(r.error || 'Error al guardar', 'error'); }
     } catch (e) { toast('Error de conexión', 'error'); }
