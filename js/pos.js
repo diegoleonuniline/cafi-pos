@@ -1267,6 +1267,7 @@ function eliminarDelCarrito(id) {
 }
 
 // ==================== RENDER CARRITO ====================
+// ==================== RENDER CARRITO ====================
 function renderCarrito() {
     var tbody = document.getElementById('cartBody');
     var emptyMsg = document.getElementById('cartEmpty');
@@ -1290,6 +1291,7 @@ function renderCarrito() {
         var importe = precioConDesc * item.cantidad;
         var esGranel = item.esGranel || UNIDADES_GRANEL.indexOf((item.unidad || 'PZ').toUpperCase()) >= 0;
         var pid = item.producto_id;
+        var cantidadDisplay = esGranel ? item.cantidad.toFixed(3) : item.cantidad;
         
         html += '<tr data-index="' + index + '">' +
             // CELDA MÓVIL
@@ -1298,14 +1300,11 @@ function renderCarrito() {
                     '<div class="card-name">' + item.nombre + '</div>' +
                     '<div class="card-price">$' + item.precio.toFixed(2) + ' / ' + item.unidad + (tieneDescuento ? ' <span style="color:#ef4444">-' + item.descuento + '%</span>' : '') + '</div>' +
                 '</div>' +
-                (esGranel ? 
-                    '<button class="qty-granel" onclick="editarCantidadGranel(\'' + pid + '\')">' + item.cantidad.toFixed(3) + ' ' + item.unidad + '</button>' :
-                    '<div class="qty-control">' +
-                        '<button type="button" onclick="cambiarCantidad(\'' + pid + '\', -1)">−</button>' +
-                        '<span>' + item.cantidad + '</span>' +
-                        '<button type="button" onclick="cambiarCantidad(\'' + pid + '\', 1)">+</button>' +
-                    '</div>'
-                ) +
+                '<div class="qty-control">' +
+                    '<button type="button" onclick="cambiarCantidad(\'' + pid + '\', ' + (esGranel ? '-0.1' : '-1') + ')">−</button>' +
+                    '<span class="qty-editable" onclick="' + (esGranel ? 'editarCantidadGranel' : 'editarCantidadLinea') + '(\'' + pid + '\')">' + cantidadDisplay + '</span>' +
+                    '<button type="button" onclick="cambiarCantidad(\'' + pid + '\', ' + (esGranel ? '0.1' : '1') + ')">+</button>' +
+                '</div>' +
                 '<div class="card-total">$' + importe.toFixed(2) + '</div>' +
                 '<button class="card-delete" onclick="eliminarDelCarrito(\'' + pid + '\')"><i class="fas fa-trash"></i></button>' +
             '</td>' +
@@ -1319,14 +1318,11 @@ function renderCarrito() {
                 (tieneDescuento ? '<span class="precio-final">$' + precioConDesc.toFixed(2) + '</span>' : '') +
             '</td>' +
             '<td class="col-cantidad desktop-cell">' +
-                (esGranel ? 
-                    '<button class="qty-granel" onclick="editarCantidadGranel(\'' + pid + '\')">' + item.cantidad.toFixed(3) + ' ' + item.unidad + '</button>' :
-                    '<div class="qty-control">' +
-                        '<button type="button" onclick="cambiarCantidad(\'' + pid + '\', -1)">−</button>' +
-                        '<span>' + item.cantidad + '</span>' +
-                        '<button type="button" onclick="cambiarCantidad(\'' + pid + '\', 1)">+</button>' +
-                    '</div>'
-                ) +
+                '<div class="qty-control">' +
+                    '<button type="button" onclick="cambiarCantidad(\'' + pid + '\', ' + (esGranel ? '-0.1' : '-1') + ')">−</button>' +
+                    '<span class="qty-editable" onclick="' + (esGranel ? 'editarCantidadGranel' : 'editarCantidadLinea') + '(\'' + pid + '\')">' + cantidadDisplay + '</span>' +
+                    '<button type="button" onclick="cambiarCantidad(\'' + pid + '\', ' + (esGranel ? '0.1' : '1') + ')">+</button>' +
+                '</div>' +
             '</td>' +
             '<td class="col-unidad desktop-cell">' + item.unidad + '</td>' +
             '<td class="col-desc desktop-cell">' +
