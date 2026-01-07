@@ -176,6 +176,7 @@ body {
 .admin-content {
     flex: 1;
     padding: 24px;
+    overflow-x: hidden;
     overflow-y: auto;
 }
 
@@ -234,12 +235,19 @@ body {
     overflow: visible;
 }
 
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
+.tab-panel { 
+    display: none; 
+    overflow: visible;
+}
+.tab-panel.active { 
+    display: block; 
+    overflow: visible;
+}
 
 /* ========== FORM CARD ========== */
 .form-card {
     background: var(--white);
+    overflow: visible;
 }
 
 /* ========== STATUS BAR ========== */
@@ -252,12 +260,14 @@ body {
     background: var(--gray-50);
     border-bottom: 1px solid var(--gray-200);
     flex-wrap: wrap;
+    overflow: visible;
 }
 
 .statusbar-left {
     display: flex;
     align-items: center;
     gap: 16px;
+    overflow: visible;
 }
 
 .statusbar-steps {
@@ -310,6 +320,9 @@ body {
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     padding: 24px;
+    overflow: visible;
+    position: relative;
+    z-index: 5;
 }
 
 .fields-grid .field.half { grid-column: span 2; }
@@ -318,6 +331,9 @@ body {
     display: flex;
     flex-direction: column;
     gap: 6px;
+    position: relative;
+    z-index: 5;
+    overflow: visible;
 }
 
 .field label {
@@ -433,7 +449,7 @@ body {
     box-shadow: var(--shadow-lg);
     max-height: 250px;
     overflow-y: auto;
-    z-index: 100;
+    z-index: 1000;
     display: none;
 }
 
@@ -660,6 +676,9 @@ body {
     background: var(--gray-50);
     border-bottom: 1px solid var(--gray-200);
     flex-wrap: wrap;
+    overflow: visible;
+    position: relative;
+    z-index: 10;
 }
 
 .toolbar-filters {
@@ -673,6 +692,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    position: relative;
+    z-index: 10;
 }
 
 .filter-item label {
@@ -725,6 +746,9 @@ body {
     background: var(--white);
     border-bottom: 1px solid var(--gray-200);
     flex-wrap: wrap;
+    overflow: visible;
+    position: relative;
+    z-index: 10;
 }
 
 .mini-stat {
@@ -1021,6 +1045,20 @@ body {
     box-shadow: 0 0 0 2px rgba(45, 61, 191, 0.1);
 }
 
+/* ========== SELECT STYLING ========== */
+.field select,
+.filter-item select,
+.modal-field select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+    cursor: pointer;
+}
+
 /* ========== ANIMATIONS ========== */
 @keyframes modalIn {
     from {
@@ -1083,33 +1121,4 @@ body {
     .modal-form-grid { grid-template-columns: 1fr; }
     
     .action-buttons { flex-wrap: wrap; }
-}
-/* ========== FIX SELECT DROPDOWN ========== */
-.field select,
-.filter-item select,
-.modal-field select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 36px;
-    cursor: pointer;
-}
-
-.field select:focus,
-.filter-item select:focus,
-.modal-field select:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(45, 61, 191, 0.1);
-}
-
-.field select option,
-.filter-item select option,
-.modal-field select option {
-    padding: 10px;
-    background: var(--white);
-    color: var(--dark);
 }
