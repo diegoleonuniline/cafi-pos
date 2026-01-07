@@ -165,8 +165,7 @@ function agregarLineaVacia() {
 }
 
 function renderLineas() {
-    const tbody = document.getElementById('lineasBody');
-    // Usar el estado actual del formulario, no el de compraActual
+    const tbody = document.getElementById('tablaLineas');  // <-- CORREGIDO
     const estatusActual = compraActual?.estatus || 'BORRADOR';
     const editable = estatusActual === 'BORRADOR';
     
