@@ -3414,3 +3414,21 @@ body.pos-body {
         box-shadow: none;
     }
 }
+/* Cantidad editable clickeable */
+.qty-editable {
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    min-width: 40px;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.qty-editable:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.qty-control .qty-editable {
+    font-weight: 600;
+}
