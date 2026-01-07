@@ -3432,3 +3432,39 @@ body.pos-body {
 .qty-control .qty-editable {
     font-weight: 600;
 }
+/* Selector de tipo de descuento */
+.desc-tipo-selector {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    justify-content: center;
+}
+
+.desc-tipo-btn {
+    padding: 8px 24px;
+    border: 2px solid var(--border);
+    background: white;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.desc-tipo-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.desc-tipo-btn:hover:not(.active) {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.desc-shortcuts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
