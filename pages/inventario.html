@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAFI POS - Inventario</title>
-   <link rel="stylesheet" href="../css/inventario.css">
-<script src="../js/inventario.js"></script>
+    <link rel="stylesheet" href="../css/inventario.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -57,7 +57,6 @@
 
                 <!-- ==================== TAB EXISTENCIAS ==================== -->
                 <div class="tab-panel active" id="panel-existencias">
-                    <!-- Stats -->
                     <div class="stats-row">
                         <div class="mini-stat">
                             <div class="mini-stat-icon blue"><i class="fas fa-cubes"></i></div>
@@ -96,7 +95,6 @@
                         </div>
                     </div>
 
-                    <!-- Filtros -->
                     <div class="filters-bar">
                         <div class="field">
                             <label>Almacén</label>
@@ -122,7 +120,6 @@
                         </button>
                     </div>
 
-                    <!-- Tabla existencias -->
                     <div class="table-container">
                         <table class="data-table">
                             <thead>
@@ -145,7 +142,6 @@
 
                 <!-- ==================== TAB MOVIMIENTOS ==================== -->
                 <div class="tab-panel" id="panel-movimientos">
-                    <!-- Filtros -->
                     <div class="filters-bar">
                         <div class="field">
                             <label>Almacén</label>
@@ -181,7 +177,6 @@
                         </div>
                     </div>
 
-                    <!-- Tabla movimientos -->
                     <div class="table-container">
                         <table class="data-table">
                             <thead>
@@ -204,7 +199,6 @@
 
                 <!-- ==================== TAB TRASPASOS ==================== -->
                 <div class="tab-panel" id="panel-traspasos">
-                    <!-- Filtros -->
                     <div class="filters-bar">
                         <div class="field">
                             <label>Estatus</label>
@@ -234,7 +228,6 @@
                         </button>
                     </div>
 
-                    <!-- Tabla traspasos -->
                     <div class="table-container">
                         <table class="data-table">
                             <thead>
@@ -256,7 +249,6 @@
 
                 <!-- ==================== TAB AJUSTE ==================== -->
                 <div class="tab-panel" id="panel-ajuste">
-                    <!-- Status Bar -->
                     <div class="status-bar" id="ajusteStatusBar">
                         <div class="step active" data-step="BORRADOR"><i class="fas fa-edit"></i> Borrador</div>
                         <i class="fas fa-chevron-right step-arrow"></i>
@@ -299,7 +291,6 @@
                                 <textarea id="ajusteNotas" rows="2" placeholder="Observaciones..."></textarea>
                             </div>
 
-                            <!-- Tabla de productos a ajustar -->
                             <div style="overflow-x: auto;">
                                 <table class="lines-table">
                                     <thead>
@@ -320,7 +311,6 @@
                                 <span class="line-link" onclick="agregarLineaAjuste()"><i class="fas fa-plus"></i> Agregar producto</span>
                             </div>
 
-                            <!-- Totales -->
                             <div class="totals-section">
                                 <div class="totals-box">
                                     <div class="total-row">
@@ -357,7 +347,6 @@
                 <button class="modal-close" onclick="cerrarModal('modalTraspaso')"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
-                <!-- Status Bar Traspaso -->
                 <div class="status-bar" id="traspasoStatusBar" style="margin-bottom:20px;">
                     <div class="step active" data-step="BORRADOR"><i class="fas fa-edit"></i> Borrador</div>
                     <i class="fas fa-chevron-right step-arrow"></i>
@@ -394,7 +383,6 @@
                     <textarea id="traspasoNotas" rows="2" placeholder="Observaciones..."></textarea>
                 </div>
 
-                <!-- Tabla de productos -->
                 <div style="overflow-x: auto;">
                     <table class="lines-table">
                         <thead>
@@ -425,7 +413,7 @@
         </div>
     </div>
 
-    <!-- ==================== MODAL PRODUCTO (crear inline) ==================== -->
+    <!-- ==================== MODAL PRODUCTO ==================== -->
     <div class="modal-overlay" id="modalProducto">
         <div class="modal">
             <div class="modal-header">
@@ -462,6 +450,6 @@
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <script src="inventario.js"></script>
+    <script src="../js/inventario.js"></script>
 </body>
 </html>
