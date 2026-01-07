@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAFI POS - Inventario</title>
+    <link rel="stylesheet" href="inventario.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1><i class="fas fa-cash-register"></i> <span>CAFI POS</span></h1>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item"><i class="fas fa-home"></i> <span>Inicio</span></a>
+                <a href="pos.html" class="nav-item"><i class="fas fa-shopping-cart"></i> <span>Punto de Venta</span></a>
+                <a href="ventas.html" class="nav-item"><i class="fas fa-receipt"></i> <span>Ventas</span></a>
+                <a href="compras.html" class="nav-item"><i class="fas fa-truck"></i> <span>Compras</span></a>
+                <a href="inventario.html" class="nav-item active"><i class="fas fa-boxes"></i> <span>Inventario</span></a>
+                <a href="productos.html" class="nav-item"><i class="fas fa-box"></i> <span>Productos</span></a>
+                <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i> <span>Clientes</span></a>
+                <a href="reportes.html" class="nav-item"><i class="fas fa-chart-bar"></i> <span>Reportes</span></a>
+                <a href="configuracion.html" class="nav-item"><i class="fas fa-cog"></i> <span>Configuración</span></a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-info">
+                    <div class="name" id="userName">Usuario</div>
+                    <div class="role" id="userRole">Rol</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <header class="admin-header">
+                <h2><i class="fas fa-boxes"></i> <span>Inventario</span></h2>
+                <div class="header-actions">
+                    <button class="btn btn-outline btn-sm" onclick="window.location.reload()">
+                        <i class="fas fa-sync"></i> Actualizar
+                    </button>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <!-- Tabs -->
+                <div class="tabs-container">
+                    <button class="tab-btn active" data-tab="existencias"><i class="fas fa-warehouse"></i> Existencias</button>
+                    <button class="tab-btn" data-tab="movimientos"><i class="fas fa-exchange-alt"></i> Movimientos</button>
+                    <button class="tab-btn" data-tab="traspasos"><i class="fas fa-truck-loading"></i> Traspasos</button>
+                    <button class="tab-btn" data-tab="ajuste"><i class="fas fa-sliders-h"></i> Ajuste</button>
+                </div>
+
+                <!-- ==================== TAB EXISTENCIAS ==================== -->
+                <div class="tab-panel active" id="panel-existencias">
+                    <!-- Stats -->
+                    <div class="stats-row">
+                        <div class="mini-stat">
+                            <div class="mini-stat-icon blue"><i class="fas fa-cubes"></i></div>
+                            <div class="mini-stat-info">
+                                <h4>Total Productos</h4>
+                                <div class="value" id="statTotalProductos">0</div>
+                            </div>
+                        </div>
+                        <div class="mini-stat">
+                            <div class="mini-stat-icon green"><i class="fas fa-check-circle"></i></div>
+                            <div class="mini-stat-info">
+                                <h4>Con Stock</h4>
+                                <div class="value" id="statConStock">0</div>
+                            </div>
+                        </div>
+                        <div class="mini-stat">
+                            <div class="mini-stat-icon yellow"><i class="fas fa-exclamation-triangle"></i></div>
+                            <div class="mini-stat-info">
+                                <h4>Stock Bajo</h4>
+                                <div class="value" id="statStockBajo">0</div>
+                            </div>
+                        </div>
+                        <div class="mini-stat">
+                            <div class="mini-stat-icon red"><i class="fas fa-times-circle"></i></div>
+                            <div class="mini-stat-info">
+                                <h4>Sin Stock</h4>
+                                <div class="value" id="statSinStock">0</div>
+                            </div>
+                        </div>
+                        <div class="mini-stat">
+                            <div class="mini-stat-icon purple"><i class="fas fa-dollar-sign"></i></div>
+                            <div class="mini-stat-info">
+                                <h4>Valor Total</h4>
+                                <div class="value" id="statValorTotal">$0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filtros -->
+                    <div class="filters-bar">
+                        <div class="field">
+                            <label>Almacén</label>
+                            <select id="filtroAlmacenExist" onchange="cargarExistencias()">
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>Buscar producto</label>
+                            <input type="text" id="filtroBuscarExist" placeholder="Nombre, código..." oninput="filtrarExistencias()">
+                        </div>
+                        <div class="field">
+                            <label>Estado stock</label>
+                            <select id="filtroEstadoStock" onchange="filtrarExistencias()">
+                                <option value="">Todos</option>
+                                <option value="constock">Con stock</option>
+                                <option value="bajo">Stock bajo</option>
+                                <option value="sinstock">Sin stock</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-outline" onclick="exportarExistencias()">
+                            <i class="fas fa-file-excel"></i> Exportar
+                        </button>
+                    </div>
+
+                    <!-- Tabla existencias -->
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Producto</th>
+                                    <th>Almacén</th>
+                                    <th class="text-right">Stock</th>
+                                    <th class="text-right">Reservado</th>
+                                    <th class="text-right">Disponible</th>
+                                    <th class="text-right">Costo Prom.</th>
+                                    <th class="text-right">Valor</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaExistencias"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ==================== TAB MOVIMIENTOS ==================== -->
+                <div class="tab-panel" id="panel-movimientos">
+                    <!-- Filtros -->
+                    <div class="filters-bar">
+                        <div class="field">
+                            <label>Almacén</label>
+                            <select id="filtroAlmacenMov" onchange="cargarMovimientos()">
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>Concepto</label>
+                            <select id="filtroConceptoMov" onchange="cargarMovimientos()">
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>Tipo</label>
+                            <select id="filtroTipoMov" onchange="cargarMovimientos()">
+                                <option value="">Todos</option>
+                                <option value="ENTRADA">Entradas</option>
+                                <option value="SALIDA">Salidas</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>Desde</label>
+                            <input type="date" id="filtroDesde" onchange="cargarMovimientos()">
+                        </div>
+                        <div class="field">
+                            <label>Hasta</label>
+                            <input type="date" id="filtroHasta" onchange="cargarMovimientos()">
+                        </div>
+                        <div class="field">
+                            <label>Buscar</label>
+                            <input type="text" id="filtroBuscarMov" placeholder="Producto, referencia..." oninput="filtrarMovimientos()">
+                        </div>
+                    </div>
+
+                    <!-- Tabla movimientos -->
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Concepto</th>
+                                    <th>Producto</th>
+                                    <th>Almacén</th>
+                                    <th class="text-right">Cantidad</th>
+                                    <th class="text-right">Anterior</th>
+                                    <th class="text-right">Nueva</th>
+                                    <th>Referencia</th>
+                                    <th>Usuario</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaMovimientos"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ==================== TAB TRASPASOS ==================== -->
+                <div class="tab-panel" id="panel-traspasos">
+                    <!-- Filtros -->
+                    <div class="filters-bar">
+                        <div class="field">
+                            <label>Estatus</label>
+                            <select id="filtroEstatusTras" onchange="cargarTraspasos()">
+                                <option value="">Todos</option>
+                                <option value="BORRADOR">Borrador</option>
+                                <option value="SOLICITADO">Solicitado</option>
+                                <option value="EN_TRANSITO">En Tránsito</option>
+                                <option value="RECIBIDO">Recibido</option>
+                                <option value="CANCELADO">Cancelado</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>Almacén Origen</label>
+                            <select id="filtroOrigenTras" onchange="cargarTraspasos()">
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>Almacén Destino</label>
+                            <select id="filtroDestinoTras" onchange="cargarTraspasos()">
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="nuevoTraspaso()">
+                            <i class="fas fa-plus"></i> Nuevo Traspaso
+                        </button>
+                    </div>
+
+                    <!-- Tabla traspasos -->
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Folio</th>
+                                    <th>Fecha</th>
+                                    <th>Origen</th>
+                                    <th>Destino</th>
+                                    <th class="text-right">Productos</th>
+                                    <th>Referencia</th>
+                                    <th>Estatus</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaTraspasos"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ==================== TAB AJUSTE ==================== -->
+                <div class="tab-panel" id="panel-ajuste">
+                    <!-- Status Bar -->
+                    <div class="status-bar" id="ajusteStatusBar">
+                        <div class="step active" data-step="BORRADOR"><i class="fas fa-edit"></i> Borrador</div>
+                        <i class="fas fa-chevron-right step-arrow"></i>
+                        <div class="step" data-step="APLICADO"><i class="fas fa-check"></i> Aplicado</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-sliders-h"></i> Ajuste de Inventario</h3>
+                            <span class="badge badge-borrador" id="ajusteBadge">Nuevo</span>
+                        </div>
+                        <div class="card-body">
+                            <input type="hidden" id="ajusteId">
+                            
+                            <div class="fields-grid" style="margin-bottom: 20px;">
+                                <div class="field">
+                                    <label>Almacén *</label>
+                                    <select id="ajusteAlmacen" required>
+                                        <option value="">Seleccionar...</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>Concepto *</label>
+                                    <select id="ajusteConcepto" required onchange="cambiarConceptoAjuste()">
+                                        <option value="">Seleccionar...</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>Fecha</label>
+                                    <input type="date" id="ajusteFecha">
+                                </div>
+                                <div class="field">
+                                    <label>Referencia</label>
+                                    <input type="text" id="ajusteReferencia" placeholder="Opcional">
+                                </div>
+                            </div>
+
+                            <div class="field" style="margin-bottom: 20px;">
+                                <label>Notas</label>
+                                <textarea id="ajusteNotas" rows="2" placeholder="Observaciones..."></textarea>
+                            </div>
+
+                            <!-- Tabla de productos a ajustar -->
+                            <div style="overflow-x: auto;">
+                                <table class="lines-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:40%">Producto</th>
+                                            <th class="text-right" style="width:15%">Stock Actual</th>
+                                            <th class="text-right" style="width:15%">Cantidad</th>
+                                            <th class="text-right" style="width:15%">Costo Unit.</th>
+                                            <th class="text-right" style="width:10%">Total</th>
+                                            <th style="width:5%"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tablaLineasAjuste"></tbody>
+                                </table>
+                            </div>
+
+                            <div class="lines-actions">
+                                <span class="line-link" onclick="agregarLineaAjuste()"><i class="fas fa-plus"></i> Agregar producto</span>
+                            </div>
+
+                            <!-- Totales -->
+                            <div class="totals-section">
+                                <div class="totals-box">
+                                    <div class="total-row">
+                                        <span>Productos:</span>
+                                        <span id="ajusteTotalProductos">0</span>
+                                    </div>
+                                    <div class="total-row">
+                                        <span>Unidades:</span>
+                                        <span id="ajusteTotalUnidades">0</span>
+                                    </div>
+                                    <div class="total-row final">
+                                        <span>Costo Total:</span>
+                                        <span id="ajusteCostoTotal">$0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="btn btn-outline" onclick="limpiarAjuste()"><i class="fas fa-eraser"></i> Limpiar</button>
+                            <button class="btn btn-success" id="btnAplicarAjuste" onclick="aplicarAjuste()"><i class="fas fa-check"></i> Aplicar Ajuste</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ==================== MODAL TRASPASO ==================== -->
+    <div class="modal-overlay" id="modalTraspaso">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3><i class="fas fa-truck-loading"></i> <span id="modalTraspasoTitulo">Nuevo Traspaso</span></h3>
+                <button class="modal-close" onclick="cerrarModal('modalTraspaso')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <!-- Status Bar Traspaso -->
+                <div class="status-bar" id="traspasoStatusBar" style="margin-bottom:20px;">
+                    <div class="step active" data-step="BORRADOR"><i class="fas fa-edit"></i> Borrador</div>
+                    <i class="fas fa-chevron-right step-arrow"></i>
+                    <div class="step" data-step="SOLICITADO"><i class="fas fa-paper-plane"></i> Solicitado</div>
+                    <i class="fas fa-chevron-right step-arrow"></i>
+                    <div class="step" data-step="EN_TRANSITO"><i class="fas fa-truck"></i> En Tránsito</div>
+                    <i class="fas fa-chevron-right step-arrow"></i>
+                    <div class="step" data-step="RECIBIDO"><i class="fas fa-check-double"></i> Recibido</div>
+                </div>
+
+                <input type="hidden" id="traspasoId">
+                
+                <div class="fields-grid" style="margin-bottom: 20px;">
+                    <div class="field">
+                        <label>Almacén Origen *</label>
+                        <select id="traspasoOrigen" required onchange="cambiarAlmacenOrigen()">
+                            <option value="">Seleccionar...</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Almacén Destino *</label>
+                        <select id="traspasoDestino" required>
+                            <option value="">Seleccionar...</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Referencia</label>
+                        <input type="text" id="traspasoReferencia" placeholder="Opcional">
+                    </div>
+                </div>
+
+                <div class="field" style="margin-bottom: 20px;">
+                    <label>Notas</label>
+                    <textarea id="traspasoNotas" rows="2" placeholder="Observaciones..."></textarea>
+                </div>
+
+                <!-- Tabla de productos -->
+                <div style="overflow-x: auto;">
+                    <table class="lines-table">
+                        <thead>
+                            <tr>
+                                <th style="width:40%">Producto</th>
+                                <th class="text-right" style="width:15%">Disponible</th>
+                                <th class="text-right" style="width:15%">Solicitado</th>
+                                <th class="text-right" style="width:15%">Enviado</th>
+                                <th class="text-right" style="width:10%">Recibido</th>
+                                <th style="width:5%"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaLineasTraspaso"></tbody>
+                    </table>
+                </div>
+
+                <div class="lines-actions" id="traspasoLineasActions">
+                    <span class="line-link" onclick="agregarLineaTraspaso()"><i class="fas fa-plus"></i> Agregar producto</span>
+                </div>
+            </div>
+            <div class="modal-footer" id="traspasoFooter">
+                <button class="btn btn-outline" onclick="cerrarModal('modalTraspaso')">Cancelar</button>
+                <button class="btn btn-primary" id="btnGuardarTraspaso" onclick="guardarTraspaso('BORRADOR')"><i class="fas fa-save"></i> Guardar Borrador</button>
+                <button class="btn btn-success" id="btnSolicitarTraspaso" onclick="guardarTraspaso('SOLICITADO')"><i class="fas fa-paper-plane"></i> Solicitar</button>
+                <button class="btn btn-warning" id="btnEnviarTraspaso" onclick="enviarTraspaso()" style="display:none"><i class="fas fa-truck"></i> Enviar</button>
+                <button class="btn btn-success" id="btnRecibirTraspaso" onclick="recibirTraspaso()" style="display:none"><i class="fas fa-check-double"></i> Recibir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL PRODUCTO (crear inline) ==================== -->
+    <div class="modal-overlay" id="modalProducto">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-box"></i> Nuevo Producto</h3>
+                <button class="modal-close" onclick="cerrarModal('modalProducto')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="fields-grid">
+                    <div class="field">
+                        <label>Nombre *</label>
+                        <input type="text" id="prodNombre" required>
+                    </div>
+                    <div class="field">
+                        <label>Código Barras</label>
+                        <input type="text" id="prodCodigo">
+                    </div>
+                    <div class="field">
+                        <label>Costo</label>
+                        <input type="number" id="prodCosto" step="0.01" value="0">
+                    </div>
+                    <div class="field">
+                        <label>Precio Venta</label>
+                        <input type="number" id="prodPrecio" step="0.01" value="0">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="cerrarModal('modalProducto')">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarProducto()"><i class="fas fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="inventario.js"></script>
+</body>
+</html>
