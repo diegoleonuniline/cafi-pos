@@ -264,10 +264,10 @@ async function cargarExistencias() {
 
 function calcularStatsExistencias() {
     const total = existenciasData.length;
-    const conStock = existenciasData.filter(e => e.stock_actual > 0).length;
-    const stockBajo = existenciasData.filter(e => e.stock_actual > 0 && e.stock_actual <= (e.stock_minimo || 5)).length;
-    const sinStock = existenciasData.filter(e => e.stock_actual <= 0).length;
-    const valorTotal = existenciasData.reduce((sum, e) => sum + (e.stock_actual * (e.costo_promedio || 0)), 0);
+    const conStock = existenciasData.filter(e => (parseFloat(e.stock) || 0) > 0).length;
+    const stockBajo = existenciasData.filter(e => (parseFloat(e.stock) || 0) > 0 && (parseFloat(e.stock) || 0) <= (e.stock_minimo || 5)).length;
+    const sinStock = existenciasData.filter(e => (parseFloat(e.stock) || 0) <= 0).length;
+    const valorTotal = existenciasData.reduce((sum, e) => sum + ((parseFloat(e.stock) || 0) * (parseFloat(e.costo_promedio) || 0)), 0);
     
     document.getElementById('statTotalProductos').textContent = total;
     document.getElementById('statConStock').textContent = conStock;
@@ -310,17 +310,19 @@ function renderExistencias() {
     empty.classList.remove('show');
     
     tbody.innerHTML = existenciasFiltradas.map(e => {
-        const disponible = e.stock_actual - (e.stock_reservado || 0);
-        const valor = e.stock_actual * (e.costo_promedio || 0);
-        let badge = '<span class="badge badge-green">Normal</span>';
-        if (e.stock_actual <= 0) badge = '<span class="badge badge-red">Sin Stock</span>';
-        else if (e.stock_actual <= (e.stock_minimo || 5)) badge = '<span class="badge badge-orange">Bajo</span>';
+       const stock = parseFloat(e.stock) || 0;
+const reservado = parseFloat(e.stock_reservado) || 0;
+const disponible = stock - reservado;
+const valor = stock * (parseFloat(e.costo_promedio) || 0);
+let badge = '<span class="badge badge-green">Normal</span>';
+if (stock <= 0) badge = '<span class="badge badge-red">Sin Stock</span>';
+else if (stock <= (e.stock_minimo || 5)) badge = '<span class="badge badge-orange">Bajo</span>';
         
         return `<tr>
             <td><code>${e.codigo_barras || '-'}</code></td>
             <td><strong>${e.producto_nombre || ''}</strong></td>
             <td>${e.almacen_nombre || ''}</td>
-            <td class="text-right">${parseFloat(e.stock_actual || 0).toFixed(2)}</td>
+           <td class="text-right">${stock.toFixed(2)}</td>
             <td class="text-right">${parseFloat(e.stock_reservado || 0).toFixed(2)}</td>
             <td class="text-right" style="color:var(--primary);font-weight:600;">${disponible.toFixed(2)}</td>
             <td class="text-right">${formatMoney(e.costo_promedio || 0)}</td>
