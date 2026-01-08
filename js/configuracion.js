@@ -53,6 +53,7 @@ function cargarTab(tab) {
         'usuarios': () => { cargarSucursales(); cargarUsuarios(); },
         'impuestos': cargarImpuestos,
         'metodos': cargarMetodos,
+       'puntos': cargarPuntos,
         'unidades': cargarUnidades,
         'categorias': cargarCategorias,
         'subcategorias': () => { cargarCategorias(); cargarSubcategorias(); },
@@ -829,7 +830,56 @@ async function eliminarGrupo(id) {
         if (r.success) { toast('Desactivado', 'success'); cargarGrupos(); }
     } catch (e) { toast('Error: ' + e.message, 'error'); }
 }
+// ==================== PUNTOS ====================
+async function cargarPuntos() {
+    try {
+        const r = await API.request(`/config-empresa/${empresaId}`);
+        if (r.success && r.config) {
+            const c = r.config;
+            document.getElementById('puntosActivo').checked = c.puntos_activo === 'Y';
+            document.getElementById('puntosPorPeso').value = c.puntos_por_peso || 10;
+            document.getElementById('puntosValorRedencion').value = c.punto_valor_redencion || 0.50;
+            document.getElementById('puntosMinimoRedimir').value = c.puntos_minimo_redimir || 100;
+        }
+        actualizarEjemploPuntos();
+    } catch (e) { console.error(e); }
+}
 
+async function guardarPuntos(ev) {
+    ev.preventDefault();
+    const data = {
+        empresa_id: empresaId,
+        puntos_activo: document.getElementById('puntosActivo').checked ? 'Y' : 'N',
+        puntos_por_peso: parseFloat(document.getElementById('puntosPorPeso').value) || 10,
+        punto_valor_redencion: parseFloat(document.getElementById('puntosValorRedencion').value) || 0.50,
+        puntos_minimo_redimir: parseInt(document.getElementById('puntosMinimoRedimir').value) || 100
+    };
+    try {
+        const r = await API.request(`/config-empresa/${empresaId}`, 'PUT', data);
+        toast(r.success ? 'Configuración guardada' : 'Error al guardar', r.success ? 'success' : 'error');
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+}
+
+function actualizarEjemploPuntos() {
+    const porPeso = parseFloat(document.getElementById('puntosPorPeso').value) || 10;
+    const valorRed = parseFloat(document.getElementById('puntosValorRedencion').value) || 0.50;
+    const minimo = parseInt(document.getElementById('puntosMinimoRedimir').value) || 100;
+    
+    const compraEjemplo = 500;
+    const puntosGenerados = Math.floor(compraEjemplo / porPeso);
+    const valorDescuento = (minimo * valorRed).toFixed(2);
+    
+    document.getElementById('ejemploPuntos').innerHTML = `
+        <i class="fas fa-info-circle"></i>
+        <p>Con la configuración actual: Una compra de <strong>$${compraEjemplo}</strong> genera <strong>${puntosGenerados} puntos</strong>. 
+        Al redimir ${minimo} puntos obtiene <strong>$${valorDescuento}</strong> de descuento.</p>
+    `;
+}
+
+// Event listeners para actualizar ejemplo en tiempo real
+document.getElementById('puntosPorPeso')?.addEventListener('input', actualizarEjemploPuntos);
+document.getElementById('puntosValorRedencion')?.addEventListener('input', actualizarEjemploPuntos);
+document.getElementById('puntosMinimoRedimir')?.addEventListener('input', actualizarEjemploPuntos);
 // ==================== PROVEEDORES ====================
 async function cargarProveedores() {
     const tabla = document.getElementById('tablaProveedores');
