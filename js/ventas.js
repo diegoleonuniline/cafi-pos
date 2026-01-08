@@ -83,7 +83,7 @@ async function cargarDatosIniciales() {
         cargarUsuarios()
     ]);
     renderMetodosPago();
-    agregarLineaVacia(); // Siempre inicia con una línea lista
+    renderLineas(); // Esto agregará la primera línea vacía
 }
 
 // ==================== CATALOGOS ====================
@@ -298,7 +298,7 @@ function nuevaVenta() {
     onTipoVentaChange();
     actualizarStatusBar('BORRADOR');
     actualizarBotones('BORRADOR');
-    agregarLineaVacia(); // Siempre inicia con una línea lista
+    renderLineas(); // Esto agregará la primera línea vacía
     renderPagos();
     renderMetodosPago();
     calcularTotales();
@@ -344,10 +344,13 @@ function agregarLineaVacia() {
 function renderLineas() {
     const tbody = document.getElementById('tablaLineas');
     const editable = !ventaActual || ventaActual.estatus === 'BORRADOR';
-    const esPagada = ventaActual && ['PAGADA', 'RECIBIDA'].includes(ventaActual.estatus);
+    const esPagada = ventaActual && ['PAGADA', 'PENDIENTE'].includes(ventaActual.estatus);
     
-    // Siempre tener al menos una línea vacía para escribir
-    if (lineasVenta.length === 0 || (editable && lineasVenta[lineasVenta.length - 1].producto_id)) {
+    const lineasValidas = lineasVenta.filter(l => l.producto_id).length;
+    document.getElementById('contadorProductos').textContent = lineasValidas;
+    
+    // Si no hay líneas, agregar una vacía
+    if (lineasVenta.length === 0 && editable) {
         lineasVenta.push({
             producto_id: '', nombre: '', codigo: '', cantidad: 1, unidad: 'PZ',
             precio: 0, precio_original: 0, descuento_pct: 0, descuento_monto: 0,
@@ -355,8 +358,7 @@ function renderLineas() {
         });
     }
     
-    const lineasValidas = lineasVenta.filter(l => l.producto_id).length;
-    document.getElementById('contadorProductos').textContent = lineasValidas;
+    const isUltimaLinea = (i) => i === lineasVenta.length - 1;
     
     tbody.innerHTML = lineasVenta.map((l, i) => `
         <tr data-idx="${i}">
@@ -384,42 +386,60 @@ function renderLineas() {
                     min="0.01" 
                     step="0.01"
                     oninput="actualizarLinea(${i}, 'cantidad', this.value)"
-                    onkeydown="if(event.key==='Enter'){event.preventDefault(); agregarLineaVacia();}"
+                    onkeydown="navegarCampoLinea(event, ${i}, 'cantidad')"
                     ${editable ? '' : 'disabled'}>
             </td>
             <td class="text-center text-muted">${l.unidad}</td>
             <td>
                 <input type="number" 
                     class="input-sm text-right" 
+                    id="precio-input-${i}"
                     value="${l.precio.toFixed(2)}" 
                     min="0" 
                     step="0.01"
                     oninput="actualizarLinea(${i}, 'precio', this.value)"
+                    onkeydown="navegarCampoLinea(event, ${i}, 'precio')"
                     ${editable ? '' : 'disabled'}>
             </td>
             <td>
                 <input type="number" 
                     class="input-sm text-center" 
+                    id="descpct-input-${i}"
                     value="${l.descuento_pct}" 
                     min="0" 
                     max="100"
                     step="0.01"
                     oninput="actualizarLinea(${i}, 'descuento_pct', this.value)"
+                    onkeydown="navegarCampoLinea(event, ${i}, 'descpct')"
                     ${editable ? '' : 'disabled'}>
             </td>
             <td>
                 <input type="number" 
                     class="input-sm text-right" 
+                    id="descmonto-input-${i}"
                     value="${l.descuento_monto.toFixed(2)}" 
                     min="0" 
                     step="0.01"
                     oninput="actualizarLinea(${i}, 'descuento_monto', this.value)"
+                    onkeydown="navegarCampoLinea(event, ${i}, 'descmonto')"
+                    ${editable ? '' : 'disabled'}>
+            </td>
+            <td>
+                <input type="number" 
+                    class="input-sm text-center" 
+                    id="iva-input-${i}"
+                    value="${l.iva}" 
+                    min="0" 
+                    max="100"
+                    step="1"
+                    oninput="actualizarLinea(${i}, 'iva', this.value)"
+                    onkeydown="navegarCampoLinea(event, ${i}, 'iva')"
                     ${editable ? '' : 'disabled'}>
             </td>
             <td class="text-right importe-cell">${formatMoney(l.importe)}</td>
             <td class="actions-cell">
                 ${editable ? `<button class="btn-icon danger" onclick="quitarLinea(${i})" title="Eliminar"><i class="fas fa-trash"></i></button>` : ''}
-                ${esPagada && l.producto_id && l.detalle_id ? `<button class="btn-icon warning" onclick="abrirCancelarProducto(${i})" title="Cancelar"><i class="fas fa-times-circle"></i></button>` : ''}
+                ${esPagada && l.producto_id && l.detalle_id ? `<button class="btn-icon warning" onclick="abrirCancelarProducto(${i})" title="Devolver"><i class="fas fa-undo"></i></button>` : ''}
             </td>
         </tr>
     `).join('');
@@ -630,6 +650,32 @@ function quitarLinea(idx) {
     actualizarResumenPagos();
 }
 
+// Navegar entre campos de línea con Tab
+function navegarCampoLinea(event, idx, campo) {
+    if (event.key === 'Tab' && !event.shiftKey) {
+        const esUltimaLinea = idx === lineasVenta.length - 1;
+        const esUltimoCampo = campo === 'iva';
+        
+        // Si es Tab en el último campo (IVA) de la última línea con producto, agregar nueva línea
+        if (esUltimaLinea && esUltimoCampo && lineasVenta[idx].producto_id) {
+            event.preventDefault();
+            agregarLineaVacia();
+        }
+    } else if (event.key === 'Enter') {
+        event.preventDefault();
+        // Enter avanza al siguiente campo
+        const orden = ['cant', 'precio', 'descpct', 'descmonto', 'iva'];
+        const idxCampo = orden.indexOf(campo.replace('-input-' + idx, ''));
+        if (idxCampo < orden.length - 1) {
+            const nextInput = document.getElementById(`${orden[idxCampo + 1]}-input-${idx}`);
+            if (nextInput) nextInput.focus();
+        } else if (lineasVenta[idx].producto_id) {
+            // Si es el último campo y hay producto, agregar línea
+            agregarLineaVacia();
+        }
+    }
+}
+
 function aplicarDescuentoGlobal() {
     const descGlobal = parseFloat(document.getElementById('ventaDescuentoGlobal').value) || 0;
     lineasVenta.forEach((l, i) => {
@@ -761,6 +807,12 @@ function calcularCambio() {
 }
 
 function agregarPago() {
+    // Si la venta está en PENDIENTE, es un abono directo
+    if (ventaActual && ventaActual.estatus === 'PENDIENTE') {
+        abonarVenta();
+        return;
+    }
+    
     if (!metodoSeleccionado) {
         toast('Seleccione un método de pago', 'error');
         return;
@@ -775,10 +827,7 @@ function agregarPago() {
     const metodo = metodosData.find(m => m.metodo_pago_id === metodoSeleccionado);
     const referencia = document.getElementById('pagoReferencia').value.trim();
     
-    if ((metodo?.requiere_referencia === 'Y' || (metodo?.tipo || '').toUpperCase() !== 'EFECTIVO') && !referencia) {
-        toast('Ingrese la referencia del pago', 'error');
-        return;
-    }
+    // Referencia ya no es obligatoria
     
     const totales = calcularTotales();
     const totalPagado = pagosVenta.reduce((s, p) => s + p.monto, 0);
@@ -872,6 +921,45 @@ function actualizarBadgePagos() {
     }
 }
 
+// Abonar a venta pendiente (crédito)
+async function abonarVenta() {
+    if (!ventaActual || !metodoSeleccionado) {
+        toast('Seleccione un método de pago', 'error');
+        return;
+    }
+    
+    const monto = parseFloat(document.getElementById('pagoMonto').value) || 0;
+    if (monto <= 0) {
+        toast('Ingrese un monto válido', 'error');
+        return;
+    }
+    
+    const metodo = metodosData.find(m => m.metodo_pago_id === metodoSeleccionado);
+    const referencia = document.getElementById('pagoReferencia').value.trim();
+    
+    try {
+        const r = await API.request('/pagos', 'POST', {
+            venta_id: ventaActual.venta_id,
+            metodo_pago_id: metodoSeleccionado,
+            monto: monto,
+            referencia: referencia,
+            usuario_id: usuarioId
+        });
+        
+        if (r.success) {
+            toast('Abono aplicado correctamente', 'success');
+            document.getElementById('pagoMonto').value = '';
+            document.getElementById('pagoReferencia').value = '';
+            cargarVentaEnFormulario(ventaActual.venta_id);
+        } else {
+            toast(r.error || 'Error al abonar', 'error');
+        }
+    } catch (e) {
+        console.error(e);
+        toast('Error de conexión', 'error');
+    }
+}
+
 // ==================== STATUS Y BOTONES ====================
 
 function actualizarStatusBar(estatus) {
@@ -892,14 +980,34 @@ function actualizarStatusBar(estatus) {
 
 function actualizarBotones(estatus) {
     const esBorrador = estatus === 'BORRADOR';
-    const estaConfirmada = ['PENDIENTE', 'CONFIRMADA'].includes(estatus);
+    const estaPendiente = estatus === 'PENDIENTE';
     const estaPagada = estatus === 'PAGADA';
     const estaCancelada = estatus === 'CANCELADA';
+    const tipoVenta = document.getElementById('ventaTipo').value;
+    const esCredito = tipoVenta === 'CREDITO';
     
     document.getElementById('btnGuardar').style.display = esBorrador ? '' : 'none';
     document.getElementById('btnConfirmar').style.display = esBorrador ? '' : 'none';
     document.getElementById('btnPDF').style.display = (ventaActual && !esBorrador) ? '' : 'none';
-    document.getElementById('btnReabrir').style.display = (estaPagada && !estaCancelada) ? '' : 'none';
+    
+    // Reabrir solo para ventas PAGADAS de CONTADO
+    const mostrarReabrir = estaPagada && !esCredito;
+    document.getElementById('btnReabrir').style.display = mostrarReabrir ? '' : 'none';
+    
+    // Abonar para ventas PENDIENTE (crédito con saldo)
+    const mostrarAbonar = estaPendiente && esCredito;
+    let btnAbonar = document.getElementById('btnAbonar');
+    if (!btnAbonar) {
+        // Crear botón si no existe
+        btnAbonar = document.createElement('button');
+        btnAbonar.id = 'btnAbonar';
+        btnAbonar.className = 'btn btn-success';
+        btnAbonar.innerHTML = '<i class="fas fa-hand-holding-usd"></i> Abonar';
+        btnAbonar.onclick = () => irATab('pagos');
+        document.getElementById('btnReabrir').parentNode.insertBefore(btnAbonar, document.getElementById('btnReabrir'));
+    }
+    btnAbonar.style.display = mostrarAbonar ? '' : 'none';
+    
     document.getElementById('btnCancelar').style.display = (!estaCancelada && !estaPagada && ventaActual) ? '' : 'none';
     
     // Deshabilitar campos si no es borrador
@@ -909,8 +1017,8 @@ function actualizarBotones(estatus) {
     document.getElementById('ventaTipo').disabled = !editable;
     document.getElementById('ventaDescuentoGlobal').disabled = !editable;
     
-    // Mostrar/ocultar sección de nuevo pago
-    const mostrarNuevoPago = estaConfirmada || esBorrador;
+    // Mostrar sección de nuevo pago en borrador o pendiente (para abonar)
+    const mostrarNuevoPago = esBorrador || estaPendiente;
     document.getElementById('seccionNuevoPago').style.display = mostrarNuevoPago ? '' : 'none';
 }
 
@@ -944,19 +1052,30 @@ async function guardarVenta(estatus) {
         tipo_venta: document.getElementById('ventaTipo').value,
         subtotal: totales.subtotal,
         descuento: totales.descuento,
+        impuesto: totales.iva,
         total: totales.total,
         notas: document.getElementById('ventaNotas').value,
         estatus: estatus,
-        items: lineasValidas.map(l => ({
-            producto_id: l.producto_id,
-            descripcion: l.nombre,
-            cantidad: l.cantidad,
-            unidad_id: l.unidad,
-            precio_unitario: l.precio,
-            descuento: l.descuento_pct,
-            descuentoMonto: l.descuento_monto,
-            subtotal: l.importe
-        }))
+        items: lineasValidas.map(l => {
+            const subtotalLinea = l.cantidad * l.precio;
+            const descMontoLinea = l.descuento_monto || (subtotalLinea * l.descuento_pct / 100);
+            const baseIVA = subtotalLinea - descMontoLinea;
+            const ivaMontoLinea = baseIVA * (l.iva / 100);
+            
+            return {
+                producto_id: l.producto_id,
+                descripcion: l.nombre,
+                cantidad: l.cantidad,
+                unidad_id: l.unidad,
+                precio_lista: l.precio_original || l.precio,
+                precio_unitario: l.precio,
+                descuento_pct: l.descuento_pct,
+                descuento_monto: descMontoLinea,
+                impuesto_pct: l.iva,
+                impuesto_monto: ivaMontoLinea,
+                subtotal: l.importe
+            };
+        })
     };
     
     // Agregar pagos si hay
@@ -1064,7 +1183,7 @@ async function cargarVentaEnFormulario(ventaId) {
             onTipoVentaChange();
             
             // Cargar líneas
-            lineasVenta = (r.productos || []).filter(p => p.estatus === 'ACTIVO').map(p => ({
+            lineasVenta = (r.productos || []).filter(p => p.estatus === 'ACTIVO' || p.estado === 'ACTIVO').map(p => ({
                 producto_id: p.producto_id,
                 nombre: p.producto_nombre || p.descripcion,
                 codigo: p.codigo_barras || '',
@@ -1074,7 +1193,7 @@ async function cargarVentaEnFormulario(ventaId) {
                 precio_original: parseFloat(p.precio_lista || p.precio_unitario),
                 descuento_pct: parseFloat(p.descuento_pct || 0),
                 descuento_monto: parseFloat(p.descuento_monto || 0),
-                iva: 16,
+                iva: parseFloat(p.impuesto_pct || 16),
                 importe: 0,
                 stock: 0,
                 detalle_id: p.detalle_id
@@ -1392,8 +1511,8 @@ function renderListaVentas() {
 function getBadgeEstatus(estatus) {
     const mapeo = {
         BORRADOR: { clase: 'badge-gray', texto: 'Borrador' },
-        PENDIENTE: { clase: 'badge-orange', texto: 'Confirmada' },
-        CONFIRMADA: { clase: 'badge-orange', texto: 'Confirmada' },
+        PENDIENTE: { clase: 'badge-orange', texto: 'Pendiente' },
+        CONFIRMADA: { clase: 'badge-blue', texto: 'Confirmada' },
         PAGADA: { clase: 'badge-green', texto: 'Pagada' },
         CANCELADA: { clase: 'badge-red', texto: 'Cancelada' }
     };
