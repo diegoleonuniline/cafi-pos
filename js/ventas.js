@@ -225,6 +225,11 @@ function actualizarPreciosCliente(tipoPrecio) {
                 if (tipoPrecio === 4 && producto.precio4) precio = parseFloat(producto.precio4);
                 linea.precio = precio;
                 linea.precio_original = precio;
+                // Recalcular descuento_monto si hay descuento_pct
+                if (linea.descuento_pct > 0) {
+                    const subtotal = linea.cantidad * linea.precio;
+                    linea.descuento_monto = subtotal * linea.descuento_pct / 100;
+                }
                 calcularImporteLinea(idx);
             }
         }
@@ -292,13 +297,13 @@ function nuevaVenta() {
     onTipoVentaChange();
     actualizarStatusBar('BORRADOR');
     actualizarBotones('BORRADOR');
-    renderLineas();
+    agregarLineaVacia(); // Siempre inicia con una línea lista
     renderPagos();
     renderMetodosPago();
     calcularTotales();
     actualizarResumenPagos();
     
-    // Ir a tab formulario y pestaña general
+    // Ir a tab formulario y pestaña productos
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     document.querySelector('[data-tab="formulario"]').classList.add('active');
@@ -306,8 +311,8 @@ function nuevaVenta() {
     
     document.querySelectorAll('.inner-tab').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.inner-panel').forEach(p => p.classList.remove('active'));
-    document.querySelector('[data-inner="general"]').classList.add('active');
-    document.getElementById('inner-general').classList.add('active');
+    document.querySelector('[data-inner="productos"]').classList.add('active');
+    document.getElementById('inner-productos').classList.add('active');
 }
 
 // ==================== LINEAS DE PRODUCTOS ====================
@@ -322,6 +327,7 @@ function agregarLineaVacia() {
         precio: 0,
         precio_original: 0,
         descuento_pct: 0,
+        descuento_monto: 0,
         iva: 16,
         importe: 0,
         stock: 0
@@ -336,18 +342,18 @@ function agregarLineaVacia() {
 
 function renderLineas() {
     const tbody = document.getElementById('tablaLineas');
-    const empty = document.getElementById('emptyLineas');
     const editable = !ventaActual || ventaActual.estatus === 'BORRADOR';
     const esPagada = ventaActual && ['PAGADA', 'RECIBIDA'].includes(ventaActual.estatus);
     
-    if (lineasVenta.length === 0) {
-        tbody.innerHTML = '';
-        empty.style.display = 'flex';
-        document.getElementById('contadorProductos').textContent = '0';
-        return;
+    // Siempre tener al menos una línea vacía para escribir
+    if (lineasVenta.length === 0 || (editable && lineasVenta[lineasVenta.length - 1].producto_id)) {
+        lineasVenta.push({
+            producto_id: '', nombre: '', codigo: '', cantidad: 1, unidad: 'PZ',
+            precio: 0, precio_original: 0, descuento_pct: 0, descuento_monto: 0,
+            iva: 16, importe: 0, stock: 0
+        });
     }
     
-    empty.style.display = 'none';
     const lineasValidas = lineasVenta.filter(l => l.producto_id).length;
     document.getElementById('contadorProductos').textContent = lineasValidas;
     
@@ -357,10 +363,12 @@ function renderLineas() {
                 <div class="producto-input-wrap">
                     <input type="text" 
                         class="input-producto" 
+                        id="prod-input-${i}"
                         value="${l.nombre}" 
                         placeholder="Buscar producto..." 
                         oninput="lineasVenta[${i}].nombre = this.value; buscarProducto(${i}, this.value)" 
                         onkeydown="navegarAutocomplete(event, ${i})"
+                        onfocus="if(this.value.length > 0) buscarProducto(${i}, this.value)"
                         autocomplete="off"
                         ${editable ? '' : 'disabled'}>
                     ${l.codigo ? `<span class="codigo-badge">${l.codigo}</span>` : ''}
@@ -370,6 +378,7 @@ function renderLineas() {
             <td>
                 <input type="number" 
                     class="input-sm text-center" 
+                    id="cant-input-${i}"
                     value="${l.cantidad}" 
                     min="0.01" 
                     step="0.01"
@@ -393,8 +402,17 @@ function renderLineas() {
                     value="${l.descuento_pct}" 
                     min="0" 
                     max="100"
-                    step="0.5"
+                    step="0.01"
                     oninput="actualizarLinea(${i}, 'descuento_pct', this.value)"
+                    ${editable ? '' : 'disabled'}>
+            </td>
+            <td>
+                <input type="number" 
+                    class="input-sm text-right" 
+                    value="${l.descuento_monto.toFixed(2)}" 
+                    min="0" 
+                    step="0.01"
+                    oninput="actualizarLinea(${i}, 'descuento_monto', this.value)"
                     ${editable ? '' : 'disabled'}>
             </td>
             <td class="text-right importe-cell">${formatMoney(l.importe)}</td>
@@ -487,15 +505,18 @@ function seleccionarProducto(idx, productoId) {
     if (tipoPrecio === 3 && p.precio3) precio = parseFloat(p.precio3);
     if (tipoPrecio === 4 && p.precio4) precio = parseFloat(p.precio4);
     
+    const cantidad = lineasVenta[idx].cantidad || 1;
+    
     lineasVenta[idx] = {
         producto_id: p.producto_id,
         nombre: p.nombre,
         codigo: p.codigo_barras || p.codigo_interno || '',
-        cantidad: lineasVenta[idx].cantidad || 1,
+        cantidad: cantidad,
         unidad: p.unidad_venta || 'PZ',
         precio: precio,
         precio_original: precio,
         descuento_pct: 0,
+        descuento_monto: 0,
         iva: parseFloat(p.tasa_impuesto || 16),
         importe: 0,
         stock: parseFloat(p.stock || 0)
@@ -504,6 +525,15 @@ function seleccionarProducto(idx, productoId) {
     calcularImporteLinea(idx);
     document.getElementById(`autocomplete-${idx}`).classList.remove('show');
     renderLineas();
+    
+    // Focus en cantidad después de seleccionar
+    setTimeout(() => {
+        const cantInput = document.getElementById(`cant-input-${idx}`);
+        if (cantInput) {
+            cantInput.focus();
+            cantInput.select();
+        }
+    }, 50);
 }
 
 function buscarPorCodigo(event) {
@@ -545,9 +575,35 @@ function buscarPorCodigo(event) {
 
 function actualizarLinea(idx, campo, valor) {
     const val = parseFloat(valor) || 0;
-    lineasVenta[idx][campo] = val;
+    const l = lineasVenta[idx];
+    
+    if (campo === 'cantidad') {
+        l.cantidad = val;
+        // Recalcular descuento_monto si hay descuento_pct
+        if (l.descuento_pct > 0) {
+            const subtotal = l.cantidad * l.precio;
+            l.descuento_monto = subtotal * l.descuento_pct / 100;
+        }
+    } else if (campo === 'precio') {
+        l.precio = val;
+        // Recalcular descuento_monto si hay descuento_pct
+        if (l.descuento_pct > 0) {
+            const subtotal = l.cantidad * l.precio;
+            l.descuento_monto = subtotal * l.descuento_pct / 100;
+        }
+    } else if (campo === 'descuento_pct') {
+        l.descuento_pct = val;
+        const subtotal = l.cantidad * l.precio;
+        l.descuento_monto = subtotal * val / 100;
+    } else if (campo === 'descuento_monto') {
+        l.descuento_monto = val;
+        const subtotal = l.cantidad * l.precio;
+        l.descuento_pct = subtotal > 0 ? (val / subtotal) * 100 : 0;
+    }
+    
     calcularImporteLinea(idx);
     
+    // Actualizar solo la celda de importe sin re-renderizar todo
     const row = document.querySelector(`tr[data-idx="${idx}"]`);
     if (row) {
         const importeCell = row.querySelector('.importe-cell');
@@ -561,7 +617,7 @@ function actualizarLinea(idx, campo, valor) {
 function calcularImporteLinea(idx) {
     const l = lineasVenta[idx];
     const subtotal = l.cantidad * l.precio;
-    const descuento = subtotal * (l.descuento_pct / 100);
+    const descuento = l.descuento_monto || (subtotal * l.descuento_pct / 100);
     const baseIVA = subtotal - descuento;
     const iva = baseIVA * (l.iva / 100);
     l.importe = baseIVA + iva;
@@ -578,6 +634,8 @@ function aplicarDescuentoGlobal() {
     lineasVenta.forEach((l, i) => {
         if (l.producto_id) {
             l.descuento_pct = descGlobal;
+            const subtotal = l.cantidad * l.precio;
+            l.descuento_monto = subtotal * descGlobal / 100;
             calcularImporteLinea(i);
         }
     });
@@ -589,11 +647,11 @@ function calcularTotales() {
     const lineasValidas = lineasVenta.filter(l => l.producto_id);
     
     const subtotal = lineasValidas.reduce((s, l) => s + (l.cantidad * l.precio), 0);
-    const descuento = lineasValidas.reduce((s, l) => s + (l.cantidad * l.precio * l.descuento_pct / 100), 0);
+    const descuento = lineasValidas.reduce((s, l) => s + (l.descuento_monto || (l.cantidad * l.precio * l.descuento_pct / 100)), 0);
     const baseIVA = subtotal - descuento;
     const iva = lineasValidas.reduce((s, l) => {
         const sub = l.cantidad * l.precio;
-        const desc = sub * l.descuento_pct / 100;
+        const desc = l.descuento_monto || (sub * l.descuento_pct / 100);
         return s + ((sub - desc) * l.iva / 100);
     }, 0);
     const total = baseIVA + iva;
