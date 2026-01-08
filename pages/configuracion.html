@@ -295,6 +295,56 @@
         </table>
     </div>
 </div>
+<!-- PUNTOS -->
+<div class="config-panel" id="panel-puntos">
+    <div class="panel-toolbar">
+        <div class="toolbar-title"><i class="fas fa-star"></i><h3>Sistema de Puntos de Lealtad</h3></div>
+    </div>
+    <form id="formPuntos" onsubmit="guardarPuntos(event)">
+        <div class="form-section">
+            <h4><i class="fas fa-cog"></i> Configuración General</h4>
+            <div class="form-group">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="puntosActivo">
+                    <span class="toggle-slider"></span> Sistema de Puntos Activo
+                </label>
+            </div>
+        </div>
+        <div class="form-section">
+            <h4><i class="fas fa-coins"></i> Acumulación de Puntos</h4>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Pesos por Punto <span class="required">*</span></label>
+                    <input type="number" id="puntosPorPeso" min="1" step="0.01" value="10" required>
+                    <small style="color:#64748b;font-size:11px;">Cada $X de compra = 1 punto</small>
+                </div>
+                <div class="form-group">
+                    <label>Valor de Redención <span class="required">*</span></label>
+                    <input type="number" id="puntosValorRedencion" min="0.01" step="0.01" value="0.50" required>
+                    <small style="color:#64748b;font-size:11px;">Valor en $ de cada punto al redimir</small>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Mínimo para Redimir</label>
+                    <input type="number" id="puntosMinimoRedimir" min="0" value="100">
+                    <small style="color:#64748b;font-size:11px;">Puntos mínimos requeridos para redimir</small>
+                </div>
+                <div class="form-group"></div>
+            </div>
+        </div>
+        <div class="form-section">
+            <h4><i class="fas fa-calculator"></i> Ejemplo de Cálculo</h4>
+            <div class="info-box success" id="ejemploPuntos">
+                <i class="fas fa-info-circle"></i>
+                <p>Con la configuración actual: Una compra de $500 genera <strong>50 puntos</strong>. Al redimir 100 puntos obtiene <strong>$50.00</strong> de descuento.</p>
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar Configuración</button>
+        </div>
+    </form>
+</div>                    
                     
 <!-- MODAL CATEGORÍA -->
 <div class="modal-overlay" id="modalCategoria">
