@@ -208,14 +208,15 @@
                                 <table class="lines-table">
                                     <thead>
                                         <tr>
-                                            <th style="width:32%">Producto</th>
-                                            <th style="width:10%">Cantidad</th>
-                                            <th style="width:7%">Unidad</th>
-                                            <th style="width:12%">Precio Unit.</th>
-                                            <th style="width:9%">Desc %</th>
+                                            <th style="width:28%">Producto</th>
+                                            <th style="width:8%">Cantidad</th>
+                                            <th style="width:6%">Unidad</th>
+                                            <th style="width:11%">Precio Unit.</th>
+                                            <th style="width:8%">Desc %</th>
                                             <th style="width:10%">Desc $</th>
+                                            <th style="width:7%">IMP %</th>
                                             <th style="width:12%">Importe</th>
-                                            <th style="width:8%"></th>
+                                            <th style="width:10%"></th>
                                         </tr>
                                     </thead>
                                     <tbody id="tablaLineas"></tbody>
@@ -571,7 +572,7 @@
     <div class="modal-overlay" id="modalCancelarProducto">
         <div class="modal modal-sm">
             <div class="modal-header">
-                <div class="modal-title"><i class="fas fa-times-circle"></i> Cancelar Producto</div>
+                <div class="modal-title"><i class="fas fa-undo"></i> Devolución de Producto</div>
                 <button class="btn-close" onclick="cerrarModal('modalCancelarProducto')"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
@@ -579,17 +580,17 @@
                 <input type="hidden" id="cancelarIdx">
                 <div class="producto-cancelar-info" id="productoCancelarInfo"></div>
                 <div class="form-group">
-                    <label>Cantidad a cancelar</label>
+                    <label>Cantidad a devolver</label>
                     <input type="number" id="cantidadCancelar" min="1" step="1">
                 </div>
                 <div class="form-group">
                     <label>Motivo</label>
-                    <textarea id="motivoCancelacion" rows="2" placeholder="Motivo de cancelación..."></textarea>
+                    <textarea id="motivoCancelacion" rows="2" placeholder="Motivo de devolución..."></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="cerrarModal('modalCancelarProducto')">Cancelar</button>
-                <button class="btn btn-danger" onclick="confirmarCancelarProducto()"><i class="fas fa-times"></i> Confirmar</button>
+                <button class="btn btn-outline" onclick="cerrarModal('modalCancelarProducto')">Cerrar</button>
+                <button class="btn btn-warning" onclick="confirmarCancelarProducto()"><i class="fas fa-undo"></i> Devolver</button>
             </div>
         </div>
     </div>
