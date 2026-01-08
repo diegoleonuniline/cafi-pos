@@ -15,15 +15,15 @@
                 <span>CAFI</span>
             </div>
             <nav class="sidebar-nav">
-                 <a href="pos.html" class="nav-item"><i class="fas fa-cash-register"></i><span>Punto de Venta</span></a>
+                <a href="pos.html" class="nav-item"><i class="fas fa-cash-register"></i><span>Punto de Venta</span></a>
                 <a href="dashboard.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
-                    <a href="productos.html" class="nav-item"><i class="fas fa-box"></i><span>Productos</span></a>
+                <a href="productos.html" class="nav-item"><i class="fas fa-box"></i><span>Productos</span></a>
                 <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i><span>Clientes</span></a>
                 <a href="compras.html" class="nav-item"><i class="fas fa-shopping-cart"></i><span>Compras</span></a>
                 <a href="inventario.html" class="nav-item"><i class="fas fa-boxes"></i><span>Inventario</span></a>
-                   <a href="ventas.html" class="nav-item active"><i class="fas fa-file-invoice-dollar"></i><span>Ventas</span></a>
+                <a href="ventas.html" class="nav-item active"><i class="fas fa-file-invoice-dollar"></i><span>Ventas</span></a>
                 <a href="reportes.html" class="nav-item"><i class="fas fa-chart-bar"></i><span>Reportes</span></a>
-                            <a href="gastos.html" class="nav-item"><i class="fas fa-chart-bar"></i><span>Gastos</span></a>
+                <a href="gastos.html" class="nav-item"><i class="fas fa-wallet"></i><span>Gastos</span></a>
                 <a href="configuracion.html" class="nav-item"><i class="fas fa-cog"></i><span>Configuración</span></a>
             </nav>
             <div class="sidebar-footer">
@@ -45,69 +45,86 @@
             <header class="admin-header">
                 <h1><i class="fas fa-file-invoice-dollar"></i> Ventas</h1>
                 <div class="header-actions">
-                    <button class="btn btn-primary" onclick="limpiarFormulario()">
+                    <button class="btn btn-primary" onclick="nuevaVenta()">
                         <i class="fas fa-plus"></i> Nueva Venta
                     </button>
                 </div>
             </header>
 
             <div class="admin-content">
-                <!-- TABS -->
+                <!-- TABS PRINCIPALES -->
                 <div class="tabs-container">
                     <nav class="tabs-nav">
-                        <button class="tab-btn active" data-tab="crear"><i class="fas fa-plus-circle"></i> Crear Venta</button>
-                        <button class="tab-btn" data-tab="ventas"><i class="fas fa-list"></i> Lista de Ventas</button>
+                        <button class="tab-btn active" data-tab="formulario"><i class="fas fa-edit"></i> Formulario</button>
+                        <button class="tab-btn" data-tab="lista"><i class="fas fa-list"></i> Lista de Ventas</button>
                         <button class="tab-btn" data-tab="devoluciones"><i class="fas fa-undo"></i> Devoluciones</button>
                     </nav>
                 </div>
 
-                <div class="content-wrapper">
-                    <!-- ==================== TAB CREAR ==================== -->
-                    <div class="tab-panel active" id="panel-crear">
-                        <div class="form-card">
-                            <!-- Status Bar -->
-                            <div class="statusbar">
-                                <div class="statusbar-left">
-                                    <div class="statusbar-steps">
-                                        <span class="step active" data-status="BORRADOR"><i class="fas fa-edit"></i> Borrador</span>
-                                        <i class="fas fa-chevron-right step-arrow"></i>
-                                        <span class="step" data-status="CONFIRMADA"><i class="fas fa-check"></i> Confirmada</span>
-                                        <i class="fas fa-chevron-right step-arrow"></i>
-                                        <span class="step" data-status="PAGADA"><i class="fas fa-dollar-sign"></i> Pagada</span>
-                                    </div>
-                                    <span class="folio-badge" id="ventaFolio"></span>
+                <!-- ==================== PANEL FORMULARIO ==================== -->
+                <div class="tab-panel active" id="panel-formulario">
+                    <div class="form-card">
+                        <!-- Status Bar -->
+                        <div class="statusbar">
+                            <div class="statusbar-left">
+                                <div class="statusbar-steps">
+                                    <span class="step active" data-status="BORRADOR"><i class="fas fa-edit"></i> Borrador</span>
+                                    <i class="fas fa-chevron-right step-arrow"></i>
+                                    <span class="step" data-status="CONFIRMADA"><i class="fas fa-check"></i> Confirmada</span>
+                                    <i class="fas fa-chevron-right step-arrow"></i>
+                                    <span class="step" data-status="PAGADA"><i class="fas fa-dollar-sign"></i> Pagada</span>
                                 </div>
+                                <span class="folio-badge" id="ventaFolio"></span>
                             </div>
-
-                            <!-- Action Buttons -->
-                            <div class="action-buttons">
-                                <button class="btn btn-outline" id="btnGuardar" onclick="guardarVenta('BORRADOR')">
-                                    <i class="fas fa-save"></i> Guardar Borrador
-                                </button>
-                                <button class="btn btn-success" id="btnConfirmar" onclick="guardarVenta('CONFIRMADA')">
-                                    <i class="fas fa-check"></i> Confirmar
-                                </button>
-                                <button class="btn btn-primary" id="btnCobrar" onclick="abrirModalCobro()" style="display:none">
-                                    <i class="fas fa-dollar-sign"></i> Cobrar
-                                </button>
-                                <button class="btn btn-outline" id="btnPDF" onclick="generarPDF()" style="display:none">
-                                    <i class="fas fa-file-pdf"></i> PDF
-                                </button>
-                                <button class="btn btn-warning" id="btnReabrir" onclick="reabrirVenta()" style="display:none">
-                                    <i class="fas fa-lock-open"></i> Reabrir
-                                </button>
-                                <button class="btn btn-danger" id="btnCancelar" onclick="cancelarVentaActual()" style="display:none">
-                                    <i class="fas fa-times"></i> Cancelar
-                                </button>
-                                <input type="hidden" id="ventaId">
+                            <div class="statusbar-right">
+                                <span class="tipo-venta-badge" id="tipoVentaBadge">CONTADO</span>
                             </div>
+                        </div>
 
-                            <!-- Fields -->
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <button class="btn btn-outline" id="btnGuardar" onclick="guardarVenta('BORRADOR')">
+                                <i class="fas fa-save"></i> Guardar Borrador
+                            </button>
+                            <button class="btn btn-success" id="btnConfirmar" onclick="confirmarVenta()">
+                                <i class="fas fa-check"></i> Confirmar
+                            </button>
+                            <button class="btn btn-outline" id="btnPDF" onclick="generarPDF()" style="display:none">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button class="btn btn-warning" id="btnReabrir" onclick="solicitarAutorizacion('reabrir')" style="display:none">
+                                <i class="fas fa-lock-open"></i> Reabrir
+                            </button>
+                            <button class="btn btn-danger" id="btnCancelar" onclick="solicitarAutorizacion('cancelar')" style="display:none">
+                                <i class="fas fa-times"></i> Cancelar Venta
+                            </button>
+                            <input type="hidden" id="ventaId">
+                        </div>
+
+                        <!-- TABS INTERNOS ESTILO ODOO -->
+                        <div class="inner-tabs">
+                            <button class="inner-tab active" data-inner="general">
+                                <i class="fas fa-info-circle"></i> General
+                            </button>
+                            <button class="inner-tab" data-inner="productos">
+                                <i class="fas fa-boxes"></i> Productos
+                                <span class="tab-counter" id="contadorProductos">0</span>
+                            </button>
+                            <button class="inner-tab" data-inner="pagos">
+                                <i class="fas fa-credit-card"></i> Pagos
+                                <span class="tab-badge" id="badgePagos"></span>
+                            </button>
+                        </div>
+
+                        <!-- ========== TAB GENERAL ========== -->
+                        <div class="inner-panel active" id="inner-general">
                             <div class="fields-grid">
                                 <div class="field">
-                                    <label>Cliente <span class="required">*</span></label>
+                                    <label>Cliente</label>
                                     <div class="field-with-btn">
-                                        <select id="ventaCliente"></select>
+                                        <select id="ventaCliente" onchange="onClienteChange()">
+                                            <option value="">Público General</option>
+                                        </select>
                                         <button class="btn-add-inline" onclick="abrirModal('modalCliente')" title="Nuevo cliente">
                                             <i class="fas fa-plus"></i>
                                         </button>
@@ -123,80 +140,196 @@
                                 </div>
                                 <div class="field">
                                     <label>Tipo de Venta</label>
-                                    <select id="ventaTipo">
+                                    <select id="ventaTipo" onchange="onTipoVentaChange()">
                                         <option value="CONTADO">Contado</option>
                                         <option value="CREDITO">Crédito</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>Vendedor</label>
+                                    <select id="ventaVendedor">
+                                        <option value="">Sin vendedor</option>
                                     </select>
                                 </div>
                                 <div class="field">
                                     <label>Descuento Global %</label>
                                     <input type="number" id="ventaDescuentoGlobal" value="0" min="0" max="100" step="0.01" oninput="aplicarDescuentoGlobal()">
                                 </div>
-                                <div class="field">
-                                    <label>Vendedor</label>
-                                    <select id="ventaVendedor"></select>
-                                </div>
-                                <div class="field half">
+                                <div class="field full">
                                     <label>Notas</label>
-                                    <textarea id="ventaNotas" rows="2" placeholder="Observaciones..."></textarea>
+                                    <textarea id="ventaNotas" rows="3" placeholder="Observaciones de la venta..."></textarea>
                                 </div>
                             </div>
 
-                            <!-- Lines Table -->
-                            <div class="lines-section">
+                            <!-- Info Cliente Seleccionado -->
+                            <div class="cliente-info-card" id="clienteInfoCard" style="display:none">
+                                <div class="cliente-info-header">
+                                    <i class="fas fa-user-circle"></i>
+                                    <span id="clienteInfoNombre">Cliente</span>
+                                </div>
+                                <div class="cliente-info-body">
+                                    <div class="info-item">
+                                        <span class="label">Teléfono:</span>
+                                        <span id="clienteInfoTel">-</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Tipo Precio:</span>
+                                        <span id="clienteInfoPrecio">1</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Crédito:</span>
+                                        <span id="clienteInfoCredito">No</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Límite:</span>
+                                        <span id="clienteInfoLimite">$0.00</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Saldo:</span>
+                                        <span id="clienteInfoSaldo">$0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ========== TAB PRODUCTOS ========== -->
+                        <div class="inner-panel" id="inner-productos">
+                            <div class="productos-toolbar">
+                                <button class="btn btn-sm btn-outline" onclick="agregarLineaVacia()">
+                                    <i class="fas fa-plus"></i> Agregar Línea
+                                </button>
+                                <button class="btn btn-sm btn-outline" onclick="abrirCatalogo()">
+                                    <i class="fas fa-th"></i> Catálogo
+                                </button>
+                                <div class="toolbar-spacer"></div>
+                                <div class="search-inline">
+                                    <i class="fas fa-barcode"></i>
+                                    <input type="text" id="buscarCodigo" placeholder="Escanear código..." onkeydown="buscarPorCodigo(event)">
+                                </div>
+                            </div>
+
+                            <div class="lines-table-wrapper">
                                 <table class="lines-table">
                                     <thead>
                                         <tr>
-                                            <th style="width:32%">Producto</th>
+                                            <th style="width:35%">Producto</th>
                                             <th style="width:10%">Cantidad</th>
-                                            <th style="width:7%">Unidad</th>
-                                            <th style="width:12%">Precio Unit.</th>
-                                            <th style="width:9%">Desc %</th>
-                                            <th style="width:10%">Desc $</th>
+                                            <th style="width:8%">Unidad</th>
+                                            <th style="width:12%">Precio</th>
+                                            <th style="width:8%">Desc %</th>
                                             <th style="width:12%">Importe</th>
-                                            <th style="width:8%"></th>
+                                            <th style="width:5%"></th>
                                         </tr>
                                     </thead>
                                     <tbody id="tablaLineas"></tbody>
                                 </table>
-                                <div class="lines-actions">
-                                    <a class="line-link" onclick="agregarLineaVacia()"><i class="fas fa-plus"></i> Agregar línea</a>
-                                    <a class="line-link" onclick="abrirCatalogo()"><i class="fas fa-th"></i> Catálogo</a>
+                                <div class="empty-lines" id="emptyLineas">
+                                    <i class="fas fa-box-open"></i>
+                                    <p>Agregue productos a la venta</p>
                                 </div>
                             </div>
 
-                            <!-- Totals -->
-                            <div class="totals-section">
-                                <div class="totals-box">
-                                    <div class="total-row">
-                                        <span>Subtotal:</span>
-                                        <span id="ventaSubtotal">$0.00</span>
+                            <!-- Totales -->
+                            <div class="totals-bar">
+                                <div class="totals-grid">
+                                    <div class="total-item">
+                                        <span class="label">Subtotal</span>
+                                        <span class="value" id="ventaSubtotal">$0.00</span>
                                     </div>
-                                    <div class="total-row">
-                                        <span>Descuento:</span>
-                                        <span id="ventaDescuento" class="text-danger">-$0.00</span>
+                                    <div class="total-item">
+                                        <span class="label">Descuento</span>
+                                        <span class="value text-danger" id="ventaDescuento">-$0.00</span>
                                     </div>
-                                    <div class="total-row">
-                                        <span>IVA:</span>
-                                        <span id="ventaIVA">$0.00</span>
+                                    <div class="total-item">
+                                        <span class="label">IVA</span>
+                                        <span class="value" id="ventaIVA">$0.00</span>
                                     </div>
-                                    <div class="total-row final">
-                                        <span>TOTAL:</span>
-                                        <span id="ventaTotal">$0.00</span>
+                                    <div class="total-item total-final">
+                                        <span class="label">TOTAL</span>
+                                        <span class="value" id="ventaTotal">$0.00</span>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <!-- Historial Pagos -->
-                            <div class="historial-section" id="seccionPagos" style="display:none">
-                                <h4><i class="fas fa-history"></i> Historial de Pagos <span class="saldo-badge" id="saldoPendiente">Saldo: $0.00</span></h4>
-                                <div class="pagos-list" id="listaPagos"></div>
+                        <!-- ========== TAB PAGOS ========== -->
+                        <div class="inner-panel" id="inner-pagos">
+                            <!-- Alerta Contado -->
+                            <div class="pago-alerta contado" id="alertaContado">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <div class="alerta-content">
+                                    <strong>Venta de Contado</strong>
+                                    <p>Esta venta requiere pago completo para ser confirmada.</p>
+                                </div>
+                            </div>
+
+                            <!-- Alerta Crédito -->
+                            <div class="pago-alerta credito" id="alertaCredito" style="display:none">
+                                <i class="fas fa-info-circle"></i>
+                                <div class="alerta-content">
+                                    <strong>Venta a Crédito</strong>
+                                    <p>El pago puede realizarse posteriormente. El saldo quedará pendiente.</p>
+                                </div>
+                            </div>
+
+                            <!-- Resumen de Pago -->
+                            <div class="pago-resumen">
+                                <div class="resumen-item">
+                                    <span class="label">Total de la Venta</span>
+                                    <span class="value" id="pagoTotalVenta">$0.00</span>
+                                </div>
+                                <div class="resumen-item">
+                                    <span class="label">Total Pagado</span>
+                                    <span class="value text-success" id="pagoTotalPagado">$0.00</span>
+                                </div>
+                                <div class="resumen-item destacado">
+                                    <span class="label">Saldo Pendiente</span>
+                                    <span class="value" id="pagoSaldoPendiente">$0.00</span>
+                                </div>
+                            </div>
+
+                            <!-- Formulario Nuevo Pago -->
+                            <div class="nuevo-pago-section" id="seccionNuevoPago">
+                                <h4><i class="fas fa-plus-circle"></i> Registrar Pago</h4>
+                                <div class="metodos-grid" id="metodosPagoGrid"></div>
+                                <div class="pago-form">
+                                    <div class="pago-form-row">
+                                        <div class="pago-field">
+                                            <label>Monto</label>
+                                            <input type="number" id="pagoMonto" step="0.01" min="0" placeholder="0.00" oninput="calcularCambio()">
+                                        </div>
+                                        <div class="pago-field" id="campoReferencia" style="display:none">
+                                            <label>Referencia</label>
+                                            <input type="text" id="pagoReferencia" placeholder="No. referencia">
+                                        </div>
+                                        <div class="pago-field cambio-field">
+                                            <label>Cambio</label>
+                                            <div class="cambio-display" id="pagoCambio">$0.00</div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-success btn-block" onclick="agregarPago()">
+                                        <i class="fas fa-check"></i> Aplicar Pago
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Historial de Pagos -->
+                            <div class="historial-pagos" id="historialPagos">
+                                <h4><i class="fas fa-history"></i> Historial de Pagos</h4>
+                                <div class="pagos-lista" id="listaPagos">
+                                    <div class="empty-pagos">
+                                        <i class="fas fa-receipt"></i>
+                                        <p>Sin pagos registrados</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- ==================== TAB LISTA VENTAS ==================== -->
-                    <div class="tab-panel" id="panel-ventas">
+                <!-- ==================== PANEL LISTA VENTAS ==================== -->
+                <div class="tab-panel" id="panel-lista">
+                    <div class="panel-card">
                         <div class="stats-row">
                             <div class="mini-stat">
                                 <i class="fas fa-file-invoice"></i>
@@ -216,7 +349,7 @@
                                 <i class="fas fa-clock"></i>
                                 <div class="mini-stat-info">
                                     <span class="mini-stat-value" id="statPendiente">$0.00</span>
-                                    <span class="mini-stat-label">Pendiente</span>
+                                    <span class="mini-stat-label">Por Cobrar</span>
                                 </div>
                             </div>
                             <div class="mini-stat danger">
@@ -262,7 +395,7 @@
                             <button class="btn-filtrar" onclick="cargarVentas()"><i class="fas fa-search"></i> Buscar</button>
                         </div>
 
-                        <div class="panel-table">
+                        <div class="table-wrapper">
                             <table class="data-table">
                                 <thead>
                                     <tr>
@@ -286,16 +419,18 @@
                         </div>
 
                         <div class="panel-footer">
-                            <span id="totalVentas">0 ventas</span>
+                            <span id="totalVentasLabel">0 ventas</span>
                             <div class="export-btns">
                                 <button class="btn-export" onclick="exportarVentas()"><i class="fas fa-file-excel"></i> Excel</button>
-                                <button class="btn-print" onclick="imprimirLista()"><i class="fas fa-print"></i> Imprimir</button>
+                                <button class="btn-print" onclick="window.print()"><i class="fas fa-print"></i> Imprimir</button>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- ==================== TAB DEVOLUCIONES ==================== -->
-                    <div class="tab-panel" id="panel-devoluciones">
+                <!-- ==================== PANEL DEVOLUCIONES ==================== -->
+                <div class="tab-panel" id="panel-devoluciones">
+                    <div class="panel-card">
                         <div class="filters-bar">
                             <div class="filter-item">
                                 <label>Desde</label>
@@ -308,12 +443,12 @@
                             <button class="btn-filtrar" onclick="cargarDevoluciones()"><i class="fas fa-search"></i> Buscar</button>
                         </div>
 
-                        <div class="panel-table">
+                        <div class="table-wrapper">
                             <table class="data-table">
                                 <thead>
                                     <tr>
                                         <th>Fecha</th>
-                                        <th>Venta Original</th>
+                                        <th>Venta</th>
                                         <th>Cliente</th>
                                         <th class="text-right">Monto</th>
                                         <th>Método</th>
@@ -331,7 +466,7 @@
                         </div>
 
                         <div class="panel-footer">
-                            <span id="totalDevoluciones">0 devoluciones</span>
+                            <span id="totalDevolucionesLabel">0 devoluciones</span>
                             <span class="total-sum" id="sumaDevoluciones">Total: $0.00</span>
                         </div>
                     </div>
@@ -341,57 +476,6 @@
     </div>
 
     <!-- ==================== MODALES ==================== -->
-
-    <!-- Modal Cobro -->
-    <div class="modal-overlay" id="modalCobro">
-        <div class="modal modal-md">
-            <div class="modal-header">
-                <div class="modal-title"><i class="fas fa-dollar-sign"></i> Cobrar Venta</div>
-                <button class="btn-close" onclick="cerrarModal('modalCobro')"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="cobro-total-display">
-                    <span>Total a Cobrar</span>
-                    <strong id="cobroTotal">$0.00</strong>
-                </div>
-                <div class="cobro-saldo" id="cobroSaldoBox" style="display:none">
-                    <span>Saldo pendiente:</span>
-                    <strong id="cobroSaldo">$0.00</strong>
-                </div>
-                
-                <div class="metodos-pago-grid" id="metodosPagoGrid"></div>
-                
-                <div class="pago-detalle" id="pagoDetalle">
-                    <div class="form-group">
-                        <label>Monto a pagar</label>
-                        <input type="number" id="cobroMonto" step="0.01" min="0" oninput="calcularCambio()">
-                    </div>
-                    <div class="form-group" id="grupoReferencia" style="display:none">
-                        <label>Referencia</label>
-                        <input type="text" id="cobroReferencia" placeholder="Número de referencia">
-                    </div>
-                </div>
-
-                <div class="cobro-cambio" id="cobroCambioBox">
-                    <span>Cambio:</span>
-                    <strong id="cobroCambio">$0.00</strong>
-                </div>
-
-                <div class="multi-pagos" id="multiPagos" style="display:none">
-                    <h5><i class="fas fa-layer-group"></i> Pagos Aplicados</h5>
-                    <div class="pagos-aplicados" id="pagosAplicados"></div>
-                    <div class="pagos-resumen">
-                        <span>Total pagado: <strong id="totalPagado">$0.00</strong></span>
-                        <span>Resta: <strong id="restaPagar">$0.00</strong></span>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="agregarPagoMultiple()"><i class="fas fa-plus"></i> Agregar Pago</button>
-                <button class="btn btn-success btn-lg" onclick="procesarCobro()"><i class="fas fa-check"></i> Cobrar</button>
-            </div>
-        </div>
-    </div>
 
     <!-- Modal Catálogo -->
     <div class="modal-overlay" id="modalCatalogo">
@@ -444,6 +528,17 @@
                             <option value="3">Precio 3 (Distribuidor)</option>
                         </select>
                     </div>
+                    <div class="modal-field">
+                        <label>Permite Crédito</label>
+                        <select id="cliPermiteCredito">
+                            <option value="N">No</option>
+                            <option value="Y">Sí</option>
+                        </select>
+                    </div>
+                    <div class="modal-field">
+                        <label>Límite Crédito</label>
+                        <input type="number" id="cliLimiteCredito" value="0" min="0" step="100">
+                    </div>
                     <div class="modal-field full">
                         <label>Dirección</label>
                         <textarea id="cliDireccion" rows="2" placeholder="Dirección completa"></textarea>
@@ -457,73 +552,24 @@
         </div>
     </div>
 
-    <!-- Modal Producto -->
-    <div class="modal-overlay" id="modalProducto">
-        <div class="modal modal-md">
-            <div class="modal-header">
-                <div class="modal-title"><i class="fas fa-box"></i> Nuevo Producto</div>
-                <button class="btn-close" onclick="cerrarModal('modalProducto')"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="modal-form-grid">
-                    <div class="modal-field">
-                        <label>Código Barras</label>
-                        <input type="text" id="prodCodigo">
-                    </div>
-                    <div class="modal-field">
-                        <label>Código Interno</label>
-                        <input type="text" id="prodInterno">
-                    </div>
-                    <div class="modal-field full">
-                        <label>Nombre <span class="required">*</span></label>
-                        <input type="text" id="prodNombre">
-                    </div>
-                    <div class="modal-field">
-                        <label>Categoría</label>
-                        <select id="prodCategoria"></select>
-                    </div>
-                    <div class="modal-field">
-                        <label>Precio Venta</label>
-                        <input type="number" id="prodPrecio" step="0.01" value="0">
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="cerrarModal('modalProducto')">Cancelar</button>
-                <button class="btn btn-primary" onclick="guardarProducto()"><i class="fas fa-save"></i> Guardar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Cambiar Pago -->
-    <div class="modal-overlay" id="modalCambiarPago">
+    <!-- Modal Autorización -->
+    <div class="modal-overlay" id="modalAutorizacion">
         <div class="modal modal-sm">
             <div class="modal-header">
-                <div class="modal-title"><i class="fas fa-exchange-alt"></i> Cambiar Método de Pago</div>
-                <button class="btn-close" onclick="cerrarModal('modalCambiarPago')"><i class="fas fa-times"></i></button>
+                <div class="modal-title"><i class="fas fa-lock"></i> Autorización Requerida</div>
+                <button class="btn-close" onclick="cerrarModal('modalAutorizacion')"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
-                <input type="hidden" id="cambiarPagoId">
+                <p class="auth-message" id="authMessage">Esta acción requiere autorización de un supervisor.</p>
                 <div class="form-group">
-                    <label>Pago actual</label>
-                    <div class="pago-actual-info" id="pagoActualInfo"></div>
+                    <label>Clave de autorización</label>
+                    <input type="password" id="claveAutorizacion" placeholder="Ingrese la clave">
                 </div>
-                <div class="form-group">
-                    <label>Nuevo método de pago</label>
-                    <select id="nuevoMetodoPago"></select>
-                </div>
-                <div class="form-group">
-                    <label>Referencia (opcional)</label>
-                    <input type="text" id="nuevaReferencia" placeholder="Número de referencia">
-                </div>
-                <div class="form-group">
-                    <label>Motivo del cambio</label>
-                    <textarea id="motivoCambio" rows="2" placeholder="Explique el motivo..."></textarea>
-                </div>
+                <input type="hidden" id="accionPendiente">
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="cerrarModal('modalCambiarPago')">Cancelar</button>
-                <button class="btn btn-primary" onclick="confirmarCambioPago()"><i class="fas fa-check"></i> Cambiar</button>
+                <button class="btn btn-outline" onclick="cerrarModal('modalAutorizacion')">Cancelar</button>
+                <button class="btn btn-primary" onclick="validarAutorizacion()"><i class="fas fa-key"></i> Autorizar</button>
             </div>
         </div>
     </div>
@@ -537,45 +583,50 @@
             </div>
             <div class="modal-body">
                 <input type="hidden" id="cancelarDetalleId">
+                <input type="hidden" id="cancelarIdx">
                 <div class="producto-cancelar-info" id="productoCancelarInfo"></div>
                 <div class="form-group">
                     <label>Cantidad a cancelar</label>
-                    <input type="number" id="cantidadCancelar" min="1" step="1" oninput="actualizarDevolucion()">
+                    <input type="number" id="cantidadCancelar" min="1" step="1">
                 </div>
                 <div class="form-group">
-                    <label>Motivo de cancelación</label>
-                    <textarea id="motivoCancelacion" rows="2" placeholder="Motivo..."></textarea>
-                </div>
-                <div class="devolucion-info" id="devolucionInfo">
-                    <span>Devolución:</span>
-                    <strong id="montoDevolucion">$0.00</strong>
+                    <label>Motivo</label>
+                    <textarea id="motivoCancelacion" rows="2" placeholder="Motivo de cancelación..."></textarea>
                 </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-outline" onclick="cerrarModal('modalCancelarProducto')">Cancelar</button>
-                <button class="btn btn-danger" onclick="confirmarCancelarProducto()"><i class="fas fa-times"></i> Cancelar Producto</button>
+                <button class="btn btn-danger" onclick="confirmarCancelarProducto()"><i class="fas fa-times"></i> Confirmar</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Autorización -->
-    <div class="modal-overlay" id="modalAutorizacion">
+    <!-- Modal Cambiar Pago -->
+    <div class="modal-overlay" id="modalCambiarPago">
         <div class="modal modal-sm">
             <div class="modal-header">
-                <div class="modal-title"><i class="fas fa-lock"></i> Autorización Requerida</div>
-                <button class="btn-close" onclick="cerrarModal('modalAutorizacion')"><i class="fas fa-times"></i></button>
+                <div class="modal-title"><i class="fas fa-exchange-alt"></i> Cambiar Método de Pago</div>
+                <button class="btn-close" onclick="cerrarModal('modalCambiarPago')"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
-                <p class="auth-message">Esta acción requiere autorización de un supervisor.</p>
+                <input type="hidden" id="cambiarPagoId">
+                <div class="pago-actual-info" id="pagoActualInfo"></div>
                 <div class="form-group">
-                    <label>Clave de autorización</label>
-                    <input type="password" id="claveAutorizacion" placeholder="Ingrese la clave">
+                    <label>Nuevo método</label>
+                    <select id="nuevoMetodoPago"></select>
                 </div>
-                <input type="hidden" id="accionPendiente">
+                <div class="form-group">
+                    <label>Referencia (opcional)</label>
+                    <input type="text" id="nuevaReferencia" placeholder="No. referencia">
+                </div>
+                <div class="form-group">
+                    <label>Motivo del cambio</label>
+                    <textarea id="motivoCambio" rows="2" placeholder="Explique el motivo..."></textarea>
+                </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="cerrarModal('modalAutorizacion')">Cancelar</button>
-                <button class="btn btn-primary" onclick="validarAutorizacion()"><i class="fas fa-key"></i> Autorizar</button>
+                <button class="btn btn-outline" onclick="cerrarModal('modalCambiarPago')">Cancelar</button>
+                <button class="btn btn-primary" onclick="confirmarCambioPago()"><i class="fas fa-check"></i> Cambiar</button>
             </div>
         </div>
     </div>
