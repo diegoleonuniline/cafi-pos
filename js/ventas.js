@@ -83,6 +83,7 @@ async function cargarDatosIniciales() {
         cargarUsuarios()
     ]);
     renderMetodosPago();
+    agregarLineaVacia(); // Siempre inicia con una línea lista
 }
 
 // ==================== CATALOGOS ====================
@@ -953,6 +954,7 @@ async function guardarVenta(estatus) {
             unidad_id: l.unidad,
             precio_unitario: l.precio,
             descuento: l.descuento_pct,
+            descuentoMonto: l.descuento_monto,
             subtotal: l.importe
         }))
     };
@@ -1071,13 +1073,21 @@ async function cargarVentaEnFormulario(ventaId) {
                 precio: parseFloat(p.precio_unitario),
                 precio_original: parseFloat(p.precio_lista || p.precio_unitario),
                 descuento_pct: parseFloat(p.descuento_pct || 0),
+                descuento_monto: parseFloat(p.descuento_monto || 0),
                 iva: 16,
                 importe: 0,
                 stock: 0,
                 detalle_id: p.detalle_id
             }));
             
-            lineasVenta.forEach((l, i) => calcularImporteLinea(i));
+            lineasVenta.forEach((l, i) => {
+                // Si no hay descuento_monto pero sí descuento_pct, calcularlo
+                if (!l.descuento_monto && l.descuento_pct > 0) {
+                    const subtotal = l.cantidad * l.precio;
+                    l.descuento_monto = subtotal * l.descuento_pct / 100;
+                }
+                calcularImporteLinea(i);
+            });
             
             // Cargar pagos
             pagosVenta = (r.pagos || []).filter(p => p.estatus === 'APLICADO').map(p => ({
