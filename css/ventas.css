@@ -239,7 +239,6 @@ body {
     background: var(--white);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow);
-    overflow: hidden;
 }
 
 /* ========== STATUS BAR ========== */
@@ -412,8 +411,8 @@ body {
     color: var(--white);
 }
 
-.inner-panel { display: none; padding: 16px 20px; }
-.inner-panel.active { display: block; }
+.inner-panel { display: none; padding: 16px 20px; overflow: visible; }
+.inner-panel.active { display: block; overflow: visible; }
 
 /* ========== FIELDS GRID ========== */
 .fields-grid {
@@ -592,13 +591,15 @@ body {
 .lines-table-wrapper {
     border: 1px solid var(--gray-200);
     border-radius: var(--radius);
-    overflow: hidden;
     margin-bottom: 0;
+    position: relative;
+    z-index: 10;
 }
 
 .lines-table {
     width: 100%;
     border-collapse: collapse;
+    overflow: visible;
 }
 
 .lines-table th {
@@ -617,6 +618,15 @@ body {
     padding: 8px 12px;
     border-bottom: 1px solid var(--gray-100);
     vertical-align: middle;
+    overflow: visible;
+}
+
+.lines-table tbody {
+    overflow: visible;
+}
+
+.lines-table tbody tr {
+    overflow: visible;
 }
 
 .lines-table tbody tr:last-child td { border-bottom: none; }
@@ -624,7 +634,10 @@ body {
 .lines-table tbody tr:hover { background: rgba(45, 61, 191, 0.02); }
 
 /* Producto Cell */
-.producto-cell { position: relative; }
+.producto-cell { 
+    position: relative; 
+    overflow: visible;
+}
 
 .producto-input-wrap {
     position: relative;
@@ -666,16 +679,16 @@ body {
 /* Autocomplete */
 .autocomplete-dropdown {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 2px);
     left: 0;
     right: 0;
     background: var(--white);
-    border: 1px solid var(--gray-200);
+    border: 1px solid var(--gray-300);
     border-radius: var(--radius);
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.25);
     max-height: 280px;
     overflow-y: auto;
-    z-index: 100;
+    z-index: 99999;
     display: none;
 }
 
@@ -800,6 +813,8 @@ body {
     border: 1px solid var(--gray-200);
     border-radius: var(--radius);
     padding: 12px 16px;
+    position: relative;
+    z-index: 1;
 }
 
 .totals-grid {
