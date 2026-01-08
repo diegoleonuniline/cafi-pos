@@ -195,12 +195,8 @@
                         <!-- ========== TAB PRODUCTOS ========== -->
                         <div class="inner-panel" id="inner-productos">
                             <div class="productos-toolbar">
-                                <button class="btn btn-sm btn-outline" onclick="agregarLineaVacia()">
-                                    <i class="fas fa-plus"></i> Agregar Línea
-                                </button>
-                                <button class="btn btn-sm btn-outline" onclick="abrirCatalogo()">
-                                    <i class="fas fa-th"></i> Catálogo
-                                </button>
+                                <a class="link-action" onclick="agregarLineaVacia()"><i class="fas fa-plus"></i> Agregar línea</a>
+                                <a class="link-action" onclick="abrirCatalogo()"><i class="fas fa-th"></i> Catálogo</a>
                                 <div class="toolbar-spacer"></div>
                                 <div class="search-inline">
                                     <i class="fas fa-barcode"></i>
@@ -212,21 +208,18 @@
                                 <table class="lines-table">
                                     <thead>
                                         <tr>
-                                            <th style="width:35%">Producto</th>
+                                            <th style="width:32%">Producto</th>
                                             <th style="width:10%">Cantidad</th>
-                                            <th style="width:8%">Unidad</th>
-                                            <th style="width:12%">Precio</th>
-                                            <th style="width:8%">Desc %</th>
+                                            <th style="width:7%">Unidad</th>
+                                            <th style="width:12%">Precio Unit.</th>
+                                            <th style="width:9%">Desc %</th>
+                                            <th style="width:10%">Desc $</th>
                                             <th style="width:12%">Importe</th>
-                                            <th style="width:5%"></th>
+                                            <th style="width:8%"></th>
                                         </tr>
                                     </thead>
                                     <tbody id="tablaLineas"></tbody>
                                 </table>
-                                <div class="empty-lines" id="emptyLineas">
-                                    <i class="fas fa-box-open"></i>
-                                    <p>Agregue productos a la venta</p>
-                                </div>
                             </div>
 
                             <!-- Totales -->
