@@ -412,7 +412,7 @@ body {
     color: var(--white);
 }
 
-.inner-panel { display: none; padding: 24px; }
+.inner-panel { display: none; padding: 16px 20px; }
 .inner-panel.active { display: block; }
 
 /* ========== FIELDS GRID ========== */
@@ -542,9 +542,27 @@ body {
 .productos-toolbar {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
+    gap: 16px;
+    margin-bottom: 12px;
     flex-wrap: wrap;
+}
+
+.link-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s;
+}
+
+.link-action:hover {
+    background: rgba(45, 61, 191, 0.1);
 }
 
 .toolbar-spacer { flex: 1; }
@@ -552,21 +570,21 @@ body {
 .search-inline {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 14px;
+    gap: 8px;
+    padding: 6px 12px;
     background: var(--gray-50);
-    border: 2px solid var(--gray-200);
-    border-radius: var(--radius);
-    min-width: 250px;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    min-width: 200px;
 }
 
-.search-inline i { color: var(--gray-400); }
+.search-inline i { color: var(--gray-400); font-size: 13px; }
 
 .search-inline input {
     flex: 1;
     border: none;
     background: transparent;
-    font-size: 14px;
+    font-size: 13px;
     outline: none;
 }
 
@@ -575,6 +593,7 @@ body {
     border: 1px solid var(--gray-200);
     border-radius: var(--radius);
     overflow: hidden;
+    margin-bottom: 0;
 }
 
 .lines-table {
@@ -583,7 +602,7 @@ body {
 }
 
 .lines-table th {
-    padding: 12px 16px;
+    padding: 10px 12px;
     text-align: left;
     font-size: 11px;
     font-weight: 700;
@@ -595,7 +614,7 @@ body {
 }
 
 .lines-table td {
-    padding: 12px 16px;
+    padding: 8px 12px;
     border-bottom: 1px solid var(--gray-100);
     vertical-align: middle;
 }
@@ -616,17 +635,17 @@ body {
 
 .input-producto {
     flex: 1;
-    padding: 10px 12px;
+    padding: 6px 10px;
     border: 1px solid var(--gray-200);
-    border-radius: var(--radius-sm);
-    font-size: 14px;
+    border-radius: 4px;
+    font-size: 13px;
     transition: all 0.2s;
 }
 
 .input-producto:focus {
     border-color: var(--primary);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(45, 61, 191, 0.1);
+    box-shadow: 0 0 0 2px rgba(45, 61, 191, 0.1);
 }
 
 .input-producto:disabled {
@@ -635,12 +654,12 @@ body {
 }
 
 .codigo-badge {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--gray-400);
     font-family: 'SF Mono', Monaco, monospace;
     background: var(--gray-100);
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 2px 6px;
+    border-radius: 3px;
     white-space: nowrap;
 }
 
@@ -695,9 +714,9 @@ body {
 /* Input SM */
 .input-sm {
     width: 100%;
-    padding: 8px 10px;
+    padding: 6px 8px;
     border: 1px solid var(--gray-200);
-    border-radius: var(--radius-sm);
+    border-radius: 4px;
     font-size: 13px;
     background: transparent;
     transition: all 0.2s;
@@ -728,21 +747,22 @@ body {
 
 .actions-cell {
     display: flex;
-    gap: 4px;
+    gap: 2px;
     justify-content: center;
 }
 
 .btn-icon {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border: none;
     background: transparent;
-    border-radius: var(--radius-sm);
+    border-radius: 4px;
     color: var(--gray-400);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 12px;
     transition: all 0.2s;
 }
 
@@ -775,16 +795,18 @@ body {
 
 /* ========== TOTALS BAR ========== */
 .totals-bar {
-    margin-top: 20px;
-    background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+    margin-top: 12px;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
     border-radius: var(--radius);
-    padding: 20px;
+    padding: 12px 16px;
 }
 
 .totals-grid {
     display: flex;
     justify-content: flex-end;
-    gap: 24px;
+    align-items: center;
+    gap: 20px;
     flex-wrap: wrap;
 }
 
@@ -792,11 +814,11 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    min-width: 100px;
+    min-width: 80px;
 }
 
 .total-item .label {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
     color: var(--gray-500);
     text-transform: uppercase;
@@ -804,18 +826,22 @@ body {
 }
 
 .total-item .value {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
     color: var(--dark);
 }
 
 .total-item.total-final {
-    padding-left: 24px;
+    padding-left: 20px;
     border-left: 2px solid var(--gray-300);
 }
 
+.total-item.total-final .label {
+    font-size: 11px;
+}
+
 .total-item.total-final .value {
-    font-size: 28px;
+    font-size: 24px;
     color: var(--primary);
 }
 
