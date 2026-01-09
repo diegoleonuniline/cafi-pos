@@ -11,7 +11,7 @@ const usuarioId = (JSON.parse(localStorage.getItem('usuario') || '{}')).id;
 // Data
 let clientesData = [], almacenesData = [], productosData = [], metodosData = [], categoriasData = [], usuariosData = [];
 let ventasData = [], devolucionesData = [];
-
+let ventaReabiertaData = null;
 // Estado venta actual
 let ventaActual = null;
 let lineasVenta = [];
@@ -1184,14 +1184,32 @@ async function confirmarVenta() {
     const totalPagado = pagosVenta.reduce((s, p) => s + p.monto, 0);
     const saldo = totales.total - totalPagado;
     
-    // Si es CONTADO, exigir pago completo
+    // Si es venta reabierta, calcular diferencia
+    if (ventaReabiertaData) {
+        const diferencia = totales.total - ventaReabiertaData.pagado;
+        
+        if (diferencia > 0.01) {
+            // Hay que cobrar más
+            abrirModalCobrarDiferencia(diferencia);
+            return;
+        } else if (diferencia < -0.01) {
+            // Hay que devolver dinero
+            abrirModalDevolverDiferencia(Math.abs(diferencia));
+            return;
+        } else {
+            // Sin diferencia, solo guardar cambios
+            await guardarCambiosVentaReabierta(null, null);
+            return;
+        }
+    }
+    
+    // Venta normal (no reabierta)
     if (tipo === 'CONTADO' && saldo > 0.01) {
         toast('Venta de contado requiere pago completo', 'error');
         irATab('pagos');
         return;
     }
     
-    // Si es CREDITO, validar cliente
     if (tipo === 'CREDITO') {
         const clienteId = document.getElementById('ventaCliente').value;
         if (!clienteId) {
@@ -1206,7 +1224,6 @@ async function confirmarVenta() {
             return;
         }
         
-        // Validar límite de crédito
         if (cliente && cliente.limite_credito > 0) {
             const saldoActual = parseFloat(cliente.saldo || 0);
             const disponible = parseFloat(cliente.limite_credito) - saldoActual;
@@ -1217,7 +1234,6 @@ async function confirmarVenta() {
         }
     }
     
-    // El estatus final depende de si está pagada o no
     const estatusFinal = saldo <= 0.01 ? 'PAGADA' : 'PENDIENTE';
     await guardarVenta(estatusFinal);
 }
@@ -1229,6 +1245,176 @@ function irATab(tab) {
     document.getElementById(`inner-${tab}`).classList.add('active');
 }
 
+// Modal para cobrar diferencia (total nuevo > pagado)
+function abrirModalCobrarDiferencia(diferencia) {
+    document.getElementById('cobroDiferenciaMonto').textContent = formatMoney(diferencia);
+    document.getElementById('cobroDiferenciaOriginal').textContent = formatMoney(ventaReabiertaData.total_original);
+    document.getElementById('cobroDiferenciaNuevo').textContent = formatMoney(calcularTotales().total);
+    document.getElementById('cobroDiferenciaPagado').textContent = formatMoney(ventaReabiertaData.pagado);
+    document.getElementById('cobroDiferenciaPorCobrar').textContent = formatMoney(diferencia);
+    
+    document.getElementById('inputEfectivoDiferencia').value = '';
+    document.getElementById('cambioDiferencia').textContent = '$0.00';
+    
+    // Renderizar métodos de pago
+    const grid = document.getElementById('metodosDiferenciaGrid');
+    grid.innerHTML = metodosData.map((m, i) => {
+        const icono = getIconoMetodo(m.nombre);
+        return `<div class="metodo-btn ${i === 0 ? 'active' : ''}" data-id="${m.metodo_pago_id}" onclick="seleccionarMetodoDiferencia('${m.metodo_pago_id}')">
+            <i class="fas ${icono}"></i><span>${m.nombre}</span>
+        </div>`;
+    }).join('');
+    
+    abrirModal('modalCobrarDiferencia');
+}
+
+function seleccionarMetodoDiferencia(metodoId) {
+    document.querySelectorAll('#metodosDiferenciaGrid .metodo-btn').forEach(b => b.classList.toggle('active', b.dataset.id === metodoId));
+}
+
+function calcularCambioDiferencia() {
+    const diferencia = calcularTotales().total - ventaReabiertaData.pagado;
+    const recibido = parseFloat(document.getElementById('inputEfectivoDiferencia').value) || 0;
+    const cambio = Math.max(0, recibido - diferencia);
+    document.getElementById('cambioDiferencia').textContent = formatMoney(cambio);
+}
+
+function setExactoDiferencia() {
+    const diferencia = calcularTotales().total - ventaReabiertaData.pagado;
+    document.getElementById('inputEfectivoDiferencia').value = diferencia.toFixed(2);
+    calcularCambioDiferencia();
+}
+
+async function confirmarCobroDiferencia() {
+    const diferencia = calcularTotales().total - ventaReabiertaData.pagado;
+    const recibido = parseFloat(document.getElementById('inputEfectivoDiferencia').value) || 0;
+    
+    if (recibido < diferencia) {
+        toast('Monto insuficiente', 'error');
+        return;
+    }
+    
+    const metodoActivo = document.querySelector('#metodosDiferenciaGrid .metodo-btn.active');
+    const metodoPagoId = metodoActivo?.dataset.id || metodosData[0]?.metodo_pago_id;
+    
+    const pagoNuevo = {
+        metodo_pago_id: metodoPagoId,
+        monto: diferencia,
+        cambio: recibido - diferencia
+    };
+    
+    cerrarModal('modalCobrarDiferencia');
+    await guardarCambiosVentaReabierta(null, pagoNuevo);
+}
+
+// Modal para devolver dinero (total nuevo < pagado)
+function abrirModalDevolverDiferencia(montoDevolver) {
+    document.getElementById('devolucionMonto').value = montoDevolver.toFixed(2);
+    document.getElementById('devolucionMaximo').value = montoDevolver;
+    document.getElementById('devolucionMaxLabel').textContent = formatMoney(montoDevolver);
+    document.getElementById('devolucionConcepto').textContent = `Ajuste venta reabierta ${ventaActual.folio || ''}`;
+    
+    // Renderizar métodos de devolución
+    const container = document.getElementById('metodosDevolucion');
+    container.innerHTML = `
+        <div class="metodo-dev active" data-tipo="EFECTIVO" onclick="seleccionarMetodoDevolucion(this)">
+            <i class="fas fa-money-bill-wave"></i><span>Efectivo</span>
+        </div>
+        ${metodosData.filter(m => m.tipo !== 'EFECTIVO').map(m => `
+            <div class="metodo-dev" data-tipo="${m.tipo}" data-id="${m.metodo_pago_id}" onclick="seleccionarMetodoDevolucion(this)">
+                <i class="fas ${getIconoMetodo(m.nombre)}"></i><span>${m.nombre}</span>
+            </div>
+        `).join('')}
+        <div class="metodo-dev" data-tipo="NOTA_CREDITO" onclick="seleccionarMetodoDevolucion(this)">
+            <i class="fas fa-file-invoice-dollar"></i><span>Nota Crédito</span>
+        </div>
+    `;
+    
+    abrirModal('modalDevolucion');
+}
+
+function seleccionarMetodoDevolucion(btn) {
+    document.querySelectorAll('.metodo-dev').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+
+async function confirmarDevolucion() {
+    const monto = parseFloat(document.getElementById('devolucionMonto').value) || 0;
+    const metodoBtn = document.querySelector('.metodo-dev.active');
+    const tipo = metodoBtn?.dataset.tipo || 'EFECTIVO';
+    const metodoId = metodoBtn?.dataset.id || null;
+    
+    const devolucion = {
+        monto,
+        tipo,
+        metodo_pago_id: metodoId,
+        notas: document.getElementById('devolucionNotas')?.value || ''
+    };
+    
+    cerrarModal('modalDevolucion');
+    await guardarCambiosVentaReabierta(devolucion, null);
+}
+
+// Guardar cambios de venta reabierta
+async function guardarCambiosVentaReabierta(devolucion, pagoNuevo) {
+    const totales = calcularTotales();
+    const lineasValidas = lineasVenta.filter(l => l.producto_id);
+    
+    // Detectar cambios en productos
+    const productosNuevos = lineasValidas.filter(l => !l.detalle_id);
+    const productosModificados = [];
+    const productosEliminados = [];
+    
+    // Comparar con originales
+    ventaReabiertaData.lineas_originales.forEach(orig => {
+        const actual = lineasValidas.find(l => l.detalle_id === orig.detalle_id);
+        
+        if (!actual) {
+            productosEliminados.push({ detalle_id: orig.detalle_id, cantidad: orig.cantidad });
+        } else if (actual.cantidad !== orig.cantidad || actual.precio !== orig.precio) {
+            productosModificados.push({
+                detalle_id: orig.detalle_id,
+                cantidad_nueva: actual.cantidad,
+                precio_nuevo: actual.precio
+            });
+        }
+    });
+    
+    try {
+        const r = await API.request(`/ventas/guardar-reabierta/${ventaReabiertaData.venta_id}`, 'POST', {
+            productos_nuevos: productosNuevos.map(l => ({
+                producto_id: l.producto_id,
+                descripcion: l.nombre,
+                cantidad: l.cantidad,
+                unidad_id: l.unidad,
+                precio_unitario: l.precio,
+                descuento_pct: l.descuento_pct || 0,
+                subtotal: l.importe
+            })),
+            productos_modificados,
+            productos_eliminados,
+            nuevo_total: totales.total,
+            devolucion,
+            pago_nuevo: pagoNuevo,
+            usuario_id: usuarioId
+        });
+        
+        if (r.success) {
+            let msg = 'Venta actualizada.';
+            if (devolucion?.monto > 0) msg += ` Devolución: ${formatMoney(devolucion.monto)}`;
+            if (pagoNuevo?.monto > 0) msg += ` Cobrado: ${formatMoney(pagoNuevo.monto)}`;
+            
+            toast(msg, 'success');
+            ventaReabiertaData = null;
+            cargarVentaEnFormulario(ventaActual.venta_id);
+        } else {
+            toast(r.error || 'Error al guardar', 'error');
+        }
+    } catch (e) {
+        console.error(e);
+        toast('Error de conexión', 'error');
+    }
+}
 // ==================== CARGAR VENTA ====================
 
 async function cargarVentaEnFormulario(ventaId) {
@@ -1390,16 +1576,37 @@ async function reabrirVenta(autorizador) {
         });
         
         if (r.success) {
-            toast('Venta reabierta', 'success');
-            cargarVentaEnFormulario(ventaActual.venta_id);
+            // Guardar datos de la venta original para comparar después
+            ventaReabiertaData = {
+                venta_id: ventaActual.venta_id,
+                folio: ventaActual.folio,
+                total_original: parseFloat(ventaActual.total) || 0,
+                pagado: parseFloat(ventaActual.pagado) || 0,
+                lineas_originales: JSON.parse(JSON.stringify(lineasVenta))
+            };
+            
+            // Cambiar estatus a BORRADOR para permitir edición
+            ventaActual.estatus = 'BORRADOR';
+            actualizarStatusBar('BORRADOR');
+            actualizarBotones('BORRADOR');
+            
+            // Habilitar campos
+            document.getElementById('ventaCliente').disabled = false;
+            document.getElementById('ventaAlmacen').disabled = false;
+            document.getElementById('ventaTipo').disabled = false;
+            document.getElementById('ventaDescuentoGlobal').disabled = false;
+            
+            renderLineas();
+            toast('Venta reabierta. Puede modificar productos.', 'success');
+            irATab('productos');
         } else {
-            toast(r.error || 'Error', 'error');
+            toast(r.error || 'Error al reabrir', 'error');
         }
     } catch (e) {
-        toast('Error', 'error');
+        console.error(e);
+        toast('Error de conexión', 'error');
     }
 }
-
 // ==================== CANCELAR PRODUCTO ====================
 
 function abrirCancelarProducto(idx) {
