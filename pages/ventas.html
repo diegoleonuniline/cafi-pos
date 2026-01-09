@@ -60,7 +60,81 @@
                         <button class="tab-btn" data-tab="devoluciones"><i class="fas fa-undo"></i> Devoluciones</button>
                     </nav>
                 </div>
+<!-- Modal Cobrar Diferencia -->
+<div class="modal-overlay" id="modalCobrarDiferencia">
+    <div class="modal modal-sm">
+        <div class="modal-header modal-header-success">
+            <div class="modal-title"><i class="fas fa-dollar-sign"></i> Cobrar Complemento</div>
+            <button class="btn-close" onclick="cerrarModal('modalCobrarDiferencia')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="diferencia-resumen">
+                <div class="diferencia-monto-grande" id="cobroDiferenciaMonto">$0.00</div>
+                <small>Por cobrar</small>
+            </div>
+            <div class="diferencia-detalle">
+                <div class="diferencia-linea"><span>Total original:</span><span id="cobroDiferenciaOriginal">$0.00</span></div>
+                <div class="diferencia-linea"><span>Total nuevo:</span><span id="cobroDiferenciaNuevo">$0.00</span></div>
+                <div class="diferencia-linea"><span>Ya pagado:</span><span id="cobroDiferenciaPagado">$0.00</span></div>
+                <div class="diferencia-linea destacado"><span>Por cobrar:</span><span id="cobroDiferenciaPorCobrar">$0.00</span></div>
+            </div>
+            <div class="form-group">
+                <label>Método de pago</label>
+                <div class="metodos-grid-mini" id="metodosDiferenciaGrid"></div>
+            </div>
+            <div class="form-group">
+                <label>Efectivo recibido</label>
+                <input type="number" id="inputEfectivoDiferencia" class="form-control" step="0.01" oninput="calcularCambioDiferencia()">
+                <div class="denominaciones-mini">
+                    <button type="button" onclick="document.getElementById('inputEfectivoDiferencia').value = (parseFloat(document.getElementById('inputEfectivoDiferencia').value)||0)+50; calcularCambioDiferencia()">+$50</button>
+                    <button type="button" onclick="document.getElementById('inputEfectivoDiferencia').value = (parseFloat(document.getElementById('inputEfectivoDiferencia').value)||0)+100; calcularCambioDiferencia()">+$100</button>
+                    <button type="button" onclick="setExactoDiferencia()">Exacto</button>
+                </div>
+            </div>
+            <div class="cambio-display"><span>Cambio:</span><strong id="cambioDiferencia">$0.00</strong></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="cerrarModal('modalCobrarDiferencia')">Cancelar</button>
+            <button class="btn btn-success" onclick="confirmarCobroDiferencia()"><i class="fas fa-check"></i> Cobrar</button>
+        </div>
+    </div>
+</div>
 
+<!-- Modal Devolución -->
+<div class="modal-overlay" id="modalDevolucion">
+    <div class="modal modal-sm">
+        <div class="modal-header modal-header-warning">
+            <div class="modal-title"><i class="fas fa-hand-holding-usd"></i> Devolución</div>
+            <button class="btn-close" onclick="cerrarModal('modalDevolucion')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="devolucion-concepto" id="devolucionConcepto">Ajuste de venta</div>
+            <div class="devolucion-max"><span>Máximo a devolver:</span><strong id="devolucionMaxLabel">$0.00</strong></div>
+            <input type="hidden" id="devolucionMaximo">
+            <div class="form-group">
+                <label>Monto a devolver</label>
+                <input type="number" id="devolucionMonto" class="form-control" step="0.01" min="0">
+                <div class="denominaciones-mini">
+                    <button type="button" onclick="document.getElementById('devolucionMonto').value = document.getElementById('devolucionMaximo').value">100%</button>
+                    <button type="button" onclick="document.getElementById('devolucionMonto').value = (parseFloat(document.getElementById('devolucionMaximo').value)*0.5).toFixed(2)">50%</button>
+                    <button type="button" onclick="document.getElementById('devolucionMonto').value = '0'">Sin dev.</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Método de devolución</label>
+                <div class="metodos-devolucion" id="metodosDevolucion"></div>
+            </div>
+            <div class="form-group">
+                <label>Notas (opcional)</label>
+                <textarea id="devolucionNotas" class="form-control" rows="2"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="cerrarModal('modalDevolucion')">Cancelar</button>
+            <button class="btn btn-warning" onclick="confirmarDevolucion()"><i class="fas fa-check"></i> Confirmar</button>
+        </div>
+    </div>
+</div>
                 <!-- ==================== PANEL FORMULARIO ==================== -->
                 <div class="tab-panel active" id="panel-formulario">
                     <div class="form-card">
