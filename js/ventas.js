@@ -336,15 +336,16 @@ function agregarLineaVacia() {
         precio_original: 0,
         descuento_pct: 0,
         descuento_monto: 0,
-        iva: 16,
+        impuestos: [],
         importe: 0,
         stock: 0
     });
     renderLineas();
-    
     setTimeout(() => {
         const inputs = document.querySelectorAll('.input-producto');
-        if (inputs.length > 0) inputs[inputs.length - 1].focus();
+        if (inputs.length > 0) {
+            inputs[inputs.length - 1].focus();
+        }
     }, 50);
 }
 
@@ -688,24 +689,23 @@ function quitarLinea(idx) {
 function navegarCampoLinea(event, idx, campo) {
     if (event.key === 'Tab' && !event.shiftKey) {
         const esUltimaLinea = idx === lineasVenta.length - 1;
-        const esUltimoCampo = campo === 'iva';
+        const linea = lineasVenta[idx];
         
-        // Si es Tab en el último campo (IVA) de la última línea con producto, agregar nueva línea
-        if (esUltimaLinea && esUltimoCampo && lineasVenta[idx].producto_id) {
+        // Determinar último campo editable (ahora es descuento_monto, ya no hay input de IMP)
+        const esUltimoCampo = campo === 'descuento_monto' || campo === 'descmonto';
+        
+        if (esUltimaLinea && esUltimoCampo && linea.producto_id) {
             event.preventDefault();
             agregarLineaVacia();
         }
     } else if (event.key === 'Enter') {
         event.preventDefault();
-        // Enter avanza al siguiente campo
-        const orden = ['cant', 'precio', 'descpct', 'descmonto', 'iva'];
-        const idxCampo = orden.indexOf(campo.replace('-input-' + idx, ''));
-        if (idxCampo < orden.length - 1) {
-            const nextInput = document.getElementById(`${orden[idxCampo + 1]}-input-${idx}`);
-            if (nextInput) nextInput.focus();
-        } else if (lineasVenta[idx].producto_id) {
-            // Si es el último campo y hay producto, agregar línea
-            agregarLineaVacia();
+        const linea = lineasVenta[idx];
+        
+        if (campo === 'descuento_monto' || campo === 'descmonto') {
+            if (linea.producto_id) {
+                agregarLineaVacia();
+            }
         }
     }
 }
@@ -726,40 +726,61 @@ function aplicarDescuentoGlobal() {
 
 function calcularTotales() {
     const lineasValidas = lineasVenta.filter(l => l.producto_id);
+    
+    if (lineasValidas.length === 0) {
+        document.getElementById('ventaSubtotal').textContent = '$0.00';
+        document.getElementById('ventaDescuento').textContent = '-$0.00';
+        document.getElementById('ventaIVA').textContent = '$0.00';
+        const iepsRow = document.getElementById('rowIEPS');
+        if (iepsRow) iepsRow.style.display = 'none';
+        document.getElementById('ventaTotal').textContent = '$0.00';
+        document.getElementById('pagoTotalVenta').textContent = '$0.00';
+        return { subtotal: 0, descuento: 0, iva: 0, ieps: 0, total: 0 };
+    }
 
     const subtotal = lineasValidas.reduce((s, l) => s + (l.cantidad * l.precio), 0);
-    const descuento = lineasValidas.reduce((s, l) => s + (l.descuento_monto || (l.cantidad * l.precio * l.descuento_pct / 100)), 0);
+    const descuento = lineasValidas.reduce((s, l) => {
+        const sub = l.cantidad * l.precio;
+        return s + (l.descuento_monto || (sub * l.descuento_pct / 100));
+    }, 0);
 
-    // Calcular impuestos por tipo
     let totalIVA = 0;
     let totalIEPS = 0;
-    let totalOtros = 0;
 
     lineasValidas.forEach(l => {
-        const base = (l.cantidad * l.precio) - (l.descuento_monto || (l.cantidad * l.precio * l.descuento_pct / 100));
-        if (l.impuestos) {
+        const sub = l.cantidad * l.precio;
+        const desc = l.descuento_monto || (sub * l.descuento_pct / 100);
+        const base = sub - desc;
+        
+        if (l.impuestos && l.impuestos.length > 0) {
             l.impuestos.forEach(imp => {
                 if (imp.activo) {
-                    let monto = imp.tipo === 'PORCENTAJE' ? base * (imp.valor / 100) : imp.valor * l.cantidad;
-                    const nombreLower = imp.nombre.toLowerCase();
-                    if (nombreLower.includes('iva')) totalIVA += monto;
-                    else if (nombreLower.includes('ieps')) totalIEPS += monto;
-                    else totalOtros += monto;
+                    let monto = 0;
+                    if (imp.tipo === 'PORCENTAJE') {
+                        monto = base * (imp.valor / 100);
+                    } else {
+                        monto = imp.valor * l.cantidad;
+                    }
+                    
+                    const nombreLower = (imp.nombre || '').toLowerCase();
+                    if (nombreLower.includes('iva')) {
+                        totalIVA += monto;
+                    } else if (nombreLower.includes('ieps')) {
+                        totalIEPS += monto;
+                    } else {
+                        totalIVA += monto; // Otros impuestos van a IVA por defecto
+                    }
                 }
             });
         }
     });
 
-    const totalImpuestos = totalIVA + totalIEPS + totalOtros;
-    const total = subtotal - descuento + totalImpuestos;
+    const total = subtotal - descuento + totalIVA + totalIEPS;
 
     document.getElementById('ventaSubtotal').textContent = formatMoney(subtotal);
     document.getElementById('ventaDescuento').textContent = '-' + formatMoney(descuento);
-    
-    // Mostrar desglose de impuestos
     document.getElementById('ventaIVA').textContent = formatMoney(totalIVA);
     
-    // Si hay IEPS, mostrarlo
     const iepsRow = document.getElementById('rowIEPS');
     if (iepsRow) {
         if (totalIEPS > 0) {
@@ -775,13 +796,6 @@ function calcularTotales() {
 
     return { subtotal, descuento, iva: totalIVA, ieps: totalIEPS, total };
 }
-// Cerrar autocomplete al hacer click afuera
-document.addEventListener('click', e => {
-    if (!e.target.closest('.producto-cell')) {
-        document.querySelectorAll('.autocomplete-dropdown').forEach(d => d.classList.remove('show'));
-    }
-});
-
 // ==================== CATALOGO ====================
 
 function abrirCatalogo() {
