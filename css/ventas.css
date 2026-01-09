@@ -1764,3 +1764,137 @@ body {
 .imp-chip:hover {
     opacity: 0.8;
 }
+/* Diferencia / Devolución */
+.diferencia-resumen {
+    text-align: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #fff;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.diferencia-monto-grande {
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.diferencia-detalle {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 16px;
+}
+
+.diferencia-linea {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.diferencia-linea.destacado {
+    font-weight: 600;
+    color: #2D3DBF;
+    border-bottom: none;
+}
+
+.metodos-grid-mini {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.metodos-grid-mini .metodo-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 10px;
+    font-size: 12px;
+}
+
+.denominaciones-mini {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.denominaciones-mini button {
+    flex: 1;
+    padding: 6px;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 11px;
+}
+
+.denominaciones-mini button:hover {
+    background: #f3f4f6;
+}
+
+.cambio-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: #fef3c7;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.devolucion-concepto {
+    text-align: center;
+    font-weight: 500;
+    color: #6b7280;
+    margin-bottom: 8px;
+}
+
+.devolucion-max {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px;
+    background: #fef3c7;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.metodos-devolucion {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.metodo-dev {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    min-width: 70px;
+    transition: all 0.2s;
+}
+
+.metodo-dev:hover {
+    border-color: #2D3DBF;
+}
+
+.metodo-dev.active {
+    border-color: #2D3DBF;
+    background: rgba(45, 61, 191, 0.1);
+}
+
+.metodo-dev i {
+    font-size: 20px;
+    margin-bottom: 4px;
+    color: #6b7280;
+}
+
+.metodo-dev.active i {
+    color: #2D3DBF;
+}
+
+.metodo-dev span {
+    font-size: 11px;
+}
