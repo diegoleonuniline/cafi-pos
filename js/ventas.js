@@ -352,108 +352,95 @@ function renderLineas() {
     const tbody = document.getElementById('tablaLineas');
     const editable = !ventaActual || ventaActual.estatus === 'BORRADOR';
     const esPagada = ventaActual && ['PAGADA', 'PENDIENTE'].includes(ventaActual.estatus);
-    
     const lineasValidas = lineasVenta.filter(l => l.producto_id).length;
     document.getElementById('contadorProductos').textContent = lineasValidas;
-    
-    // Si no hay líneas, agregar una vacía
+
     if (lineasVenta.length === 0 && editable) {
         lineasVenta.push({
             producto_id: '', nombre: '', codigo: '', cantidad: 1, unidad: 'PZ',
             precio: 0, precio_original: 0, descuento_pct: 0, descuento_monto: 0,
-            iva: 16, importe: 0, stock: 0
+            impuestos: [], importe: 0, stock: 0
         });
     }
-    
-    const isUltimaLinea = (i) => i === lineasVenta.length - 1;
-    
+
     tbody.innerHTML = lineasVenta.map((l, i) => `
         <tr data-idx="${i}">
             <td class="producto-cell">
                 <div class="producto-input-wrap">
-                    <input type="text" 
-                        class="input-producto" 
-                        id="prod-input-${i}"
-                        value="${l.nombre}" 
-                        placeholder="Buscar producto..." 
-                        oninput="lineasVenta[${i}].nombre = this.value; buscarProducto(${i}, this.value)" 
+                    <input type="text" class="input-producto" id="prod-input-${i}"
+                        value="${l.nombre}" placeholder="Buscar producto..."
+                        oninput="lineasVenta[${i}].nombre = this.value; buscarProducto(${i}, this.value)"
                         onkeydown="navegarAutocomplete(event, ${i})"
                         onfocus="if(this.value.length > 0) buscarProducto(${i}, this.value)"
-                        autocomplete="off"
-                        ${editable ? '' : 'disabled'}>
+                        autocomplete="off" ${editable ? '' : 'disabled'}>
                     ${l.codigo ? `<span class="codigo-badge">${l.codigo}</span>` : ''}
                     <div class="autocomplete-dropdown" id="autocomplete-${i}"></div>
                 </div>
             </td>
             <td>
-                <input type="number" 
-                    class="input-sm text-center" 
-                    id="cant-input-${i}"
-                    value="${l.cantidad}" 
-                    min="0.01" 
-                    step="0.01"
+                <input type="number" class="input-sm text-center" id="cant-input-${i}"
+                    value="${l.cantidad}" min="0.01" step="0.01"
                     oninput="actualizarLinea(${i}, 'cantidad', this.value)"
                     onkeydown="navegarCampoLinea(event, ${i}, 'cantidad')"
                     ${editable ? '' : 'disabled'}>
             </td>
             <td class="text-center text-muted">${l.unidad}</td>
             <td>
-                <input type="number" 
-                    class="input-sm text-right" 
-                    id="precio-input-${i}"
-                    value="${l.precio.toFixed(2)}" 
-                    min="0" 
-                    step="0.01"
+                <input type="number" class="input-sm text-right" id="precio-input-${i}"
+                    value="${l.precio.toFixed(2)}" min="0" step="0.01"
                     oninput="actualizarLinea(${i}, 'precio', this.value)"
                     onkeydown="navegarCampoLinea(event, ${i}, 'precio')"
                     ${editable ? '' : 'disabled'}>
             </td>
             <td>
-                <input type="number" 
-                    class="input-sm text-center" 
-                    id="descpct-input-${i}"
-                    value="${l.descuento_pct}" 
-                    min="0" 
-                    max="100"
-                    step="0.01"
+                <input type="number" class="input-sm text-center" id="descpct-input-${i}"
+                    value="${l.descuento_pct}" min="0" max="100" step="0.01"
                     oninput="actualizarLinea(${i}, 'descuento_pct', this.value)"
-                    onkeydown="navegarCampoLinea(event, ${i}, 'descpct')"
                     ${editable ? '' : 'disabled'}>
             </td>
             <td>
-                <input type="number" 
-                    class="input-sm text-right" 
-                    id="descmonto-input-${i}"
-                    value="${l.descuento_monto.toFixed(2)}" 
-                    min="0" 
-                    step="0.01"
+                <input type="number" class="input-sm text-right" id="descmonto-input-${i}"
+                    value="${l.descuento_monto.toFixed(2)}" min="0" step="0.01"
                     oninput="actualizarLinea(${i}, 'descuento_monto', this.value)"
-                    onkeydown="navegarCampoLinea(event, ${i}, 'descmonto')"
                     ${editable ? '' : 'disabled'}>
             </td>
-            <td>
-                <input type="number" 
-                    class="input-sm text-center" 
-                    id="iva-input-${i}"
-                    value="${l.iva}" 
-                    min="0" 
-                    max="100"
-                    step="1"
-                    oninput="actualizarLinea(${i}, 'iva', this.value)"
-                    onkeydown="navegarCampoLinea(event, ${i}, 'iva')"
-                    ${editable ? '' : 'disabled'}>
+            <td class="impuestos-cell">
+                ${renderImpuestosChips(l, i, editable)}
             </td>
-            <td class="text-right importe-cell">${formatMoney(l.importe)}</td>
+            <td class="text-right importe-cell"><strong>${formatMoney(l.importe)}</strong></td>
             <td class="actions-cell">
                 ${editable ? `<button class="btn-icon danger" onclick="quitarLinea(${i})" title="Eliminar"><i class="fas fa-trash"></i></button>` : ''}
                 ${esPagada && l.producto_id && l.detalle_id ? `<button class="btn-icon warning" onclick="abrirCancelarProducto(${i})" title="Devolver"><i class="fas fa-undo"></i></button>` : ''}
             </td>
         </tr>
     `).join('');
-    
+
     calcularTotales();
 }
 
+function renderImpuestosChips(linea, idx, editable) {
+    if (!linea.impuestos || linea.impuestos.length === 0) {
+        return '<span class="text-muted">-</span>';
+    }
+
+    return linea.impuestos.map((imp, impIdx) => {
+        const valorStr = imp.tipo === 'PORCENTAJE' ? `${imp.valor}%` : `$${imp.valor}`;
+        const claseActivo = imp.activo ? 'active' : '';
+        const clickable = editable ? `onclick="toggleImpuesto(${idx}, ${impIdx})"` : '';
+        return `<span class="imp-chip ${claseActivo}" ${clickable} title="${imp.nombre}: ${valorStr}">
+            ${imp.nombre.substring(0, 4)} ${valorStr}
+        </span>`;
+    }).join('');
+}
+
+function toggleImpuesto(lineaIdx, impuestoIdx) {
+    const linea = lineasVenta[lineaIdx];
+    if (linea.impuestos && linea.impuestos[impuestoIdx]) {
+        linea.impuestos[impuestoIdx].activo = !linea.impuestos[impuestoIdx].activo;
+        calcularImporteLinea(lineaIdx);
+        renderLineas();
+    }
+}
 function buscarProducto(idx, texto) {
     const dropdown = document.getElementById(`autocomplete-${idx}`);
     
@@ -520,7 +507,7 @@ function navegarAutocomplete(event, idx) {
     if (currentIdx >= 0) items[currentIdx].scrollIntoView({ block: 'nearest' });
 }
 
-function seleccionarProducto(idx, productoId) {
+async function seleccionarProducto(idx, productoId) {
     const p = productosData.find(x => x.producto_id === productoId);
     if (!p) return;
 
@@ -528,17 +515,37 @@ function seleccionarProducto(idx, productoId) {
     const cliente = clientesData.find(c => c.cliente_id === clienteId);
     const tipoPrecio = parseInt(cliente?.tipo_precio) || 1;
 
-    // Usar precio BASE (sin IVA) - precio1, precio2, etc.
+    // Precio base sin impuestos
     let precioBase = parseFloat(p.precio1 || 0);
     if (tipoPrecio === 2 && p.precio2) precioBase = parseFloat(p.precio2);
     if (tipoPrecio === 3 && p.precio3) precioBase = parseFloat(p.precio3);
     if (tipoPrecio === 4 && p.precio4) precioBase = parseFloat(p.precio4);
 
-    // Si el precio YA incluye impuesto, extraer el precio base
-    const tasaIVA = parseFloat(p.tasa_impuesto || 16);
-    let precioSinIVA = precioBase;
-    if (p.precio_incluye_impuesto === 'Y') {
-        precioSinIVA = precioBase / (1 + tasaIVA / 100);
+    // Cargar impuestos del producto
+    let impuestos = [];
+    try {
+        const r = await API.request(`/productos/${productoId}/impuestos`);
+        if (r.success && r.impuestos) {
+            impuestos = r.impuestos.map(imp => ({
+                impuesto_id: imp.impuesto_id,
+                nombre: imp.nombre,
+                tipo: imp.tipo, // PORCENTAJE o FIJO
+                valor: parseFloat(imp.valor) || 0,
+                activo: true // Por defecto activos
+            }));
+        }
+    } catch (e) {
+        console.error('Error cargando impuestos:', e);
+    }
+
+    // Si precio incluye impuesto, extraer base
+    let precioSinImpuestos = precioBase;
+    if (p.precio_incluye_impuesto === 'Y' && impuestos.length > 0) {
+        const tasaTotal = impuestos.filter(i => i.tipo === 'PORCENTAJE').reduce((s, i) => s + i.valor, 0);
+        const fijoTotal = impuestos.filter(i => i.tipo === 'FIJO').reduce((s, i) => s + i.valor, 0);
+        // precio = base * (1 + tasa/100) + fijo
+        // base = (precio - fijo) / (1 + tasa/100)
+        precioSinImpuestos = (precioBase - fijoTotal) / (1 + tasaTotal / 100);
     }
 
     const cantidad = lineasVenta[idx].cantidad || 1;
@@ -548,12 +555,11 @@ function seleccionarProducto(idx, productoId) {
         codigo: p.codigo_barras || p.codigo_interno || '',
         cantidad: cantidad,
         unidad: p.unidad_venta || 'PZ',
-        precio: Math.round(precioSinIVA * 100) / 100,
-        precio_original: Math.round(precioSinIVA * 100) / 100,
-        precio_incluye_impuesto: p.precio_incluye_impuesto || 'N',
+        precio: Math.round(precioSinImpuestos * 100) / 100,
+        precio_original: Math.round(precioSinImpuestos * 100) / 100,
         descuento_pct: 0,
         descuento_monto: 0,
-        iva: tasaIVA,
+        impuestos: impuestos, // Array de impuestos
         importe: 0,
         stock: parseFloat(p.stock || 0)
     };
@@ -564,12 +570,11 @@ function seleccionarProducto(idx, productoId) {
 
     setTimeout(() => {
         const cantInput = document.getElementById(`cant-input-${idx}`);
-        if (cantInput) {
-            cantInput.focus();
-            cantInput.select();
-        }
+        if (cantInput) { cantInput.focus(); cantInput.select(); }
     }, 50);
 }
+
+
 function buscarPorCodigo(event) {
     if (event.key !== 'Enter') return;
     event.preventDefault();
@@ -650,11 +655,27 @@ function actualizarLinea(idx, campo, valor) {
 
 function calcularImporteLinea(idx) {
     const l = lineasVenta[idx];
+    if (!l.producto_id) return;
+
     const subtotal = l.cantidad * l.precio;
     const descuento = l.descuento_monto || (subtotal * l.descuento_pct / 100);
     const baseGravable = subtotal - descuento;
-    const iva = baseGravable * (l.iva / 100);
-    l.importe = baseGravable + iva;
+
+    // Calcular impuestos activos
+    let totalImpuestos = 0;
+    if (l.impuestos && l.impuestos.length > 0) {
+        l.impuestos.forEach(imp => {
+            if (imp.activo) {
+                if (imp.tipo === 'PORCENTAJE') {
+                    totalImpuestos += baseGravable * (imp.valor / 100);
+                } else { // FIJO
+                    totalImpuestos += imp.valor * l.cantidad;
+                }
+            }
+        });
+    }
+
+    l.importe = baseGravable + totalImpuestos;
 }
 
 function quitarLinea(idx) {
@@ -705,26 +726,55 @@ function aplicarDescuentoGlobal() {
 
 function calcularTotales() {
     const lineasValidas = lineasVenta.filter(l => l.producto_id);
-    
+
     const subtotal = lineasValidas.reduce((s, l) => s + (l.cantidad * l.precio), 0);
     const descuento = lineasValidas.reduce((s, l) => s + (l.descuento_monto || (l.cantidad * l.precio * l.descuento_pct / 100)), 0);
-    const baseIVA = subtotal - descuento;
-    const iva = lineasValidas.reduce((s, l) => {
-        const sub = l.cantidad * l.precio;
-        const desc = l.descuento_monto || (sub * l.descuento_pct / 100);
-        return s + ((sub - desc) * l.iva / 100);
-    }, 0);
-    const total = baseIVA + iva;
-    
+
+    // Calcular impuestos por tipo
+    let totalIVA = 0;
+    let totalIEPS = 0;
+    let totalOtros = 0;
+
+    lineasValidas.forEach(l => {
+        const base = (l.cantidad * l.precio) - (l.descuento_monto || (l.cantidad * l.precio * l.descuento_pct / 100));
+        if (l.impuestos) {
+            l.impuestos.forEach(imp => {
+                if (imp.activo) {
+                    let monto = imp.tipo === 'PORCENTAJE' ? base * (imp.valor / 100) : imp.valor * l.cantidad;
+                    const nombreLower = imp.nombre.toLowerCase();
+                    if (nombreLower.includes('iva')) totalIVA += monto;
+                    else if (nombreLower.includes('ieps')) totalIEPS += monto;
+                    else totalOtros += monto;
+                }
+            });
+        }
+    });
+
+    const totalImpuestos = totalIVA + totalIEPS + totalOtros;
+    const total = subtotal - descuento + totalImpuestos;
+
     document.getElementById('ventaSubtotal').textContent = formatMoney(subtotal);
     document.getElementById('ventaDescuento').textContent = '-' + formatMoney(descuento);
-    document.getElementById('ventaIVA').textContent = formatMoney(iva);
+    
+    // Mostrar desglose de impuestos
+    document.getElementById('ventaIVA').textContent = formatMoney(totalIVA);
+    
+    // Si hay IEPS, mostrarlo
+    const iepsRow = document.getElementById('rowIEPS');
+    if (iepsRow) {
+        if (totalIEPS > 0) {
+            iepsRow.style.display = '';
+            document.getElementById('ventaIEPS').textContent = formatMoney(totalIEPS);
+        } else {
+            iepsRow.style.display = 'none';
+        }
+    }
+
     document.getElementById('ventaTotal').textContent = formatMoney(total);
     document.getElementById('pagoTotalVenta').textContent = formatMoney(total);
-    
-    return { subtotal, descuento, iva, total };
-}
 
+    return { subtotal, descuento, iva: totalIVA, ieps: totalIEPS, total };
+}
 // Cerrar autocomplete al hacer click afuera
 document.addEventListener('click', e => {
     if (!e.target.closest('.producto-cell')) {
