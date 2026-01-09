@@ -220,13 +220,20 @@ function actualizarPreciosCliente(tipoPrecio) {
         if (linea.producto_id) {
             const producto = productosData.find(p => p.producto_id === linea.producto_id);
             if (producto) {
-                let precio = parseFloat(producto.precio_venta || producto.precio1 || 0);
-                if (tipoPrecio === 2 && producto.precio2) precio = parseFloat(producto.precio2);
-                if (tipoPrecio === 3 && producto.precio3) precio = parseFloat(producto.precio3);
-                if (tipoPrecio === 4 && producto.precio4) precio = parseFloat(producto.precio4);
-                linea.precio = precio;
-                linea.precio_original = precio;
-                // Recalcular descuento_monto si hay descuento_pct
+                let precioBase = parseFloat(producto.precio1 || 0);
+                if (tipoPrecio === 2 && producto.precio2) precioBase = parseFloat(producto.precio2);
+                if (tipoPrecio === 3 && producto.precio3) precioBase = parseFloat(producto.precio3);
+                if (tipoPrecio === 4 && producto.precio4) precioBase = parseFloat(producto.precio4);
+
+                const tasaIVA = parseFloat(producto.tasa_impuesto || 16);
+                let precioSinIVA = precioBase;
+                if (producto.precio_incluye_impuesto === 'Y') {
+                    precioSinIVA = precioBase / (1 + tasaIVA / 100);
+                }
+
+                linea.precio = Math.round(precioSinIVA * 100) / 100;
+                linea.precio_original = linea.precio;
+
                 if (linea.descuento_pct > 0) {
                     const subtotal = linea.cantidad * linea.precio;
                     linea.descuento_monto = subtotal * linea.descuento_pct / 100;
@@ -516,38 +523,45 @@ function navegarAutocomplete(event, idx) {
 function seleccionarProducto(idx, productoId) {
     const p = productosData.find(x => x.producto_id === productoId);
     if (!p) return;
-    
+
     const clienteId = document.getElementById('ventaCliente').value;
     const cliente = clientesData.find(c => c.cliente_id === clienteId);
     const tipoPrecio = parseInt(cliente?.tipo_precio) || 1;
-    
-    let precio = parseFloat(p.precio_venta || p.precio1 || 0);
-    if (tipoPrecio === 2 && p.precio2) precio = parseFloat(p.precio2);
-    if (tipoPrecio === 3 && p.precio3) precio = parseFloat(p.precio3);
-    if (tipoPrecio === 4 && p.precio4) precio = parseFloat(p.precio4);
-    
+
+    // Usar precio BASE (sin IVA) - precio1, precio2, etc.
+    let precioBase = parseFloat(p.precio1 || 0);
+    if (tipoPrecio === 2 && p.precio2) precioBase = parseFloat(p.precio2);
+    if (tipoPrecio === 3 && p.precio3) precioBase = parseFloat(p.precio3);
+    if (tipoPrecio === 4 && p.precio4) precioBase = parseFloat(p.precio4);
+
+    // Si el precio YA incluye impuesto, extraer el precio base
+    const tasaIVA = parseFloat(p.tasa_impuesto || 16);
+    let precioSinIVA = precioBase;
+    if (p.precio_incluye_impuesto === 'Y') {
+        precioSinIVA = precioBase / (1 + tasaIVA / 100);
+    }
+
     const cantidad = lineasVenta[idx].cantidad || 1;
-    
     lineasVenta[idx] = {
         producto_id: p.producto_id,
         nombre: p.nombre,
         codigo: p.codigo_barras || p.codigo_interno || '',
         cantidad: cantidad,
         unidad: p.unidad_venta || 'PZ',
-        precio: precio,
-        precio_original: precio,
+        precio: Math.round(precioSinIVA * 100) / 100,
+        precio_original: Math.round(precioSinIVA * 100) / 100,
+        precio_incluye_impuesto: p.precio_incluye_impuesto || 'N',
         descuento_pct: 0,
         descuento_monto: 0,
-        iva: parseFloat(p.tasa_impuesto || 16),
+        iva: tasaIVA,
         importe: 0,
         stock: parseFloat(p.stock || 0)
     };
-    
+
     calcularImporteLinea(idx);
     document.getElementById(`autocomplete-${idx}`).classList.remove('show');
     renderLineas();
-    
-    // Focus en cantidad después de seleccionar
+
     setTimeout(() => {
         const cantInput = document.getElementById(`cant-input-${idx}`);
         if (cantInput) {
@@ -556,7 +570,6 @@ function seleccionarProducto(idx, productoId) {
         }
     }, 50);
 }
-
 function buscarPorCodigo(event) {
     if (event.key !== 'Enter') return;
     event.preventDefault();
@@ -639,9 +652,9 @@ function calcularImporteLinea(idx) {
     const l = lineasVenta[idx];
     const subtotal = l.cantidad * l.precio;
     const descuento = l.descuento_monto || (subtotal * l.descuento_pct / 100);
-    const baseIVA = subtotal - descuento;
-    const iva = baseIVA * (l.iva / 100);
-    l.importe = baseIVA + iva;
+    const baseGravable = subtotal - descuento;
+    const iva = baseGravable * (l.iva / 100);
+    l.importe = baseGravable + iva;
 }
 
 function quitarLinea(idx) {
