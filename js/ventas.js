@@ -397,12 +397,14 @@ function renderLineas() {
                 <input type="number" class="input-sm text-center" id="descpct-input-${i}"
                     value="${l.descuento_pct}" min="0" max="100" step="0.01"
                     oninput="actualizarLinea(${i}, 'descuento_pct', this.value)"
+                    onkeydown="navegarCampoLinea(event, ${i}, 'descpct')"
                     ${editable ? '' : 'disabled'}>
             </td>
             <td>
                 <input type="number" class="input-sm text-right" id="descmonto-input-${i}"
                     value="${l.descuento_monto.toFixed(2)}" min="0" step="0.01"
                     oninput="actualizarLinea(${i}, 'descuento_monto', this.value)"
+                    onkeydown="navegarCampoLinea(event, ${i}, 'descmonto')"
                     ${editable ? '' : 'disabled'}>
             </td>
             <td class="impuestos-cell">
@@ -417,8 +419,8 @@ function renderLineas() {
     `).join('');
 
     calcularTotales();
+    actualizarResumenPagos();
 }
-
 function renderImpuestosChips(linea, idx, editable) {
     if (!linea.impuestos || linea.impuestos.length === 0) {
         return '<span class="text-muted">-</span>';
@@ -687,26 +689,16 @@ function quitarLinea(idx) {
 
 // Navegar entre campos de línea con Tab
 function navegarCampoLinea(event, idx, campo) {
-    if (event.key === 'Tab' && !event.shiftKey) {
-        const esUltimaLinea = idx === lineasVenta.length - 1;
-        const linea = lineasVenta[idx];
-        
-        // Determinar último campo editable (ahora es descuento_monto, ya no hay input de IMP)
-        const esUltimoCampo = campo === 'descuento_monto' || campo === 'descmonto';
-        
-        if (esUltimaLinea && esUltimoCampo && linea.producto_id) {
-            event.preventDefault();
-            agregarLineaVacia();
-        }
-    } else if (event.key === 'Enter') {
+    const esUltimaLinea = idx === lineasVenta.length - 1;
+    const linea = lineasVenta[idx];
+    const esUltimoCampo = campo === 'descmonto' || campo === 'descuento_monto';
+    
+    if (event.key === 'Tab' && !event.shiftKey && esUltimaLinea && esUltimoCampo && linea.producto_id) {
         event.preventDefault();
-        const linea = lineasVenta[idx];
-        
-        if (campo === 'descuento_monto' || campo === 'descmonto') {
-            if (linea.producto_id) {
-                agregarLineaVacia();
-            }
-        }
+        agregarLineaVacia();
+    } else if (event.key === 'Enter' && esUltimoCampo && linea.producto_id) {
+        event.preventDefault();
+        agregarLineaVacia();
     }
 }
 
